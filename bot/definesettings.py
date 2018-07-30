@@ -16,7 +16,9 @@ def generate_settings(file_name='bot_settings'):
         'bot_token': 'BOT_TOKEN_HERE',
         'oauth_url': 'OAUTH_URL_HERE',
         'playing_now': 'PLAYING_MESSAGE',
-        'commands_prefix': '!'
+        'commands_prefix': '!',
+        'bot_description': 'A discord bot with utilities for RS3 Clans Discords',
+        'language': 'english'
     }
 
     config['RUNESCAPE'] = {

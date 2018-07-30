@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Non-Standard lib imports
-import discord
+# import discord
 from discord.ext import commands
 
 # Local imports
@@ -23,6 +23,7 @@ if file_exists("bot_settings.ini"):
     PLAYING_NOW = config_file['DISCORD']['playing_now']
     PREFIX = config_file['DISCORD']['commands_prefix']
     DESCRIPTION = config_file['DISCORD']['bot_description']
+    LANGUAGE = config_file['DISCORD']['language']
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
 else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
@@ -35,6 +36,7 @@ else:
         PLAYING_NOW = config_file['DISCORD']['playing_now']
         PREFIX = config_file['DISCORD']['commands_prefix']
         DESCRIPTION = config_file['DISCORD']['bot_description']
+        LANGUAGE = config_file['DISCORD']['language']
         CLAN_NAME = config_file['RUNESCAPE']['clan_name']
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
