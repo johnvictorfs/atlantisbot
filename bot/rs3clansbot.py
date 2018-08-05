@@ -2,7 +2,6 @@
 
 # Standard lib imports
 import asyncio
-import configparser
 import datetime
 import logging
 from pathlib import Path
@@ -12,40 +11,13 @@ from pathlib import Path
 from discord.ext import commands
 
 # Local imports
-from definesettings import file_exists, generate_settings
-
-if file_exists("bot_settings.ini"):
-    print("Existing Settings found, reading them...")
-    config_file = configparser.ConfigParser()
-    config_file.read("bot_settings.ini")
-    BOT_TOKEN = config_file['DISCORD']['bot_token']
-    OAUTH_URL = config_file['DISCORD']['oauth_url']
-    PLAYING_NOW = config_file['DISCORD']['playing_now']
-    PREFIX = config_file['DISCORD']['commands_prefix']
-    DESCRIPTION = config_file['DISCORD']['bot_description']
-    LANGUAGE = config_file['DISCORD']['language']
-    CLAN_NAME = config_file['RUNESCAPE']['clan_name']
-else:
-    answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
-    if answer is 'y' or answer is 'Y':
-        generate_settings()
-        config_file = configparser.ConfigParser()
-        config_file.read("bot_settings.ini")
-        BOT_TOKEN = config_file['DISCORD']['bot_token']
-        OAUTH_URL = config_file['DISCORD']['oauth_url']
-        PLAYING_NOW = config_file['DISCORD']['playing_now']
-        PREFIX = config_file['DISCORD']['commands_prefix']
-        DESCRIPTION = config_file['DISCORD']['bot_description']
-        LANGUAGE = config_file['DISCORD']['language']
-        CLAN_NAME = config_file['RUNESCAPE']['clan_name']
-    else:
-        raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
+import definesettings as setting
 
 
 async def run():
-    bot = Bot(description=DESCRIPTION)
+    bot = Bot(description=setting.DESCRIPTION)
     try:
-        await bot.start(BOT_TOKEN)
+        await bot.start(setting.BOT_TOKEN)
     except KeyboardInterrupt:
         await bot.logout()
 
@@ -54,7 +26,7 @@ class Bot(commands.Bot):
 
     def __init__(self, **kwargs):
         super().__init__(
-            command_prefix=PREFIX,
+            command_prefix=setting.PREFIX,
             description=kwargs.pop('description')
         )
         self.start_time = None
@@ -65,7 +37,7 @@ class Bot(commands.Bot):
     async def track_start(self):
         """
         Waits for the bot to connect to discord and then records the time.
-        Can be used to work out uptime.
+        Can be used to work out up-time.
         """
         await self.wait_until_ready()
         self.start_time = datetime.datetime.utcnow()
@@ -95,11 +67,11 @@ class Bot(commands.Bot):
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Owner: '{self.app_info.owner}'\n"
               f"ID: '{self.user.id}'\n"
-              f"Oauth URL: '{OAUTH_URL}'\n\n"
+              f"Oauth URL: '{setting.OAUTH_URL}'\n\n"
               f"[ Bot Settings ]\n"
-              f"- Clan Name: '{CLAN_NAME}'\n"
-              f"- Playing Message: '{PLAYING_NOW}'\n"
-              f"- Commands prefix: '{PREFIX}'\n")
+              f"- Clan Name: '{setting.CLAN_NAME}'\n"
+              f"- Playing Message: '{setting.PLAYING_NOW}'\n"
+              f"- Commands prefix: '{setting.PREFIX}'\n")
 
     async def on_message(self, message):
         """
