@@ -21,15 +21,12 @@ def generate_settings(file_name='bot_settings'):
         'language': 'english'
     }
 
-    # clan_name = Atlantis
-    # icon_url = https: // secure.runescape.com / m = avatar - rs / {} / chat.png
-    # runeclan_url = https: // runeclan.com / user / {}
-
     config['RUNESCAPE'] = {
         'clan_name': 'CLAN_NAME_HERE',
         'icon_url': 'https://secure.runescape.com/m=avatar-rs/{}/chat.png',
         'runeclan_url': 'https://runeclan.com/user/{}',
-        'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png'
+        'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png',
+        'show_titles': 'false'
     }
 
     with open(f"{file_name}.ini", 'w') as config_file_:
@@ -53,6 +50,7 @@ if file_exists("bot_settings.ini"):
     ICON_URL = config_file['RUNESCAPE']['icon_url']
     RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
     CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
+    SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
 else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':
@@ -70,5 +68,6 @@ else:
         ICON_URL = config_file['RUNESCAPE']['icon_url']
         RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
         CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
+        SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")

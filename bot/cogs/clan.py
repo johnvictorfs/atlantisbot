@@ -54,7 +54,13 @@ class ClanCommands:
                 else:
                     await ctx.send(f"Player '{user.name}' not found.")
                     return
-
+        if setting.SHOW_TITLES:
+            if user.suffix:
+                display_username = f"{user.name} {user.title}"
+            else:
+                display_username = f"{user.title} {user.name}"
+        else:
+            display_username = user.name
         user_rank = user_clan.member[user.name]['rank']
         icon_url = setting.ICON_URL.format(user.name).replace(" ", "%20")
         runeclan_url = setting.RUNECLAN_URL.format(user.name).replace(" ", "%20")
@@ -85,7 +91,7 @@ class ClanCommands:
                                         url=runeclan_url,
                                         )
 
-        clan_info_embed.set_author(icon_url=icon_url, name=user.name)
+        clan_info_embed.set_author(icon_url=icon_url, name=display_username)
         clan_info_embed.set_thumbnail(url=clan_banner)
         clan_info_embed.add_field(name=clan_header, value=user.clan)
         clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
