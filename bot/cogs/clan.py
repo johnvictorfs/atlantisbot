@@ -22,7 +22,6 @@ class ClanCommands:
     async def clan_user_exp(self, ctx, *, username):
         with open('clan_settings.json') as f:
             clan_settings = json.load(f)
-        print(clan_settings)
         user = rs3.Player(name=username)
         try:
             user_clan = rs3.Clan(name=user.clan)
@@ -56,23 +55,26 @@ class ClanCommands:
                     return
 
         user_rank = user_clan.member[user.name]['rank']
-        rank_emoji = clan_settings['clan_ranks']['Rank'][user_rank]['Emoji']
-        icon_url = setting.ICON_URL.format(user.name)
-        runeclan_url = setting.RUNECLAN_URL.format(user.name)
-        clan_banner = setting.CLAN_BANNER_URL.format(user.clan)
+        icon_url = setting.ICON_URL.format(user.name).replace(" ", "%20")
+        runeclan_url = setting.RUNECLAN_URL.format(user.name).replace(" ", "%20")
+        clan_banner = setting.CLAN_BANNER_URL.format(user.clan).replace(" ", "%20")
 
-        if setting.LANGUAGE is 'Portuguese':
-            user_rank = clan_settings['clan_ranks']['Rank'][user_rank]['Translation']
-            embed_title = "Info de Clã"
-            clan_header = "__Clã__"
-            rank_header = "__Rank__"
-            exp_header = "__Exp no Clã__"
+        embed_title = "RuneClan"
+        clan_header = "__Clan__"
+        rank_header = "__Rank__"
+        exp_header = "__Clan Exp__"
+        total_level_header = "__Total Level__"
 
-        else:
-            embed_title = "Clan info"
-            clan_header = "__Clan__"
-            rank_header = "__Rank__"
-            exp_header = "__Clan Exp__"
+        for rank in clan_settings['clan_ranks']:
+            if user_rank == rank['Rank']:
+                rank_emoji = rank['Emoji']
+                if setting.LANGUAGE == 'Portuguese':
+                    user_rank = rank['Translation']
+                    embed_title = "RuneClan"
+                    clan_header = "__Clã__"
+                    rank_header = "__Rank__"
+                    exp_header = "__Exp no Clã__"
+                    total_level_header = "__Level Total__"
 
         clan_info_embed = discord.Embed(title=embed_title,
                                         description="",
@@ -83,9 +85,10 @@ class ClanCommands:
         clan_info_embed.set_author(icon_url=icon_url, name=user.name)
         clan_info_embed.set_thumbnail(url=clan_banner)
         clan_info_embed.add_field(name=clan_header, value=user.clan)
-        clan_info_embed.add_field(name=rank_header, value=f"{rank_emoji} {user_rank}")
+        clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
         clan_info_embed.add_field(name=exp_header, value=f"{user_exp:,}")
-
+        if not user.private_profile:
+            clan_info_embed.add_field(name=total_level_header, value=user.total_level)
         await ctx.send(content=None, embed=clan_info_embed)
 
 

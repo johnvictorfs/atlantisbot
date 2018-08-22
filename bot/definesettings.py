@@ -21,8 +21,15 @@ def generate_settings(file_name='bot_settings'):
         'language': 'english'
     }
 
+    # clan_name = Atlantis
+    # icon_url = https: // secure.runescape.com / m = avatar - rs / {} / chat.png
+    # runeclan_url = https: // runeclan.com / user / {}
+
     config['RUNESCAPE'] = {
-        'clan_name': 'CLAN_NAME_HERE'
+        'clan_name': 'CLAN_NAME_HERE',
+        'icon_url': 'https://secure.runescape.com/m=avatar-rs/{}/chat.png',
+        'runeclan_url': 'https://runeclan.com/user/{}',
+        'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png'
     }
 
     with open(f"{file_name}.ini", 'w') as config_file_:
@@ -30,6 +37,7 @@ def generate_settings(file_name='bot_settings'):
         return
 
 
+# Settings from bot_settings.ini:
 if file_exists("bot_settings.ini"):
     print("Existing Settings found, reading them...")
     config_file = configparser.ConfigParser()
@@ -40,7 +48,11 @@ if file_exists("bot_settings.ini"):
     PREFIX = config_file['DISCORD']['commands_prefix']
     DESCRIPTION = config_file['DISCORD']['bot_description']
     LANGUAGE = config_file['DISCORD']['language']
+
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
+    ICON_URL = config_file['RUNESCAPE']['icon_url']
+    RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
+    CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
 else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':
@@ -53,6 +65,10 @@ else:
         PREFIX = config_file['DISCORD']['commands_prefix']
         DESCRIPTION = config_file['DISCORD']['bot_description']
         LANGUAGE = config_file['DISCORD']['language']
+
         CLAN_NAME = config_file['RUNESCAPE']['clan_name']
+        ICON_URL = config_file['RUNESCAPE']['icon_url']
+        RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
+        CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")

@@ -71,7 +71,8 @@ class Bot(commands.Bot):
               f"[ Bot Settings ]\n"
               f"- Clan Name: '{setting.CLAN_NAME}'\n"
               f"- Playing Message: '{setting.PLAYING_NOW}'\n"
-              f"- Commands prefix: '{setting.PREFIX}'\n")
+              f"- Commands prefix: '{setting.PREFIX}'\n"
+              f"- Language: '{setting.LANGUAGE}'")
 
     async def on_message(self, message):
         """
