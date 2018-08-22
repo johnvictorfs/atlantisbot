@@ -20,13 +20,14 @@ class ClanCommands:
 
     @commands.command(aliases=['claninfo', 'clanexp'])
     async def clan_user_exp(self, ctx, *, username):
+        print(f"> {ctx.author} issued command 'clan_user_exp'.")
         with open('clan_settings.json') as f:
             clan_settings = json.load(f)
         user = rs3.Player(name=username)
         try:
             user_clan = rs3.Clan(name=user.clan)
         except rs3.ClanNotFoundError:
-            if setting.LANGUAGE is 'Portuguese':
+            if setting.LANGUAGE == 'Portuguese':
                 await ctx.send(f"Jogador '{user.name}' não se encontra em um Clã.")
                 return
             else:
@@ -37,7 +38,7 @@ class ClanCommands:
             user_exp = user_clan.member[user.name]['exp']
         except KeyError:
             if user.private_profile:
-                if setting.LANGUAGE is 'Portuguese':
+                if setting.LANGUAGE == 'Portuguese':
                     await ctx.send(f"Jogador '{user.name}' tem seu perfil privado, portanto seu nome precisa ser "
                                    f"digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por"
                                    f"exemplo)")
@@ -63,7 +64,8 @@ class ClanCommands:
         clan_header = "__Clan__"
         rank_header = "__Rank__"
         exp_header = "__Clan Exp__"
-        total_level_header = "__Total Level__"
+        total_exp_header = "__Total Exp__"
+        private_profile_header = "Unavailable - Private Profile"
 
         for rank in clan_settings['clan_ranks']:
             if user_rank == rank['Rank']:
@@ -74,7 +76,8 @@ class ClanCommands:
                     clan_header = "__Clã__"
                     rank_header = "__Rank__"
                     exp_header = "__Exp no Clã__"
-                    total_level_header = "__Level Total__"
+                    total_exp_header = "__Exp Total__"
+                    private_profile_header = "Indisponível - Perfil Privado"
 
         clan_info_embed = discord.Embed(title=embed_title,
                                         description="",
@@ -87,8 +90,10 @@ class ClanCommands:
         clan_info_embed.add_field(name=clan_header, value=user.clan)
         clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
         clan_info_embed.add_field(name=exp_header, value=f"{user_exp:,}")
-        if not user.private_profile:
-            clan_info_embed.add_field(name=total_level_header, value=user.total_level)
+        if user.private_profile:
+            clan_info_embed.add_field(name=total_exp_header, value=private_profile_header)
+        else:
+            clan_info_embed.add_field(name=total_exp_header, value=f"{user.exp:,}")
         await ctx.send(content=None, embed=clan_info_embed)
 
 
