@@ -1,0 +1,75 @@
+{
+"clan_ranks": [
+    {
+        "Rank": "Owner",
+        "Emoji": "<:owner:458788729641762826>",
+        "Translation": "Lider"
+    },
+
+    {
+        "Rank": "Deputy Owner",
+        "Emoji": "<:deputy_owner:458788729507676160>",
+        "Translation": "Vice-Lider"
+    },
+
+    {
+        "Rank": "Overseer",
+        "Emoji": "<:overseer:458788729893683201>",
+        "Translation": "Fiscal"
+    },
+
+    {
+        "Rank": "Coordinator",
+        "Emoji": "<:coordinator:458788729562202112>",
+        "Translation": "Coordenador"
+    },
+
+    {
+        "Rank": "Organiser",
+        "Emoji": "<:organiser:458788729503612948>",
+        "Translation": "Organizador"
+    },
+
+    {
+        "Rank": "Admin",
+        "Emoji": "<:admin:458788729494962197>",
+        "Translation": "Admin"
+    },
+
+    {
+        "Rank": "General",
+        "Emoji": "<:general:458788729318932501>",
+        "Translation": "General"
+    },
+
+    {
+        "Rank": "Captain",
+        "Emoji": "<:captain:458788729738362885>",
+        "Translation": "Capitao"
+    },
+
+    {
+        "Rank": "Lieutenant",
+        "Emoji": "<:lieutenant:458788729687900190>",
+        "Translation": "Tenente"
+    },
+
+    {
+        "Rank": "Sergeant",
+        "Emoji": "<:sergeant:458788729432309761>",
+        "Translation": "Sargento"
+    },
+
+    {
+        "Rank": "Corporal",
+        "Emoji": "<:corporal:458788729612402688>",
+        "Translation": "Cabo"
+    },
+
+    {
+        "Rank": "Recruit",
+        "Emoji": "<:recruit:458788730044416001>",
+        "Translation": "Recruta"
+    }
+]
+}

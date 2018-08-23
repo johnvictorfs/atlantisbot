@@ -1,0 +1,3 @@
+rs3clans==0.4.4
+discord.py==0.16.12
+discord==0.0.2
