@@ -20,7 +20,8 @@ class ClanCommands:
 
     @commands.command(aliases=['claninfo', 'clanexp'])
     async def clan_user_exp(self, ctx, *, username):
-        print(f"> {ctx.author} issued command 'clan_user_exp'.")
+        await ctx.trigger_typing()
+        print(f"> {ctx.author} issued command 'clan_user_exp'.", sep='')
         with open('clan_settings.json') as f:
             clan_settings = json.load(f)
         user = rs3.Player(name=username)
@@ -35,7 +36,7 @@ class ClanCommands:
                 return
             pass
         try:
-            user_exp = user_clan.member[user.name]['exp']
+            user_clan_exp = user_clan.member[user.name]['exp']
         except KeyError:
             if user.private_profile:
                 if setting.LANGUAGE == 'Portuguese':
@@ -95,12 +96,14 @@ class ClanCommands:
         clan_info_embed.set_thumbnail(url=clan_banner)
         clan_info_embed.add_field(name=clan_header, value=user.clan)
         clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
-        clan_info_embed.add_field(name=exp_header, value=f"{user_exp:,}")
+        clan_info_embed.add_field(name=exp_header, value=f"{user_clan_exp:,}")
         if user.private_profile:
             clan_info_embed.add_field(name=total_exp_header, value=private_profile_header)
         else:
             clan_info_embed.add_field(name=total_exp_header, value=f"{user.exp:,}")
+
         await ctx.send(content=None, embed=clan_info_embed)
+        print(" - Answer sent.")
 
 
 def setup(bot):

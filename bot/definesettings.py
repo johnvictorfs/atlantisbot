@@ -51,6 +51,10 @@ if file_exists("bot_settings.ini"):
     RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
     CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
     SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
+    if SHOW_TITLES.lower() == 'false':
+        SHOW_TITLES = False
+    else:
+        SHOW_TITLES = True
 else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':

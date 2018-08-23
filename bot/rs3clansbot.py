@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 
 # Non-Standard lib imports
-# import discord
+import discord
 from discord.ext import commands
 
 # Local imports
@@ -27,7 +27,7 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
             command_prefix=setting.PREFIX,
-            description=kwargs.pop('description')
+            description=kwargs.pop('description'),
         )
         self.start_time = None
         self.app_info = None
@@ -64,6 +64,7 @@ class Bot(commands.Bot):
         """
         print('-' * 10)
         self.app_info = await self.application_info()
+        await self.change_presence(game=discord.Game(name=setting.PLAYING_NOW))
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Owner: '{self.app_info.owner}'\n"
               f"ID: '{self.user.id}'\n"
@@ -72,7 +73,8 @@ class Bot(commands.Bot):
               f"- Clan Name: '{setting.CLAN_NAME}'\n"
               f"- Playing Message: '{setting.PLAYING_NOW}'\n"
               f"- Commands prefix: '{setting.PREFIX}'\n"
-              f"- Language: '{setting.LANGUAGE}'")
+              f"- Language: '{setting.LANGUAGE}'\n"
+              f"- Show titles on claninfo: '{setting.SHOW_TITLES}'")
 
     async def on_message(self, message):
         """
