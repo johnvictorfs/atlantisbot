@@ -50,6 +50,7 @@ class Bot(commands.Bot):
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
         cogs = [x.stem for x in Path('cogs').glob('*.py')]
         for extension in cogs:
+            # noinspection PyBroadException
             try:
                 self.load_extension(f'cogs.{extension}')
                 print(f'- loaded Extension: {extension}')

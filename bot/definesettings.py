@@ -1,4 +1,5 @@
 import configparser
+import json
 
 
 def file_exists(file):
@@ -34,7 +35,6 @@ def generate_settings(file_name='bot_settings'):
         return
 
 
-# Settings from bot_settings.ini:
 if file_exists("bot_settings.ini"):
     print("Existing Settings found, reading them...")
     config_file = configparser.ConfigParser()
@@ -47,10 +47,8 @@ if file_exists("bot_settings.ini"):
     LANGUAGE = config_file['DISCORD']['language']
 
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
-    ICON_URL = config_file['RUNESCAPE']['icon_url']
-    RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
-    CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
     SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
+
     if SHOW_TITLES.lower() == 'false':
         SHOW_TITLES = False
     else:
@@ -69,9 +67,10 @@ else:
         LANGUAGE = config_file['DISCORD']['language']
 
         CLAN_NAME = config_file['RUNESCAPE']['clan_name']
-        ICON_URL = config_file['RUNESCAPE']['icon_url']
-        RUNECLAN_URL = config_file['RUNESCAPE']['runeclan_url']
-        CLAN_BANNER_URL = config_file['RUNESCAPE']['clan_banner_url']
         SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
+
+
+with open('clan_settings.json') as f:
+    CLAN_SETTINGS = json.load(f)
