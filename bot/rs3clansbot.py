@@ -49,6 +49,7 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
         cogs = [x.stem for x in Path('cogs').glob('*.py')]
+        print('-' * 10)
         for extension in cogs:
             # noinspection PyBroadException
             try:
@@ -57,7 +58,7 @@ class Bot(commands.Bot):
             except Exception as e:
                 error = f'{extension}\n {type(e).__name__} : {e}'
                 print(f'failed to load extension {error}')
-            print('-' * 10)
+        print('-' * 10)
 
     async def on_ready(self):
         """
@@ -90,6 +91,5 @@ class Bot(commands.Bot):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
