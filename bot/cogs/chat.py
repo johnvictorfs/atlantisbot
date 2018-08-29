@@ -7,7 +7,7 @@ class ChatCommands:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['role'])
+    @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")

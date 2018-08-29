@@ -3,18 +3,18 @@
   {
     "player_does_not_exist":
     {
-      "English": "Player '{player.name}' does not exist.",
-      "Portuguese": "Jogador '{player.name}' não existe."
+      "English": "Player '{}' does not exist.",
+      "Portuguese": "Jogador '{}' não existe."
     },
     "player_not_in_clan":
     {
-      "English": "Player '{player.name}' is not in a Clan.",
-      "Portuguese": "Jogador '{player.name}' não se encontra em um Clã."
+      "English": "Player '{}' is not in a Clan.",
+      "Portuguese": "Jogador '{}' não se encontra em um Clã."
     },
     "player_private_profile":
     {
-      "English": "Player '{player.name}' has a private profile, thus its username has to be input case-sensitively ('NRiver' instead of 'nriver' for example).",
-      "Portuguese": "Jogador '{player.name}' tem seu perfil privado, portanto seu nome precisa ser digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por exemplo)"
+      "English": "Player '{}' has a private profile, thus its username has to be input case-sensitively ('NRiver' instead of 'nriver' for example).",
+      "Portuguese": "Jogador '{}' tem seu perfil privado, portanto seu nome precisa ser digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por exemplo)"
     },
     "clan_header":
     {
@@ -37,7 +37,7 @@
       "Portuguese": "Indisponível - Perfil Privado"
     }
   },
-  
+
   "emoji":
   {
     "arrow_emoji": "<:rightarrow:484382334582390784>"
@@ -56,5 +56,7 @@
   "link":
   {
     "atlantis_ouvidoria": "http://tiny.cc/atlantisouvidoria"
-  }
+  },
+
+  "welcome_message": "{}, Bem vindo ao Discord do Atlantis!\n\n{right_emoji} Veja o canal {} para informações sobre as Tags do server\n\n{right_emoji} Você recebeu o cargo de `convidado`, caso seja um Membro do Atlantis, digite `!role` no canal {}\n\n{right_emoji} **Alguns chats do Servidor:**\n\n- {} para usar comandos de Bots (Aqui você pode obter alguns dos roles do {} (`.role eventos` por exemplo))\n\n- {} para info geral de PvM do Clã\n\n- {} para aplicar para participar dos Raids do Clã (Requer ser Membro)\n\n- {} para conversas gerais sobre PvM\n\n{right_emoji} Alguma reclamação, elogio ou algo do tipo? Fale conosco! <{}>\n\nObrigado :wink:"
 }

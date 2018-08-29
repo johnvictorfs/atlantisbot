@@ -21,29 +21,30 @@ class ClanCommands:
         player = rs3.Player(name=username)
         player.set_runemetrics_info()
         if not player.exists:
-            await ctx.send(message["player_does_not_exist"][setting.LANGUAGE])
+            await ctx.send(message["player_does_not_exist"][setting.LANGUAGE].format(player.name))
             return
         try:
             user_clan = rs3.Clan(name=player.clan)
         except rs3.ClanNotFoundError:
-            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE])
+            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
             return
         try:
-            user_clan_exp = user_clan.member[player.name]['exp']
+            # Case insensitive dictionary search mock-up
+            lower_clan_dict = {}
+            for key in user_clan.member:
+                lower_clan_dict[key.lower()] = user_clan.member[key]
+            lower_name = player.name.lower()
+            user_clan_exp = lower_clan_dict[lower_name]['exp']
+            user_rank = lower_clan_dict[lower_name]['rank']
         except KeyError:
-            if player.private_profile:
-                await ctx.send(message["player_private_profile"][setting.LANGUAGE])
-            else:
-                await ctx.send(message["player_not_in_clan"][setting.LANGUAGE])
-                return
-
+            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
+            return
         display_username = player.name
         if setting.SHOW_TITLES:
             if player.suffix:
                 display_username = f"{player.name} {player.title}"
             else:
                 display_username = f"{player.title} {player.name}"
-        user_rank = user_clan.member[player.name]['rank']
 
         user_url_name = player.name.replace(" ", "%20")
         user_url_clan = player.clan.replace(" ", "%20")
