@@ -21,7 +21,11 @@ def generate_settings(file_name='bot_settings'):
         'playing_now': 'PLAYING_MESSAGE',
         'commands_prefix': '!',
         'bot_description': 'A discord bot with utilities for RS3 Clans Discords',
-        'language': 'english'
+        'language': 'english',
+        'mod_id': '<@&321015489583251467>',
+        'admin_id': '<@&321015469341540352>',
+        'raids_teacher_id': '<@&346107622853836801>',
+
     }
 
     config['RUNESCAPE'] = {
@@ -29,7 +33,8 @@ def generate_settings(file_name='bot_settings'):
         'icon_url': 'https://secure.runescape.com/m=avatar-rs/{}/chat.png',
         'runeclan_url': 'https://runeclan.com/user/{}',
         'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png',
-        'show_titles': 'false'
+        'show_titles': 'false',
+        'raids_chat_id': 'raids_chat_id'
     }
 
     with open(f"{file_name}.ini", 'w') as config_file_:
@@ -47,6 +52,10 @@ if file_exists("bot_settings.ini"):
     PREFIX = config_file['DISCORD']['commands_prefix']
     DESCRIPTION = config_file['DISCORD']['bot_description']
     LANGUAGE = config_file['DISCORD']['language']
+    MOD_ID = config_file['DISCORD']['mod_id']
+    ADMIN_ID = config_file['DISCORD']['admin_id']
+    RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
+    RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
 
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
     SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
@@ -67,6 +76,10 @@ else:
         PREFIX = config_file['DISCORD']['commands_prefix']
         DESCRIPTION = config_file['DISCORD']['bot_description']
         LANGUAGE = config_file['DISCORD']['language']
+        MOD_ID = config_file['DISCORD']['mod_id']
+        ADMIN_ID = config_file['DISCORD']['admin_id']
+        RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
+        RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
 
         CLAN_NAME = config_file['RUNESCAPE']['clan_name']
         SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
