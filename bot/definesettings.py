@@ -1,5 +1,7 @@
+# Standard lib imports
 import configparser
 import json
+import io
 
 
 def file_exists(file):
@@ -72,5 +74,8 @@ else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
 
 
-with open('clan_settings.json') as f:
+with open('clan_settings.json', encoding='utf-8') as f:
     CLAN_SETTINGS = json.load(f)
+
+with open('messages.json', encoding='utf-8') as f:
+    MESSAGES = json.load(f)

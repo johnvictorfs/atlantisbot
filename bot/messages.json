@@ -1,0 +1,40 @@
+{
+  "clan_messages":
+    {
+      "player_does_not_exist":
+        {
+            "English": "Player '{player.name}' does not exist.",
+            "Portuguese": "Jogador '{player.name}' não existe."
+        },
+    "player_not_in_clan":
+        {
+            "English": "Player '{player.name}' is not in a Clan.",
+            "Portuguese": "Jogador '{player.name}' não se encontra em um Clã."
+        },
+    "player_private_profile":
+        {
+            "English": "Player '{player.name}' has a private profile, thus its username has to be input case-sensitively ('NRiver' instead of 'nriver' for example).",
+            "Portuguese": "Jogador '{player.name}' tem seu perfil privado, portanto seu nome precisa ser digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por exemplo)"
+        },
+    "clan_header":
+        {
+            "English": "__Clan__",
+            "Portuguese": "__Clã__"
+        },
+    "exp_header":
+        {
+            "English": "__Clan Exp__",
+            "Portuguese": "__Exp no Clã__"
+        },
+    "total_exp_header":
+        {
+            "English": "__Total Exp__",
+            "Portuguese": "__Exp Total__"
+        },
+    "private_profile_header":
+        {
+            "English": "Unavailable - Private Profile",
+            "Portuguese": "Indisponível - Perfil Privado"
+        }
+    }
+}

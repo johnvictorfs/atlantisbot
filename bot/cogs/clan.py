@@ -12,51 +12,30 @@ class ClanCommands:
     def __init__(self, bot):
         self.bot = bot
 
-    # def on_member_join(self, member):
-    #     print(f'{member.nick} joined {member.guild} at {member.joined_at}')
-
-    @commands.command(aliases=['claninfo', 'clanexp'])
+    @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
     async def clan_user_info(self, ctx, *, username):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'clan_user_exp'.")
 
+        message = setting.MESSAGES["clan_messages"]
         player = rs3.Player(name=username)
+        player.set_runemetrics_info()
         if not player.exists:
-            if setting.LANGUAGE == 'Portuguese':
-                await ctx.send(f"Jogador '{player.name}' não existe.")
-                return
-            else:
-                await ctx.send(f"Player '{player.name}' does not exist.")
-                return
+            await ctx.send(message["player_does_not_exist"][setting.LANGUAGE])
+            return
         try:
             user_clan = rs3.Clan(name=player.clan)
         except rs3.ClanNotFoundError:
-            if setting.LANGUAGE == 'Portuguese':
-                await ctx.send(f"Jogador '{player.name}' não se encontra em um Clã.")
-                return
-            else:
-                await ctx.send(f"Player '{player.name}' is not in a Clan.")
-                return
+            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE])
+            return
         try:
             user_clan_exp = user_clan.member[player.name]['exp']
         except KeyError:
             if player.private_profile:
-                if setting.LANGUAGE == 'Portuguese':
-                    await ctx.send(f"Jogador '{player.name}' tem seu perfil privado, portanto seu nome precisa ser "
-                                   f"digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por"
-                                   f"exemplo)")
-                    return
-                else:
-                    await ctx.send(f"Player '{player.name}' has a private profile, thus its username has to be input "
-                                   f"case-sensitively ('NRiver' instead of 'nriver' for example.)")
-                    return
+                await ctx.send(message["player_private_profile"][setting.LANGUAGE])
             else:
-                if setting.LANGUAGE == 'Portuguese':
-                    await ctx.send(f"Jogador '{player.name}' não se encontra em um Clã.")
-                    return
-                else:
-                    await ctx.send(f"Player '{player.name}' is not in a Clan.")
-                    return
+                await ctx.send(message["player_not_in_clan"][setting.LANGUAGE])
+                return
 
         display_username = player.name
         if setting.SHOW_TITLES:
@@ -74,20 +53,15 @@ class ClanCommands:
 
         embed_title = "RuneClan"
         rank_header = "__Rank__"
-
-        clan_header = "__Clan__"
-        exp_header = "__Clan Exp__"
-        total_exp_header = "__Total Exp__"
-        private_profile_header = "Unavailable - Private Profile"
+        clan_header = message["clan_header"][setting.LANGUAGE]
+        exp_header = message["exp_header"][setting.LANGUAGE]
+        total_exp_header = message["total_exp_header"][setting.LANGUAGE]
+        private_profile_header = message["private_profile_header"][setting.LANGUAGE]
 
         user_rank_f = setting.CLAN_SETTINGS[user_rank]
         rank_emoji = user_rank_f['Emoji']
         if setting.LANGUAGE == 'Portuguese':
             user_rank = user_rank_f['Translation']
-            clan_header = "__Clã__"
-            exp_header = "__Exp no Clã__"
-            total_exp_header = "__Exp Total__"
-            private_profile_header = "Indisponível - Perfil Privado"
 
         clan_info_embed = discord.Embed(title=embed_title,
                                         description="",
