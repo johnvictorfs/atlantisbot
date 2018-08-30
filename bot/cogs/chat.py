@@ -1,4 +1,5 @@
 # Non-Standard lib imports
+import discord
 from discord.ext import commands
 
 # Local imports
@@ -57,6 +58,38 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(denied_message)
         else:
             await ctx.send(aplicar_message)
+
+    @commands.command
+    async def atlcommands(self, ctx):
+        await ctx.trigger_typing
+
+        runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
+        clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
+        embed_title = setting.CLAN_NAME
+
+        atlcommands_embed = discord.Embed(title=embed_title,
+                                          description="",
+                                          color=discord.Colour.dark_blue(),
+                                          url=runeclan_url,
+                                          )
+        atlcommands_embed.set_author(icon_url="http://rsatlantis.com/images/logo.png", name=runeclan_url)
+        atlcommands_embed.set_thumbnail(url=clan_banner_url)
+
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo `nome de jogador`",
+                                    value="Ver info de Clã de Jogador",
+                                    inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}raids",
+                                    value="Aplicar para ter acesso aos Raids do Clã",
+                                    inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}role",
+                                    value="Aplicar para receber o role de Membro no Discord",
+                                    inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}atlcommands",
+                                    value="Ver essa mensagem",
+                                    inline=False)
+        atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
+
+        await ctx.send(atlcommands_embed)
 
     @staticmethod
     def check_role(ctx, *roles):
