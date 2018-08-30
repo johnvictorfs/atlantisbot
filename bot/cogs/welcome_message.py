@@ -33,15 +33,16 @@ class WelcomeMessage:
             right_emoji=right_e
         ))
 
-        meus_comandos = (f"{right_e} **Meus comandos:** (Você pode os enviar por aqui)"
-                         "\n\n"
-                         f"{right_e} `{setting.PREFIX}claninfo` `nome de jogador` - Informações de Clã sobre um jogador"
-                         f"\n\n"
-                         f"{right_e} `{setting.PREFIX}role` - Aplicar para o role de Membro no servidor, caso seja"
-                         f" um membro do Clã."
-                         f"\n\n"
-                         f"{right_e} `{setting.PREFIX}raids` - Aplicar para o role de Raids no servidor, caso"
-                         f" queira participar dos Raids do Clã (Membros apenas).")
+        # meus_comandos = (f"{right_e} **Meus comandos:** (Você pode os enviar por aqui)"
+        #                  "\n\n"
+        #                  f"{right_e} `{setting.PREFIX}claninfo` `nome de jogador` - Informações de Clã sobre um "
+        #                  f"jogador"
+        #                  f"\n\n"
+        #                  f"{right_e} `{setting.PREFIX}role` - Aplicar para o role de Membro no servidor, caso seja"
+        #                  f" um membro do Clã."
+        #                  f"\n\n"
+        #                  f"{right_e} `{setting.PREFIX}raids` - Aplicar para o role de Raids no servidor, caso"
+        #                  f" queira participar dos Raids do Clã (Membros apenas).")
 
         print(f'> {member} joined {member.guild} at {member.joined_at}')
 
