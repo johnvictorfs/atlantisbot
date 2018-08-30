@@ -6,6 +6,13 @@ from discord.ext import commands
 import definesettings as setting
 
 
+def check_role(ctx, *roles):
+    for role in roles:
+        if role in str(ctx.message.author.roles):
+            return True
+    return False
+
+
 class ChatCommands:
 
     def __init__(self, bot):
@@ -22,7 +29,7 @@ class ChatCommands:
 
         denied_message = "Fool! Você não é um Convidado!"
 
-        if self.check_role(ctx, "Convidado"):
+        if check_role(ctx, "Convidado"):
             await ctx.send(role_message)
         else:
             await ctx.send(denied_message)
@@ -56,7 +63,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         denied_message = "Fool! Você já tem permissão para ir Raids!"
 
-        if self.check_role(ctx, "Raids"):
+        if check_role(ctx, "Raids"):
             await ctx.send(denied_message)
         else:
             await ctx.send(aplicar_message)
@@ -95,13 +102,6 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         await ctx.send(atlcommands_embed)
         print("    - Answer sent.")
-
-    @staticmethod
-    def check_role(ctx, *roles):
-        for role in roles:
-            if role in str(ctx.message.author.roles):
-                return True
-        return False
 
 
 def setup(bot):
