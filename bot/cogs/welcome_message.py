@@ -45,6 +45,7 @@ class WelcomeMessage:
         #                  f" queira participar dos Raids do Clã (Membros apenas).")
 
         print(f'> {member} joined {member.guild} at {member.joined_at}')
+        print("    - Answer sent.")
 
 
 def setup(bot):

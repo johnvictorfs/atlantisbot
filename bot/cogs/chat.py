@@ -12,9 +12,13 @@ class ChatCommands:
         self.bot = bot
 
     @commands.command(aliases=['role', 'membro'])
-    async def aplicar_role(self, ctx):
+    async def aplicar_role(self, ctx, message):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")
+
+        if message.channel.is_private:
+            await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
+            return
 
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"{setting.MOD_ID} {setting.ADMIN_ID} "
@@ -26,11 +30,17 @@ class ChatCommands:
             await ctx.send(role_message)
         else:
             await ctx.send(denied_message)
+        print("    - Answer sent.")
 
     @commands.command(aliases=['aplicar', 'raids'])
-    async def aplicar_raids(self, ctx):
+    async def aplicar_raids(self, ctx, message):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
+
+        if message.channel.is_private:
+            await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
+            return
+
         raids_chat = setting.RAIDS_CHAT_ID
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
 
@@ -58,10 +68,12 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(denied_message)
         else:
             await ctx.send(aplicar_message)
+        print("    - Answer sent.")
 
     @commands.command
     async def atlcommands(self, ctx):
         await ctx.trigger_typing
+        print(f"> {ctx.author} issued command 'atlcommands'.")
 
         runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
@@ -90,6 +102,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
 
         await ctx.send(atlcommands_embed)
+        print("    - Answer sent.")
 
     @staticmethod
     def check_role(ctx, *roles):
