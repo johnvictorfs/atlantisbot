@@ -12,13 +12,9 @@ class ChatCommands:
         self.bot = bot
 
     @commands.command(aliases=['role', 'membro'])
-    async def aplicar_role(self, ctx, message):
+    async def aplicar_role(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")
-
-        if message.channel.is_private:
-            await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
-            return
 
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"{setting.MOD_ID} {setting.ADMIN_ID} "
@@ -33,13 +29,9 @@ class ChatCommands:
         print("    - Answer sent.")
 
     @commands.command(aliases=['aplicar', 'raids'])
-    async def aplicar_raids(self, ctx, message):
+    async def aplicar_raids(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
-
-        if message.channel.is_private:
-            await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
-            return
 
         raids_chat = setting.RAIDS_CHAT_ID
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
@@ -70,7 +62,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(aplicar_message)
         print("    - Answer sent.")
 
-    @commands.command
+    @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing
         print(f"> {ctx.author} issued command 'atlcommands'.")
