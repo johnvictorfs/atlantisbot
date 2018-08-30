@@ -71,7 +71,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
-        await ctx.trigger_typing
+        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'atlcommands'.")
 
         runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
