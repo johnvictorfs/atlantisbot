@@ -32,7 +32,7 @@ class ClanCommands:
             # Case insensitive dictionary search mock-up
             lower_clan_dict = {}
             for key in user_clan.member:
-                lower_clan_dict[key.lower()] = user_clan.member[key]
+                lower_clan_dict[key.lower().replace("\xa0", " ")] = user_clan.member[key]
             lower_name = player.name.lower()
             user_clan_exp = lower_clan_dict[lower_name]['exp']
             user_rank = lower_clan_dict[lower_name]['rank']
