@@ -100,7 +100,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
                                     inline=False)
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
 
-        await ctx.send(atlcommands_embed)
+        await ctx.send(embed=atlcommands_embed)
         print("    - Answer sent.")
 
 
