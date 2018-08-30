@@ -76,15 +76,15 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
-        embed_title = setting.CLAN_NAME
+        embed_title = "RuneClan"
 
         atlcommands_embed = discord.Embed(title=embed_title,
                                           description="",
                                           color=discord.Colour.dark_blue(),
                                           url=runeclan_url,
                                           )
-        atlcommands_embed.set_author(icon_url="http://rsatlantis.com/images/logo.png", name=runeclan_url)
-        atlcommands_embed.set_thumbnail(url=clan_banner_url)
+        atlcommands_embed.set_author(icon_url=clan_banner_url, name="AtlantisBot")
+        atlcommands_embed.set_thumbnail(url="http://rsatlantis.com/images/logo.png")
 
         atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo `nome de jogador`",
                                     value="Ver info de Clã de Jogador",
