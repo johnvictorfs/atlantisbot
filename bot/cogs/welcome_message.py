@@ -29,6 +29,7 @@ class WelcomeMessage:
             raids,
             pvmemes,
             ouvidoria,
+            setting.PREFIX,
             right_emoji=right_e
         ))
 
@@ -41,8 +42,6 @@ class WelcomeMessage:
                          f"\n\n"
                          f"{right_e} `{setting.PREFIX}raids` - Aplicar para o role de Raids no servidor, caso"
                          f" queira participar dos Raids do Clã (Membros apenas).")
-
-        await member.send(meus_comandos)
 
         print(f'> {member} joined {member.guild} at {member.joined_at}')
 
