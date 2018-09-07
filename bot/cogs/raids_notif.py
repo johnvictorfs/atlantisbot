@@ -16,16 +16,16 @@ class RaidsNotifications:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command
-    async def start_raids_notifications(self):
-        print(f"Started raids notifications.")
+    @commands.command(aliases=['start_raids_notif', 'raids_notifications_'])
+    async def start_raids_notifications(self, ctx):
+        print(f"{ctx.author}: Started raids notifications.")
         channel = self.bot.get_channel(int(setting.RAIDS_NOTIF_CHAT_ID))
         await self.send_raids_message(channel)
         schedule.every(2).days.at("20:00").do(self.run_threaded, self.send_raids_message)
 
         while True:
             schedule.run_pending()
-            time.sleep(1)
+            await asyncio.sleep(1)
 
     @staticmethod
     async def run_threaded(task):
@@ -50,7 +50,7 @@ class RaidsNotifications:
             raids_notif_embed.add_field(name=header_1, value=header_1_value)
             raids_notif_embed.add_field(name=header_2, value=header_2_value)
             raids_notif_embed.add_field(name=header_3, value=header_3_value)
-            await channel.send(raids_notif_embed)
+            await channel.send(f"<@&376410304277512192> - Marcar presença no canal {setting.RAIDS_CHAT_ID}\n\nFavor não mandar mensagens desnecessárias nem marcar presença mais de uma vez.")
 
 
 def setup(bot):
