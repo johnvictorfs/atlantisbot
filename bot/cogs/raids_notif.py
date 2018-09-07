@@ -18,6 +18,7 @@ class RaidsNotifications:
 
     @commands.command
     async def start_raids_notifications(self):
+        print(f"Started raids notifications.")
         channel = self.bot.get_channel(int(setting.RAIDS_NOTIF_CHAT_ID))
         await self.send_raids_message(channel)
         schedule.every(2).days.at("20:00").do(self.run_threaded, self.send_raids_message)
@@ -33,6 +34,7 @@ class RaidsNotifications:
 
     @staticmethod
     async def send_raids_message(channel):
+            print(f"Sent raids notification in channel {channel}")
             embed_title = "**Raids**"
             clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
             header_1 = f"Marque presença para os Raids de 21:00 no {setting.RAIDS_CHAT_ID}"
