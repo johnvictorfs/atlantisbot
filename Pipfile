@@ -17,6 +17,7 @@ requests = "==2.19.1"
 websockets = "==4.0.1"
 yarl = "==1.1.1"
 async_timeout = "==3.0.0"
+schedule = "*"
 
 [dev-packages]
 

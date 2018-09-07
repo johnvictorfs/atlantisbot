@@ -25,7 +25,7 @@ def generate_settings(file_name='bot_settings'):
         'mod_id': '<@&321015489583251467>',
         'admin_id': '<@&321015469341540352>',
         'raids_teacher_id': '<@&346107622853836801>',
-
+        'raids_notif_chat_id': '393104367471034369',
     }
 
     config['RUNESCAPE'] = {
@@ -56,6 +56,7 @@ if file_exists("bot_settings.ini"):
     ADMIN_ID = config_file['DISCORD']['admin_id']
     RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
     RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
+    RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
 
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
     SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
@@ -80,6 +81,7 @@ else:
         ADMIN_ID = config_file['DISCORD']['admin_id']
         RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
         RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
+        RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
 
         CLAN_NAME = config_file['RUNESCAPE']['clan_name']
         SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
