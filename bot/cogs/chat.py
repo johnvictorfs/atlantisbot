@@ -86,7 +86,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
         atlcommands_embed.set_author(icon_url=clan_banner_url, name="AtlantisBot")
         atlcommands_embed.set_thumbnail(url="http://rsatlantis.com/images/logo.png")
 
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo `<nome de jogador>",
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo <nome de jogador>",
                                     value="Ver info de Clã de Jogador",
                                     inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}raids",
