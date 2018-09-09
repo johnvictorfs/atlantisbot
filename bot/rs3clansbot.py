@@ -4,6 +4,7 @@
 import asyncio
 import datetime
 import logging
+import datetime
 from pathlib import Path
 
 # Non-Standard lib imports
@@ -22,6 +23,42 @@ async def run():
         await bot.logout()
 
 
+async def raids_embed():
+
+    embed_title = "**Raids**"
+    clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
+    raids_notif_embed = discord.Embed(title=embed_title,
+                                      description="",
+                                      color=discord.Colour.dark_blue())
+    raids_notif_embed.set_thumbnail(url=clan_banner_url)
+    raids_notif_embed.add_field(
+        name="Marque presença para os Raids de 21:00",
+        value=f"{setting.RAIDS_CHAT_ID}\n"
+              f"\n"
+              f"É obrigatório ter a tag <@&376410304277512192> - Leia os tópicos fixos para saber como obter\n"
+              f"\n"
+              f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
+              f"\n"
+              f"Não marque presença mais de uma vez",
+        inline=False)
+
+    return raids_notif_embed
+
+
+async def raids_notification(channel, time_to_send="20:00"):
+    while True:
+        date = str(datetime.datetime.now().time())
+        time = date[0] + date[1] + date[2] + date[3] + date[4]
+
+        if time == time_to_send:
+            embed = raids_embed()
+            print(f"Sent raids notification, time: {date}")
+            await channel.send("<@&376410304277512192>")
+            await channel.send(embed=embed)
+
+        await asyncio.sleep(60)
+
+
 class Bot(commands.Bot):
 
     def __init__(self, **kwargs):
@@ -33,6 +70,7 @@ class Bot(commands.Bot):
         self.app_info = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
+        self.loop.create_task(raids_notification(channel=self.get_channel(450059325810016267)))
 
     async def track_start(self):
         """
