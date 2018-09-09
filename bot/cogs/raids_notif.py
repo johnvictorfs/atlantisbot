@@ -50,7 +50,7 @@ class RaidsNotifications:
             raids_notif_embed.add_field(name=header_1, value=header_1_value)
             raids_notif_embed.add_field(name=header_2, value=header_2_value)
             raids_notif_embed.add_field(name=header_3, value=header_3_value)
-            await channel.send(raids_notif_embed)
+            await channel.send(embed=raids_notif_embed)
 
 
 def setup(bot):
