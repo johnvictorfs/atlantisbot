@@ -56,7 +56,5 @@
   "link":
   {
     "atlantis_ouvidoria": "http://tiny.cc/atlantisouvidoria"
-  },
-
-  "welcome_message": "{}, Bem vindo ao Discord do Atlantis!\n\n{right_emoji} Veja o canal {} para informações sobre as Tags do server\n\n{right_emoji} Você recebeu o cargo de `convidado`, caso seja um Membro do Atlantis, digite `!role` no canal {}\n\n{right_emoji} **Alguns chats do Servidor:**\n\n- {} para usar comandos de Bots (Aqui você pode obter alguns dos roles do {} (`.role eventos` por exemplo))\n\n- {} para info geral de PvM do Clã\n\n- {} para aplicar para participar dos Raids do Clã (Requer ser Membro)\n\n- {} para conversas gerais sobre PvM\n\n{right_emoji} Alguma reclamação, elogio ou algo do tipo? Fale conosco! <{}>\n\nDigite `{}atlcommands` para ver os meus comandos! Obrigado :wink:"
+  }
 }
