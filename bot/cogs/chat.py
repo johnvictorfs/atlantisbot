@@ -39,6 +39,9 @@ class ChatCommands:
     async def aplicar_raids(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
+        channel = setting.RAIDS_NOTIF_CHAT_ID
+        raids_channel = self.bot.get_channel(channel)
+        raids_channel = raids_channel.mention
 
         raids_chat = setting.RAIDS_CHAT_ID
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
@@ -46,7 +49,7 @@ class ChatCommands:
         aplicar_message = f"""
 Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.
 
-Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_chat}
+Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_channel}
 Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>
 
 **Inclua na screenshot:**
