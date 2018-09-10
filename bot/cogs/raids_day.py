@@ -23,8 +23,7 @@ class RaidsDay:
 
         day = int(day)
         with open("dia_de_raids.txt", "w") as f:
-            f.write(f"; 0 = par, 1 = ímpar\n"
-                    f"{day}")
+            f.write(f"; 0 = par, 1 = ímpar\n{day}")
             await ctx.send(f"Raids day foi marcado para {day} - (0 = par, 1 = ímpar)")
 
 
