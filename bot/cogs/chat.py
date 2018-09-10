@@ -40,9 +40,7 @@ class ChatCommands:
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
         channel = setting.RAIDS_NOTIF_CHAT_ID
-        raids_channel = self.bot.get_channel(channel)
-        raids_channel = raids_channel.mention
-
+        raids_channel = "<#393104367471034369>"
         raids_chat = setting.RAIDS_CHAT_ID
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
 
