@@ -48,7 +48,7 @@ async def raids_embed():
 async def raids_notification(channel, time_to_send="20:00"):
     while True:
         dia_raids = 0
-        with open("dia_de_raids.txt", "r") as f:
+        with open("cogs/dia_de_raids.txt", "r") as f:
             for line in f:
                 if line[0] != ';':
                     dia_raids = int(line)
