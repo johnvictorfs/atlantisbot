@@ -47,10 +47,21 @@ async def raids_embed():
 
 async def raids_notification(channel, time_to_send="20:00"):
     while True:
+        dia_raids = 0
+        with open("dia_de_raids.txt", "r") as f:
+            for line in f:
+                if line[0] != ';':
+                    dia_raids = int(line)
+        day = datetime.datetime.now().day
+        if int(day) % 2 == 0:
+            day = 0
+        else:
+            day = 1
+
         date = str(datetime.datetime.now().time())
         time = date[0] + date[1] + date[2] + date[3] + date[4]
 
-        if time == time_to_send:
+        if time == time_to_send and day == dia_raids:
             embed = raids_embed()
             print(f"Sent raids notification, time: {date}")
             await channel.send("<@&376410304277512192>")
