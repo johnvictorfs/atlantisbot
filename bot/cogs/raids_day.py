@@ -20,13 +20,12 @@ class RaidsDay:
         if not check_role(ctx, "Mod+", "Admin"):
             print("D E N I E D")
             return
-        else:
-            pass
 
         day = int(day)
         with open("dia_de_raids.txt", "w") as f:
             f.write(f"; 0 = par, 1 = ímpar\n"
                     f"{day}")
+            await ctx.send(f"Raids day foi marcado para {day} - (0 = par, 1 = ímpar)")
 
 
 def setup(bot):
