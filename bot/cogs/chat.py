@@ -25,7 +25,7 @@ class ChatCommands:
 
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"{setting.MOD_ID} {setting.ADMIN_ID} "
-                        f"- O(a) Senhor(a) acima deseja receber um cargo acima de Visitange. Favor verificar :)")
+                        f"- O(a) Senhor(a) acima deseja receber um cargo acima de Convidado. Favor verificar :)")
 
         denied_message = "Fool! Você não é um Convidado!"
 
