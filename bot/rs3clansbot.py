@@ -64,8 +64,8 @@ async def raids_notification(channel, time_to_send="20:00"):
         if time == time_to_send and day == dia_raids:
             embed = raids_embed()
             print(f"Sent raids notification, time: {date}")
-            await channel.send("<@&376410304277512192>")
-            await channel.send(embed=embed)
+            await channel.send(content="<@&376410304277512192>")
+            await channel.send(content=None, embed=embed)
 
         await asyncio.sleep(60)
 
@@ -81,7 +81,7 @@ class Bot(commands.Bot):
         self.app_info = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
-        self.loop.create_task(raids_notification(channel=self.get_channel(450059325810016267)))
+        self.loop.create_task(raids_notification(channel=self.get_channel(393104367471034369)))
 
     async def track_start(self):
         """
