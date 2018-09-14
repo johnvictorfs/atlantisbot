@@ -23,7 +23,7 @@ async def run():
         await bot.logout()
 
 
-async def raids_embed():
+def raids_embed():
 
     embed_title = "**Raids**"
     clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
@@ -31,6 +31,7 @@ async def raids_embed():
                                       description="",
                                       color=discord.Colour.dark_blue())
     raids_notif_embed.set_thumbnail(url=clan_banner_url)
+
     raids_notif_embed.add_field(
         name="Marque presença para os Raids de 21:00",
         value=f"{setting.RAIDS_CHAT_ID}\n"
@@ -64,8 +65,8 @@ async def raids_notification(channel, time_to_send="20:00"):
         if time == time_to_send and day == dia_raids:
             embed = raids_embed()
             print(f"Sent raids notification, time: {date}")
-            await channel.send(content="<@&376410304277512192>")
-            await channel.send(content=None, embed=embed)
+            # await channel.send(content="<@&376410304277512192>")
+            await channel.send(content="<@&376410304277512192>", embed=embed)
 
         await asyncio.sleep(60)
 
@@ -79,9 +80,9 @@ class Bot(commands.Bot):
         )
         self.start_time = None
         self.app_info = None
+        self.raids_channel = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
-        self.loop.create_task(raids_notification(channel=self.get_channel(393104367471034369)))
 
     async def track_start(self):
         """
@@ -89,6 +90,8 @@ class Bot(commands.Bot):
         Can be used to work out up-time.
         """
         await self.wait_until_ready()
+        self.raids_channel = self.get_channel(393104367471034369)
+        self.loop.create_task(raids_notification(channel=self.raids_channel, time_to_send="20:00"))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
