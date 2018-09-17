@@ -1,3 +1,6 @@
+# Standard lib imports
+import time
+
 # Non-Standard lib imports
 import rs3clans as rs3
 import discord
@@ -16,6 +19,7 @@ class ClanCommands:
     async def clan_user_info(self, ctx, *, username):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'clan_user_exp'.")
+        start_time = time.time()
 
         message = setting.MESSAGES["clan_messages"]
         player = rs3.Player(name=username)
@@ -81,7 +85,7 @@ class ClanCommands:
             clan_info_embed.add_field(name=total_exp_header, value=f"{player.exp:,}")
 
         await ctx.send(content=None, embed=clan_info_embed)
-        print("    - Answer sent.")
+        print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
 
 
 def setup(bot):

@@ -1,3 +1,6 @@
+# Standard lib imports
+import time
+
 # Non-Standard lib imports
 import discord
 from discord.ext import commands
@@ -22,6 +25,7 @@ class ChatCommands:
     async def aplicar_role(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")
+        start_time = time.time()
 
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"{setting.MOD_ID} {setting.ADMIN_ID} "
@@ -33,12 +37,14 @@ class ChatCommands:
             await ctx.send(role_message)
         else:
             await ctx.send(denied_message)
-        print("    - Answer sent.")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
     @commands.command(aliases=['aplicar', 'raids'])
     async def aplicar_raids(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
+        start_time = time.time()
+
         channel = setting.RAIDS_NOTIF_CHAT_ID
         raids_channel = "<#393104367471034369>"
         raids_chat = setting.RAIDS_CHAT_ID
@@ -68,12 +74,13 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(denied_message)
         else:
             await ctx.send(aplicar_message)
-        print("    - Answer sent.")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'atlcommands'.")
+        start_time = time.time()
 
         runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
@@ -102,7 +109,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
 
         await ctx.send(embed=atlcommands_embed)
-        print("    - Answer sent.")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
 
 def setup(bot):
