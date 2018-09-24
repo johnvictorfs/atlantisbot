@@ -36,17 +36,19 @@ def raids_embed():
         name="Marque presença para os Raids de 21:00",
         value=f"{setting.RAIDS_CHAT_ID}\n"
               f"\n"
-              f"É obrigatório ter a tag <@&376410304277512192> - Leia os tópicos fixos para saber como obter\n"
+              f"É obrigatório ter a tag <@&376410304277512192>\n    - Leia os tópicos fixos para saber como obter\n"
               f"\n"
               f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
               f"\n"
-              f"Não marque presença mais de uma vez",
+              f"Não marque presença mais de uma vez\n"
+              f"\n"
+              f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n    - Risco de remoção do time caso contrário. Não cause atrasos",
         inline=False)
 
     return raids_notif_embed
 
 
-async def raids_notification(channel, time_to_send="20:00:0"):
+async def raids_notification(channel, channel_public=None, time_to_send="20:00:0"):
     while True:
         dia_raids = 0
         with open("dia_de_raids.txt", "r") as f:
@@ -59,11 +61,15 @@ async def raids_notification(channel, time_to_send="20:00:0"):
         else:
             day = 1
 
+        raids_chat_public = "<#393696030505435136>"
+
         date = str(datetime.datetime.now().time())
         time = date[0:7]
         if time == time_to_send[0:7] and day == dia_raids:
             embed = raids_embed()
             print(f"Sent Raids notification, time: {date} - Dia: {day}({dia_raids})")
+            if channel_public:
+                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\nMarque presença apenas se for estar online no jogo até 20:50 em ponto no Mundo 75.")
             await channel.send(content="<@&376410304277512192>", embed=embed)
             await asyncio.sleep(60)
         await asyncio.sleep(5)
@@ -75,7 +81,9 @@ class Bot(commands.Bot):
         super().__init__(
             command_prefix=setting.PREFIX,
             description=kwargs.pop('description'),
+            case_insensitive=True,
         )
+        self.remove_command('help')
         self.start_time = None
         self.app_info = None
         self.raids_channel = None
@@ -89,7 +97,10 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         self.raids_channel = self.get_channel(393104367471034369)
-        self.loop.create_task(raids_notification(channel=self.raids_channel, time_to_send="20:00:00"))
+        self.raids_channel_public = self.get_channel(393696030505435136)
+        print(f"-- Channel set to send raids notification: {self.raids_channel}")
+        print(f"-- Channel set to send public raids notification: {self.raids_channel_public}")
+        self.loop.create_task(raids_notification(channel=self.raids_channel, channel_public=self.raids_channel_public, time_to_send="20:00:00"))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):

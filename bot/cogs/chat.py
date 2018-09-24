@@ -21,7 +21,7 @@ class ChatCommands:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['role', 'membro'])
+    @commands.command(aliases=['role', 'membro', 'Role', 'ROLE'])
     async def aplicar_role(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")
@@ -76,6 +76,24 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(aplicar_message)
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
+    @commands.command(aliases=['git', 'source'])
+    async def github(self, ctx):
+        await ctx.trigger_typing()
+        print(f"> {ctx.author} issued command 'github'.")
+        start_time = time.time()
+
+        github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
+        repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
+
+        github_embed = discord.Embed(title="Repositório do Bot",
+                                     description="",
+                                     color=discord.Colour.dark_blue(),
+                                     url=repo_url)
+        github_embed.set_thumbnail(url=github_icon)
+
+        await ctx.send(content=None, embed=github_embed)
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing()
@@ -102,6 +120,9 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
                                     inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}role",
                                     value="Aplicar para receber o role de Membro no Discord",
+                                    inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}github",
+                                    value="Ver o repositório desse bot no Github",
                                     inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}atlcommands",
                                     value="Ver essa mensagem",
