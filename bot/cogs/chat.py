@@ -84,11 +84,14 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
+        johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
+        johnvictorfs_url = "https://github.com/johnvictorfs"
 
         github_embed = discord.Embed(title="Repositório do Bot",
                                      description="",
                                      color=discord.Colour.dark_blue(),
                                      url=repo_url)
+        github_embed.set_author(icon_url=johnvictorfs_img, url=johnvictorfs_url, name="johnvictorfs")
         github_embed.set_thumbnail(url=github_icon)
 
         await ctx.send(content=None, embed=github_embed)
