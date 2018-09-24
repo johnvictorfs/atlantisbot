@@ -87,7 +87,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
         johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
         johnvictorfs_url = "https://github.com/johnvictorfs"
 
-        github_embed = discord.Embed(title="Repositório do Bot",
+        github_embed = discord.Embed(title="atlantisbot-rewrite",
                                      description="",
                                      color=discord.Colour.dark_blue(),
                                      url=repo_url)
