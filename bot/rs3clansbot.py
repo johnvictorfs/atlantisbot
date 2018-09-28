@@ -147,9 +147,9 @@ class Bot(commands.Bot):
         self.raids_channel_public = self.get_channel(393696030505435136)
         bm_time = "18:00:00"
         raids_time = "20:00:00"
-        print(f"-- Channel set to send bm notification: {self.bm_channel} at {bm_time}")
-        print(f"-- Channel set to send raids notification: {self.raids_channel} at {raids_time}")
-        print(f"-- Channel set to send public notifications: {self.raids_channel_public}")
+        print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
+        print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
+        print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
         self.loop.create_task(raids_notification(channel=self.raids_channel, channel_public=self.raids_channel_public, time_to_send=raids_time))
         self.loop.create_task(bm_notification(channel=self.bm_channel, channel_public=self.raids_channel_public, time_to_send=bm_time))
         self.start_time = datetime.datetime.utcnow()

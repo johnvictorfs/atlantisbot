@@ -23,11 +23,34 @@ class RaidsDay:
         if not check_role(ctx, "Mod+", "Admin"):
             print("    - Denied")
             return
+        try:
+            day = int(day)
+        except ValueError:
+            day = str(day).lower()
 
-        day = int(day)
+        day_str = None
+
+        if isinstance(day, int):
+            if day % 2 == 0:
+                day = 0
+                day_str = 'Par'
+            else:
+                day = 1
+                day_str = 'Ímpar'
+        else:
+            if day in 'pares':
+                day = 0
+                day_str = 'Par'
+            elif day in 'ímpares' or day in 'impares':
+                day = 1
+                day_str = 'Ímpar'
+            else:
+                await ctx.send("Resposta inválida. Esperado: 'par'/'pares'/'ímpar'/'ímpares' ou números.")
+                return
         with open("dia_de_raids.txt", "w") as f:
             f.write(f"; 0 = par, 1 = ímpar\n{day}")
-            await ctx.send(f"Raids day foi marcado para {day} - (0 = par, 1 = ímpar)")
+            print(f"Dia de raids foi marcado para dias {day_str}es por {ctx.author}")
+            await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
 
     @commands.command()
     async def test_raids_notif(self, ctx):
