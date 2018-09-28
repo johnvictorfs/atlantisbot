@@ -70,23 +70,25 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
         with open("dia_de_raids.txt", "r") as f:
             for line in f:
                 if line[0] != ';':
-                    if int(line) == 1:
-                        dia_raids = 0
+                    if int(line) % 2 == 0:
+                        dia_raids = 'par'
                     else:
-                        dia_raids = 1
-        day = datetime.datetime.now().day
-        if int(day) % 2 == 0:
-            day = 0
+                        dia_raids = 'impar'
+        current_day = datetime.datetime.now().day
+        if int(current_day) % 2 == 0:
+            current_day = 'par'
         else:
-            day = 1
+            current_day = 'impar'
 
         raids_chat_public = "<#393696030505435136>"
 
         date = str(datetime.datetime.now().time())
         time = date[0:7]
-        if time == time_to_send[0:7] and day == dia_raids:
+        time_to_send = time_to_send[0:7]
+
+        if time == time_to_send and current_day == dia_raids:
             embed = raids_embed(ntype="bm")
-            print(f"Sent Raids notification, time: {date} - Dia: {day}({dia_raids})")
+            print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
             if channel_public:
                 await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\nMarque presença para o BM Durzag das 19:00.")
             await channel.send(content="<@&488121068834258954>", embed=embed)
@@ -100,20 +102,24 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
         with open("dia_de_raids.txt", "r") as f:
             for line in f:
                 if line[0] != ';':
-                    dia_raids = int(line)
-        day = datetime.datetime.now().day
-        if int(day) % 2 == 0:
-            day = 0
+                    if int(line) % 2 == 0:
+                        dia_raids = 'par'
+                    else:
+                        dia_raids = 'impar'
+        current_day = datetime.datetime.now().day
+        if int(current_day) % 2 == 0:
+            current_day = 'par'
         else:
-            day = 1
+            current_day = 'impar'
 
         raids_chat_public = "<#393696030505435136>"
 
         date = str(datetime.datetime.now().time())
         time = date[0:7]
-        if time == time_to_send[0:7] and day == dia_raids:
+        time_to_send = time_to_send[0:7]
+        if time == time_to_send and current_day == dia_raids:
             embed = raids_embed()
-            print(f"Sent Raids notification, time: {date} - Dia: {day}({dia_raids})")
+            print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
             if channel_public:
                 await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\nMarque presença apenas se for estar online no jogo até 20:50 em ponto no Mundo 75.")
             await channel.send(content="<@&376410304277512192>", embed=embed)
