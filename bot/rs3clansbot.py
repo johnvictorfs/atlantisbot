@@ -8,6 +8,7 @@ import datetime
 from pathlib import Path
 
 # Non-Standard lib imports
+import aiofiles
 import discord
 from discord.ext import commands
 
@@ -67,8 +68,8 @@ def raids_embed(ntype='fr'):
 async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
     while True:
         dia_raids = 0
-        with open("dia_de_raids.txt", "r") as f:
-            for line in f:
+        async with aiofiles.open("dia_de_raids.txt", "r") as f:
+            async for line in f:
                 if line[0] != ';':
                     if int(line) % 2 == 0:
                         dia_raids = 'par'
@@ -76,9 +77,10 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
                         dia_raids = 'impar'
         current_day = datetime.datetime.now().day
         if int(current_day) % 2 == 0:
-            current_day = 'par'
-        else:
+            # O dia aqui tem que ser o contrário do dia de Raids normal, já que eles são alternados
             current_day = 'impar'
+        else:
+            current_day = 'par'
 
         raids_chat_public = "<#393696030505435136>"
 
@@ -99,8 +101,8 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
 async def raids_notification(channel, channel_public=None, time_to_send="20:00:0"):
     while True:
         dia_raids = 0
-        with open("dia_de_raids.txt", "r") as f:
-            for line in f:
+        async with aiofiles.open("dia_de_raids.txt", "r") as f:
+            async for line in f:
                 if line[0] != ';':
                     if int(line) % 2 == 0:
                         dia_raids = 'par'
