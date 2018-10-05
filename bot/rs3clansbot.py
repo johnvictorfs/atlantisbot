@@ -2,9 +2,9 @@
 
 # Standard lib imports
 import asyncio
-import datetime
 import logging
 import datetime
+import re
 from pathlib import Path
 
 # Non-Standard lib imports
@@ -25,7 +25,6 @@ async def run():
 
 
 def raids_embed(ntype='fr'):
-
     if ntype == 'fr':
         embed_title = "**Raids**"
     else:
@@ -48,19 +47,21 @@ def raids_embed(ntype='fr'):
                   f"\n"
                   f"Não marque presença mais de uma vez\n"
                   f"\n"
-                  f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n    - Risco de remoção do time caso contrário. Não cause atrasos",
+                  f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n"
+                  f"- Risco de remoção do time caso contrário. Não cause atrasos",
             inline=False)
     else:
         raids_notif_embed.add_field(
-                name="Marque presença para o Durzag de 19:00",
-                value=f"{setting.RAIDS_CHAT_ID}\n"
-                      f"\n"
-                      f"Para obter a tag <@&488121068834258954> reaja ao ícone <:durzag:488178236774154240> no canal <#382691780996497416>\n"
-                      f"\n"
-                      f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
-                      f"\n"
-                      f"Não marque presença mais de uma vez\n",
-                inline=False)
+            name="Marque presença para o Durzag de 19:00",
+            value=f"{setting.RAIDS_CHAT_ID}\n"
+                  f"\n"
+                  f"Para obter a tag <@&488121068834258954> reaja ao ícone <:durzag:488178236774154240>"
+                  f" no canal <#382691780996497416>\n"
+                  f"\n"
+                  f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
+                  f"\n"
+                  f"Não marque presença mais de uma vez\n",
+            inline=False)
 
     return raids_notif_embed
 
@@ -82,8 +83,6 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
         else:
             current_day = 'par'
 
-        raids_chat_public = "<#393696030505435136>"
-
         date = str(datetime.datetime.now().time())
         time = date[0:7]
         time_to_send = time_to_send[0:7]
@@ -92,7 +91,8 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
             embed = raids_embed(ntype="bm")
             print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
             if channel_public:
-                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\nMarque presença para o BM Durzag das 19:00.")
+                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\n"
+                                                  "Marque presença para o BM Durzag das 19:00.")
             await channel.send(content="<@&488121068834258954>", embed=embed)
             await asyncio.sleep(60)
         await asyncio.sleep(5)
@@ -114,8 +114,6 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
         else:
             current_day = 'impar'
 
-        raids_chat_public = "<#393696030505435136>"
-
         date = str(datetime.datetime.now().time())
         time = date[0:7]
         time_to_send = time_to_send[0:7]
@@ -123,7 +121,9 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
             embed = raids_embed()
             print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
             if channel_public:
-                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\nMarque presença apenas se for estar online no jogo até 20:50 em ponto no Mundo 75.")
+                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\n"
+                                                  "Marque presença apenas se for estar online no jogo até 20:50 "
+                                                  "em ponto no Mundo 75.")
             await channel.send(content="<@&376410304277512192>", embed=embed)
             await asyncio.sleep(60)
         await asyncio.sleep(5)
@@ -158,8 +158,10 @@ class Bot(commands.Bot):
         print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
         print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
         print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
-        self.loop.create_task(raids_notification(channel=self.raids_channel, channel_public=self.raids_channel_public, time_to_send=raids_time))
-        self.loop.create_task(bm_notification(channel=self.bm_channel, channel_public=self.raids_channel_public, time_to_send=bm_time))
+        self.loop.create_task(raids_notification(channel=self.raids_channel, channel_public=self.raids_channel_public,
+                                                 time_to_send=raids_time))
+        self.loop.create_task(
+            bm_notification(channel=self.bm_channel, channel_public=self.raids_channel_public, time_to_send=bm_time))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
@@ -205,7 +207,30 @@ class Bot(commands.Bot):
         always ignore bots.
         """
         if message.author.bot:
-            return  # ignore all bots
+            return
+
+        # Replace old Rs Wikia links to the new Rs Wiki links
+        if 'http' in message.content and 'runescape.wikia.com/wiki/' in message.content:
+            urls = re.findall(r"http\S+", message.content)
+
+            formatted_urls = []
+            for url in urls:
+                if 'runescape.wikia.com/wiki/' in url:
+                    url = url.replace('runescape.wikia.com/wiki/', 'runescape.wiki/w/')
+                    formatted_urls.append(url)
+
+            formatted_urls_string = ''
+            for url in formatted_urls:
+                formatted_urls_string += f'- ***<{url}>***\n\n'
+
+            await message.channel.send(f'Olá, parece que você usou um ou mais links para a antiga Wiki do RuneScape!'
+                                       f'\n\n'
+                                       f'Recentemente a Jagex, com ajuda dos Admins da wiki, '
+                                       f'passou a hostear a wiki do jogo em seu próprio site, ao '
+                                       f'invés do[s] link[s] que você enviou, utilize o[s] link[s] abaixo:\n\n'
+                                       f'{formatted_urls_string}'
+                                       f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
+
         await self.process_commands(message)
 
 

@@ -25,7 +25,8 @@ def generate_settings(file_name='bot_settings'):
         'mod_id': '<@&321015489583251467>',
         'admin_id': '<@&321015469341540352>',
         'raids_teacher_id': '<@&346107622853836801>',
-        'raids_notif_chat_id': '393104367471034369',
+        'raids_chat_id': '<#393696030505435136>',
+        'raids_notif_chat_id': '393104367471034369'
     }
 
     config['RUNESCAPE'] = {
@@ -34,7 +35,6 @@ def generate_settings(file_name='bot_settings'):
         'runeclan_url': 'https://runeclan.com/user/{}',
         'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png',
         'show_titles': 'false',
-        'raids_chat_id': 'raids_chat_id'
     }
 
     with open(f"{file_name}.ini", 'w') as config_file_:
@@ -87,7 +87,6 @@ else:
         SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
-
 
 with open('clan_settings.json', encoding='utf-8') as f:
     CLAN_SETTINGS = json.load(f)
