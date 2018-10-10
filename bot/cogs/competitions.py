@@ -189,7 +189,8 @@ class Competitions:
                 index += 1
             await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
-                        f"Selecione uma utilizando `{setting.PREFIX}comp <Número da Competição>`",
+                        f"Selecione uma utilizando:\n`{setting.PREFIX}comp <número da competição> "
+                        f"<número de jogadores (padrão = 10)>`",
                 embed=competitions_embed)
         else:
             if len(competitions['running_competitions']) is 1:
