@@ -141,6 +141,8 @@ class Bot(commands.Bot):
         self.start_time = None
         self.app_info = None
         self.raids_channel = None
+        self.bm_channel = None
+        self.raids_channel_public = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
 
@@ -153,6 +155,19 @@ class Bot(commands.Bot):
         self.raids_channel = self.get_channel(393104367471034369)
         self.bm_channel = self.get_channel(488112229430984704)
         self.raids_channel_public = self.get_channel(393696030505435136)
+
+        # Testing tags channel
+        # self.tags_channel = self.get_channel(499405987585720320)
+        # async for message in self.tags_channel.history():
+        #     try:
+        #         await message.edit(content="Hello World")
+        #         await message.edit(embed=raids_embed())
+        #     except:
+        #         pass
+        # history
+        # edit
+        # delete
+        # # # # # # # # # # # #
         bm_time = "18:00:00"
         raids_time = "20:00:00"
         print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
@@ -177,6 +192,8 @@ class Bot(commands.Bot):
             try:
                 self.load_extension(f'cogs.{extension}')
                 print(f'- loaded Extension: {extension}')
+            except discord.ClientException:
+                pass
             except Exception as e:
                 error = f'{extension}\n {type(e).__name__} : {e}'
                 print(f'failed to load extension {error}')

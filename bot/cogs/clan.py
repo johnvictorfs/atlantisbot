@@ -18,6 +18,7 @@ class ClanCommands:
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
     async def clan_user_info(self, ctx, *, username):
         await ctx.trigger_typing()
+        await ctx.send("Hello world")  # TODO: remove this line
         print(f"> {ctx.author} issued command 'clan_user_exp'.")
         start_time = time.time()
 
@@ -87,6 +88,13 @@ class ClanCommands:
         await ctx.send(content=None, embed=clan_info_embed)
         print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
 
+    @commands.command(aliases=['shit', 'stuff'])
+    async def tests(self, ctx):
+        print('tests')
+        await ctx.send("Hello World")
+        tags_channel = self.bot.get_channel(499405987585720320)
+        async for message in tags_channel.history():
+            await message.delete()
 
 def setup(bot):
     bot.add_cog(ClanCommands(bot))
