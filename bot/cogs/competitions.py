@@ -1,3 +1,6 @@
+# Standard lib imports
+import time
+
 # Non-Standard lib imports
 from discord.ext import commands
 from bs4 import BeautifulSoup
@@ -161,9 +164,11 @@ class Competitions:
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
     async def running_competitions(self, ctx, index=0, players=10):
         print(f"> {ctx.author} issued command 'running_competitions'.")
+        start_time = time.time()
         competitions = get_competitions(setting.CLAN_NAME)
         if not competitions['running_competitions']:
             await ctx.send("Nenhuma competição ativa no momento :(")
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
             return
         if len(competitions['running_competitions']) > 1 and index is 0:
             competitions_embed = discord.Embed(
@@ -192,6 +197,8 @@ class Competitions:
                         f"Selecione uma utilizando:\n`{setting.PREFIX}comp <número da competição> "
                         f"<número de jogadores (padrão = 10)>`",
                 embed=competitions_embed)
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+            return
         else:
             if len(competitions['running_competitions']) is 1:
                 index = 1
@@ -201,6 +208,7 @@ class Competitions:
                 await ctx.send(f"Você tentou acessar a competição número {index}, "
                                f"mas o número de competições ativa no momento é "
                                f"{len(competitions['running_competitions'])}.")
+                print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
                 return
             comp_embed = discord.Embed(
                 title=competition['name'],
@@ -226,6 +234,7 @@ class Competitions:
                                      value=f"{translate(competition['start_date'])}",
                                      inline=False)
             await ctx.send(content=None, embed=comp_embed)
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
             return
 
 
