@@ -137,22 +137,25 @@ def get_reactions_embed():
     reactions_embed = discord.Embed(title="Obter Tags",
                                     description="Use as reações abaixo para receber ou remover as respectivas tags.",
                                     color=discord.Colour.dark_blue())
-    reactions_embed.add_field(name=reaction['vorago'],
-                              value=role['vorago'],
-                              inline=True)
-    reactions_embed.add_field(name=reaction['pvmemos'],
-                              value=role['pvmemos'],
-                              inline=True)
-    reactions_embed.add_field(name=f"\n{reaction['eventos']}",
-                              value=role['eventos'],
-                              inline=True)
     reactions_embed.add_field(name=reaction['durzag'],
                               value=role['durzag'],
+                              inline=True)
+    reactions_embed.add_field(name=reaction['fortnite'],
+                              value=role['fortnigth'],
+                              inline=True)
+    reactions_embed.add_field(name=reaction['vorago'],
+                              value=role['vorago'],
                               inline=True)
     reactions_embed.add_field(name=reaction['rots'],
                               value=role['rots'],
                               inline=True)
-    reactions_embed.add_field(name=reaction['fortnite'],
-                              value=role['fortnigth'],
+    reactions_embed.add_field(name=reaction['elite_dungeons'],
+                              value=role['elite_dungeon'],
+                              inline=True)
+    reactions_embed.add_field(name=f"\n{reaction['eventos']}",
+                              value=role['eventos'],
+                              inline=True)
+    reactions_embed.add_field(name=reaction['pvmemos'],
+                              value=role['pvmemos'],
                               inline=True)
     return reactions_embed

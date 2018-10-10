@@ -139,6 +139,7 @@ class EmbedMessages:
         async for message in channel.history():
             if message.id == message_id:
                 await message.edit(embed=embed)
+                print(f"    Edited message: {message}")
 
 
 def setup(bot):
