@@ -124,6 +124,9 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
         atlcommands_embed.add_field(name=f"{setting.PREFIX}role",
                                     value="Aplicar para receber o role de Membro no Discord",
                                     inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}comp <número da comp.> <número de jogadores>",
+                                    value="Ver as competições ativas do Clã",
+                                    inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}github",
                                     value="Ver o repositório desse bot no Github",
                                     inline=False)
