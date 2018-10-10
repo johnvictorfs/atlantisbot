@@ -38,7 +38,6 @@ def generate_settings(file_name='bot_settings'):
     }
 
     config['COGS'] = {
-        'enabled': 'embed_messages',
         'disabled': 'chat,clan,embeds,error_handler,raids_day,welcome_message'
     }
 
@@ -63,7 +62,6 @@ if file_exists("bot_settings.ini"):
     RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
     RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
 
-    ENABLED_COGS = config_file['COGS']['enabled'].split(',')
     DISABLED_COGS = config_file['COGS']['disabled'].split(',')
 
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
