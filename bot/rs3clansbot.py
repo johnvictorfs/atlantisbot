@@ -15,7 +15,6 @@ from discord.ext import commands
 # Local imports
 import definesettings as setting
 
-import time #TODO: remove
 
 async def run():
     bot = Bot(description=setting.DESCRIPTION)
