@@ -15,6 +15,7 @@ from discord.ext import commands
 # Local imports
 import definesettings as setting
 
+import time #TODO: remove
 
 async def run():
     bot = Bot(description=setting.DESCRIPTION)
@@ -152,31 +153,23 @@ class Bot(commands.Bot):
         Can be used to work out up-time.
         """
         await self.wait_until_ready()
-        self.raids_channel = self.get_channel(393104367471034369)
-        self.bm_channel = self.get_channel(488112229430984704)
-        self.raids_channel_public = self.get_channel(393696030505435136)
+        if 'raids_day' not in setting.DISABLED_COGS:
+            self.raids_channel = self.get_channel(393104367471034369)
+            self.bm_channel = self.get_channel(488112229430984704)
+            self.raids_channel_public = self.get_channel(393696030505435136)
 
-        # Testing tags channel
-        # self.tags_channel = self.get_channel(499405987585720320)
-        # async for message in self.tags_channel.history():
-        #     try:
-        #         await message.edit(content="Hello World")
-        #         await message.edit(embed=raids_embed())
-        #     except:
-        #         pass
-        # history
-        # edit
-        # delete
-        # # # # # # # # # # # #
-        bm_time = "18:00:00"
-        raids_time = "20:00:00"
-        print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
-        print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
-        print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
-        self.loop.create_task(raids_notification(channel=self.raids_channel, channel_public=self.raids_channel_public,
-                                                 time_to_send=raids_time))
-        self.loop.create_task(
-            bm_notification(channel=self.bm_channel, channel_public=self.raids_channel_public, time_to_send=bm_time))
+            bm_time = "18:00:00"
+            raids_time = "20:00:00"
+            print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
+            print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
+            print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
+            self.loop.create_task(raids_notification(channel=self.raids_channel,
+                                                     channel_public=self.raids_channel_public,
+                                                     time_to_send=raids_time))
+            self.loop.create_task(
+                bm_notification(channel=self.bm_channel,
+                                channel_public=self.raids_channel_public,
+                                time_to_send=bm_time))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
@@ -186,7 +179,7 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
         cogs = [x.stem for x in Path('cogs').glob('*.py')]
-        print('-' * 10)
+        cogs = [x for x in cogs if x not in setting.DISABLED_COGS]
         for extension in cogs:
             # noinspection PyBroadException
             try:

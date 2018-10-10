@@ -37,6 +37,11 @@ def generate_settings(file_name='bot_settings'):
         'show_titles': 'false',
     }
 
+    config['COGS'] = {
+        'enabled': 'embed_messages',
+        'disabled': 'chat,clan,embeds,error_handler,raids_day,welcome_message'
+    }
+
     with open(f"{file_name}.ini", 'w') as config_file_:
         config.write(config_file_)
         return
@@ -58,6 +63,9 @@ if file_exists("bot_settings.ini"):
     RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
     RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
 
+    ENABLED_COGS = config_file['COGS']['enabled'].split(',')
+    DISABLED_COGS = config_file['COGS']['disabled'].split(',')
+
     CLAN_NAME = config_file['RUNESCAPE']['clan_name']
     SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
 
@@ -69,22 +77,8 @@ else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':
         generate_settings()
-        config_file = configparser.ConfigParser()
-        config_file.read("bot_settings.ini")
-        BOT_TOKEN = config_file['DISCORD']['bot_token']
-        OAUTH_URL = config_file['DISCORD']['oauth_url']
-        PLAYING_NOW = config_file['DISCORD']['playing_now']
-        PREFIX = config_file['DISCORD']['commands_prefix']
-        DESCRIPTION = config_file['DISCORD']['bot_description']
-        LANGUAGE = config_file['DISCORD']['language']
-        MOD_ID = config_file['DISCORD']['mod_id']
-        ADMIN_ID = config_file['DISCORD']['admin_id']
-        RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
-        RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
-        RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
-
-        CLAN_NAME = config_file['RUNESCAPE']['clan_name']
-        SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
+        print("Generated new settings. Edit them in 'bot_settings.ini' and then restart the Bot.")
+        exit(0)
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
 
