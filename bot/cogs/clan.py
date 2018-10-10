@@ -18,7 +18,6 @@ class ClanCommands:
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
     async def clan_user_info(self, ctx, *, username):
         await ctx.trigger_typing()
-        await ctx.send("Hello world")  # TODO: remove this line
         print(f"> {ctx.author} issued command 'clan_user_exp'.")
         start_time = time.time()
 
