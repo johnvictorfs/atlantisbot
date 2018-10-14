@@ -76,6 +76,43 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
             await ctx.send(aplicar_message)
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
+    @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
+    async def aplicar_aod(self, ctx):
+        await ctx.trigger_typing()
+        print(f"> {ctx.author} issued command 'aplicar_aod'.")
+        start_time = time.time()
+
+        aod_channel = "<#499740247647846401>"
+        aod_teacher = "<@&346107676448522240>"
+        aod_tag = "<@&499739627339382825>"
+        right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
+
+        aplicar_message = f"""
+Olá! Você aplicou para receber a tag de AoD e participar dos times de Nex: AoD do Clã.
+
+Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {aod_channel}
+Use a imagem a seguir como base: 
+
+Inclua na screenshot:
+ {right_arrow} Aba de Equipamento que irá usar
+ {right_arrow} Aba de Inventário que irá usar
+ {right_arrow} Perks de todas as suas Armas e Armaduras que pretende usar
+ {right_arrow} Stats
+ {right_arrow} Barra de Habilidades no modo de combate que utiliza
+ {right_arrow} Nome de usuário in-game
+
+Aguarde uma resposta de um {aod_teacher}.
+
+***Exemplo (Aplicação para Raids):*** https://i.imgur.com/CMNzquL.png"""
+
+        denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
+
+        if check_role(ctx, "Aod"):
+            await ctx.send(denied_message)
+        else:
+            await ctx.send(aplicar_message)
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+
     @commands.command(aliases=['git', 'source'])
     async def github(self, ctx):
         await ctx.trigger_typing()
