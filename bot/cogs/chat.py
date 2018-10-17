@@ -91,7 +91,7 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 Olá! Você aplicou para receber a tag de AoD e participar dos times de Nex: AoD do Clã.
 
 Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {aod_channel}
-Use a imagem a seguir como base: 
+Use a imagem a seguir como base:
 
 Inclua na screenshot:
  {right_arrow} Aba de Equipamento que irá usar
@@ -107,7 +107,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
-        if check_role(ctx, "Aod"):
+        if check_role(ctx, "Angel of Memes", "Aod"):
             await ctx.send(denied_message)
         else:
             await ctx.send(aplicar_message)
