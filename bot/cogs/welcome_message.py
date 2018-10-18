@@ -18,8 +18,8 @@ class WelcomeMessage:
         print(f"{member} joined the server at {datetime.datetime.today()}")
         if 'discord.gg' in member.name or 'discord.me' in member.name:
             print(f"Banned {member} for having a server invite in username at {datetime.datetime.today()}.")
-            await member.send("Olá, não permitimos usuários com convites para qualquer Servidor de Discord em seu nome, para evitar Bots de Spam, caso queira entrar no nosso servidor, por favor remova o convite de seu usuário.")
-            await member.ban(delete_message_days=7, reason="Automated Ban: Server invite in username.")
+            await member.send("Olá, não permitimos usuários com convites para qualquer Servidor de Discord em seu nome para evitar Bots de Spam.\nCaso deseja entrar no nosso servidor, por favor retire o convite de seu usuário.")
+            await member.kick(reason="Automated Kick: Server invite in username.")
             return
         print('passed')
         tags_do_server = setting.MESSAGES["chat"]["tags_do_server"]
@@ -37,7 +37,7 @@ class WelcomeMessage:
 
         welcome_embed.add_field(
             name="Você recebeu o cargo de `convidado`",
-            value=f"Caso seja um membro do Atlantis, digite `{setting.PREFIX}role` no canal {visitantes}",
+            value=f"Caso seja um membro do Atlantis, digite `{setting.PREFIX}membro` no canal {visitantes}",
             inline=False
         )
 
