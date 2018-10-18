@@ -1,3 +1,6 @@
+# Standard lib imports
+import datetime
+
 # Non-standard imports
 import discord
 
@@ -12,6 +15,13 @@ class WelcomeMessage:
 
     @staticmethod
     async def on_member_join(member):
+        print(f"{member} joined the server at {datetime.datetime.today()}")
+        if 'discord.gg' in member.name or 'discord.me' in member.name:
+            print(f"Banned {member} for having a server invite in username at {datetime.datetime.today()}.")
+            await member.send("Olá, não permitimos usuários com convites para qualquer Servidor de Discord em seu nome, para evitar Bots de Spam, caso queira entrar no nosso servidor, por favor remova o convite de seu usuário.")
+            await member.ban(delete_message_days=7, reason="Automated Ban: Server invite in username.")
+            return
+        print('passed')
         tags_do_server = setting.MESSAGES["chat"]["tags_do_server"]
         visitantes = setting.MESSAGES["chat"]["visitantes"]
         discord_bots = setting.MESSAGES["chat"]["discord_bots"]
