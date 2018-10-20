@@ -17,11 +17,22 @@ class WelcomeMessage:
     async def on_member_join(member):
         print(f"{member} joined the server at {datetime.datetime.today()}")
         if 'discord.gg' in member.name or 'discord.me' in member.name:
-            print(f"Banned {member} for having a server invite in username at {datetime.datetime.today()}.")
-            await member.send("Olá, não permitimos usuários com convites para qualquer Servidor de Discord em seu nome para evitar Bots de Spam.\nCaso deseja entrar no nosso servidor, por favor retire o convite de seu usuário.")
+            print(f"Kicked {member} for having a server invite in username at {datetime.datetime.today()}.")
+            await member.send("Olá, não permitimos em nosso servidor usuários com convites para qualquer Servidor de Discord em seu nome a fim de evitar Bots de Spam.\nCaso deseje entrar no nosso servidor, por favor retire o convite de seu usuário.")
             await member.kick(reason="Automated Kick: Server invite in username.")
             return
-        print('passed')
+        if 'twitch.tv' in member.name:
+            print(f"Kicked {member} for having a twitch link in username at {datetime.datetime.today()}.")
+            await member.send("Olá, não permitimos em nosso servidor usuários com propaganda para canais de qualquer coisa em seu nome a fim de evitar Bots de Spam.\nCaso deseje entrar no nosso servidor, por favor retire o link de seu usuário.")
+            await member.kick(reason="Automated kick: Twitch link in username.")
+            return
+        url_shortners = ['bit.ly', 'tinyurl', 'tiny.cc', 'is.gd', 'bc.vc']
+        for url in url_shortners:
+            if url in member.name:
+                print(f"Kicked {member} for having a url shortner in username at {datetime.datetime.today()}.")
+                await member.send("Olá, não permitimos em nosso servidor usuários com encurtadores de link em seu nome a fim de evitar Bots de Spam.\nCaso deseje entrar no nosso servidor, por favor retire o link de seu usuário.")
+                await member.kick(reason="Automated kick: Url shortner in username.")
+                return
         tags_do_server = setting.MESSAGES["chat"]["tags_do_server"]
         visitantes = setting.MESSAGES["chat"]["visitantes"]
         discord_bots = setting.MESSAGES["chat"]["discord_bots"]
