@@ -74,10 +74,13 @@ emoji = {
 
 
 def translate(string):
-    string = string.replace('hours', 'horas')
-    string = string.replace('days', 'dias')
-    string = string.replace('weeks', 'semanas')
-    string = string.replace('months', 'meses')
+    string = string.replace('hour', 'hora')
+    string = string.replace('day', 'dia')
+    string = string.replace('week', 'semana')
+    if string == 'month':
+        string = string.replace('month', 'mês')
+    elif string == 'months':
+        string = string.replace('months', 'meses')
     string = string.replace('to go', '')
     return string
 
