@@ -95,5 +95,6 @@ class ClanCommands:
         async for message in tags_channel.history():
             await message.delete()
 
+
 def setup(bot):
     bot.add_cog(ClanCommands(bot))

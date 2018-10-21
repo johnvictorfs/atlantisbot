@@ -1,10 +1,5 @@
 # Non-Standard lib imports
-import discord
 from discord.ext import commands
-import requests
-
-# Standard lib imports
-import json
 
 
 def check_role(ctx, *roles):

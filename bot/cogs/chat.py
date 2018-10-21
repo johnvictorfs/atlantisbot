@@ -45,10 +45,7 @@ class ChatCommands:
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
         start_time = time.time()
-
-        channel = setting.RAIDS_NOTIF_CHAT_ID
         raids_channel = "<#393104367471034369>"
-        raids_chat = setting.RAIDS_CHAT_ID
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
 
         aplicar_message = f"""
@@ -85,7 +82,6 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         aod_channel = "<#499740247647846401>"
         aod_teacher = "<@&346107676448522240>"
-        aod_tag = "<@&499739627339382825>"
         right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
 
         aplicar_message = f"""
