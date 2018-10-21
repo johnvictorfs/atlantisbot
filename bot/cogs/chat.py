@@ -200,25 +200,25 @@ Aguarde uma resposta de um {aod_teacher}.
         found = False
         clan = rs3clans.Clan(setting.CLAN_NAME, set_exp=False)
         for member in clan.member.items():
-            if member[1]['exp'] > exp_general and member[1]['rank'] == 'Captain':
+            if member[1]['exp'] >= exp_general and member[1]['rank'] == 'Captain':
                 ranks_embed.add_field(name=member[0],
                                       value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
                                           "_\\" * 15) + "_",
                                       inline=False)
                 found = True
-            elif member[1]['exp'] > exp_captain and member[1]['rank'] == 'Lieutenant':
+            elif member[1]['exp'] >= exp_captain and member[1]['rank'] == 'Lieutenant':
                 ranks_embed.add_field(name=member[0],
                                       value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
                                           "_\\" * 15) + "_",
                                       inline=False)
                 found = True
-            elif member[1]['exp'] > exp_lieutenant and member[1]['rank'] == 'Sergeant':
+            elif member[1]['exp'] >= exp_lieutenant and member[1]['rank'] == 'Sergeant':
                 ranks_embed.add_field(name=member[0],
                                       value=f"Sargento {rank_emoji['Sergeant']} > Tenente {rank_emoji['Lieutenant']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
                                           "_\\" * 15) + "_",
                                       inline=False)
                 found = True
-            elif member[1]['exp'] > exp_seargent and member[1]['rank'] == 'Corporal':
+            elif member[1]['exp'] >= exp_seargent and member[1]['rank'] == 'Corporal':
                 ranks_embed.add_field(name=member[0],
                                       value=f"Cabo {rank_emoji['Corporal']} > Sargento {rank_emoji['Sergeant']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
                                           "_\\" * 15) + "_",
