@@ -182,6 +182,8 @@ Aguarde uma resposta de um {aod_teacher}.
     @commands.command(aliases=['ranksupdate', 'upranks'])
     async def ranks(self, ctx):
         await ctx.trigger_typing()
+        print(f"> {ctx.author} issued command 'ranks'.")
+        start_time = time.time()
         exp_general = 500_000_000
         exp_captain = 225_000_000
         exp_lieutenant = 125_000_000
@@ -229,6 +231,7 @@ Aguarde uma resposta de um {aod_teacher}.
                                   value=("_\\" * 15) + "_",
                                   inline=False)
         await ctx.send(embed=ranks_embed)
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
 
 
 def setup(bot):
