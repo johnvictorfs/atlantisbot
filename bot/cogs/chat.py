@@ -157,6 +157,9 @@ Aguarde uma resposta de um {aod_teacher}.
         atlcommands_embed.add_field(name=f"{setting.PREFIX}raids",
                                     value="Aplicar para ter acesso aos Raids do Clã",
                                     inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}aod",
+                                    value="Aplicar para ter acesso aos times de AoD do Clã",
+                                    inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}role",
                                     value="Aplicar para receber o role de Membro no Discord",
                                     inline=False)
