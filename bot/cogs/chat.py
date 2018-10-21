@@ -4,6 +4,7 @@ import time
 # Non-Standard lib imports
 import discord
 from discord.ext import commands
+import rs3clans
 
 # Local imports
 import definesettings as setting
@@ -128,7 +129,8 @@ Aguarde uma resposta de um {aod_teacher}.
                                      description="",
                                      color=discord.Colour.dark_blue(),
                                      url=repo_url)
-        github_embed.set_author(icon_url=johnvictorfs_img, url=johnvictorfs_url, name="johnvictorfs")
+        github_embed.set_author(icon_url=johnvictorfs_img,
+                                url=johnvictorfs_url, name="johnvictorfs")
         github_embed.set_thumbnail(url=github_icon)
 
         await ctx.send(content=None, embed=github_embed)
@@ -149,8 +151,10 @@ Aguarde uma resposta de um {aod_teacher}.
                                           color=discord.Colour.dark_blue(),
                                           url=runeclan_url,
                                           )
-        atlcommands_embed.set_author(icon_url=clan_banner_url, name="AtlantisBot")
-        atlcommands_embed.set_thumbnail(url="http://rsatlantis.com/images/logo.png")
+        atlcommands_embed.set_author(
+            icon_url=clan_banner_url, name="AtlantisBot")
+        atlcommands_embed.set_thumbnail(
+            url="http://rsatlantis.com/images/logo.png")
 
         atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo <nome de jogador>",
                                     value="Ver info de Clã de Jogador",
@@ -174,6 +178,57 @@ Aguarde uma resposta de um {aod_teacher}.
 
         await ctx.send(embed=atlcommands_embed)
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+
+    @commands.command(aliases=['ranksupdate', 'upranks'])
+    async def ranks(self, ctx):
+        await ctx.trigger_typing()
+        exp_general = 500_000_000
+        exp_captain = 225_000_000
+        exp_lieutenant = 125_000_000
+        exp_seargent = 50_000_000
+
+        rank_emoji = {
+            'Corporal': setting.CLAN_SETTINGS['Corporal']['Emoji'],
+            'Sergeant': setting.CLAN_SETTINGS['Sergeant']['Emoji'],
+            'Lieutenant': setting.CLAN_SETTINGS['Lieutenant']['Emoji'],
+            'Captain': setting.CLAN_SETTINGS['Captain']['Emoji'],
+            'General': setting.CLAN_SETTINGS['General']['Emoji'],
+        }
+
+        ranks_embed = discord.Embed(title="__Ranks a Atualizar__",
+                                    description=" ",)
+        found = False
+        clan = rs3clans.Clan(setting.CLAN_NAME, set_exp=False)
+        for member in clan.member.items():
+            if member[1]['exp'] > exp_general and member[1]['rank'] == 'Captain':
+                ranks_embed.add_field(name=member[0],
+                                      value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
+                                          "_\\" * 15) + "_",
+                                      inline=False)
+                found = True
+            elif member[1]['exp'] > exp_captain and member[1]['rank'] == 'Lieutenant':
+                ranks_embed.add_field(name=member[0],
+                                      value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
+                                          "_\\" * 15) + "_",
+                                      inline=False)
+                found = True
+            elif member[1]['exp'] > exp_lieutenant and member[1]['rank'] == 'Sergeant':
+                ranks_embed.add_field(name=member[0],
+                                      value=f"Sargento {rank_emoji['Sergeant']} > Tenente {rank_emoji['Lieutenant']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
+                                          "_\\" * 15) + "_",
+                                      inline=False)
+                found = True
+            elif member[1]['exp'] > exp_seargent and member[1]['rank'] == 'Corporal':
+                ranks_embed.add_field(name=member[0],
+                                      value=f"Cabo {rank_emoji['Corporal']} > Sargento {rank_emoji['Sergeant']}\n**__Exp:__** {member[1]['exp']:,}\n" + (
+                                          "_\\" * 15) + "_",
+                                      inline=False)
+                found = True
+        if not found:
+            ranks_embed.add_field(name="Nenhum Rank a ser atualizado no momento :)",
+                                  value=("_\\" * 15) + "_",
+                                  inline=False)
+        await ctx.send(embed=ranks_embed)
 
 
 def setup(bot):

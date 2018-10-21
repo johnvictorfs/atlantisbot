@@ -163,6 +163,7 @@ class Competitions:
 
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
     async def running_competitions(self, ctx, index=0, players=10):
+        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'running_competitions'.")
         start_time = time.time()
         competitions = get_competitions(setting.CLAN_NAME)
