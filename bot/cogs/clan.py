@@ -18,31 +18,28 @@ class ClanCommands:
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
     async def clan_user_info(self, ctx, *, username):
         await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'clan_user_exp'.")
+        print(f"> {ctx.author} issued command 'clan_user_info'.")
         start_time = time.time()
 
         message = setting.MESSAGES["clan_messages"]
-        player = rs3clans.Player(name=username)
-        player.set_runemetrics_info()
+        player = rs3clans.Player(name=username, runemetrics=True)
         if not player.exists:
             await ctx.send(message["player_does_not_exist"][setting.LANGUAGE].format(player.name))
+            print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
             return
         try:
             user_clan = rs3clans.Clan(name=player.clan)
         except rs3clans.ClanNotFoundError:
             await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
+            print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
             return
-        try:
-            # Case insensitive dictionary search mock-up
-            lower_clan_dict = {}
-            for key in user_clan.member:
-                lower_clan_dict[key.lower().replace("\xa0", " ")] = user_clan.member[key]
-            lower_name = player.name.lower()
-            user_clan_exp = lower_clan_dict[lower_name]['exp']
-            user_rank = lower_clan_dict[lower_name]['rank']
-        except KeyError:
+        member = user_clan.get_member(username)
+        if not member:
             await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
+            print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
             return
+        user_clan_exp = member['exp']
+        user_rank = member['rank']
         display_username = player.name
         if setting.SHOW_TITLES:
             if player.suffix:
@@ -77,12 +74,15 @@ class ClanCommands:
         clan_info_embed.set_author(icon_url=icon_url, name=display_username)
         clan_info_embed.set_thumbnail(url=clan_banner_url)
         clan_info_embed.add_field(name=clan_header, value=player.clan)
-        clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
+        clan_info_embed.add_field(
+            name=rank_header, value=f"{user_rank} {rank_emoji}")
         clan_info_embed.add_field(name=exp_header, value=f"{user_clan_exp:,}")
         if player.private_profile:
-            clan_info_embed.add_field(name=total_exp_header, value=private_profile_header)
+            clan_info_embed.add_field(
+                name=total_exp_header, value=private_profile_header)
         else:
-            clan_info_embed.add_field(name=total_exp_header, value=f"{player.exp:,}")
+            clan_info_embed.add_field(
+                name=total_exp_header, value=f"{player.exp:,}")
 
         await ctx.send(content=None, embed=clan_info_embed)
         print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
