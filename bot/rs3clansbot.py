@@ -151,10 +151,10 @@ class Bot(commands.Bot):
             self.loop.create_task(raids_notification(channel=self.raids_channel,
                                                      channel_public=self.raids_channel_public,
                                                      time_to_send=raids_time))
-            self.loop.create_task(
-                bm_notification(channel=self.bm_channel,
-                                channel_public=self.raids_channel_public,
-                                time_to_send=bm_time))
+            # self.loop.create_task(
+            #     bm_notification(channel=self.bm_channel,
+            #                     channel_public=self.raids_channel_public,
+            #                     time_to_send=bm_time))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
