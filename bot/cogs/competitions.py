@@ -80,6 +80,7 @@ def translate(string):
     string = string.replace('hour', 'hora')
     string = string.replace('day', 'dia')
     string = string.replace('week', 'semana')
+    string = string.replace('minute', 'minuto')
     if string == 'month':
         string = string.replace('month', 'mês')
     elif string == 'months':
