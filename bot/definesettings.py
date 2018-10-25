@@ -102,13 +102,15 @@ elif os.environ.get('ATLBOT_HEROKU') == 'prod':
     }
 
 else:
-    answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
+    answer = input(
+        "Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':
         generate_settings()
         print("Generated new settings. Edit them in 'bot_settings.ini' and then restart the Bot.")
         exit(0)
     else:
-        raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
+        raise KeyError(
+            "Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
 
 CLAN_SETTINGS = {
     "Owner":
@@ -196,5 +198,64 @@ CLAN_SETTINGS = {
     }
 }
 
-with open('messages.json', encoding='utf-8') as f:
-    MESSAGES = json.load(f)
+
+MESSAGES = {
+    "clan_messages":
+    {
+        "player_does_not_exist":
+        {
+            "English": "Player '{}' does not exist.",
+            "Portuguese": "Jogador '{}' não existe."
+        },
+        "player_not_in_clan":
+        {
+            "English": "Player '{}' is not in a Clan.",
+            "Portuguese": "Jogador '{}' não se encontra em um Clã."
+        },
+        "player_private_profile":
+        {
+            "English": "Player '{}' has a private profile, thus its username has to be input case-sensitively ('NRiver' instead of 'nriver' for example).",
+            "Portuguese": "Jogador '{}' tem seu perfil privado, portanto seu nome precisa ser digitado exatamente da forma como está no jogo ('NRiver' ao invés de 'nriver' por exemplo)"
+        },
+        "clan_header":
+        {
+            "English": "__Clan__",
+            "Portuguese": "__Clã__"
+        },
+        "exp_header":
+        {
+            "English": "__Clan Exp__",
+            "Portuguese": "__Exp no Clã__"
+        },
+        "total_exp_header":
+        {
+            "English": "__Total Exp__",
+            "Portuguese": "__Exp Total__"
+        },
+        "private_profile_header":
+        {
+            "English": "Unavailable - Private Profile",
+            "Portuguese": "Indisponível - Perfil Privado"
+        }
+    },
+
+    "emoji":
+    {
+        "arrow_emoji": "<:rightarrow:484382334582390784>"
+    },
+
+    "chat":
+    {
+        "tags_do_server": "<#382691780996497416>",
+        "visitantes": "<#321012324997529602>",
+        "discord_bots": "<#321012588924370945>",
+        "links_pvm": "<#388046792756953090>",
+        "raids": "<#393104367471034369>",
+        "pvmemes": "<#333083647991349249>"
+    },
+
+    "link":
+    {
+        "atlantis_ouvidoria": "http://tiny.cc/atlantisouvidoria"
+    }
+}
