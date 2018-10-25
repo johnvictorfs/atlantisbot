@@ -2,6 +2,7 @@
 import configparser
 import json
 import io
+import os
 
 
 def file_exists(file):
@@ -21,7 +22,7 @@ def generate_settings(file_name='bot_settings'):
         'playing_now': 'PLAYING_MESSAGE',
         'commands_prefix': '!',
         'bot_description': 'A discord bot with utilities for RS3 Clans Discords',
-        'language': 'english',
+        'language': 'English',
         'mod_id': '<@&321015489583251467>',
         'admin_id': '<@&321015469341540352>',
         'raids_teacher_id': '<@&346107622853836801>',
@@ -71,6 +72,35 @@ if file_exists("bot_settings.ini"):
         SHOW_TITLES = False
     else:
         SHOW_TITLES = True
+elif os.environ.get('ATLBOT_HEROKU') == 'prod':
+    config = configparser.ConfigParser()
+
+    config['DISCORD'] = {
+        'bot_token': os.environ['ATLBOT_TOKEN'],
+        'oauth_url': 'N/A',
+        'playing_now': '!atlcommands',
+        'commands_prefix': '!',
+        'bot_description': 'A discord bot with utilities for RS3 Clans Discords',
+        'language': 'Portuguese',
+        'mod_id': '<@&321015489583251467>',
+        'admin_id': '<@&321015469341540352>',
+        'raids_teacher_id': '<@&346107622853836801>',
+        'raids_chat_id': '<#393696030505435136>',
+        'raids_notif_chat_id': '393104367471034369'
+    }
+
+    config['RUNESCAPE'] = {
+        'clan_name': 'Atlantis',
+        'icon_url': 'https://secure.runescape.com/m=avatar-rs/{}/chat.png',
+        'runeclan_url': 'https://runeclan.com/user/{}',
+        'clan_banner_url': 'http://services.runescape.com/m=avatar-rs/l=3/a=869/{}/clanmotif.png',
+        'show_titles': 'false',
+    }
+
+    config['COGS'] = {
+        'disabled': 'embeds'
+    }
+
 else:
     answer = input("Settings not found. Do you wish the re-create them? (y/N)\n\n>> ")
     if answer is 'y' or answer is 'Y':
