@@ -110,7 +110,7 @@ else:
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
 
-clan_settings_ = {
+CLAN_SETTINGS = {
     "Owner":
     {
         "Rank": "Owner",
@@ -195,7 +195,6 @@ clan_settings_ = {
         "Translation": "Recruta"
     }
 }
-CLAN_SETTINGS = json.load(clan_settings_)
 
 with open('messages.json', encoding='utf-8') as f:
     MESSAGES = json.load(f)
