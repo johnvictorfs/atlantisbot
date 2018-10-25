@@ -69,13 +69,18 @@ def raids_embed(ntype='fr'):
 async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
     while True:
         dia_raids = 0
-        async with aiofiles.open("dia_de_raids.txt", "r") as f:
-            async for line in f:
-                if line[0] != ';':
-                    if int(line) % 2 == 0:
-                        dia_raids = 'par'
-                    else:
-                        dia_raids = 'impar'
+        try:
+            async with aiofiles.open("dia_de_raids.txt", "r") as f:
+                async for line in f:
+                    if line[0] != ';':
+                        if int(line) % 2 == 0:
+                            dia_raids = 'par'
+                        else:
+                            dia_raids = 'impar'
+        except FileNotFoundError:
+            print("Day raids file not found. Setting raids day to uneven days (1). Manually set it by using the 'set_raids_day' command to change it.")
+            async with aiofiles.open("dia_de_raids.txt", "w") as f:
+                f.write('; 0 = par, 1 = ímpar\n1')
         current_day = datetime.datetime.now().day
         if int(current_day) % 2 == 0:
             # O dia aqui tem que ser o contrário do dia de Raids normal, já que eles são alternados

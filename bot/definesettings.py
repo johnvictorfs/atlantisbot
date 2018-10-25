@@ -1,7 +1,5 @@
 # Standard lib imports
 import configparser
-import json
-import io
 import os
 
 
@@ -73,6 +71,7 @@ if file_exists("bot_settings.ini"):
     else:
         SHOW_TITLES = True
 elif os.environ.get('ATLBOT_HEROKU') == 'prod':
+    print('Setting settings for Production. Getting Bot Token from Env Variable \'ATLBOT_TOKEN\'')
     config = configparser.ConfigParser()
 
     config['DISCORD'] = {
@@ -100,6 +99,33 @@ elif os.environ.get('ATLBOT_HEROKU') == 'prod':
     config['COGS'] = {
         'disabled': 'embeds'
     }
+
+    with open(f"bot_settings.ini", 'w') as config_file_:
+        config.write(config_file_)
+
+    config_file = configparser.ConfigParser()
+    config_file.read("bot_settings.ini")
+    BOT_TOKEN = config_file['DISCORD']['bot_token']
+    OAUTH_URL = config_file['DISCORD']['oauth_url']
+    PLAYING_NOW = config_file['DISCORD']['playing_now']
+    PREFIX = config_file['DISCORD']['commands_prefix']
+    DESCRIPTION = config_file['DISCORD']['bot_description']
+    LANGUAGE = config_file['DISCORD']['language']
+    MOD_ID = config_file['DISCORD']['mod_id']
+    ADMIN_ID = config_file['DISCORD']['admin_id']
+    RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
+    RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
+    RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
+
+    DISABLED_COGS = config_file['COGS']['disabled'].split(',')
+
+    CLAN_NAME = config_file['RUNESCAPE']['clan_name']
+    SHOW_TITLES = config_file['RUNESCAPE']['show_titles']
+
+    if SHOW_TITLES.lower() == 'false':
+        SHOW_TITLES = False
+    else:
+        SHOW_TITLES = True
 
 else:
     answer = input(
