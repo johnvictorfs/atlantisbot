@@ -49,6 +49,7 @@ if file_exists("bot_settings.ini"):
     print("Existing Settings found, reading them...")
     config_file = configparser.ConfigParser()
     config_file.read("bot_settings.ini")
+    ATLBOT_ENV = 'dev'
     BOT_TOKEN = config_file['DISCORD']['bot_token']
     OAUTH_URL = config_file['DISCORD']['oauth_url']
     PLAYING_NOW = config_file['DISCORD']['playing_now']

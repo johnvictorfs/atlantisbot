@@ -163,18 +163,21 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        cogs = [x.stem for x in Path('cogs').glob('*.py')]
-        cogs = [x for x in cogs if x not in setting.DISABLED_COGS]
+
+        if setting.ATLBOT_ENV == 'prod':
+            cogs = ['chat', 'clan', 'competitions', 'error_handler', 'raids_day', 'rsatlantis', 'welcome_message']
+        else:
+            cogs = [x.stem for x in Path('cogs').glob('*.py')]
         for extension in cogs:
-            # noinspection PyBroadException
-            try:
-                self.load_extension(f'cogs.{extension}')
-                print(f'- loaded Extension: {extension}')
-            except discord.ClientException:
-                pass
-            except Exception as e:
-                error = f'{extension}\n {type(e).__name__} : {e}'
-                print(f'failed to load extension {error}')
+            if extension not in setting.DISABLED_COGS:
+                try:
+                    self.load_extension(f'cogs.{extension}')
+                    print(f'- loaded Extension: {extension}')
+                except discord.ClientException:
+                    pass
+                except Exception as e:
+                    error = f'{extension}\n {type(e).__name__} : {e}'
+                    print(f'failed to load extension {error}')
         print('-' * 10)
 
     async def on_ready(self):
