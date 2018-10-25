@@ -166,6 +166,9 @@ Aguarde uma resposta de um {aod_teacher}.
         atlcommands_embed.add_field(name=f"{setting.PREFIX}comp <número da comp.> <número de jogadores>",
                                     value="Ver as competições ativas do Clã",
                                     inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}pcomp <número de jogadores>",
+                                    value="Ver informação sobre a atual competição de Pontos em andamento",
+                                    inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}ranks",
                                     value="Ver os Ranks do Clã pendentes a serem atualizados",
                                     inline=False)
