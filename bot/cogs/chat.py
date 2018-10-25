@@ -33,11 +33,11 @@ class ChatCommands:
 
         denied_message = "Fool! Você não é um Convidado!"
 
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         if check_role(ctx, "Convidado"):
-            await ctx.send(role_message)
+            return await ctx.send(role_message)
         else:
-            await ctx.send(denied_message)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+            return await ctx.send(denied_message)
 
     @commands.command(aliases=['aplicar', 'raids'])
     async def aplicar_raids(self, ctx):
@@ -67,11 +67,11 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
 
         denied_message = "Fool! Você já tem permissão para ir Raids!"
 
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         if check_role(ctx, "Raids"):
-            await ctx.send(denied_message)
+            return await ctx.send(denied_message)
         else:
-            await ctx.send(aplicar_message)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+            return await ctx.send(aplicar_message)
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
     async def aplicar_aod(self, ctx):
@@ -103,11 +103,11 @@ Aguarde uma resposta de um {aod_teacher}.
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         if check_role(ctx, "Angel of Memes", "Aod"):
-            await ctx.send(denied_message)
+            return await ctx.send(denied_message)
         else:
-            await ctx.send(aplicar_message)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+            return await ctx.send(aplicar_message)
 
     @commands.command(aliases=['git', 'source'])
     async def github(self, ctx):
@@ -128,8 +128,8 @@ Aguarde uma resposta de um {aod_teacher}.
                                 url=johnvictorfs_url, name="johnvictorfs")
         github_embed.set_thumbnail(url=github_icon)
 
-        await ctx.send(content=None, embed=github_embed)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+        return await ctx.send(content=None, embed=github_embed)
 
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
@@ -160,7 +160,7 @@ Aguarde uma resposta de um {aod_teacher}.
         atlcommands_embed.add_field(name=f"{setting.PREFIX}aod",
                                     value="Aplicar para ter acesso aos times de AoD do Clã",
                                     inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}role",
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}membro",
                                     value="Aplicar para receber o role de Membro no Discord",
                                     inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}comp <número da comp.> <número de jogadores>",
@@ -177,8 +177,8 @@ Aguarde uma resposta de um {aod_teacher}.
                                     inline=False)
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
 
-        await ctx.send(embed=atlcommands_embed)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+        return await ctx.send(embed=atlcommands_embed)
 
 
 def setup(bot):

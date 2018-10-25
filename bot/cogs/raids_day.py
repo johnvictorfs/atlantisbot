@@ -5,6 +5,7 @@ import discord
 # Local imports
 import definesettings as setting
 
+
 def check_role(ctx, *roles):
     for role in roles:
         if role in str(ctx.message.author.roles):
@@ -45,12 +46,11 @@ class RaidsDay:
                 day = 1
                 day_str = 'Ímpar'
             else:
-                await ctx.send("Resposta inválida. Esperado: 'par'/'pares'/'ímpar'/'ímpares' ou números.")
-                return
+                return await ctx.send("Resposta inválida. Esperado: 'par'/'pares'/'ímpar'/'ímpares' ou números.")
         with open("dia_de_raids.txt", "w") as f:
             f.write(f"; 0 = par, 1 = ímpar\n{day}")
             print(f"Dia de raids foi marcado para dias {day_str}es por {ctx.author}")
-            await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
+            return await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
 
     @commands.command()
     async def test_raids_notif(self, ctx):
@@ -67,20 +67,20 @@ class RaidsDay:
                                           color=discord.Colour.dark_blue())
         raids_notif_embed.set_thumbnail(url=clan_banner_url)
         raids_notif_embed.add_field(
-        name="Marque presença para os Raids de 21:00",
-        value=f"{setting.RAIDS_CHAT_ID}\n"
-              f"\n"
-              f"É obrigatório ter a tag <@&376410304277512192>\n    - Leia os tópicos fixos para saber como obter\n"
-              f"\n"
-              f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
-              f"\n"
-              f"Não marque presença mais de uma vez\n"
-              f"\n"
-              f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n    - Risco de remoção do time caso contrário. Não cause atrasos.",
-        inline=False)
+            name="Marque presença para os Raids de 21:00",
+            value=f"{setting.RAIDS_CHAT_ID}\n"
+                  f"\n"
+                  f"É obrigatório ter a tag <@&376410304277512192>\n    - Leia os tópicos fixos para saber como obter\n"
+                  f"\n"
+                  f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
+                  f"\n"
+                  f"Não marque presença mais de uma vez\n"
+                  f"\n"
+                  f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n    - Risco de remoção do time caso contrário. Não cause atrasos.",
+            inline=False)
 
         print("    - Answer sent")
-        await ctx.send(content="@Notif", embed=raids_notif_embed)
+        return await ctx.send(content="@Notif", embed=raids_notif_embed)
 
 
 def setup(bot):

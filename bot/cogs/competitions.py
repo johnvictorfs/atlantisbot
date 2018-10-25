@@ -1,11 +1,14 @@
 # Standard lib imports
+from contextlib import closing
+import codecs
+import csv
 import time
 
 # Non-Standard lib imports
 from discord.ext import commands
+import discord
 from bs4 import BeautifulSoup
 import requests
-import discord
 
 # Local imports
 import definesettings as setting
@@ -171,9 +174,8 @@ class Competitions:
         start_time = time.time()
         competitions = get_competitions(setting.CLAN_NAME)
         if not competitions['running_competitions']:
-            await ctx.send("Nenhuma competição ativa no momento :(")
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
-            return
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+            return await ctx.send("Nenhuma competição ativa no momento :(")
         if len(competitions['running_competitions']) > 1 and index is 0:
             competitions_embed = discord.Embed(
                 title="Competições Ativas",
@@ -196,13 +198,12 @@ class Competitions:
                                              value=field_value,
                                              inline=False)
                 index += 1
-            await ctx.send(
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+            return await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
                         f"Selecione uma utilizando:\n`{setting.PREFIX}comp <número da competição> "
                         f"<número de jogadores (padrão = 10)>`",
                 embed=competitions_embed)
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
-            return
         else:
             if len(competitions['running_competitions']) is 1:
                 index = 1
@@ -212,7 +213,7 @@ class Competitions:
                 await ctx.send(f"Você tentou acessar a competição número {index}, "
                                f"mas o número de competições ativa no momento é "
                                f"{len(competitions['running_competitions'])}.")
-                print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+                print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
                 return
             comp_embed = discord.Embed(
                 title=competition['name'],
@@ -237,9 +238,43 @@ class Competitions:
                 comp_embed.add_field(name=f"__Início daqui a__",
                                      value=f"{translate(competition['start_date'])}",
                                      inline=False)
-            await ctx.send(content=None, embed=comp_embed)
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
-            return
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+            return await ctx.send(content=None, embed=comp_embed)
+
+    @commands.command(aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points', 'compp', 'compps'])
+    async def comp_pontos(self, ctx, number=10):
+        await ctx.trigger_typing()
+        print(f"> {ctx.author} issued command 'comp_pontos'.")
+        start_time = time.time()
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkyylgIdAOZ21UOeOAyGz5FPuvg9eqD1nvG6i8dBc2eD9LCjqqnW0VBRwZ8j5Kybppn3q_hfOldjFj/pub?gid=0&single=true&output=csv'
+        with closing(requests.get(url, stream=True)) as r:
+            if r.status_code != 200:
+                return await ctx.send("Houve um erro tentando pegar as informações dessa competição, tente novamente mais tarde :(")
+            reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'), delimiter=',', quotechar='"')
+            if not reader:
+                print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+                return await ctx.send(f'Nenhuma competição fazendo uso do sistema de pontos no momento. tente o comando `{setting.PREFIX}comp` para ver outras competições')
+            list_reader = list(reader)
+            raw_skill = list_reader[0][0].lower()
+            skill_ = skill[raw_skill]
+            finished_days = int(list_reader[0][1])
+            remaining_days = int(list_reader[0][2])
+            comp_embed = discord.Embed(
+                title="__Competição de Pontos__",
+                description=f"{emoji[raw_skill]} {skill_}\n__Dias Finalizados:__ {finished_days}\n__Dias Restantes:__ {remaining_days}\n" + ("_\\" * 15) + "_",
+                color=discord.Colour.dark_red(),
+                url=f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#")
+            i = 1
+            for player in list_reader[1:]:
+                comp_embed.add_field(
+                    name=f"__#{i}__ - {player[0]}",
+                    value=f"**Pontos:** {player[2]}\n**Exp (Total top 10s):** {int(player[1]):,}\n" + ("_\\" * 15) + "_",
+                    inline=False)
+                i += 1
+                if i > number:
+                    break
+            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+            return await ctx.send(embed=comp_embed)
 
 
 def setup(bot):

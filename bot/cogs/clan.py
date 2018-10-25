@@ -24,20 +24,17 @@ class ClanCommands:
         message = setting.MESSAGES["clan_messages"]
         player = rs3clans.Player(name=username, runemetrics=True)
         if not player.exists:
-            await ctx.send(message["player_does_not_exist"][setting.LANGUAGE].format(player.name))
             print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
-            return
+            return await ctx.send(message["player_does_not_exist"][setting.LANGUAGE].format(player.name))
         try:
             user_clan = rs3clans.Clan(name=player.clan)
         except rs3clans.ClanNotFoundError:
-            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
+            return await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
             print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
-            return
         member = user_clan.get_member(username)
         if not member:
-            await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
+            return await ctx.send(message["player_not_in_clan"][setting.LANGUAGE].format(player.name))
             print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
-            return
         user_clan_exp = member['exp']
         user_rank = member['rank']
         display_username = player.name
@@ -84,8 +81,8 @@ class ClanCommands:
             clan_info_embed.add_field(
                 name=total_exp_header, value=f"{player.exp:,}")
 
-        await ctx.send(content=None, embed=clan_info_embed)
         print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
+        return await ctx.send(content=None, embed=clan_info_embed)
 
     @commands.command(aliases=['ranksupdate', 'upranks'])
     async def ranks(self, ctx):
@@ -138,8 +135,8 @@ class ClanCommands:
             ranks_embed.add_field(name="Nenhum Rank a ser atualizado no momento :)",
                                   value=("_\\" * 15) + "_",
                                   inline=False)
-        await ctx.send(embed=ranks_embed)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}")
+        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+        return await ctx.send(embed=ranks_embed)
 
 
 def setup(bot):

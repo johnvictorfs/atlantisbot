@@ -103,7 +103,7 @@ class EmbedMessages:
         welcome_embed.set_footer(
             text=f"Digite {setting.PREFIX}atlcommands para ver os meus comandos!")
 
-        await ctx.send(content=None, embed=welcome_embed)
+        return await ctx.send(content=None, embed=welcome_embed)
 
     @commands.command(aliases=['embed_edit', ])
     async def edit_embed(self, ctx, message_id, category, channel_id=382691780996497416):
@@ -114,18 +114,15 @@ class EmbedMessages:
         try:
             message_id = int(message_id)
         except ValueError:
-            await ctx.send(f"Error: '{message_id}' is not a valid message id.")
-            return
+            return await ctx.send(f"Error: '{message_id}' is not a valid message id.")
         try:
             category = str(category)
         except ValueError:
-            await ctx.send(f"Error: '{category}' is not a valid category.")
-            return
+            return await ctx.send(f"Error: '{category}' is not a valid category.")
         try:
             channel_id = int(channel_id)
         except ValueError:
-            await ctx.send(f"Error: '{channel_id}' is not a valid channel id.")
-            return
+            return await ctx.send(f"Error: '{channel_id}' is not a valid channel id.")
         if category.lower() == 'pvm':
             embed = embeds.get_pvm_embed()
         elif category.lower() == 'general':
@@ -133,13 +130,12 @@ class EmbedMessages:
         elif category.lower() == 'reaction':
             embed = embeds.get_reactions_embed()
         else:
-            await ctx.send(f"Error: '{category}' is not a valid category.")
-            return
+            return await ctx.send(f"Error: '{category}' is not a valid category.")
         channel = self.bot.get_channel(channel_id)
         async for message in channel.history():
             if message.id == message_id:
-                await message.edit(embed=embed)
                 print(f"    Edited message: {message}")
+                return await message.edit(embed=embed)
 
 
 def setup(bot):
