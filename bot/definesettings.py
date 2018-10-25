@@ -110,8 +110,92 @@ else:
     else:
         raise KeyError("Couldn't read settings. Verify if 'bot_settings.ini' exists and is correctly configured.")
 
-with open('clan_settings.json', encoding='utf-8') as f:
-    CLAN_SETTINGS = json.load(f)
+clan_settings_ = {
+    "Owner":
+    {
+        "Rank": "Owner",
+        "Emoji": "<:owner:458788729641762826>",
+        "Translation": "Líder"
+    },
+
+    "Deputy Owner":
+    {
+        "Rank": "Deputy Owner",
+        "Emoji": "<:deputy_owner:458788729507676160>",
+        "Translation": "Vice-Líder"
+    },
+
+    "Overseer":
+    {
+        "Rank": "Overseer",
+        "Emoji": "<:overseer:458788729893683201>",
+        "Translation": "Fiscal"
+    },
+
+    "Coordinator":
+    {
+        "Rank": "Coordinator",
+        "Emoji": "<:coordinator:458788729562202112>",
+        "Translation": "Coordenador"
+    },
+
+    "Organiser":
+    {
+        "Rank": "Organiser",
+        "Emoji": "<:organiser:458788729503612948>",
+        "Translation": "Organizador"
+    },
+
+    "Admin":
+    {
+        "Rank": "Admin",
+        "Emoji": "<:admin:458788729494962197>",
+        "Translation": "Admin"
+    },
+
+    "General":
+    {
+        "Rank": "General",
+        "Emoji": "<:general:458788729318932501>",
+        "Translation": "General"
+    },
+
+    "Captain":
+    {
+        "Rank": "Captain",
+        "Emoji": "<:captain:458788729738362885>",
+        "Translation": "Capitão"
+    },
+
+    "Lieutenant":
+    {
+        "Rank": "Lieutenant",
+        "Emoji": "<:lieutenant:458788729687900190>",
+        "Translation": "Tenente"
+    },
+
+    "Sergeant":
+    {
+        "Rank": "Sergeant",
+        "Emoji": "<:sergeant:458788729432309761>",
+        "Translation": "Sargento"
+    },
+
+    "Corporal":
+    {
+        "Rank": "Corporal",
+        "Emoji": "<:corporal:458788729612402688>",
+        "Translation": "Cabo"
+    },
+
+    "Recruit":
+    {
+        "Rank": "Recruit",
+        "Emoji": "<:recruit:458788730044416001>",
+        "Translation": "Recruta"
+    }
+}
+CLAN_SETTINGS = json.load(clan_settings_)
 
 with open('messages.json', encoding='utf-8') as f:
     MESSAGES = json.load(f)
