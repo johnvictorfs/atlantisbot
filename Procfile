@@ -1,0 +1,1 @@
+worker: python bot/rs3clansbot.py
