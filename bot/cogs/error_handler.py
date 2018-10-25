@@ -1,3 +1,6 @@
+# Standard lib imports
+import os
+
 # Non-Standard lib imports
 from discord.ext import commands
 
@@ -17,12 +20,13 @@ class CommandErrorHandler:
         if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
             day = None
             if ctx.command.qualified_name == 'set_raids_day':
-                with open("dia_de_raids.txt") as f:
-                    for line in f:
-                        if line[0] != ';':
-                            day = line
+                day = os.environ.get('RAIDS_DAY', 1)
+                if day == 1:
+                    day = 'ímpares'
+                else:
+                    day = 'pares'
                 return await ctx.send(f"**Use `{PREFIX}set_raids_day` <par|impar>**\n"
-                                      f" - Dia atual: {day}")
+                                      f" - Dias atuais: '{day}'")
             if ctx.command.qualified_name == 'clan_user_info':
                 if setting.LANGUAGE == 'Portuguese':
                     return await ctx.send(f"**Uso do comando `{PREFIX}claninfo` | `{PREFIX}clanexp`:**\n"

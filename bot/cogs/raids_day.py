@@ -1,3 +1,6 @@
+# Standard lib imports
+import os
+
 # Non-Standard lib imports
 from discord.ext import commands
 import discord
@@ -47,10 +50,9 @@ class RaidsDay:
                 day_str = 'Ímpar'
             else:
                 return await ctx.send("Resposta inválida. Esperado: 'par'/'pares'/'ímpar'/'ímpares' ou números.")
-        with open("dia_de_raids.txt", "w") as f:
-            f.write(f"; 0 = par, 1 = ímpar\n{day}")
-            print(f"Dia de raids foi marcado para dias {day_str}es por {ctx.author}")
-            return await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
+        os.environ['RAIDS_DAY'] = day
+        print(f"Dia de raids foi marcado para dias {day_str}es por {ctx.author}")
+        return await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
 
     @commands.command()
     async def test_raids_notif(self, ctx):

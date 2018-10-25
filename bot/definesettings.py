@@ -72,6 +72,7 @@ if file_exists("bot_settings.ini"):
         SHOW_TITLES = True
 elif os.environ.get('ATLBOT_HEROKU') == 'prod':
     print('Setting settings for Production. Getting Bot Token from Env Variable \'ATLBOT_TOKEN\'')
+    ATLBOT_ENV = 'prod'
     config = configparser.ConfigParser()
 
     config['DISCORD'] = {
