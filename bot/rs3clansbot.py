@@ -24,11 +24,8 @@ async def run():
         await bot.logout()
 
 
-def raids_embed(ntype='fr'):
-    if ntype == 'fr':
-        embed_title = "**Raids**"
-    else:
-        embed_title = "**Durzag**"
+def raids_embed():
+    embed_title = "**Raids**"
 
     clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
     raids_notif_embed = discord.Embed(title=embed_title,
@@ -36,82 +33,89 @@ def raids_embed(ntype='fr'):
                                       color=discord.Colour.dark_blue())
     raids_notif_embed.set_thumbnail(url=clan_banner_url)
 
-    if ntype == 'fr':
-        raids_notif_embed.add_field(
-            name="Marque presença para os Raids de 21:00",
-            value=f"{setting.RAIDS_CHAT_ID}\n"
-                  f"\n"
-                  f"É obrigatório ter a tag <@&376410304277512192>\n    - Leia os tópicos fixos para saber como obter\n"
-                  f"\n"
-                  f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
-                  f"\n"
-                  f"Não marque presença mais de uma vez\n"
-                  f"\n"
-                  f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n"
-                  f"- Risco de remoção do time caso contrário. Não cause atrasos",
-            inline=False)
-    else:
-        raids_notif_embed.add_field(
-            name="Marque presença para o Durzag de 19:00",
-            value=f"{setting.RAIDS_CHAT_ID}\n"
-                  f"\n"
-                  f"Para obter a tag <@&488121068834258954> reaja ao ícone <:durzag:488178236774154240>"
-                  f" no canal <#382691780996497416>\n"
-                  f"\n"
-                  f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
-                  f"\n"
-                  f"Não marque presença mais de uma vez\n",
-            inline=False)
-
+    raids_notif_embed.add_field(
+        name="Marque presença para os Raids de 21:00",
+        value=f"{setting.RAIDS_CHAT_ID}\n"
+              f"\n"
+              f"É obrigatório ter a tag <@&376410304277512192>\n    - Leia os tópicos fixos para saber como obter\n"
+              f"\n"
+              f"Não mande mensagens desnecessárias no {setting.RAIDS_CHAT_ID}\n"
+              f"\n"
+              f"Não marque presença mais de uma vez\n"
+              f"\n"
+              f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n"
+              f"- Risco de remoção do time caso contrário. Não cause atrasos",
+        inline=False)
     return raids_notif_embed
 
 
-async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
+async def raids_notification(user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
     while True:
-        dia_raids = os.environ.get('RAIDS_DAY', 'impar')
-        current_day = datetime.datetime.utcnow().day
-        if int(current_day) % 2 == 0:
-            # O dia aqui tem que ser o contrário do dia de Raids normal, já que eles são alternados
-            current_day = 'impar'
-        else:
-            current_day = 'par'
-
-        date = str(datetime.datetime.utcnow().time())
-        time = date[0:7]
-        time_to_send = time_to_send[0:7]
-
-        if time == time_to_send and current_day == dia_raids:
-            embed = raids_embed(ntype="bm")
-            print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
-            if channel_public:
-                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\n"
-                                                  "Marque presença para o BM Durzag das 19:00.")
-            await channel.send(content="<@&488121068834258954>", embed=embed)
-            await asyncio.sleep(60)
-        await asyncio.sleep(5)
-
-
-async def raids_notification(channel, channel_public=None, time_to_send="20:00:0"):
-    while True:
-        dia_raids = os.environ.get('RAIDS_DAY', 'impar')
-        current_day = datetime.datetime.utcnow().day
-        if int(current_day) % 2 == 0:
-            current_day = 'par'
-        else:
-            current_day = 'impar'
-
-        date = str(datetime.datetime.utcnow().time())
-        time = date[0:7]
-        time_to_send = time_to_send[0:7]
-        if time == time_to_send and current_day == dia_raids:
-            embed = raids_embed()
-            print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
-            if channel_public:
-                await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\n"
-                                                  "Marque presença apenas se for estar online no jogo até 20:50 "
-                                                  "em ponto no Mundo 75.")
-            await channel.send(content="<@&376410304277512192>", embed=embed)
-            await asyncio.sleep(60)
+        today = datetime.datetime.utcnow().date()
+        if (today - start_day).days % 2 == 0:
+            date = str(datetime.datetime.utcnow().time())
+            time = date[0:7]
+            time_to_send = time_to_send[0:7]
+            if time == time_to_send:
+                team_list = []
+                embed = raids_embed()
+                print(f"Sent Raids notification, time: {time}")
+                await channel.send(content="<@&376410304277512192>", embed=embed)
+                raids_notif_msg = await channel.history().get(author=user)
+                team_embed = discord.Embed(
+                    title="__Time Raids__",
+                    description=""
+                )
+                await channel.send(embed=team_embed)
+                raids_team_message = await channel.history().get(author=user)
+                await channel_public.send(
+                    content=f"--- Presenças para os Raids das 21:00 serão contadas a partir dessa mensagem ---\n\n"
+                            f"Marque presença apenas se for estar **online** no jogo até 20:50 "
+                            f"em ponto **no Mundo 75.**\n\n"
+                            f"`in`: Marcar presença\n"
+                            f"`out`: Retirar presença")
+                last_message = await channel_public.history().get(author=user)
+                sent_time = datetime.datetime.now()
+                while True:
+                    async for message in channel_public.history(after=last_message):
+                        if message.content.lower() == 'in':
+                            if len(team_list) >= 10:
+                                await channel_public.send(f"O time de Raids já está cheio!")
+                            else:
+                                if 'Raids' in str(message.author.roles):
+                                    if message.author.mention in team_list:
+                                        await channel_public.send(f"Ei {message.author.mention}, você já está no time! Não tente me enganar.")
+                                    else:
+                                        await channel_public.send(f"{message.author.mention} adicionado ao time de Raids.")
+                                        team_list.append(message.author.mention)
+                                else:
+                                    await channel_public.send(f"{message.author.mention}, você não tem permissão para ir Raids ainda. Aplique agora usando o comando `{setting.PREFIX}raids`!")
+                        if message.content.lower() == 'out':
+                            if message.author.mention in team_list:
+                                team_list.remove(message.author.mention)
+                                await channel_public.send(f"{message.author.mention} foi removido do time de Raids.")
+                            else:
+                                await channel_public.send(f"Ei {message.author.mention}, você já não estava no time! Não tente me enganar.")
+                        last_message = message
+                    team_embed = discord.Embed(
+                        title="__Time Raids__",
+                        description=""
+                    )
+                    i = 1
+                    for person in team_list:
+                        team_embed.add_field(
+                            name=("_\\" * 15) + "_",
+                            value=f"{i}- {person}",
+                            inline=False
+                        )
+                        i += 1
+                    await raids_team_message.edit(embed=team_embed)
+                    diff = datetime.datetime.now() - sent_time
+                    if diff.total_seconds() > (60 * 120):
+                        break
+                await asyncio.sleep(60 * 5)
+                await raids_notif_msg.delete()
+                await raids_team_message.delete()
         await asyncio.sleep(5)
 
 
@@ -140,26 +144,22 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)
         if 'raids_day' not in setting.DISABLED_COGS:
-            # self.raids_channel = self.get_channel(393104367471034369)
-            self.raids_channel = self.get_channel(450059325810016267)
-
-            self.bm_channel = self.get_channel(488112229430984704)
-            # self.raids_channel_public = self.get_channel(393696030505435136)
-            self.raids_channel_public = self.get_channel(450059325810016267)
-
-            bm_time = "18:00:00"
-            raids_time = "02:55:00"
-            # print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
+            if setting.ATLBOT_ENV == 'prod':
+                self.raids_channel = self.get_channel(393104367471034369)
+                self.raids_channel_public = self.get_channel(393696030505435136)
+            elif setting.ATLBOT_ENV == 'dev':
+                self.raids_channel = self.get_channel(505240114662998027)
+                self.raids_channel_public = self.get_channel(505240135390986262)
+            raids_start_day = datetime.date(2018, 10, 25)
+            raids_time = "23:00:00"
             print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
-            print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
+            print(f"-- Channel set to send raids presence notifications: #{self.raids_channel_public}")
             self.loop.create_task(raids_notification(
+                user=self.user,
                 channel=self.raids_channel,
+                start_day=raids_start_day,
                 channel_public=self.raids_channel_public,
                 time_to_send=raids_time))
-            # self.loop.create_task(bm_notification(
-            # channel=self.bm_channel,
-            # channel_public=self.raids_channel_public,
-            # time_to_send=bm_time))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
