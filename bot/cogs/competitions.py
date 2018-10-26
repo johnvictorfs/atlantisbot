@@ -203,7 +203,9 @@ class Competitions:
             return await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
                         f"Selecione uma utilizando:\n`{setting.PREFIX}comp <número da competição> "
-                        f"<número de jogadores (padrão = 10)>`",
+                        f"<número de jogadores (padrão = 10)>`\n"
+                        f"Ou use o comando `{setting.PREFIX}pcomp` para ver informações sobre competições "
+                        f"que estejam usando o sistema de pontos.",
                 embed=competitions_embed)
         else:
             if len(competitions['running_competitions']) is 1:
@@ -247,7 +249,8 @@ class Competitions:
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'comp_pontos'.")
         start_time = time.time()
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkyylgIdAOZ21UOeOAyGz5FPuvg9eqD1nvG6i8dBc2eD9LCjqqnW0VBRwZ8j5Kybppn3q_hfOldjFj/pub?gid=0&single=true&output=csv'
+        url = 'https://docs.google.com/spreadsheets/d/{key}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+        url = url.format(key='1iHPQovW4NXFicJd6ot83QnrN9NyLlxcX3UraJHv9uPg', sheet_name='min')
         with closing(requests.get(url, stream=True)) as r:
             if r.status_code != 200:
                 return await ctx.send("Houve um erro tentando pegar as informações dessa competição, tente novamente mais tarde :(")

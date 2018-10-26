@@ -5,7 +5,6 @@ import asyncio
 import logging
 import datetime
 import re
-import os
 from pathlib import Path
 
 # Non-Standard lib imports
@@ -131,7 +130,6 @@ class Bot(commands.Bot):
         self.start_time = None
         self.app_info = None
         self.raids_channel = None
-        self.bm_channel = None
         self.raids_channel_public = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
@@ -143,7 +141,7 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)
-        if 'raids_day' not in setting.DISABLED_COGS:
+        if 'raids_notif' not in setting.DISABLED_COGS:
             if setting.ATLBOT_ENV == 'prod':
                 self.raids_channel = self.get_channel(393104367471034369)
                 self.raids_channel_public = self.get_channel(393696030505435136)
