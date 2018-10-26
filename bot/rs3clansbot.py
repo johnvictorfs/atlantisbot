@@ -69,14 +69,14 @@ def raids_embed(ntype='fr'):
 async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
     while True:
         dia_raids = os.environ.get('RAIDS_DAY', 1)
-        current_day = datetime.datetime.now().day
+        current_day = datetime.datetime.utcnow().day
         if int(current_day) % 2 == 0:
             # O dia aqui tem que ser o contrário do dia de Raids normal, já que eles são alternados
             current_day = 'impar'
         else:
             current_day = 'par'
 
-        date = str(datetime.datetime.now().time())
+        date = str(datetime.datetime.utcnow().time())
         time = date[0:7]
         time_to_send = time_to_send[0:7]
 
@@ -94,13 +94,13 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
 async def raids_notification(channel, channel_public=None, time_to_send="20:00:0"):
     while True:
         dia_raids = os.environ.get('RAIDS_DAY', 1)
-        current_day = datetime.datetime.now().day
+        current_day = datetime.datetime.utcnow().day
         if int(current_day) % 2 == 0:
             current_day = 'par'
         else:
             current_day = 'impar'
 
-        date = str(datetime.datetime.now().time())
+        date = str(datetime.datetime.utcnow().time())
         time = date[0:7]
         time_to_send = time_to_send[0:7]
         if time == time_to_send and current_day == dia_raids:
@@ -112,7 +112,6 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
                                                   "em ponto no Mundo 75.")
             await channel.send(content="<@&376410304277512192>", embed=embed)
             await asyncio.sleep(60)
-        print('passed')  # TODO: Remove this line
         await asyncio.sleep(5)
 
 
@@ -141,13 +140,16 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)
         if 'raids_day' not in setting.DISABLED_COGS:
-            self.raids_channel = self.get_channel(393104367471034369)
+            # self.raids_channel = self.get_channel(393104367471034369)
+            self.raids_channel = self.get_channel(450059325810016267)
+
             self.bm_channel = self.get_channel(488112229430984704)
-            self.raids_channel_public = self.get_channel(393696030505435136)
+            # self.raids_channel_public = self.get_channel(393696030505435136)
+            self.raids.channel_public = self.get_channel(450059325810016267)
 
             bm_time = "18:00:00"
-            raids_time = "20:00:00"
-            print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
+            raids_time = "02:38:00"
+            # print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
             print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
             print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
             self.loop.create_task(raids_notification(
