@@ -148,7 +148,7 @@ class Bot(commands.Bot):
             self.raids_channel_public = self.get_channel(450059325810016267)
 
             bm_time = "18:00:00"
-            raids_time = "02:38:00"
+            raids_time = "02:43:00"
             # print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
             print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
             print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
