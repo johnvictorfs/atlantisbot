@@ -112,6 +112,7 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
                                                   "em ponto no Mundo 75.")
             await channel.send(content="<@&376410304277512192>", embed=embed)
             await asyncio.sleep(60)
+        print('passed')  # TODO: Remove this line
         await asyncio.sleep(5)
 
 
@@ -138,6 +139,7 @@ class Bot(commands.Bot):
         Can be used to work out up-time.
         """
         await self.wait_until_ready()
+        await asyncio.sleep(1)
         if 'raids_day' not in setting.DISABLED_COGS:
             self.raids_channel = self.get_channel(393104367471034369)
             self.bm_channel = self.get_channel(488112229430984704)
