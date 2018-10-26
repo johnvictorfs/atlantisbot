@@ -145,7 +145,7 @@ class Bot(commands.Bot):
 
             self.bm_channel = self.get_channel(488112229430984704)
             # self.raids_channel_public = self.get_channel(393696030505435136)
-            self.raids.channel_public = self.get_channel(450059325810016267)
+            self.raids_channel_public = self.get_channel(450059325810016267)
 
             bm_time = "18:00:00"
             raids_time = "02:38:00"
