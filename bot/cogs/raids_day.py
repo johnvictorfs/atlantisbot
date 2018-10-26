@@ -38,19 +38,23 @@ class RaidsDay:
             if day % 2 == 0:
                 day = 0
                 day_str = 'Par'
+                day_str_raw = 'par'
             else:
                 day = 1
                 day_str = 'Ímpar'
+                day_str_raw = 'impar'
         else:
             if day in 'pares':
                 day = 0
                 day_str = 'Par'
+                day_str_raw = 'par'
             elif day in 'ímpares' or day in 'impares':
                 day = 1
                 day_str = 'Ímpar'
+                day_str_raw = 'impar'
             else:
                 return await ctx.send("Resposta inválida. Esperado: 'par'/'pares'/'ímpar'/'ímpares' ou números.")
-        os.environ['RAIDS_DAY'] = day
+        os.environ['RAIDS_DAY'] = day_str_raw
         print(f"Dia de raids foi marcado para dias {day_str}es por {ctx.author}")
         return await ctx.send(f"Dia de raids foi marcado para dias {day_str}es.")
 

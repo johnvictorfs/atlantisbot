@@ -68,7 +68,7 @@ def raids_embed(ntype='fr'):
 
 async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
     while True:
-        dia_raids = os.environ.get('RAIDS_DAY', 1)
+        dia_raids = os.environ.get('RAIDS_DAY', 'impar')
         current_day = datetime.datetime.utcnow().day
         if int(current_day) % 2 == 0:
             # O dia aqui tem que ser o contrário do dia de Raids normal, já que eles são alternados
@@ -93,7 +93,7 @@ async def bm_notification(channel, channel_public=None, time_to_send="18:00:0"):
 
 async def raids_notification(channel, channel_public=None, time_to_send="20:00:0"):
     while True:
-        dia_raids = os.environ.get('RAIDS_DAY', 1)
+        dia_raids = os.environ.get('RAIDS_DAY', 'impar')
         current_day = datetime.datetime.utcnow().day
         if int(current_day) % 2 == 0:
             current_day = 'par'
@@ -103,8 +103,11 @@ async def raids_notification(channel, channel_public=None, time_to_send="20:00:0
         date = str(datetime.datetime.utcnow().time())
         time = date[0:7]
         time_to_send = time_to_send[0:7]
+        print(f'{time} -> {time_to_send} -- {current_day} -> {dia_raids}')  # TODO: Remove
         if time == time_to_send and current_day == dia_raids:
+            print('time')  # TODO: Remove
             embed = raids_embed()
+            print('embed')  # TODO: Remove
             print(f"Sent Raids notification, time: {time} - Dia: {current_day}({dia_raids})")
             if channel_public:
                 await channel_public.send(content="--- Presenças serão contadas a partir dessa mensagem ---\n\n"
@@ -148,7 +151,7 @@ class Bot(commands.Bot):
             self.raids_channel_public = self.get_channel(450059325810016267)
 
             bm_time = "18:00:00"
-            raids_time = "02:43:00"
+            raids_time = "02:52:00"
             # print(f"-- Channel set to send bm notification: #{self.bm_channel} at {bm_time}")
             print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
             print(f"-- Channel set to send public notifications: #{self.raids_channel_public}")
