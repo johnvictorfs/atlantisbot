@@ -183,17 +183,26 @@ Aguarde uma resposta de um {aod_teacher}.
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         return await ctx.send(embed=atlcommands_embed)
 
-    @commands.command
-    async def atlsay(self, ctx, *, message, channel):
+    @commands.command(aliases=['atlrepeat'])
+    async def atlsay(self, ctx, *, message):
+        message = message.split(' ')
+        channel = message[-1]
+        print(dir(self.bot))
         print(f'> Trying to send \'{message}\' in channel \'{channel}\'')
         if not check_role(ctx, 'Admin'):
             print('> No permission')
             return await ctx.send('Você não tem permissão para usar isso.')
         try:
-            channel = self.bot.get_channel(channel)
-            await channel.send(''.join(message))
-        except Exception as e:
-            print(f"{e}: when trying to send message.")
+            channel_id = int(channel.replace('<', '').replace('#', '').replace('>', ''))
+        except ValueError:
+            channel_id = None
+        channel = self.bot.get_channel(channel_id)
+        ext = ctx
+        print(channel)
+        if channel:
+            ext = channel
+            del message[-1]
+        await ext.send(' '.join(message))
         print(f'-> Message sent')
 
 
