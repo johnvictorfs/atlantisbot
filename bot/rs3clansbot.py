@@ -5,6 +5,7 @@ import asyncio
 import logging
 import datetime
 import re
+import sys
 from pathlib import Path
 
 # Non-Standard lib imports
@@ -51,18 +52,18 @@ def raids_embed():
 async def raids_notification(user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
     while True:
         today = datetime.datetime.utcnow().date()
-        if (today - start_day).days % 2 == 0:
+        if (today - start_day).days % 2 == 0 or "testraid" in sys.argv:
             date = str(datetime.datetime.utcnow().time())
             time = date[0:7]
             time_to_send = time_to_send[0:7]
-            if time == time_to_send:
+            if time == time_to_send or "testraid" in sys.argv:
                 team_list = []
                 embed = raids_embed()
                 print(f"Sent Raids notification, time: {time}")
                 await channel.send(content="<@&376410304277512192>", embed=embed)
                 raids_notif_msg = await channel.history().get(author=user)
                 team_embed = discord.Embed(
-                    title="__Time Raids__",
+                    title=f"__Time Raids__ - {len(team_list)}/10",
                     description=""
                 )
                 await channel.send(embed=team_embed)
@@ -85,7 +86,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                                     if message.author.mention in team_list:
                                         await channel_public.send(f"Ei {message.author.mention}, você já está no time! Não tente me enganar.")
                                     else:
-                                        await channel_public.send(f"{message.author.mention} adicionado ao time de Raids.")
+                                        await channel_public.send(f"{message.author.mention} foi adicionado ao time de Raids.")
                                         team_list.append(message.author.mention)
                                 else:
                                     await channel_public.send(f"{message.author.mention}, você não tem permissão para ir Raids ainda. Aplique agora usando o comando `{setting.PREFIX}raids`!")
@@ -97,7 +98,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                                 await channel_public.send(f"Ei {message.author.mention}, você já não estava no time! Não tente me enganar.")
                         last_message = message
                     team_embed = discord.Embed(
-                        title="__Time Raids__",
+                        title=f"__Time Raids__ - {len(team_list)}/10",
                         description=""
                     )
                     i = 1
@@ -110,9 +111,12 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                         i += 1
                     await raids_team_message.edit(embed=team_embed)
                     diff = datetime.datetime.now() - sent_time
-                    if diff.total_seconds() > (60 * 120):
+                    if diff.total_seconds() > (60 * 60):
+                        print('- No longer accepting Raids Team entries')
                         break
-                await asyncio.sleep(60 * 5)
+                print('- Deleting Raids notification messages in 30 Minutes')
+                await asyncio.sleep(60 * 30)
+                print('- Deleting Raids notification messages')
                 await raids_notif_msg.delete()
                 await raids_team_message.delete()
         await asyncio.sleep(5)
@@ -168,7 +172,7 @@ class Bot(commands.Bot):
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
 
         if setting.ATLBOT_ENV == 'prod':
-            cogs = ['chat', 'clan', 'competitions', 'error_handler', 'raids_day', 'rsatlantis', 'welcome_message']
+            cogs = ['chat', 'clan', 'competitions', 'error_handler', 'rsatlantis', 'welcome_message']
         else:
             cogs = [x.stem for x in Path('cogs').glob('*.py')]
         for extension in cogs:
@@ -191,6 +195,8 @@ class Bot(commands.Bot):
         self.app_info = await self.application_info()
         await self.change_presence(game=discord.Game(name=setting.PLAYING_NOW))
         print(f"Bot logged on as '{self.user.name}'\n"
+              f"Mode: {setting.ATLBOT_ENV}\n"
+              f"Argvs: {sys.argv}\n"
               f"Owner: '{self.app_info.owner}'\n"
               f"ID: '{self.user.id}'\n"
               f"Oauth URL: '{setting.OAUTH_URL}'\n\n"
@@ -213,7 +219,6 @@ class Bot(commands.Bot):
         # Replace old Rs Wikia links to the new Rs Wiki links
         if 'http' in message.content and 'runescape.wikia.com/wiki/' in message.content:
             urls = re.findall(r"http\S+", message.content)
-
             formatted_urls = []
             for url in urls:
                 if 'runescape.wikia.com/wiki/' in url:
@@ -223,16 +228,22 @@ class Bot(commands.Bot):
             formatted_urls_string = ''
             for url in formatted_urls:
                 formatted_urls_string += f'- ***<{url}>***\n\n'
-
+            plural = ''
+            if len(formatted_urls) > 1:
+                plural = 's'
             await message.channel.send(f'Olá, parece que você usou um ou mais links para a antiga Wiki do RuneScape!'
                                        f'\n\n'
-                                       f'Recentemente a Jagex, com ajuda dos Admins da wiki, '
-                                       f'passou a hostear a wiki do jogo em seu próprio site, ao '
-                                       f'invés do[s] link[s] que você enviou, utilize o[s] link[s] abaixo:\n\n'
+                                       f'Recentemente os Admins da Wiki, com ajuda da Jagex, '
+                                       f'passou a hostear a wiki do jogo no site oficial do RuneScape, ao '
+                                       f'invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
                                        f'{formatted_urls_string}'
                                        f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
-
-        await self.process_commands(message)
+        # If in development environment only accept answers from myself
+        if setting.ATLBOT_ENV == 'dev':
+            if str(message.author) == 'NRiver#2263':
+                await self.process_commands(message)
+        else:
+            await self.process_commands(message)
 
 
 if __name__ == '__main__':
