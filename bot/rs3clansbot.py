@@ -244,14 +244,14 @@ class Bot(commands.Bot):
         else:
             await self.process_commands(message)
 
-    async def on_message_edit(self, message):
-        if message.author.bot:
+    async def on_message_edit(self, before, after):
+        if after.author.bot:
             return
         if setting.ATLBOT_ENV == 'dev':
-            if str(message.author) == 'NRiver#2263':
-                await self.process_commands(message)
+            if str(after.author) == 'NRiver#2263':
+                await self.process_commands(after)
         else:
-            await self.process_commands(message)
+            await self.process_commands(after)
 
 
 if __name__ == '__main__':
