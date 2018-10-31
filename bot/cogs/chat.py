@@ -187,7 +187,6 @@ Aguarde uma resposta de um {aod_teacher}.
     async def atlsay(self, ctx, *, message):
         message = message.split(' ')
         channel = message[-1]
-        print(dir(self.bot))
         print(f'> Trying to send \'{message}\' in channel \'{channel}\'')
         if not check_role(ctx, 'Admin'):
             print('> No permission')

@@ -38,6 +38,10 @@ class CommandErrorHandler:
                 return await ctx.send(f"**Uso do comando `{PREFIX}comp`:**\n"
                                       f"\n{PREFIX}comp `<número da competição> "
                                       f"<número de jogadores (padrão = 10)>`")
+            if ctx.command.qualified_name == 'team':
+                return await ctx.send(f"** Uso do comando `{PREFIX}team`:**\n"
+                                      f"\n{PREFIX}team `<\"Título do Time\">` `<Tamanho do Time>` `<Roles permitidos>(opcional)`\n\n"
+                                      f"*`É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços`*")
 
 
 def setup(bot):

@@ -12,6 +12,7 @@ import requests
 
 # Local imports
 import definesettings as setting
+from .utils import separator
 
 skill = {
     'attack': 'Ataque',
@@ -180,7 +181,7 @@ class Competitions:
         if len(competitions['running_competitions']) > 1 and index is 0:
             competitions_embed = discord.Embed(
                 title="Competições Ativas",
-                description=f"" + ("_\\" * 15) + "_",
+                description=f"" + separator,
                 color=discord.Colour.dark_red(),
                 url=f"http://www.runeclan.com/clan/{setting.CLAN_NAME}/competitions")
             index = 0
@@ -194,7 +195,7 @@ class Competitions:
                 else:
                     field_value += f"__Início daqui a__: {translate(comp['start_date'])}"
                 field_value += "\n"
-                field_value += ("_\\" * 15) + "_"
+                field_value += separator
                 competitions_embed.add_field(name=f"#{index + 1} - {comp['name']}",
                                              value=field_value,
                                              inline=False)
@@ -230,12 +231,12 @@ class Competitions:
             if competition['start_date'] == 'active':
                 comp_details = competition_details(setting.CLAN_NAME, competition['link'])
                 comp_embed.add_field(name="__Tempo Restante__",
-                                     value=f"{translate(competition['time_remaining'])}\n" + ("_\\" * 15) + "_",
+                                     value=f"{translate(competition['time_remaining'])}\n" + separator,
                                      inline=False)
                 for i in range(players):
                     if int(comp_details[i]['exp_gained'].replace(',', '')) > 0:
                         comp_embed.add_field(name=f"__#{i + 1}__ - {comp_details[i]['name']}",
-                                             value=f"**Exp:** {comp_details[i]['exp_gained']}\n" + ("_\\" * 15) + "_",
+                                             value=f"**Exp:** {comp_details[i]['exp_gained']}\n" + separator,
                                              inline=False)
             else:
                 comp_embed.add_field(name=f"__Início daqui a__",
@@ -265,14 +266,14 @@ class Competitions:
             remaining_days = int(list_reader[0][2])
             comp_embed = discord.Embed(
                 title="__Competição de Pontos__",
-                description=f"{emoji[raw_skill]} {skill_}\n__Dias Finalizados:__ {finished_days}\n__Dias Restantes:__ {remaining_days}\n" + ("_\\" * 15) + "_",
+                description=f"{emoji[raw_skill]} {skill_}\n__Dias Finalizados:__ {finished_days}\n__Dias Restantes:__ {remaining_days}\n" + separator,
                 color=discord.Colour.dark_red(),
                 url=f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#")
             i = 1
             for player in list_reader[1:]:
                 comp_embed.add_field(
                     name=f"__#{i}__ - {player[0]}",
-                    value=f"**Pontos:** {player[2]}\n**Exp (Total top 10s):** {int(player[1]):,}\n" + ("_\\" * 15) + "_",
+                    value=f"**Pontos:** {player[2]}\n**Exp (Total top 10s):** {int(player[1]):,}\n" + separator,
                     inline=False)
                 i += 1
                 if i > number:

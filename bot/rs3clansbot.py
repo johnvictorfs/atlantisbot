@@ -14,6 +14,7 @@ from discord.ext import commands
 
 # Local imports
 import definesettings as setting
+from cogs.utils import separator
 
 
 async def run():
@@ -80,7 +81,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                     async for message in channel_public.history(after=last_message):
                         if message.content.lower() == 'in':
                             if len(team_list) >= 10:
-                                await channel_public.send(f"O time de Raids já está cheio!")
+                                await channel_public.send(f"{message.author.mention}, o time de Raids já está cheio!")
                             else:
                                 if 'Raids' in str(message.author.roles):
                                     if message.author.mention in team_list:
@@ -101,14 +102,12 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                         title=f"__Time Raids__ - {len(team_list)}/10",
                         description=""
                     )
-                    i = 1
-                    for person in team_list:
+                    for index, person in enumerate(team_list):
                         team_embed.add_field(
-                            name=("_\\" * 15) + "_",
-                            value=f"{i}- {person}",
+                            name=separator,
+                            value=f"{index + 1}- {person}",
                             inline=False
                         )
-                        i += 1
                     await raids_team_message.edit(embed=team_embed)
                     diff = datetime.datetime.now() - sent_time
                     if diff.total_seconds() > (60 * 60):
@@ -239,6 +238,15 @@ class Bot(commands.Bot):
                                        f'{formatted_urls_string}'
                                        f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
         # If in development environment only accept answers from myself
+        if setting.ATLBOT_ENV == 'dev':
+            if str(message.author) == 'NRiver#2263':
+                await self.process_commands(message)
+        else:
+            await self.process_commands(message)
+
+    async def on_message_edit(self, message):
+        if message.author.bot:
+            return
         if setting.ATLBOT_ENV == 'dev':
             if str(message.author) == 'NRiver#2263':
                 await self.process_commands(message)

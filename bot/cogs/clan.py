@@ -8,6 +8,7 @@ from discord.ext import commands
 
 # Local imports
 import definesettings as setting
+from .utils import separator
 
 
 class ClanCommands:
@@ -133,7 +134,7 @@ class ClanCommands:
                 found = True
         if not found:
             ranks_embed.add_field(name="Nenhum Rank a ser atualizado no momento :)",
-                                  value=("_\\" * 15) + "_",
+                                  value=separator,
                                   inline=False)
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         return await ctx.send(embed=ranks_embed)
