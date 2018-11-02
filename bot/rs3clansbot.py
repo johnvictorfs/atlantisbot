@@ -179,7 +179,7 @@ class Bot(commands.Bot):
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
 
         if setting.ATLBOT_ENV == 'prod':
-            cogs = ['chat', 'clan', 'competitions', 'error_handler', 'rsatlantis', 'welcome_message']
+            cogs = ['chat', 'clan', 'competitions', 'error_handler', 'rsatlantis', 'welcome_message', 'teams']
         else:
             cogs = [x.stem for x in Path('cogs').glob('*.py')]
         for extension in cogs:
