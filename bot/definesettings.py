@@ -81,7 +81,7 @@ elif os.environ.get('ATLBOT_HEROKU') == 'prod':
     config['DISCORD'] = {
         'bot_token': os.environ['ATLBOT_TOKEN'],
         'oauth_url': 'N/A',
-        'playing_now': '!atlcommands',
+        'playing_now': '!atlbot',
         'commands_prefix': '!',
         'bot_description': 'A discord bot with utilities for RS3 Clans Discords',
         'language': 'Portuguese',

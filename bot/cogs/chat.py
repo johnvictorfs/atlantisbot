@@ -142,7 +142,7 @@ Aguarde uma resposta de um {aod_teacher}.
         embed_title = "RuneClan"
 
         atlcommands_embed = discord.Embed(title=embed_title,
-                                          description="",
+                                          description="`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional",
                                           color=discord.Colour.dark_blue(),
                                           url=runeclan_url,
                                           )
@@ -163,19 +163,22 @@ Aguarde uma resposta de um {aod_teacher}.
         atlcommands_embed.add_field(name=f"{setting.PREFIX}membro",
                                     value="Aplicar para receber o role de Membro no Discord",
                                     inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}comp <número da comp.> <número de jogadores>",
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}comp (número da comp|1) (número de jogadores|10)",
                                     value="Ver as competições ativas do Clã",
                                     inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}pcomp <número de jogadores>",
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}pcomp (número de jogadores|10)",
                                     value="Ver informação sobre a atual competição de Pontos em andamento",
                                     inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}ranks",
                                     value="Ver os Ranks do Clã pendentes a serem atualizados",
                                     inline=False)
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
+                                    value="Criar um Time com presenças automáticas",
+                                    inline=False)
         atlcommands_embed.add_field(name=f"{setting.PREFIX}github",
                                     value="Ver o repositório desse bot no Github",
                                     inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}atlcommands",
+        atlcommands_embed.add_field(name=f"{setting.PREFIX}atlbot",
                                     value="Ver essa mensagem",
                                     inline=False)
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
