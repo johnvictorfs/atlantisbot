@@ -52,7 +52,7 @@ class TeamCommands:
                     if not channel:
                         return await ctx.send(f"Valor inválido: Canal ({input_channel})")
                 except Exception as e:
-                    await ctx.send(e)
+                    await ctx.send(f"{e}: Erro inesperado.")
             else:
                 channel = ctx.channel
             description = ""
@@ -79,7 +79,11 @@ class TeamCommands:
             )
             await ctx.send(embed=team_embed)
             team_message = await ctx.channel.history().get(author=self.bot.user)
-            await channel.send(embed=invite_embed)
+            try:
+                await channel.send(embed=invite_embed)
+            except discord.errors.Forbidden as e:
+                await team_message.delete()
+                return await ctx.send(f"{e}: Permissões insuficientes para enviar mensagens no canal {channel.mention}")
             last_message = await channel.history().get(author=self.bot.user)
             invite_message = await channel.history().get(author=self.bot.user)
             finished = False
