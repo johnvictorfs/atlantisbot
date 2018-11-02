@@ -134,63 +134,91 @@ Aguarde uma resposta de um {aod_teacher}.
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'atlcommands'.")
+        print(f"$ {ctx.author} issued command 'atlcommands'.")
         start_time = time.time()
 
         runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
         embed_title = "RuneClan"
 
-        atlcommands_embed = discord.Embed(title=embed_title,
-                                          description="`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional",
-                                          color=discord.Colour.dark_blue(),
-                                          url=runeclan_url,
-                                          )
+        atlcommands_embed = discord.Embed(
+            title=embed_title,
+            description="`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional",
+            color=discord.Colour.dark_blue(),
+            url=runeclan_url,
+        )
         atlcommands_embed.set_author(
-            icon_url=clan_banner_url, name="AtlantisBot")
+            icon_url=clan_banner_url,
+            name="AtlantisBot"
+        )
         atlcommands_embed.set_thumbnail(
-            url="http://rsatlantis.com/images/logo.png")
+            url="http://rsatlantis.com/images/logo.png"
+        )
 
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}claninfo <nome de jogador>",
-                                    value="Ver info de Clã de Jogador",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}raids",
-                                    value="Aplicar para ter acesso aos Raids do Clã",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}aod",
-                                    value="Aplicar para ter acesso aos times de AoD do Clã",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}membro",
-                                    value="Aplicar para receber o role de Membro no Discord",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}comp (número da comp|1) (número de jogadores|10)",
-                                    value="Ver as competições ativas do Clã",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}pcomp (número de jogadores|10)",
-                                    value="Ver informação sobre a atual competição de Pontos em andamento",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}ranks",
-                                    value="Ver os Ranks do Clã pendentes a serem atualizados",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
-                                    value="Criar um Time com presenças automáticas",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}github",
-                                    value="Ver o repositório desse bot no Github",
-                                    inline=False)
-        atlcommands_embed.add_field(name=f"{setting.PREFIX}atlbot",
-                                    value="Ver essa mensagem",
-                                    inline=False)
-        atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}claninfo <nome de jogador>",
+            value="Ver info de Clã de Jogador",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}raids",
+            value="Aplicar para ter acesso aos Raids do Clã",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}aod",
+            value="Aplicar para ter acesso aos times de AoD do Clã",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}membro",
+            value="Aplicar para receber o role de Membro no Discord",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}comp (número da comp|1) (número de jogadores|10)",
+            value="Ver as competições ativas do Clã",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}pcomp (número de jogadores|10)",
+            value="Ver informação sobre a atual competição de Pontos em andamento",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}ranks",
+            value="Ver os Ranks do Clã pendentes a serem atualizados",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
+            value="Criar um Time com presenças automáticas",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}github",
+            value="Ver o repositório desse bot no Github",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{setting.PREFIX}atlbot",
+            value="Ver essa mensagem",
+            inline=False
+        )
+        atlcommands_embed.set_footer(
+            text="Criado por @NRiver#2263"
+        )
 
         print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-        return await ctx.send(embed=atlcommands_embed)
+        return await ctx.send(
+            embed=atlcommands_embed
+        )
 
     @commands.command(aliases=['atlrepeat'])
     async def atlsay(self, ctx, *, message):
         message = message.split(' ')
         channel = message[-1]
-        print(f'> Trying to send \'{message}\' in channel \'{channel}\'')
+        print(f'$ Trying to send \'{message}\' in channel \'{channel}\'')
         if not check_role(ctx, 'Admin'):
             print('> No permission')
             return await ctx.send('Você não tem permissão para usar isso.')
@@ -200,7 +228,6 @@ Aguarde uma resposta de um {aod_teacher}.
             channel_id = None
         channel = self.bot.get_channel(channel_id)
         ext = ctx
-        print(channel)
         if channel:
             ext = channel
             del message[-1]

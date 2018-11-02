@@ -90,7 +90,10 @@ class TeamCommands:
                         if message.author.bot:
                             await channel.send(f"`beep boop`\nHow do you do fellow human?")
                             continue
-                        await message.delete()
+                        try:
+                            await message.delete()
+                        except discord.errors.Forbidden:
+                            print(f'$ No permissions to delete messages in channel {message.channel.mention} ({message.channel})')
                         roles = []
                         for role_ in message.author.roles:
                             roles.append(f"<@&{role_.id}>")
@@ -113,7 +116,10 @@ class TeamCommands:
                         if message.author.bot:
                             await channel.send(f"`beep boop`\nHow do you do fellow human?")
                             continue
-                        await message.delete()
+                        try:
+                            await message.delete()
+                        except discord.errors.Forbidden:
+                            print(f'$ No permissions to delete messages in channel {message.channel.mention} ({message.channel})')
                         if message.author.mention in team_list:
                             await channel.send(f"{message.author.mention} foi removido do time '{title}'.")
                             team_list.remove(message.author.mention)
@@ -121,18 +127,24 @@ class TeamCommands:
                             await channel.send(f"Ei {message.author.mention}, você já não estava no time '{title}'! Não tente me enganar.")
                     elif message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
                         print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
-                        await team_message.delete()
-                        await ctx.message.delete()
-                        await invite_message.delete()
-                        return await message.delete()
-                    last_message = message
-                    async for message in ctx.channel.history(after=team_message):
-                        if message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
-                            print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
+                        try:
                             await team_message.delete()
                             await ctx.message.delete()
                             await invite_message.delete()
                             return await message.delete()
+                        except discord.errors.Forbidden as e:
+                            await message.channel.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {message.channel.mention}")
+                    last_message = message
+                    async for message in ctx.channel.history(after=team_message):
+                        if message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
+                            print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
+                            try:
+                                await team_message.delete()
+                                await ctx.message.delete()
+                                await invite_message.delete()
+                                return await message.delete()
+                            except discord.errors.Forbidden as e:
+                                await message.channel.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {message.channel.mention}")
                 team_embed = discord.Embed(
                     title=f"__{title}__ - {len(team_list)}/{team_size}",
                     description=description,
@@ -156,6 +168,8 @@ class TeamCommands:
         except Exception as e:
             logs_channel = self.bot.get_channel(int(setting.LOGS_CHANNEL))
             await logs_channel.send(f"""
+<@148175892596785152>
+
 Exception: `{e}`
 
 Traceback:
