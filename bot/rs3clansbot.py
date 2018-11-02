@@ -60,7 +60,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
             if time == time_to_send or "testraid" in sys.argv:
                 team_list = []
                 embed = raids_embed()
-                print(f"Sent Raids notification, time: {time}")
+                print(f"$ Sent Raids notification, time: {time}")
                 await channel.send(content="<@&376410304277512192>", embed=embed)
                 raids_notif_msg = await channel.history().get(author=user)
                 team_embed = discord.Embed(
@@ -69,17 +69,20 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                 )
                 await channel.send(embed=team_embed)
                 raids_team_message = await channel.history().get(author=user)
-                await channel_public.send(
-                    content=f"--- Presenças para os Raids das 21:00 serão contadas a partir dessa mensagem ---\n\n"
-                            f"Marque presença apenas se for estar **online** no jogo até 20:50 "
-                            f"em ponto **no Mundo 75.**\n\n"
-                            f"`in`: Marcar presença\n"
-                            f"`out`: Retirar presença")
+                invite_embed = discord.Embed(
+                    title=f"Marque presença para 'Raids' (10 pessoas)",
+                    description=f"{separator}\nTime: {channel.mention}\nRequisito: <@&376410304277512192>\n\n"
+                                f"Marque presença apenas se for estar **online** no jogo até 20:50 em ponto **no Mundo 75.**\n\n"
+                                f"`in`: Marcar presença\n"
+                                f"`out`: Retirar presença"
+                )
+                await channel_public.send(embed=invite_embed)
                 last_message = await channel_public.history().get(author=user)
                 sent_time = datetime.datetime.now()
                 while True:
                     async for message in channel_public.history(after=last_message):
                         if message.content.lower() == 'in':
+                            await message.delete()
                             if len(team_list) >= 10:
                                 await channel_public.send(f"{message.author.mention}, o time de Raids já está cheio!")
                             else:
@@ -92,6 +95,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                                 else:
                                     await channel_public.send(f"{message.author.mention}, você não tem permissão para ir Raids ainda. Aplique agora usando o comando `{setting.PREFIX}raids`!")
                         if message.content.lower() == 'out':
+                            await message.delete()
                             if message.author.mention in team_list:
                                 team_list.remove(message.author.mention)
                                 await channel_public.send(f"{message.author.mention} foi removido do time de Raids.")
@@ -108,14 +112,18 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                             value=f"{index + 1}- {person}",
                             inline=False
                         )
-                    await raids_team_message.edit(embed=team_embed)
+                    try:
+                        await raids_team_message.edit(embed=team_embed)
+                    except discord.errors.NotFound:
+                        print(f'$ Raids team message deleted manually at {datetime.datetime.now()} - no longer accepting Raids Team entries')
+                        break
                     diff = datetime.datetime.now() - sent_time
                     if diff.total_seconds() > (60 * 60):
-                        print('- No longer accepting Raids Team entries')
+                        print('$ No longer accepting Raids Team entries')
                         break
-                print('- Deleting Raids notification messages in 30 Minutes')
+                print('$ Deleting Raids notification messages in 30 Minutes')
                 await asyncio.sleep(60 * 30)
-                print('- Deleting Raids notification messages')
+                print('$ Deleting Raids notification messages')
                 await raids_notif_msg.delete()
                 await raids_team_message.delete()
         await asyncio.sleep(5)
@@ -214,6 +222,35 @@ class Bot(commands.Bot):
         """
         if message.author.bot:
             return
+        membro = '<@&321015529059909674>'
+        convidado = '<@&321015669883797506>'
+        if membro in message.author.roles or convidado in message.author.roles or True:
+            if membro in message.content or convidado in message.content or '@everyone' in message.content or '@here' in message.content:
+                embed = discord.Embed(
+                    title="__Quebra de Conduta__",
+                    description=separator,
+                    color=discord.Color.dark_red(),
+                )
+                embed.add_field(
+                    name=f"Por favor não utilize as seguintes menções sem permissão para tal:",
+                    value=f"{membro} - {convidado} - @everyone - @here",
+                    inline=False
+                )
+                embed.set_author(
+                    name="Administração",
+                    icon_url="http://www.runeclan.com/images/ranks/1.png"
+                )
+                embed.set_thumbnail(
+                    url=f"http://services.runescape.com/m=avatar-rs/{setting.CLAN_NAME}/clanmotif.png?cachebust=1541099511258"
+                )
+                embed.set_footer(
+                    text="Nosso servidor abriga uma quantidade muito grande de pessoas, tenha bom senso ao utilizar uma menção que irá notificar centenas de pessoas."
+                )
+
+                print(f'> {message.author} used a not allowed mention in channel #{message.channel} at {datetime.datetime.now()}')
+                print(f"Content:\n<\n{message.content}\n>")
+                await message.delete()
+                return await message.channel.send(content=message.author.mention, embed=embed)
 
         # Replace old Rs Wikia links to the new Rs Wiki links
         if 'http' in message.content and 'runescape.wikia.com/wiki/' in message.content:
@@ -255,6 +292,10 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())

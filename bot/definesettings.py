@@ -25,7 +25,8 @@ def generate_settings(file_name='bot_settings'):
         'admin_id': '<@&321015469341540352>',
         'raids_teacher_id': '<@&346107622853836801>',
         'raids_chat_id': '<#393696030505435136>',
-        'raids_notif_chat_id': '393104367471034369'
+        'raids_notif_chat_id': '393104367471034369',
+        'logs_channel': '507740210759467018'
     }
 
     config['RUNESCAPE'] = {
@@ -61,6 +62,7 @@ if file_exists("bot_settings.ini"):
     RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
     RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
     RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
+    LOGS_CHANNEL = config_file['DISCORD']['logs_channel']
 
     DISABLED_COGS = config_file['COGS']['disabled'].split(',')
 
@@ -87,7 +89,8 @@ elif os.environ.get('ATLBOT_HEROKU') == 'prod':
         'admin_id': '<@&321015469341540352>',
         'raids_teacher_id': '<@&346107622853836801>',
         'raids_chat_id': '<#393696030505435136>',
-        'raids_notif_chat_id': '393104367471034369'
+        'raids_notif_chat_id': '393104367471034369',
+        'logs_channel': '507740210759467018'
     }
 
     config['RUNESCAPE'] = {
@@ -118,6 +121,7 @@ elif os.environ.get('ATLBOT_HEROKU') == 'prod':
     RAIDS_TEACHER_ID = config_file['DISCORD']['raids_teacher_id']
     RAIDS_CHAT_ID = config_file['DISCORD']['raids_chat_id']
     RAIDS_NOTIF_CHAT_ID = config_file['DISCORD']['raids_notif_chat_id']
+    LOGS_CHANNEL = config_file['DISCORD']['logs_channel']
 
     DISABLED_COGS = config_file['COGS']['disabled'].split(',')
 

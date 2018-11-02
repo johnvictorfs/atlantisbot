@@ -85,7 +85,7 @@ class ClanCommands:
         print(f"    - Answer sent. Took: {time.time() - start_time:.2f}s")
         return await ctx.send(content=None, embed=clan_info_embed)
 
-    @commands.command(aliases=['ranksupdate', 'upranks'])
+    @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
     async def ranks(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'ranks'.")

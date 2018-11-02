@@ -18,6 +18,7 @@ class CommandErrorHandler:
     @staticmethod
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
+            # TODO: Change those for embeds, with nice footers maybe
             day = None
             if ctx.command.qualified_name == 'set_raids_day':
                 day = os.environ.get('RAIDS_DAY', 1)
@@ -40,7 +41,8 @@ class CommandErrorHandler:
                                       f"<número de jogadores (padrão = 10)>`")
             if ctx.command.qualified_name == 'team':
                 return await ctx.send(f"** Uso do comando `{PREFIX}team`:**\n"
-                                      f"\n{PREFIX}team `<\"Título do Time\">` `<Tamanho do Time>` `<Roles permitidos>(opcional)`\n\n"
+                                      f"\n{PREFIX}team `<\"Título\">` `<Tamanho>` `<Chat onde aceitar presenças>(opcional)` `<Role permitido>(opcional)`\n\n"
+                                      f"*`Caso não defina um Chat, ele usará o mesmo aonde o comando foi chamado`*\n\n"
                                       f"*`É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços`*")
 
 
