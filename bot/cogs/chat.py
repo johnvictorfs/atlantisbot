@@ -231,7 +231,10 @@ Aguarde uma resposta de um {aod_teacher}.
         if channel:
             ext = channel
             del message[-1]
-        await ext.send(' '.join(message))
+        try:
+            await ext.send(' '.join(message))
+        except discord.errors.Forbidden as e:
+            await ctx.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {ctx.channel.mention}")
         print(f'-> Message sent')
 
 
