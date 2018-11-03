@@ -86,9 +86,8 @@ class TeamCommands:
                 return await ctx.send(f"{e}: Permissões insuficientes para enviar mensagens no canal {channel.mention}")
             last_message = await channel.history().get(author=self.bot.user)
             invite_message = await channel.history().get(author=self.bot.user)
-            finished = False
-            team_list = []
-            while not finished:
+            team_list = []  # TODO: Change this into a dictionary, so users can also pass in their roles when joining a team
+            while True:
                 async for message in channel.history(after=last_message):
                     if message.content.lower() == f'in {TEAM_ID}':
                         if message.author.bot:
@@ -100,15 +99,19 @@ class TeamCommands:
                             print(f'$ No permissions to delete messages in channel {message.channel.mention} ({message.channel})')
                         roles = []
                         for role_ in message.author.roles:
+                            # This makes it so roles list contains all the roles the user has, in mention format
+                            # since this is what's passed in when creating a team
                             roles.append(f"<@&{role_.id}>")
+                        # If user has required role or if no required role was passed when creating the team, then
+                        # the user can procceed to be added to the team (or not if it's already full or if he's in it already)
                         if role in roles or not role:
                             if message.author.mention in team_list:
                                 await channel.send(f"Ei {message.author.mention}, você já está no time '{title}'! Não tente me enganar.")
                             elif len(team_list) >= int(team_size):
-                                await channel.send(f"{message.author.mention}, o time '{title}' já está cheio!")
+                                await channel.send(f"{message.author.mention}, o time '{title}' já está cheio! ({len(team_list)}/{team_size})")
                             else:
-                                await channel.send(f"{message.author.mention} foi adicionado ao time '{title}'.")
                                 team_list.append(message.author.mention)
+                                await channel.send(f"{message.author.mention} foi adicionado ao time '{title}'. ({len(team_list)}/{team_size})")
                         else:
                             no_perm_embed = discord.Embed(
                                 title=f"__Permissões insuficientes__",
@@ -125,8 +128,8 @@ class TeamCommands:
                         except discord.errors.Forbidden:
                             print(f'$ No permissions to delete messages in channel {message.channel.mention} ({message.channel})')
                         if message.author.mention in team_list:
-                            await channel.send(f"{message.author.mention} foi removido do time '{title}'.")
                             team_list.remove(message.author.mention)
+                            await channel.send(f"{message.author.mention} foi removido do time '{title}'. ({len(team_list)}/{team_size})")
                         else:
                             await channel.send(f"Ei {message.author.mention}, você já não estava no time '{title}'! Não tente me enganar.")
                     elif message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
@@ -157,6 +160,7 @@ class TeamCommands:
                 team_embed.set_footer(
                     text=embed_footer
                 )
+                # Adds fields to the team embed with all the members in the team list
                 for index, member in enumerate(team_list):
                     team_embed.add_field(
                         name=separator,
@@ -164,22 +168,24 @@ class TeamCommands:
                         inline=False
                     )
                 try:
+                    # Updates the team message with the new list
                     await team_message.edit(embed=team_embed)
                 except discord.NotFound:
-                    # This breaks out of the loop and ends the command if the team list message has been deleted
-                    await ctx.message.delete()
+                    # This breaks out of the loop and ends the command if the team list message has been deleted.
+                    # This way a team can be interrupted by a Mod/Admin in case the person who created it isn't feeling like
+                    # removing it
+                    try:
+                        await ctx.message.delete()
+                    except discord.NotFound:
+                        pass
                     break
         except Exception as e:
+            traceback.print_exc()
             logs_channel = self.bot.get_channel(int(setting.LOGS_CHANNEL))
             await logs_channel.send(f"""
 <@148175892596785152>
 
 Exception: `{e}`
-
-Traceback:
-```python
-{traceback.print_exc()}
-```
 
 Command: `teams`
 
@@ -199,7 +205,7 @@ Channel: `#{ctx.channel}`
     {channel}
 
 `role::`
-    {role}
+    {str(role)}
 
 
 DATE: `{datetime.datetime.now()}`

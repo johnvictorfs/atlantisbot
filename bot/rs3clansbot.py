@@ -84,13 +84,13 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                         if message.content.lower() == 'in':
                             await message.delete()
                             if len(team_list) >= 10:
-                                await channel_public.send(f"{message.author.mention}, o time de Raids já está cheio!")
+                                await channel_public.send(f"{message.author.mention}, o time de Raids já está cheio! ({len(team_list)}/10)")
                             else:
                                 if 'Raids' in str(message.author.roles):
                                     if message.author.mention in team_list:
                                         await channel_public.send(f"Ei {message.author.mention}, você já está no time! Não tente me enganar.")
                                     else:
-                                        await channel_public.send(f"{message.author.mention} foi adicionado ao time de Raids.")
+                                        await channel_public.send(f"{message.author.mention} foi adicionado ao time de Raids. ({len(team_list)}/10)")
                                         team_list.append(message.author.mention)
                                 else:
                                     await channel_public.send(f"{message.author.mention}, você não tem permissão para ir Raids ainda. Aplique agora usando o comando `{setting.PREFIX}raids`!")
@@ -98,7 +98,7 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                             await message.delete()
                             if message.author.mention in team_list:
                                 team_list.remove(message.author.mention)
-                                await channel_public.send(f"{message.author.mention} foi removido do time de Raids.")
+                                await channel_public.send(f"{message.author.mention} foi removido do time de Raids. ({len(team_list)}/10)")
                             else:
                                 await channel_public.send(f"Ei {message.author.mention}, você já não estava no time! Não tente me enganar.")
                         last_message = message
