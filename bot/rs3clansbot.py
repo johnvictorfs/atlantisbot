@@ -90,8 +90,8 @@ async def raids_notification(user, channel, start_day, channel_public=None, time
                                     if message.author.mention in team_list:
                                         await channel_public.send(f"Ei {message.author.mention}, você já está no time! Não tente me enganar.")
                                     else:
-                                        await channel_public.send(f"{message.author.mention} foi adicionado ao time de Raids. ({len(team_list)}/10)")
                                         team_list.append(message.author.mention)
+                                        await channel_public.send(f"{message.author.mention} foi adicionado ao time de Raids. ({len(team_list)}/10)")
                                 else:
                                     await channel_public.send(f"{message.author.mention}, você não tem permissão para ir Raids ainda. Aplique agora usando o comando `{setting.PREFIX}raids`!")
                         if message.content.lower() == 'out':
