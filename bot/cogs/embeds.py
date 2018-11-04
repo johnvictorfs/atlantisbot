@@ -2,7 +2,7 @@
 import discord
 
 # Local imports
-from bot import definesettings as setting
+import definesettings as setting
 
 role = {
     'pvmemos': '<@&338221796748820502>',

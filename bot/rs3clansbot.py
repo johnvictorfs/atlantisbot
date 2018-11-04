@@ -253,12 +253,12 @@ class Bot(commands.Bot):
                 return await message.channel.send(content=message.author.mention, embed=embed)
 
         # Replace old Rs Wikia links to the new Rs Wiki links
-        if 'http' in message.content and 'runescape.wikia.com/wiki/' in message.content:
+        if 'http' in message.content and 'runescape.fandom.com/wiki' in message.content:
             urls = re.findall(r"http\S+", message.content)
             formatted_urls = []
             for url in urls:
-                if 'runescape.wikia.com/wiki/' in url:
-                    url = url.replace('runescape.wikia.com/wiki/', 'runescape.wiki/w/')
+                if 'runescape.fandom.com/wiki' in url:
+                    url = url.replace('runescape.fandom.com/wiki', 'runescape.wiki/w/')
                     formatted_urls.append(url)
 
             formatted_urls_string = ''

@@ -143,15 +143,18 @@ class TeamCommands:
                             await message.channel.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {message.channel.mention}")
                     last_message = message
                     async for message in ctx.channel.history(after=team_message):
-                        if message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
-                            print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
-                            try:
-                                await team_message.delete()
-                                await ctx.message.delete()
-                                await invite_message.delete()
-                                return await message.delete()
-                            except discord.errors.Forbidden as e:
-                                await message.channel.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {message.channel.mention}")
+                        if message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}':
+                            if message.author != ctx.message.author:
+                                await message.channel.send(f"Você não é o autor desse time, portanto não tem permissão para o deletar.")
+                            else:
+                                print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
+                                try:
+                                    await team_message.delete()
+                                    await ctx.message.delete()
+                                    await invite_message.delete()
+                                    return await message.delete()
+                                except Exception as e:
+                                    await message.channel.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {message.channel.mention}")
                 team_embed = discord.Embed(
                     title=f"__{title}__ - {len(team_list)}/{team_size}",
                     description=description,
