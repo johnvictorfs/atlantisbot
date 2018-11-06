@@ -106,16 +106,16 @@ class TeamCommands:
                         # the user can procceed to be added to the team (or not if it's already full or if he's in it already)
                         if role in roles or not role:
                             if message.author.mention in team_list:
-                                await channel.send(f"Ei {message.author.mention}, você já está no time '{title}'! Não tente me enganar.")
+                                await channel.send(f"Ei {message.author.mention}, você já está no time '{title}'! Não tente me enganar.\n(*`in {TEAM_ID}`*)")
                             elif len(team_list) >= int(team_size):
-                                await channel.send(f"{message.author.mention}, o time '{title}' já está cheio! ({len(team_list)}/{team_size})")
+                                await channel.send(f"{message.author.mention}, o time '{title}' já está cheio! ({len(team_list)}/{team_size})\n(*`in {TEAM_ID}`*)")
                             else:
                                 team_list.append(message.author.mention)
-                                await channel.send(f"{message.author.mention} foi adicionado ao time '{title}'. ({len(team_list)}/{team_size})")
+                                await channel.send(f"{message.author.mention} foi adicionado ao time '{title}'. ({len(team_list)}/{team_size})\n(*`in {TEAM_ID}`*)")
                         else:
                             no_perm_embed = discord.Embed(
                                 title=f"__Permissões insuficientes__",
-                                description=f"Você precisa ter o cargo {role} para entrar nesse time.",
+                                description=f"Você precisa ter o cargo {role} para entrar nesse time.\n(*`in {TEAM_ID}`*)",
                                 color=discord.Color.dark_red()
                             )
                             await channel.send(content=message.author.mention, embed=no_perm_embed)
@@ -129,9 +129,9 @@ class TeamCommands:
                             print(f'$ No permissions to delete messages in channel {message.channel.mention} ({message.channel})')
                         if message.author.mention in team_list:
                             team_list.remove(message.author.mention)
-                            await channel.send(f"{message.author.mention} foi removido do time '{title}'. ({len(team_list)}/{team_size})")
+                            await channel.send(f"{message.author.mention} foi removido do time '{title}'. ({len(team_list)}/{team_size})\n(*`out {TEAM_ID}`*)")
                         else:
-                            await channel.send(f"Ei {message.author.mention}, você já não estava no time '{title}'! Não tente me enganar.")
+                            await channel.send(f"Ei {message.author.mention}, você já não estava no time '{title}'! Não tente me enganar.\n(*`out {TEAM_ID}`*)")
                     elif message.content.lower() == f'{setting.PREFIX}del {TEAM_ID}' and message.author == ctx.message.author:
                         print(f'$ Team \'{title}\' has been issued for deletion. ID: {TEAM_ID}')
                         try:
