@@ -224,7 +224,7 @@ class Bot(commands.Bot):
             return
         membro = '<@&321015529059909674>'
         convidado = '<@&321015669883797506>'
-        if membro in message.author.roles or convidado in message.author.roles or True:
+        if membro in message.author.roles or convidado in message.author.roles:
             if membro in message.content or convidado in message.content or '@everyone' in message.content or '@here' in message.content:
                 embed = discord.Embed(
                     title="__Quebra de Conduta__",
