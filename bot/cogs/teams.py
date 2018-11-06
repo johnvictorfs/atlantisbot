@@ -92,6 +92,7 @@ class TeamCommands:
                     if message.content.lower() == f'in {TEAM_ID}':
                         if message.author.bot:
                             await channel.send(f"`beep boop`\nHow do you do fellow human?")
+                            last_message = message
                             continue
                         try:
                             await message.delete()
