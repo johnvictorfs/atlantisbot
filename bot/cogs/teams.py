@@ -58,7 +58,7 @@ class TeamCommands:
             description = ""
             requisito = "\n"
             if role:
-                description += f"Necessário: {role}"
+                description += f"Requisito: {role}"
                 requisito = f"Requisito: {role}\n\n"
             if channel:
                 description += f"\nMarque presença no: {channel.mention}"
