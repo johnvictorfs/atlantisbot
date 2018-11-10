@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import datetime
+import os
 import re
 import sys
 import json
@@ -54,9 +55,10 @@ class Bot(commands.Bot):
         except FileNotFoundError:
             with open('bot/bot_settings.json', 'w') as f:
                 json.dump(settings.default_settings, f, indent=4)
-                print(f"{Fore.YELLOW}Settings not found. Default settings file created. "
-                      "Edit '/bot/bot_settings.json' to change settings, then reload the bot.")
-                sys.exit(1)
+                if not os.environ.get('ATLBOT_TOKEN'):
+                    print(f"{Fore.YELLOW}Settings not found. Default settings file created. "
+                          "Edit '/bot/bot_settings.json' to change settings, then reload the bot.")
+                    sys.exit(1)
 
     async def track_start(self):
         """
