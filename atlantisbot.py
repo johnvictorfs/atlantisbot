@@ -115,7 +115,11 @@ class Bot(commands.Bot):
         """
         print('-' * 10)
         self.app_info = await self.application_info()
-        await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
+        try:
+            await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
+        except TypeError:
+            # Compatibility with older versions of discord.py rewrite
+            await self.change_presence(game=discord.Game(name=self.setting.playing_message))
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Mode: {self.setting.mode}\n"
               f"Argvs: {sys.argv}\n"
