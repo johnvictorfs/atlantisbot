@@ -1,1 +1,1 @@
-worker: python rs3clansbot.py
+worker: python atlantisbot.py
