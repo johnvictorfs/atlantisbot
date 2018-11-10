@@ -109,3 +109,5 @@ venv.bak/
 # Local
 *.ini
 *.vscode
+bot_settings.json
+pvm_teams.json

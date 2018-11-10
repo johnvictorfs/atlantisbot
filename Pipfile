@@ -4,26 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiohttp = "==2.2.5"
-certifi = "==2018.8.24"
-chardet = "==3.0.4"
-discord-rewrite = "==1.0.0"
-idna = "==2.7"
-multidict = "==4.3.1"
-requests = "==2.19.1"
-rs3clans = "==1.0.2"
-urllib3 = "==1.23"
-yarl = "==1.1.1"
-async_timeout = "==3.0.0"
-schedule = "*"
-aiofiles = "*"
-websockets = "==4.0.1"
-bs4 = "*"
-lxml = "*"
+discord-py = {extras = ["voice"], editable = true, ref = "rewrite", git = "https://github.com/Rapptz/discord.py"}
+"rs3clans" = "*"
+"beautifulsoup4" = "*"
+colorama = "*"
 
 [dev-packages]
-"autopep8" = "*"
-"flake8" = "*"
 
 [requires]
 python_version = "3.6"

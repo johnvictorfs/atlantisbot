@@ -1,19 +1,9 @@
-# Standard lib imports
 import time
 
-# Non-Standard lib imports
 import discord
 from discord.ext import commands
 
-# Local imports
-import definesettings as setting
-
-
-def check_role(ctx, *roles):
-    for role in roles:
-        if role in str(ctx.message.author.roles):
-            return True
-    return False
+from .utils import right_arrow, has_role
 
 
 class ChatCommands:
@@ -21,20 +11,17 @@ class ChatCommands:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['role', 'membro', 'Role', 'ROLE'])
+    @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_role'.")
-        start_time = time.time()
-
         role_message = (f"Informe seu usuário in-game.\n\n"
-                        f"{setting.MOD_ID} {setting.ADMIN_ID} "
+                        f"<@&{self.bot.setting.role.get('mod')}> "
+                        f"<@&{self.bot.setting.role.get('admin')}> "
                         f"- O(a) Senhor(a) acima deseja receber um cargo acima de Convidado. Favor verificar :)")
 
         denied_message = "Fool! Você não é um Convidado!"
-
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-        if check_role(ctx, "Convidado"):
+        if has_role(ctx.author, self.bot.setting.role.get('convidado')):
             return await ctx.send(role_message)
         else:
             return await ctx.send(denied_message)
@@ -43,9 +30,7 @@ class ChatCommands:
     async def aplicar_raids(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
-        start_time = time.time()
-        raids_channel = "<#393104367471034369>"
-        right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
+        raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
         aplicar_message = f"""
 Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.
@@ -61,14 +46,12 @@ Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>
  {right_arrow} `Barra de Habilidades` no modo de combate que utiliza
  {right_arrow} `Nome de usuário in-game`
 
-Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
+Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>.
 
 ***Exemplo:*** https://i.imgur.com/CMNzquL.png"""
 
         denied_message = "Fool! Você já tem permissão para ir Raids!"
-
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-        if check_role(ctx, "Raids"):
+        if has_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
         else:
             return await ctx.send(aplicar_message)
@@ -77,11 +60,8 @@ Aguarde uma resposta de um {setting.RAIDS_TEACHER_ID}.
     async def aplicar_aod(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_aod'.")
-        start_time = time.time()
-
-        aod_channel = "<#499740247647846401>"
-        aod_teacher = "<@&346107676448522240>"
-        right_arrow = setting.MESSAGES["emoji"]["arrow_emoji"]
+        aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
+        aod_teacher = f"<@&{self.bot.setting.role.get('aod_teacher')}>"
 
         aplicar_message = f"""
 Olá! Você aplicou para receber a tag de AoD e participar dos times de Nex: AoD do Clã.
@@ -103,8 +83,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-        if check_role(ctx, "Angel of Memes", "Aod"):
+        if has_role(ctx.author, self.bot.setting.role.get('aod')):
             return await ctx.send(denied_message)
         else:
             return await ctx.send(aplicar_message)
@@ -113,32 +92,29 @@ Aguarde uma resposta de um {aod_teacher}.
     async def github(self, ctx):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'github'.")
-        start_time = time.time()
-
         github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
         johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
         johnvictorfs_url = "https://github.com/johnvictorfs"
 
-        github_embed = discord.Embed(title="atlantisbot-rewrite",
-                                     description="",
-                                     color=discord.Colour.dark_blue(),
-                                     url=repo_url)
-        github_embed.set_author(icon_url=johnvictorfs_img,
-                                url=johnvictorfs_url, name="johnvictorfs")
-        github_embed.set_thumbnail(url=github_icon)
-
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+        github_embed = discord.Embed(
+            title="atlantisbot-rewrite",
+            description="",
+            color=discord.Colour.dark_blue(),
+            url=repo_url)
+        github_embed.set_author(
+            icon_url=johnvictorfs_img,
+            url=johnvictorfs_url, name="johnvictorfs")
+        github_embed.set_thumbnail(
+            url=github_icon)
         return await ctx.send(content=None, embed=github_embed)
 
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing()
         print(f"$ {ctx.author} issued command 'atlcommands'.")
-        start_time = time.time()
-
-        runeclan_url = f"https://runeclan.com/clan/{setting.CLAN_NAME}"
-        clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.CLAN_NAME}/clanmotif.png"
+        runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
+        clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
         embed_title = "RuneClan"
 
         atlcommands_embed = discord.Embed(
@@ -148,7 +124,7 @@ Aguarde uma resposta de um {aod_teacher}.
             url=runeclan_url,
         )
         atlcommands_embed.set_author(
-            icon_url=clan_banner_url,
+            icon_url=clan_banner,
             name="AtlantisBot"
         )
         atlcommands_embed.set_thumbnail(
@@ -156,60 +132,58 @@ Aguarde uma resposta de um {aod_teacher}.
         )
 
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}claninfo <nome de jogador>",
+            name=f"{self.bot.setting.prefix}claninfo <nome de jogador>",
             value="Ver info de Clã de Jogador",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}raids",
+            name=f"{self.bot.setting.prefix}raids",
             value="Aplicar para ter acesso aos Raids do Clã",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}aod",
+            name=f"{self.bot.setting.prefix}aod",
             value="Aplicar para ter acesso aos times de AoD do Clã",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}membro",
+            name=f"{self.bot.setting.prefix}membro",
             value="Aplicar para receber o role de Membro no Discord",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}comp (número da comp|1) (número de jogadores|10)",
+            name=f"{self.bot.setting.prefix}comp (número da comp|1) (número de jogadores|10)",
             value="Ver as competições ativas do Clã",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}pcomp (número de jogadores|10)",
+            name=f"{self.bot.setting.prefix}pcomp (número de jogadores|10)",
             value="Ver informação sobre a atual competição de Pontos em andamento",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}ranks",
+            name=f"{self.bot.setting.prefix}ranks",
             value="Ver os Ranks do Clã pendentes a serem atualizados",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
+            name=f"{self.bot.setting.prefix}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
             value="Criar um Time com presenças automáticas",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}github",
+            name=f"{self.bot.setting.prefix}github",
             value="Ver o repositório desse bot no Github",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{setting.PREFIX}atlbot",
+            name=f"{self.bot.setting.prefix}atlbot",
             value="Ver essa mensagem",
             inline=False
         )
         atlcommands_embed.set_footer(
             text="Criado por @NRiver#2263"
         )
-
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         return await ctx.send(
             embed=atlcommands_embed
         )
@@ -219,7 +193,7 @@ Aguarde uma resposta de um {aod_teacher}.
         message = message.split(' ')
         channel = message[-1]
         print(f'$ Trying to send \'{message}\' in channel \'{channel}\'')
-        if not check_role(ctx, 'Admin'):
+        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
             print('> No permission')
             return await ctx.send('Você não tem permissão para usar isso.')
         try:
@@ -227,14 +201,14 @@ Aguarde uma resposta de um {aod_teacher}.
         except ValueError:
             channel_id = None
         channel = self.bot.get_channel(channel_id)
-        ext = ctx
+        ext = ctx.channel
         if channel:
             ext = channel
             del message[-1]
         try:
             await ext.send(' '.join(message))
         except discord.errors.Forbidden as e:
-            await ctx.send(f"{e}: Permissões insuficientes para deletar mensagens no canal {ctx.channel.mention}")
+            await ctx.send(f"{e}: Permissões enviar mensagens no canal {ext.mention}")
         print(f'-> Message sent')
 
 

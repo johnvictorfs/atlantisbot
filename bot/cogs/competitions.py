@@ -1,17 +1,13 @@
-# Standard lib imports
 from contextlib import closing
 import codecs
 import csv
 import time
 
-# Non-Standard lib imports
 from discord.ext import commands
 import discord
 from bs4 import BeautifulSoup
 import requests
 
-# Local imports
-import definesettings as setting
 from .utils import separator
 
 skill = {
@@ -92,13 +88,14 @@ def translate(string):
 
 def competition_details(name, comp_id):
     url = f"http://www.runeclan.com/clan/{name}/{comp_id}"
-
-    source = requests.get(url).content
-
-    soup = BeautifulSoup(source.decode('utf-8', 'ignore'), 'lxml')
-
-    competition_table = soup.find('table',
-                                  attrs={'class': 'regular', 'width': '100%', 'cellpadding': '0', 'cellspacing': '0'})
+    request = requests.get(url)
+    if request.status_code != 200:
+        return 'FAILURE'
+    source = request.content.decode('utf-8', 'ignore')
+    soup = BeautifulSoup(source, 'lxml')
+    competition_table = soup.find(
+        'table',
+        attrs={'class': 'regular', 'width': '100%', 'cellpadding': '0', 'cellspacing': '0'})
 
     players = []
     for comp in competition_table:
@@ -174,7 +171,7 @@ class Competitions:
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'running_competitions'.")
         start_time = time.time()
-        competitions = get_competitions(setting.CLAN_NAME)
+        competitions = get_competitions(self.bot.setting.clan_name)
         if not competitions['running_competitions']:
             print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send("Nenhuma competição ativa no momento :(")
@@ -183,12 +180,12 @@ class Competitions:
                 title="Competições Ativas",
                 description=f"" + separator,
                 color=discord.Colour.dark_red(),
-                url=f"http://www.runeclan.com/clan/{setting.CLAN_NAME}/competitions")
+                url=f"http://www.runeclan.com/clan/{self.bot.setting.clan_name}/competitions")
             index = 0
             for comp in competitions['running_competitions']:
-                field_value = f"{emoji[comp['skill'].lower()]} " \
-                              f"{skill[comp['skill'].lower()]}\n" \
-                              f"__Duração__: {translate(comp['duration'])}\n"
+                field_value = (f"{emoji[comp['skill'].lower()]} "
+                               f"{skill[comp['skill'].lower()]}\n"
+                               f"__Duração__: {translate(comp['duration'])}\n")
 
                 if comp['start_date'] == 'active':
                     field_value += f"__Tempo Restante__: {translate(comp['time_remaining'])}"
@@ -203,9 +200,9 @@ class Competitions:
             print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
-                        f"Selecione uma utilizando:\n`{setting.PREFIX}comp <número da competição> "
+                        f"Selecione uma utilizando:\n`{self.bot.setting.prefix}comp <número da competição> "
                         f"<número de jogadores (padrão = 10)>`\n"
-                        f"Ou use o comando `{setting.PREFIX}pcomp` para ver informações sobre competições "
+                        f"Ou use o comando `{self.bot.setting.prefix}pcomp` para ver informações sobre competições "
                         f"que estejam usando o sistema de pontos.",
                 embed=competitions_embed)
         else:
@@ -224,12 +221,14 @@ class Competitions:
                 description=f"{emoji[competition['skill'].lower()]} "
                             f"{skill[competition['skill'].lower()]}",
                 color=discord.Colour.blue(),
-                url=f"http://www.runeclan.com/clan/{setting.CLAN_NAME}/{competition['link']}")
+                url=f"http://www.runeclan.com/clan/{self.bot.setting.clan_name}/{competition['link']}")
             comp_embed.add_field(name="__Duração Total__",
                                  value=f"{translate(competition['duration'])}",
                                  inline=False)
             if competition['start_date'] == 'active':
-                comp_details = competition_details(setting.CLAN_NAME, competition['link'])
+                comp_details = competition_details(self.bot.setting.clan_name, competition['link'])
+                if comp_details == 'FAILURE':
+                    await ctx.send("Erro ao conectar ao RuneClan. Tente novamente mais tarde.")
                 comp_embed.add_field(name="__Tempo Restante__",
                                      value=f"{translate(competition['time_remaining'])}\n" + separator,
                                      inline=False)
@@ -245,7 +244,9 @@ class Competitions:
             print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send(content=None, embed=comp_embed)
 
-    @commands.command(aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points', 'compp', 'compps'])
+    @commands.command(
+        aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
+                 'compp', 'compps'])
     async def comp_pontos(self, ctx, number=10):
         await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'comp_pontos'.")
@@ -254,11 +255,14 @@ class Competitions:
         url = url.format(key='1iHPQovW4NXFicJd6ot83QnrN9NyLlxcX3UraJHv9uPg', sheet_name='min')
         with closing(requests.get(url, stream=True)) as r:
             if r.status_code != 200:
-                return await ctx.send("Houve um erro tentando pegar as informações dessa competição, tente novamente mais tarde :(")
+                return await ctx.send(
+                    "Houve um erro tentando pegar as informações dessa competição, tente novamente mais tarde :(")
             reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'), delimiter=',', quotechar='"')
             if not reader:
                 print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-                return await ctx.send(f'Nenhuma competição fazendo uso do sistema de pontos no momento. tente o comando `{setting.PREFIX}comp` para ver outras competições')
+                return await ctx.send(
+                    f'Nenhuma competição fazendo uso do sistema de pontos no momento. '
+                    f'tente o comando `{self.bot.setting.prefix}comp` para ver outras competições')
             list_reader = list(reader)
             raw_skill = list_reader[0][0].lower()
             skill_ = skill[raw_skill]
@@ -266,9 +270,11 @@ class Competitions:
             remaining_days = int(list_reader[0][2])
             comp_embed = discord.Embed(
                 title="__Competição de Pontos__",
-                description=f"{emoji[raw_skill]} {skill_}\n__Dias Finalizados:__ {finished_days}\n__Dias Restantes:__ {remaining_days}\n" + separator,
+                description=f"{emoji[raw_skill]} {skill_}\n__Dias Finalizados:__ {finished_days}"
+                            f"\n__Dias Restantes:__ {remaining_days}\n" + separator,
                 color=discord.Colour.dark_red(),
-                url=f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#")
+                url=f"https://docs.google.com/spreadsheets/d/e/"
+                    f"2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#")
             i = 1
             for player in list_reader[1:]:
                 comp_embed.add_field(

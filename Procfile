@@ -1,1 +1,1 @@
-worker: python bot/rs3clansbot.py
+worker: python rs3clansbot.py

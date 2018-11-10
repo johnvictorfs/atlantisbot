@@ -3,15 +3,8 @@ from discord.ext import commands
 import discord
 
 # Local imports
-import definesettings as setting
 from . import embeds
-
-
-def check_role(ctx, *roles):
-    for role in roles:
-        if role in str(ctx.message.author.roles):
-            return True
-    return False
+from .utils import has_role
 
 
 class EmbedMessages:
@@ -22,13 +15,22 @@ class EmbedMessages:
     @commands.command(aliases=['server_tags_embed_', 'post_server_tags_embed'])
     async def server_tags_embed(self, ctx):
         print(f"{ctx.author} issued command server_tags_embed")
-        if not check_role(ctx, "Admin"):
-            print(f"{ctx.author}: D E N I E D")
+        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
+            print(f"{ctx.author}: denied access to server_tags_embed")
             return
 
-        pvm_embed = embeds.get_pvm_embed()
-        general_embed = embeds.get_general_embed()
-        reactions_embed = embeds.get_reactions_embed()
+        pvm_embed = embeds.get_pvm_embed(
+            chat=self.bot.setting.chat,
+            role=self.bot.setting.role
+        )
+        general_embed = embeds.get_general_embed(
+            chat=self.bot.setting.chat,
+            role=self.bot.setting.role,
+            prefix=self.bot.setting.prefix
+        )
+        reactions_embed = embeds.get_reactions_embed(
+            role=self.bot.setting.role
+        )
 
         await ctx.send(content=None, embed=pvm_embed)
         await ctx.send(content=None, embed=general_embed)
@@ -38,25 +40,26 @@ class EmbedMessages:
     async def send_static_welcome_message(self, ctx):
         print(f"{ctx.author} issued command send_static_welcome_message")
 
-        if not check_role(ctx, "Admin"):
-            print(f"{ctx.author}: D E N I E D")
+        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
+            print(f"{ctx.author}: denied access to send_static_welcome_message")
             return
-        tags_do_server = setting.MESSAGES["chat"]["tags_do_server"]
-        discord_bots = setting.MESSAGES["chat"]["discord_bots"]
-        links_pvm = setting.MESSAGES["chat"]["links_pvm"]
-        raids = setting.MESSAGES["chat"]["raids"]
-        pvmemes = setting.MESSAGES["chat"]["pvmemes"]
-        durzag = "<#488112229430984704>"
-        guia_yaka = "<#425844417862041610>"
-        guia_aod = "<#354335920297738240>"
-        geral = "<#321012292160454657>"
-        visitantes = "<#321012324997529602>"
-        drops_e_conquistas = "<#336182514886377482>"
-        anuncios = "<#467069985270005760>"
+        tags_do_server = f"<#{self.bot.setting.chat.get('tags_do_server')}>"
+        discord_bots = f"<#{self.bot.setting.chat.get('discord_bots')}>"
+        links_pvm = f"<#{self.bot.setting.chat.get('links_uteis')}>"
+        raids = f"<#{self.bot.setting.chat.get('raids')}>"
+        pvmemes = f"<#{self.bot.setting.chat.get('pvmemes')}>"
+        guia_yaka = f"<#{self.bot.setting.chat.get('guia_yaka')}>"
+        guia_aod = f"<#{self.bot.setting.chat.get('guia_aod')}>"
+        geral = f"<#{self.bot.setting.chat.get('geral')}>"
+        visitantes = f"<#{self.bot.setting.chat.get('visitantes')}>"
+        drops_e_conquistas = f"<#{self.bot.setting.chat.get('drops_e_conquistas')}>"
+        anuncios = f"<#{self.bot.setting.chat.get('anuncios')}>"
+        aod = f"<#{self.bot.setting.chat.get('aod')}>"
+        solak = f"<#{self.bot.setting.chat.get('solak')}>"
 
         welcome_embed = discord.Embed(
             title=f"Bem vindo ao Discord do Atlantis!",
-            description=f"Caso seja um membro do Atlantis, digite `{setting.PREFIX}role` no canal {visitantes}",
+            description=f"Caso seja um membro do Atlantis, use `{self.bot.setting.prefix}membro` no canal {visitantes}",
             color=discord.Color.blue()
         )
 
@@ -73,7 +76,8 @@ class EmbedMessages:
                 f"⯈ {discord_bots} para comandos de Bots\n"
                 f"⯈ {drops_e_conquistas} para mostrar suas conquistas no jogo\n"
                 f"⯈ {raids} para aplicar para os Raids do Clã (Membros apenas)\n"
-                f"⯈ {durzag} para eventos de Beastmaster Durzag do Clã (Membros apenas)\n"
+                f"⯈ {aod} para aplicar para os times de AoD do Clã (Membros apenas)\n"
+                f"⯈ {solak} para aplicar para os times de Solak do Clã (Membros apenas)\n"
                 f"⯈ {guia_yaka} Guia de Yakamaru\n"
                 f"⯈ {guia_aod} Guia de Nex: Angel of Death\n"),
             inline=False
@@ -101,15 +105,15 @@ class EmbedMessages:
         )
 
         welcome_embed.set_footer(
-            text=f"Digite {setting.PREFIX}atlcommands para ver os meus comandos!")
+            text=f"Digite {self.bot.setting.prefix}atlbot para ver os meus comandos!")
 
         return await ctx.send(content=None, embed=welcome_embed)
 
     @commands.command(aliases=['embed_edit', ])
     async def edit_embed(self, ctx, message_id, category, channel_id=382691780996497416):
         print(f'Command edit_embed issued by {ctx.author}.')
-        if not check_role(ctx, "Admin"):
-            print(f"{ctx.author}: D E N I E D")
+        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
+            print(f"{ctx.author}: denied access to server_tags_embed")
             return
         try:
             message_id = int(message_id)
@@ -124,11 +128,20 @@ class EmbedMessages:
         except ValueError:
             return await ctx.send(f"Error: '{channel_id}' is not a valid channel id.")
         if category.lower() == 'pvm':
-            embed = embeds.get_pvm_embed()
+            embed = embeds.get_pvm_embed(
+                role=self.bot.setting.role,
+                chat=self.bot.setting.chat
+            )
         elif category.lower() == 'general':
-            embed = embeds.get_general_embed()
+            embed = embeds.get_general_embed(
+                role=self.bot.setting.role,
+                prefix=self.bot.setting.prefix,
+                chat=self.bot.setting.chat
+            )
         elif category.lower() == 'reaction':
-            embed = embeds.get_reactions_embed()
+            embed = embeds.get_reactions_embed(
+                self.bot.setting.role
+            )
         else:
             return await ctx.send(f"Error: '{category}' is not a valid category.")
         channel = self.bot.get_channel(channel_id)

@@ -1,13 +1,5 @@
-# Standard lib imports
-import os
-
-# Non-Standard lib imports
+import discord
 from discord.ext import commands
-
-# Local imports
-import definesettings as setting
-
-PREFIX = setting.PREFIX
 
 
 class CommandErrorHandler:
@@ -15,35 +7,31 @@ class CommandErrorHandler:
     def __init__(self, bot):
         self.bot = bot
 
-    @staticmethod
-    async def on_command_error(ctx, error):
+    async def on_command_error(self, ctx, error):
+        prefix = self.bot.setting.prefix
         if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
-            # TODO: Change those for embeds, with nice footers maybe
-            day = None
-            if ctx.command.qualified_name == 'set_raids_day':
-                day = os.environ.get('RAIDS_DAY', 1)
-                if day == 1:
-                    day = 'ímpares'
-                else:
-                    day = 'pares'
-                return await ctx.send(f"**Use `{PREFIX}set_raids_day` <par|impar>**\n"
-                                      f" - Dias atuais: '{day}'")
+            footer = None
             if ctx.command.qualified_name == 'clan_user_info':
-                if setting.LANGUAGE == 'Portuguese':
-                    return await ctx.send(f"**Uso do comando `{PREFIX}claninfo` | `{PREFIX}clanexp`:**\n"
-                                          f"\n{PREFIX}claninfo `<nome de jogador>`")
-                else:
-                    return await ctx.send(f"**Usage of command `{PREFIX}claninfo` | `{PREFIX}clanexp`:**\n"
-                                          f"\n{PREFIX}claninfo `<player name>`")
+                command = "claninfo"
+                arguments = f"`<nome de jogador>`"
             if ctx.command.qualified_name == 'running_competitions':
-                return await ctx.send(f"**Uso do comando `{PREFIX}comp`:**\n"
-                                      f"\n{PREFIX}comp `<número da competição> "
-                                      f"<número de jogadores (padrão = 10)>`")
+                command = "comp"
+                arguments = f"`<número da competição>` `(número de jogadores|10)`"
             if ctx.command.qualified_name == 'team':
-                return await ctx.send(f"** Uso do comando `{PREFIX}team`:**\n"
-                                      f"\n{PREFIX}team `<\"Título\">` `<Tamanho>` `<Chat onde aceitar presenças>(opcional)` `<Role permitido>(opcional)`\n\n"
-                                      f"*`Caso não defina um Chat, ele usará o mesmo aonde o comando foi chamado`*\n\n"
-                                      f"*`É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços`*")
+                command = "team"
+                arguments = f"<\"Título\"> `<Tamanho>` `(Chat para presenças|Chat atual) (Role Requisito)`"
+                footer = "É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços"
+            embed = discord.Embed(
+                title=f"Uso do comando '{command}'",
+                description=f"`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional\n\n"
+                            f"{prefix}{command} {arguments}\n",
+                color=discord.Colour.blue()
+            )
+            if footer:
+                embed.set_footer(
+                    text=footer
+                )
+            await ctx.send(embed=embed)
 
 
 def setup(bot):

@@ -1,12 +1,6 @@
-# Non-Standard lib imports
 from discord.ext import commands
 
-
-def check_role(ctx, *roles):
-    for role in roles:
-        if role in str(ctx.message.author.roles):
-            return True
-    return False
+from .utils import has_role
 
 
 class RsAtlantisCommands:
@@ -14,9 +8,9 @@ class RsAtlantisCommands:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['atlantisrs', 'Rsatlantis', 'RSatlantis', 'RSATLANTIS'])
+    @commands.command(aliases=['atlantisrs'])
     async def rsatlantis(self, ctx):
-        if check_role(ctx, 'Admin'):
+        if has_role(ctx.author, self.bot.setting.role.get('admin')):
             pass
 
 
