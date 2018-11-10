@@ -178,10 +178,8 @@ async def team_maker(client):
                 with open('pvm_teams.json', 'w') as f:
                     json.dump(current_teams, f, indent=2)
         except FileNotFoundError:
-            print('file not found error')
             pass
         except json.decoder.JSONDecodeError:
-            print('json decoder error')
             pass
         except Exception as e:
             tb = traceback.format_exc()
