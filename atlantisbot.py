@@ -105,8 +105,8 @@ class Bot(commands.Bot):
                     self.load_extension(f'bot.cogs.{extension}')
                     print(f'- loaded Extension: {extension}')
                 except Exception as e:
-                    error = f'{extension}\n {type(e).__name__} : {e}'
-                    print(f'failed to load extension {error}')
+                    error = f'{extension}:\n {type(e).__name__} : {e}'
+                    print(f'Failed to load extension {error}')
         print('-' * 10)
 
     async def on_ready(self):
@@ -119,6 +119,7 @@ class Bot(commands.Bot):
             await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
         except TypeError:
             # Compatibility with older versions of discord.py rewrite
+            print(f"{Fore.RED}Aviso: Versão não atualizada do discord.py rewrite sendo utilizada.")
             await self.change_presence(game=discord.Game(name=self.setting.playing_message))
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Mode: {self.setting.mode}\n"

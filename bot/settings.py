@@ -26,6 +26,7 @@ class Settings:
         token_ = self.read_data['BOT']['bot_token']
         if token_ == 'BOT_TOKEN_HERE':
             return os.environ.get('ATLBOT_TOKEN')
+        return token_
 
     @property
     def description(self):

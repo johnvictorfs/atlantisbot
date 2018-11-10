@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bdeb09e527f10390ae60f6a39d9cb05086be4eb60016ee93d1c492ad9a8a13a7"
+            "sha256": "69d313d4d1dd8b816c966ac7961a7a119ff3d06dfa0b3b64196810d2b5352451"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -125,7 +125,7 @@
             "index": "pypi",
             "version": "==0.4.0"
         },
-        "discord-py": {
+        "discord": {
             "editable": true,
             "extras": [
                 "voice"
