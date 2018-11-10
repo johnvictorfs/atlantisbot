@@ -59,6 +59,10 @@ class Bot(commands.Bot):
                     print(f"{Fore.YELLOW}Settings not found. Default settings file created. "
                           "Edit '/bot/bot_settings.json' to change settings, then reload the bot.")
                     sys.exit(1)
+                else:
+                    with open('bot/bot_settings.json', 'w') as heroku_settings:
+                        json.dump(settings.default_settings, heroku_settings, indent=4)
+                        return settings.Settings()
 
     async def track_start(self):
         """
