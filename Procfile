@@ -1,1 +1,1 @@
-worker: pipenv install && python atlantisbot.py
+worker: python atlantisbot.py
