@@ -1,1 +1,1 @@
-worker: python atlantisbot.py
+worker: pipenv install -e git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice] && python atlantisbot.py

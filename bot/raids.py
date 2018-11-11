@@ -36,6 +36,8 @@ def raids_embed(setting):
 
 async def raids_notification(setting, user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
     while True:
+        # TODO: Save this in a json file, so the team can't be shut off if the bot resets
+        # raids_team.json
         today = datetime.datetime.utcnow().date()
         check_day = (today - start_day).days % 2
         if check_day == 0 or "testraid" in sys.argv and 'raids_notif' not in setting.disabled_extensions:
