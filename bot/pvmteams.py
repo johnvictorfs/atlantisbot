@@ -69,6 +69,7 @@ async def team_maker(client):
                                 json.dump(current_teams, f, indent=2)
                             try:
                                 await message.author.send(f"Time '{team['title']}' excluído com sucesso.")
+                                print(f"Time '{team['title']}' excluído.")
                             except discord.errors.HTTPException:
                                 pass
                             continue
@@ -99,6 +100,7 @@ async def team_maker(client):
                                 json.dump(current_teams, f, indent=2)
                             try:
                                 await message.author.send(f"Time '{team['title']}' excluído com sucesso.")
+                                print(f"Time '{team['title']}' excluído.")
                             except discord.errors.HTTPException:
                                 pass
                             continue
