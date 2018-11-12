@@ -6,7 +6,7 @@ import json
 import discord
 from discord.ext import commands
 
-from .utils import separator
+from .utils import separator, has_role
 
 
 class TeamCommands:
@@ -14,14 +14,44 @@ class TeamCommands:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(aliases=['timesativos', 'times_ativos'])
+    async def running_teams(self, ctx):
+        if has_role(ctx.author, self.bot.setting.role.get('admin')):
+            await ctx.trigger_typing()
+            running_teams_embed = discord.Embed(
+                title='__Times Ativos__',
+                description="",
+                color=discord.Color.red()
+            )
+            with open('pvm_teams.json', 'r') as f:
+                teams = json.load(f)
+                if not teams.get('teams'):
+                    running_teams_embed.add_field(
+                        name=separator,
+                        value=f"Nenhum time ativo no momento."
+                    )
+                for team in teams.get('teams'):
+                    running_teams_embed.add_field(
+                        name=separator,
+                        value=f"**Título:** {team['title']}\n"
+                              f"**Chat:** <#{team['team_channel_id']}>\n"
+                              f"**Criado por:** <@{team['author_id']}>"
+                    )
+                await ctx.send(embed=running_teams_embed)
+
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx):
+        await ctx.trigger_typing()
         try:
             try:
                 await ctx.message.delete()
             except discord.errors.Forbidden:
                 return await ctx.send(
                     "Criação de time não pôde ser iniciada. Permissões insuficientes (Excluir mensagens)"
+                )
+            except discord.errors.NotFound:
+                return await ctx.send(
+                    "Criação de time não pôde ser iniciada. Erro inesperado."
                 )
             cancel_command = f'{self.bot.setting.prefix}cancelar'
             creation_message_content = (
@@ -220,14 +250,17 @@ class TeamCommands:
                 current_id = 0
             team_id = current_id + 1
             requisito = ''
-            description = f'Marque presença no <#{chat_presence_id}>'
+            description = f'Marque presença no <#{chat_presence_id}>\nCriador: <@{ctx.author.id}>'
             if role_id:
-                requisito = f'\nRequisito: <@&{role_id}>'
+                requisito = f'\nRequisito: <@&{role_id}>\n'
                 description = f'Requisito: <@&{role_id}>\n{description}'
 
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
-                description=f"{separator}\nTime: {ctx.channel.mention}{requisito}\n\n"
+                description=f"{separator}\n\n"
+                            f"{requisito}"
+                            f"Time: {ctx.channel.mention}\n"
+                            f"Criador: <@{ctx.author.id}>\n\n"
                             f"`in {team_id}`: Marcar presença\n"
                             f"`out {team_id}`: Retirar presença"
             )
@@ -271,11 +304,16 @@ class TeamCommands:
             with open('pvm_teams.json', 'w') as f:
                 json.dump(current_teams, f, indent=2)
             await creation_message.delete()
+        except discord.errors.NotFound:
+            return await ctx.send(f"Criação de time cancelada. A mensagem do Bot não foi encontrada.")
         except Exception as e:
+            await ctx.send(
+                "Erro inesperado :(\n"
+                "Os logs desse erro foram enviados para um Dev. Tente novamente."
+            )
+            dev = self.bot.get_user(self.bot.setting.developer_id)
             tb = traceback.format_exc()
-            await ctx.send(e)
-            await ctx.send(tb)
-            return await ctx.send("<@148175892596785152>")
+            return await dev.send(f"{e}: {tb}")
 
 
 def setup(bot):

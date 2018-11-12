@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import json
+import traceback
 from pathlib import Path
 
 import discord

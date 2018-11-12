@@ -112,7 +112,6 @@ Aguarde uma resposta de um {aod_teacher}.
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
         await ctx.trigger_typing()
-        print(f"$ {ctx.author} issued command 'atlcommands'.")
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
         embed_title = "RuneClan"
@@ -167,7 +166,7 @@ Aguarde uma resposta de um {aod_teacher}.
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{self.bot.setting.prefix}team <\"Título\"> <Tamanho> (Chat|Chat atual) (Role|Nenhum)",
+            name=f"{self.bot.setting.prefix}team",
             value="Criar um Time com presenças automáticas",
             inline=False
         )
@@ -192,9 +191,7 @@ Aguarde uma resposta de um {aod_teacher}.
     async def atlsay(self, ctx, *, message):
         message = message.split(' ')
         channel = message[-1]
-        print(f'$ Trying to send \'{message}\' in channel \'{channel}\'')
         if not has_role(ctx.author, self.bot.setting.role.get('admin')):
-            print('> No permission')
             return await ctx.send('Você não tem permissão para usar isso.')
         try:
             channel_id = int(channel.replace('<', '').replace('#', '').replace('>', ''))
@@ -208,8 +205,7 @@ Aguarde uma resposta de um {aod_teacher}.
         try:
             await ext.send(' '.join(message))
         except discord.errors.Forbidden as e:
-            await ctx.send(f"{e}: Permissões enviar mensagens no canal {ext.mention}")
-        print(f'-> Message sent')
+            await ctx.send(f"{e}: Sem permissão para enviar mensagens no canal {ext.mention}")
 
 
 def setup(bot):

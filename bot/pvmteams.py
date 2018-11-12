@@ -1,7 +1,6 @@
 import asyncio
 import json
 import traceback
-import os
 
 import discord
 
@@ -46,8 +45,10 @@ async def team_maker(client):
                 async for message in team_channel.history(after=team_message):
                     if message.content.lower() == f"{client.setting.prefix}del {team['id']}":
                         allowed_roles = ['mod', 'mod+', 'admin']
-                        if (any([has_role(message.author, client.setting.role.get(role)) for role in allowed_roles])
-                                or message.author.id == team['author_id']):
+                        has_allowed_role = any(
+                            [has_role(message.author, client.setting.role.get(role)) for role in allowed_roles]
+                        )
+                        if has_allowed_role or message.author.id == team['author_id']:
                             await message.delete()
                             try:
                                 await invite_message.delete()
@@ -74,8 +75,10 @@ async def team_maker(client):
                 async for message in invite_channel.history(after=invite_message):
                     if message.content.lower() == f"{client.setting.prefix}del {team['id']}":
                         allowed_roles = ['mod', 'mod+', 'admin']
-                        if (any([has_role(message.author, client.setting.role.get(role)) for role in allowed_roles])
-                                or message.author.id == team['author_id']):
+                        has_allowed_role = any(
+                            [has_role(message.author, client.setting.role.get(role)) for role in allowed_roles]
+                        )
+                        if has_allowed_role or message.author.id == team['author_id']:
                             await message.delete()
                             try:
                                 await invite_message.delete()
@@ -108,19 +111,22 @@ async def team_maker(client):
                                 if message.author.mention not in team['players']:
                                     team['players'].append(message.author.mention)
                                     message = await invite_channel.send(
-                                        f"{message.author.mention} foi adicionado ao Time '{team['title']}'\n"
+                                        f"{message.author.mention} foi adicionado ao Time '{team['title']}' "
+                                        f"({len(team['players'])}/{team['size']})\n"
                                         f"*(`in {team['id']}`)*"
                                     )
                                     team['bot_messages'].append(message.id)
                                 else:
                                     message = await invite_channel.send(
-                                        f"{message.author.mention}, você já está no Time '{team['title']}'\n"
+                                        f"{message.author.mention}, você já está no Time '{team['title']}' "
+                                        f"({len(team['players'])}/{team['size']})\n"
                                         f"*(`in {team['id']}`)*"
                                     )
                                     team['bot_messages'].append(message.id)
                             else:
                                 message = await invite_channel.send(
-                                    f"{message.author.mention}, o Time '{team['title']}' já está cheio.\n"
+                                    f"{message.author.mention}, o Time '{team['title']}' já está cheio. "
+                                    f"({len(team['players'])}/{team['size']})\n"
                                     f"*(`in {team['id']}`)*"
                                 )
                                 team['bot_messages'].append(message.id)
@@ -128,7 +134,8 @@ async def team_maker(client):
                             no_perm_embed = discord.Embed(
                                 title=f"__Permissões insuficientes__",
                                 description=f"{message.author.mention}, você precisa ter o cargo <@&{team['role']}> "
-                                            f"para entrar no Time '{team['title']}'"
+                                            f"para entrar no Time '{team['title']}' "
+                                            f"({len(team['players'])}/{team['size']})"
                                             f"\n(*`in {team['id']}`*)",
                                 color=discord.Color.dark_red()
                             )
@@ -141,18 +148,20 @@ async def team_maker(client):
                         if message.author.mention in team['players']:
                             team['players'].remove(message.author.mention)
                             message = await invite_channel.send(
-                                f"{message.author.mention} foi removido do Time '{team['title']}'\n"
+                                f"{message.author.mention} foi removido do Time '{team['title']}' "
+                                f"({len(team['players'])}/{team['size']})\n"
                                 f"*(`in {team['id']}`)*"
                             )
                             team['bot_messages'].append(message.id)
                         else:
                             message = await invite_channel.send(
-                                f"{message.author.mention}, você já não está no time '{team['title']}'!.\n"
+                                f"{message.author.mention}, você já não está no time '{team['title']}'!. "
+                                f"({len(team['players'])}/{team['size']})\n"
                                 f"*(`out {team['id']}`)*"
                             )
                             team['bot_messages'].append(message.id)
                 # Updating the team message with the all the removals/added people
-                description = f"Marque presença no <#{team['invite_channel_id']}>"
+                description = f"Marque presença no <#{team['invite_channel_id']}>\nCriador: <@{team['author_id']}>"
                 if team['role']:
                     description = f"Requisito: <@&{team['role']}>\n{description}"
                 team_embed = discord.Embed(
@@ -184,4 +193,5 @@ async def team_maker(client):
         except Exception as e:
             tb = traceback.format_exc()
             print(f"{e}: {tb}")
-        await asyncio.sleep(1)
+        finally:
+            await asyncio.sleep(0.1)
