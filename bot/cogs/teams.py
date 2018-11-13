@@ -288,18 +288,19 @@ class TeamCommands:
                 )
             created_team = {
                 'id': team_id,
+                'title': team_title,
+                'size': team_size,
+                'role': role_id,
                 'author_id': ctx.author.id,
                 'invite_channel_id': invite_channel.id,
                 'invite_message_id': invite_embed_message.id,
                 'team_channel_id': ctx.channel.id,
                 'team_message_id': team_embed_message.id,
-                'title': team_title,
-                'size': team_size,
-                'presence_chat_id': chat_presence_id,
-                'role': role_id,
                 'players': [],
                 'bot_messages': []
             }
+            with open('pvm_teams.json', 'r') as f:
+                current_teams = json.load(f)
             current_teams['teams'].append(created_team)
             with open('pvm_teams.json', 'w') as f:
                 json.dump(current_teams, f, indent=2)

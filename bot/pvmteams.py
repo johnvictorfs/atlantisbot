@@ -186,6 +186,9 @@ async def team_maker(client):
                     await team_message.edit(embed=team_embed)
                 except discord.errors.NotFound:
                     continue
+                with open('pvm_teams.json', 'r') as f:
+                    updated_read_team = json.load(f)
+                current_teams.update(updated_read_team)
                 with open('pvm_teams.json', 'w') as f:
                     json.dump(current_teams, f, indent=2)
         except FileNotFoundError:
@@ -196,4 +199,4 @@ async def team_maker(client):
             tb = traceback.format_exc()
             print(f"{e}: {tb}")
         finally:
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(5)
