@@ -1,202 +1,122 @@
 import asyncio
-import json
 import traceback
 
 import discord
 
 from .cogs.utils import has_role, separator
-
-"""
-1. Every 1 second check every team in pvm_teams.json
-2. Check the respective channels for new entries
-3. Check all entries/leaves in the history after the invite message
-4. Delete all entries/leaves messages, so they don't get checked on the next loop
-5. Add/remove the respective people from the team only from valid entries/leaves
-6. Send a message in the channel saying who was Added/removed
-7. Update the Json File
-"""
+from .cogs.models import Session, Team, BotMessage, Player
 
 
 async def team_maker(client):
+    session = Session()
     while True:
+        running_teams = session.query(Team).filter_by(active=True)
+        if running_teams:
+            pass
+        else:
+            continue
         try:
-            with open('pvm_teams.json', 'r') as f:
-                current_teams = json.load(f)
-            # Iterating through a copy of the list instead of the actual list of teams.
-            # That way i can safely remove items inside the original list, so i can
-            # update it later.
-            for team in current_teams.get('teams')[:]:
-                invite_channel = client.get_channel(team['invite_channel_id'])
-                team_channel = client.get_channel(team['team_channel_id'])
-                try:
-                    invite_message = await invite_channel.get_message(team['invite_message_id'])
-                except discord.errors.NotFound:
-                    with open('pvm_teams.json', 'w') as f:
-                        current_teams['teams'].remove(team)
-                        json.dump(current_teams, f, indent=2)
-                    continue
-                try:
-                    team_message = await team_channel.get_message(team['team_message_id'])
-                except discord.errors.NotFound:
-                    with open('pvm_teams.json', 'w') as f:
-                        current_teams['teams'].remove(team)
-                        json.dump(current_teams, f, indent=2)
-                    continue
-                async for message in team_channel.history(after=team_message):
-                    if message.content.lower() == f"{client.setting.prefix}del {team['id']}":
-                        allowed_roles = ['mod', 'mod+', 'admin']
-                        has_allowed_role = any(
-                            [has_role(message.author, client.setting.role.get(role)) for role in allowed_roles]
-                        )
-                        if has_allowed_role or message.author.id == team['author_id']:
-                            await message.delete()
-                            try:
-                                await invite_message.delete()
-                            except discord.errors.NotFound:
-                                pass
-                            try:
-                                await team_message.delete()
-                            except discord.errors.NotFound:
-                                pass
-                            for message_id in team['bot_messages']:
-                                try:
-                                    message = await invite_channel.get_message(message_id)
-                                    await message.delete()
-                                except Exception:
-                                    pass
-                            with open('pvm_teams.json', 'w') as f:
-                                current_teams['teams'].remove(team)
-                                json.dump(current_teams, f, indent=2)
-                            try:
-                                await message.author.send(f"Time '{team['title']}' excluído com sucesso.")
-                                print(f"Time '{team['title']}' excluído.")
-                            except discord.errors.HTTPException:
-                                pass
-                            continue
+            for team in running_teams:
+                team_channel = client.get_channel(team.team_channel_id)
+                invite_channel = client.get_channel(team.invite_channel_id)
+                team_message = await team_channel.get_message(team.team_message_id)
+                invite_message = await invite_channel.get_message(team.invite_message_id)
+
                 async for message in invite_channel.history(after=invite_message):
-                    if message.content.lower() == f"{client.setting.prefix}del {team['id']}":
-                        allowed_roles = ['mod', 'mod+', 'admin']
-                        has_allowed_role = any(
-                            [has_role(message.author, client.setting.role.get(role)) for role in allowed_roles]
-                        )
-                        if has_allowed_role or message.author.id == team['author_id']:
-                            await message.delete()
-                            try:
-                                await invite_message.delete()
-                            except discord.errors.NotFound:
-                                pass
-                            try:
-                                await team_message.delete()
-                            except discord.errors.NotFound:
-                                pass
-                            for message_id in team['bot_messages']:
-                                try:
-                                    message = await invite_channel.get_message(message_id)
-                                    await message.delete()
-                                except Exception:
-                                    pass
-                            with open('pvm_teams.json', 'w') as f:
-                                current_teams['teams'].remove(team)
-                                json.dump(current_teams, f, indent=2)
-                            try:
-                                await message.author.send(f"Time '{team['title']}' excluído com sucesso.")
-                                print(f"Time '{team['title']}' excluído.")
-                            except discord.errors.HTTPException:
-                                pass
-                            continue
-                    elif message.content.lower() == f"in {team['id']}":
+                    sent_message = None
+                    current_players = session.query(Player).filter_by(team=team.id)
+                    # Validate Team Additions
+                    if message.content.lower() == f'in {team.id}':
                         await message.delete()
                         if message.author.bot:
                             continue
-                        if has_role(message.author, team['role']) or not team['role']:
-                            if len(team['players']) < team['size']:
-                                if message.author.mention not in team['players']:
-                                    team['players'].append(message.author.mention)
-                                    message = await invite_channel.send(
-                                        f"{message.author.mention} foi adicionado ao Time '{team['title']}' "
-                                        f"({len(team['players'])}/{team['size']})\n"
-                                        f"*(`in {team['id']}`)*"
+                        if has_role(message.author, int(team.role)) or team.role is None:
+                            if message.author.id not in current_players:
+                                if current_players.count() < team.size:
+                                    added_player = Player(player_id=message.author.id, team=team.id)
+                                    session.add(added_player)
+                                    sent_message = await invite_channel.send(
+                                        f"{message.author.mention} foi adicionado ao time '{team.title}' "
+                                        f"({current_players.count() + 1}/{team.size})\n"
+                                        f"*(`in {team.id}`)*"
                                     )
-                                    team['bot_messages'].append(message.id)
                                 else:
-                                    message = await invite_channel.send(
-                                        f"{message.author.mention}, você já está no Time '{team['title']}' "
-                                        f"({len(team['players'])}/{team['size']})\n"
-                                        f"*(`in {team['id']}`)*"
+                                    sent_message = await invite_channel.send(
+                                        f"{message.author.mention}, o time '{team.title}' já está cheio. "
+                                        f"({current_players.count()}/{team.size})\n"
+                                        f"*(`in {team.id}`)*"
                                     )
-                                    team['bot_messages'].append(message.id)
                             else:
-                                message = await invite_channel.send(
-                                    f"{message.author.mention}, o Time '{team['title']}' já está cheio. "
-                                    f"({len(team['players'])}/{team['size']})\n"
-                                    f"*(`in {team['id']}`)*"
+                                sent_message = await invite_channel.send(
+                                    f"{message.author.mention} já está no time '{team.title}'. "
+                                    f"({current_players.count()}/{team.size})\n"
+                                    f"*(`in {team.id}`)*"
                                 )
-                                team['bot_messages'].append(message.id)
                         else:
                             no_perm_embed = discord.Embed(
                                 title=f"__Permissões insuficientes__",
-                                description=f"{message.author.mention}, você precisa ter o cargo <@&{team['role']}> "
-                                            f"para entrar no Time '{team['title']}' "
-                                            f"({len(team['players'])}/{team['size']})"
-                                            f"\n(*`in {team['id']}`*)",
+                                description=f"{message.author.mention}, você precisa ter o cargo <@&{team.role}> "
+                                            f"para entrar no Time '{team.title}' "
+                                            f"({current_players.count()}/{team.size})\n"
+                                            f"(*`in {team.id}`*)",
                                 color=discord.Color.dark_red()
                             )
-                            message = await invite_channel.send(embed=no_perm_embed)
-                            team['bot_messages'].append(message.id)
-                    elif message.content.lower() == f"out {team['id']}":
+                            sent_message = await invite_channel.send(embed=no_perm_embed)
+                    # Validate Team Opt-outs
+                    elif message.content.lower() == f'out {team.id}':
                         await message.delete()
                         if message.author.bot:
                             continue
-                        if message.author.mention in team['players']:
-                            team['players'].remove(message.author.mention)
-                            message = await invite_channel.send(
-                                f"{message.author.mention} foi removido do Time '{team['title']}' "
-                                f"({len(team['players'])}/{team['size']})\n"
-                                f"*(`in {team['id']}`)*"
+                        if message.author.id in current_players:
+                            session.query(Player).filter_by(player_id=message.author.id, team=team.id).delete()
+                            sent_message = await invite_channel.send(
+                                f"{message.author.mention} foi removido do time '{team.title}' "
+                                f"({current_players.count() - 1}/{team.size})\n"
+                                f"*(`in {team.id}`)*"
                             )
-                            team['bot_messages'].append(message.id)
                         else:
-                            message = await invite_channel.send(
-                                f"{message.author.mention}, você já não está no time '{team['title']}'!. "
-                                f"({len(team['players'])}/{team['size']})\n"
-                                f"*(`out {team['id']}`)*"
+                            sent_message = await invite_channel.send(
+                                f"{message.author.mention} já não estava no time '{team.title}'. "
+                                f"({current_players.count()}/{team.size})\n"
+                                f"*(`in {team.id}`)*"
                             )
-                            team['bot_messages'].append(message.id)
-                # Updating the team message with the all the removals/added people
-                description = f"Marque presença no <#{team['invite_channel_id']}>\nCriador: <@{team['author_id']}>"
-                if team['role']:
-                    description = f"Requisito: <@&{team['role']}>\n{description}"
-                team_embed = discord.Embed(
-                    title=f"__{team['title']}__ - {len(team['players'])}/{team['size']}",
-                    description=description,
-                    color=discord.Color.purple()
-                )
-                footer = (f"Digite '{client.setting.prefix}del {team['id']}' "
-                          f"para excluir o time. (Criador do time ou Mod+)")
-                team_embed.set_footer(
-                    text=footer
-                )
-                for index, member in enumerate(team['players']):
-                    team_embed.add_field(
-                        name=separator,
-                        value=f"{index + 1}- {member}",
-                        inline=False
-                    )
-                try:
-                    await team_message.edit(embed=team_embed)
-                except discord.errors.NotFound:
-                    continue
-                with open('pvm_teams.json', 'r') as f:
-                    updated_read_team = json.load(f)
-                current_teams.update(updated_read_team)
-                with open('pvm_teams.json', 'w') as f:
-                    json.dump(current_teams, f, indent=2)
-        except FileNotFoundError:
-            pass
-        except json.decoder.JSONDecodeError:
-            pass
+                    if sent_message:
+                        message = BotMessage(message_id=sent_message.id, team=team.id)
+                        session.add(message)
+                        session.commit()
+                        embed_description = (
+                            f"Marque presença no <#{team.invite_channel_id}>\n"
+                            f"Criador: <@{team.author_id}>")
+                        if team.role:
+                            embed_description = (
+                                f"Requisito: <@&{team.role}>\n"
+                                f"{embed_description}")
+                        team_embed = discord.Embed(
+                            title=f"__{team.title}__ - {current_players.count()}/{team.size}",
+                            description=embed_description,
+                            color=discord.Color.purple()
+                        )
+                        footer = (f"Digite '{client.setting.prefix}del {team.id}' "
+                                  f"para excluir o time. (Criador do time ou Mod/Mod+/Admin)")
+                        team_embed.set_footer(
+                            text=footer
+                        )
+                        players = session.query(Player).filter_by(team=team.id)
+                        index = 0
+                        if players:
+                            for player in players:
+                                team_embed.add_field(
+                                    name=separator,
+                                    value=f"{index + 1}- <@{player.player_id}>",
+                                    inline=False
+                                )
+                                index += 1
+                        try:
+                            await team_message.edit(embed=team_embed)
+                        except discord.errors.NotFound:
+                            team.active = False
+                            session.commit()
         except Exception as e:
             tb = traceback.format_exc()
-            print(f"{e}: {tb}")
-        finally:
-            await asyncio.sleep(5)
+            await client.send_logs(e, tb)
+        await asyncio.sleep(2)

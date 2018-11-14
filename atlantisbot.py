@@ -48,6 +48,14 @@ class Bot(commands.Bot):
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
 
+    async def send_logs(self, e, tb):
+        dev = self.get_user(self.setting.developer_id)
+        try:
+            await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
+        except discord.errors.HTTPException:
+            await dev.send(f"{separator}\n**{e}:** (Sending first 1000 chars of traceback, too long)"
+                           f"\n```python\n{tb[:1000]}```")
+
     @property
     def setting(self):
         try:
@@ -99,7 +107,7 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
         cogs = [x.stem for x in Path('bot/cogs').glob('*.py')]
-        not_extensions = ['utils', 'embeds', '__init__']
+        not_extensions = ['utils', 'embeds', 'models', '__init__']
         for extension in cogs:
             if extension not in self.setting.disabled_extensions and extension not in not_extensions:
                 try:

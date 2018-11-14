@@ -7,12 +7,68 @@ import discord
 from discord.ext import commands
 
 from .utils import separator, has_role
+from .models import Session, Team, BotMessage
 
 
 class TeamCommands:
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(aliases=['del'])
+    async def delteam(self, ctx, pk):
+        session = Session()
+        try:
+            try:
+                await ctx.message.delete()
+            except discord.errors.Forbidden:
+                return await ctx.send("Erro: Permissões insuficientes (excluir mensagens)")
+            try:
+                pk = int(pk)
+            except ValueError:
+                return await ctx.send(f"ID inválida: {pk}")
+            team = session.query(Team).get(pk)
+            if not team:
+                return await ctx.send(f"ID inválida: {pk}")
+            if not team.active:
+                return await ctx.send(f"ID inválida: {pk}")
+            allowed_roles = ['mod', 'mod+', 'admin']
+            has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
+            if team.author_id == ctx.author.id or has_mod_or_higher:
+
+                team_channel = self.bot.get_channel(team.team_channel_id)
+                invite_channel = self.bot.get_channel(team.invite_channel_id)
+                team_message = await team_channel.get_message(team.team_message_id)
+                invite_message = await invite_channel.get_message(team.invite_message_id)
+                messages_to_delete = session.query(BotMessage).filter_by(team=team.id)
+                for message in messages_to_delete:
+                    try:
+                        message_ = await invite_channel.get_message(message.id)
+                        await message_.delete()
+                    except Exception:
+                        pass
+                try:
+                    await team_message.delete()
+                except Exception:
+                    pass
+                try:
+                    await invite_message.delete()
+                except Exception:
+                    pass
+                team.active = False
+                session.commit()
+                await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
+            else:
+                await ctx.send("Você não tem permissão para isso")
+        except Exception as e:
+            await ctx.send(
+                "Erro inesperado :(\n"
+                "Os logs desse erro foram enviados para um Dev. Tente novamente."
+            )
+            tb = traceback.format_exc()
+            await self.bot.send_logs(e, tb)
+        finally:
+            session.close()
 
     @commands.command(aliases=['timesativos', 'times_ativos'])
     async def running_teams(self, ctx):
@@ -223,37 +279,14 @@ class TeamCommands:
                 return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
 
             invite_channel = self.bot.get_channel(chat_presence_id)
-            try:
-                with open('pvm_teams.json', 'r') as f:
-                    current_teams = json.load(f)
-                get_teams = current_teams['teams']
-                current_id = max([_['id'] for _ in get_teams])
-            except FileNotFoundError:
-                current_teams = {
-                    "teams": []
-                }
-                current_id = 0
-            except json.decoder.JSONDecodeError:
-                current_teams = {
-                    "teams": []
-                }
-                current_id = 0
-            except TypeError:
-                current_teams = {
-                    "teams": []
-                }
-                current_id = 0
-            except ValueError:
-                current_teams = {
-                    "teams": []
-                }
-                current_id = 0
-            team_id = current_id + 1
+
             requisito = ''
             description = f'Marque presença no <#{chat_presence_id}>\nCriador: <@{ctx.author.id}>'
             if role_id:
                 requisito = f'\nRequisito: <@&{role_id}>\n'
                 description = f'Requisito: <@&{role_id}>\n{description}'
+
+            team_id = self.current_id + 1
 
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
@@ -287,7 +320,6 @@ class TeamCommands:
                     f"Não foi possível enviar uma mensagem para o canal '<#{chat_presence_id}>'"
                 )
             created_team = {
-                'id': team_id,
                 'title': team_title,
                 'size': team_size,
                 'role': role_id,
@@ -296,14 +328,8 @@ class TeamCommands:
                 'invite_message_id': invite_embed_message.id,
                 'team_channel_id': ctx.channel.id,
                 'team_message_id': team_embed_message.id,
-                'players': [],
-                'bot_messages': []
             }
-            with open('pvm_teams.json', 'r') as f:
-                current_teams = json.load(f)
-            current_teams['teams'].append(created_team)
-            with open('pvm_teams.json', 'w') as f:
-                json.dump(current_teams, f, indent=2)
+            self.save_team(team=created_team, commit=True)
             await creation_message.delete()
         except discord.errors.NotFound:
             return await ctx.send(f"Criação de time cancelada. A mensagem do Bot não foi encontrada.")
@@ -312,9 +338,36 @@ class TeamCommands:
                 "Erro inesperado :(\n"
                 "Os logs desse erro foram enviados para um Dev. Tente novamente."
             )
-            dev = self.bot.get_user(self.bot.setting.developer_id)
             tb = traceback.format_exc()
-            return await dev.send(f"{e}: {tb}")
+            await self.bot.send_logs(e, tb)
+
+    @staticmethod
+    def save_team(team, commit=False):
+        session = Session()
+        team = Team(
+            title=team.get('title'),
+            size=team.get('size'),
+            role=team.get('role'),
+            author_id=team.get('author_id'),
+            invite_channel_id=team.get('invite_channel_id'),
+            invite_message_id=team.get('invite_message_id'),
+            team_channel_id=team.get('team_channel_id'),
+            team_message_id=team.get('team_message_id')
+        )
+        session.add(team)
+        if commit:
+            session.commit()
+        session.close()
+
+    @property
+    def current_id(self):
+        session = Session()
+        try:
+            current_id = session.query(Team).order_by(Team.id.desc()).first().id
+        except AttributeError:
+            return 0
+        session.close()
+        return current_id
 
 
 def setup(bot):

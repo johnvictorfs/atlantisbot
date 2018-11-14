@@ -8,6 +8,8 @@ discord-py = {extras = ["voice"], editable = true, ref = "rewrite", git = "https
 "rs3clans" = "*"
 "beautifulsoup4" = "*"
 colorama = "*"
+sqlalchemy = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 
