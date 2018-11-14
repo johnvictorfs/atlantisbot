@@ -84,7 +84,7 @@ class TeamCommands:
             for team in teams:
                 running_teams_embed.add_field(
                     name=separator,
-                    value=f"**Título:** {team.title]}\n"
+                    value=f"**Título:** {team.title}\n"
                           f"**Chat:** <#{team.team_channel_id}>\n"
                           f"**Criado por:** <@{team.author_id}>"
                 )
