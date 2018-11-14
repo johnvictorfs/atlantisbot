@@ -44,7 +44,10 @@ class TeamCommands:
                     invite_message = await invite_channel.get_message(int(team.invite_message_id))
                 except Exception:
                     pass
-                messages_to_delete = session.query(BotMessage).filter_by(team=team.id)
+                try:
+                    messages_to_delete = session.query(BotMessage).filter_by(team=team.id)
+                except Exception:
+                    messages_to_delete = None
                 if messages_to_delete:
                     for message in messages_to_delete:
                         try:
@@ -52,7 +55,10 @@ class TeamCommands:
                             await message_.delete()
                         except Exception:
                             pass
-                session.query(BotMessage).filter_by(team=team.id).delete()
+                try:
+                    session.query(BotMessage).filter_by(team=team.id).delete()
+                except Exception:
+                    pass
                 try:
                     await team_message.delete()
                 except Exception:

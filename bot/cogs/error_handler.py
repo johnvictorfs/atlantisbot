@@ -21,6 +21,9 @@ class CommandErrorHandler:
                 command = "team"
                 arguments = f"<\"Título\"> `<Tamanho>` `(Chat para presenças|Chat atual) (Role Requisito)`"
                 footer = "É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços"
+            if ctx.command.qualified_name == 'delteam':
+                command = "del"
+                arguments = f"<ID do Time (número)>"
             embed = discord.Embed(
                 title=f"Uso do comando '{command}'",
                 description=f"`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional\n\n"
