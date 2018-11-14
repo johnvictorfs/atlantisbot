@@ -79,21 +79,17 @@ class TeamCommands:
                 description="",
                 color=discord.Color.red()
             )
-            with open('pvm_teams.json', 'r') as f:
-                teams = json.load(f)
-                if not teams.get('teams'):
-                    running_teams_embed.add_field(
-                        name=separator,
-                        value=f"Nenhum time ativo no momento."
-                    )
-                for team in teams.get('teams'):
-                    running_teams_embed.add_field(
-                        name=separator,
-                        value=f"**Título:** {team['title']}\n"
-                              f"**Chat:** <#{team['team_channel_id']}>\n"
-                              f"**Criado por:** <@{team['author_id']}>"
-                    )
-                await ctx.send(embed=running_teams_embed)
+            session = Session()
+            teams = session.query(Team).filter_by(active=True)
+            for team in teams:
+                running_teams_embed.add_field(
+                    name=separator,
+                    value=f"**Título:** {team.title]}\n"
+                          f"**Chat:** <#{team.team_channel_id}>\n"
+                          f"**Criado por:** <@{team.author_id}>"
+                )
+            session.close()
+            await ctx.send(embed=running_teams_embed)
 
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx):
