@@ -42,14 +42,11 @@ class BotMessage(Base):
     team = Column(ForeignKey('team.id'))
 
 
-with open('bot/bot_settings.json', 'r') as f:
-    setting = json.load(f)
-
 # SQLite local database for development, hosted postgres database for production
-if setting['BOT']['mode'] == 'dev':
-    engine = create_engine('sqlite:///teams.sqlite3')
-else:
+if os.environ.get('ATLBOT_HEROKU') == 'prod':
     engine = create_engine(os.environ.get('ATLBOT_DB_URI'))
+else:
+    engine = create_engine('sqlite:///teams.sqlite3')
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
