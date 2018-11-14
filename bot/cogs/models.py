@@ -49,7 +49,7 @@ with open('bot/bot_settings.json', 'r') as f:
 if setting['BOT']['mode'] == 'dev':
     engine = create_engine('sqlite:///teams.sqlite3')
 else:
-    engine = create_engine(os.environ.get('ATLANTISBOT_DB_URI'))
+    engine = create_engine(os.environ.get('ATLBOT_DB_URI'))
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
