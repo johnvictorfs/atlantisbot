@@ -14,13 +14,13 @@ class Team(Base):
     active = Column(Boolean, default=True)
     title = Column(String)
     size = Column(Integer)
-    role = Column(Integer)
-    author_id = Column(Integer)
+    role = Column(String)
+    author_id = Column(String)
 
-    invite_channel_id = Column(Integer)
-    invite_message_id = Column(Integer)
-    team_channel_id = Column(Integer)
-    team_message_id = Column(Integer)
+    invite_channel_id = Column(String)
+    invite_message_id = Column(String)
+    team_channel_id = Column(String)
+    team_message_id = Column(String)
 
     def __repr__(self):
         return (f"Team(title={repr(self.title)}, "
@@ -31,14 +31,14 @@ class Team(Base):
 class Player(Base):
     __tablename__ = 'player'
     id = Column(Integer, primary_key=True)
-    player_id = Column(Integer)
+    player_id = Column(String)
     team = Column(ForeignKey('team.id'))
 
 
 class BotMessage(Base):
     __tablename__ = 'botmessage'
     id = Column(Integer, primary_key=True)
-    message_id = Column(Integer)
+    message_id = Column(String)
     team = Column(ForeignKey('team.id'))
 
 
@@ -46,7 +46,7 @@ class BotMessage(Base):
 if os.environ.get('ATLBOT_HEROKU') == 'prod':
     engine = create_engine(os.environ.get('ATLBOT_DB_URI'))
 else:
-    engine = create_engine('sqlite:///teams.sqlite3')
+    engine = create_engine('sqlite:///teams.sqlite3', connect_args={'timeout': 15})
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)

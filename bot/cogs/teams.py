@@ -23,6 +23,8 @@ class TeamCommands:
                 await ctx.message.delete()
             except discord.errors.Forbidden:
                 return await ctx.send("Erro: Permissões insuficientes (excluir mensagens)")
+            except discord.errors.NotFound:
+                pass
             try:
                 pk = int(pk)
             except ValueError:
@@ -34,19 +36,23 @@ class TeamCommands:
                 return await ctx.send(f"ID inválida: {pk}")
             allowed_roles = ['mod', 'mod+', 'admin']
             has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
-            if team.author_id == ctx.author.id or has_mod_or_higher:
-
-                team_channel = self.bot.get_channel(team.team_channel_id)
-                invite_channel = self.bot.get_channel(team.invite_channel_id)
-                team_message = await team_channel.get_message(team.team_message_id)
-                invite_message = await invite_channel.get_message(team.invite_message_id)
+            if int(team.author_id) == ctx.author.id or has_mod_or_higher:
+                try:
+                    team_channel = self.bot.get_channel(int(team.team_channel_id))
+                    invite_channel = self.bot.get_channel(int(team.invite_channel_id))
+                    team_message = await team_channel.get_message(int(team.team_message_id))
+                    invite_message = await invite_channel.get_message(int(team.invite_message_id))
+                except Exception:
+                    pass
                 messages_to_delete = session.query(BotMessage).filter_by(team=team.id)
-                for message in messages_to_delete:
-                    try:
-                        message_ = await invite_channel.get_message(message.id)
-                        await message_.delete()
-                    except Exception:
-                        pass
+                if messages_to_delete:
+                    for message in messages_to_delete:
+                        try:
+                            message_ = await invite_channel.get_message(message.id)
+                            await message_.delete()
+                        except Exception:
+                            pass
+                session.query(BotMessage).filter_by(team=team.id).delete()
                 try:
                     await team_message.delete()
                 except Exception:
@@ -59,7 +65,7 @@ class TeamCommands:
                 session.commit()
                 await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
             else:
-                await ctx.send("Você não tem permissão para isso")
+                await ctx.send("Você não tem permissão para fazer isso.")
         except Exception as e:
             await ctx.send(
                 "Erro inesperado :(\n"
@@ -81,6 +87,11 @@ class TeamCommands:
             )
             session = Session()
             teams = session.query(Team).filter_by(active=True)
+            if not teams:
+                running_teams_embed.add_field(
+                    name=separator,
+                    value=f"Nenhum time ativo no momento."
+                )
             for team in teams:
                 running_teams_embed.add_field(
                     name=separator,
@@ -343,12 +354,12 @@ class TeamCommands:
         team = Team(
             title=team.get('title'),
             size=team.get('size'),
-            role=team.get('role'),
-            author_id=team.get('author_id'),
-            invite_channel_id=team.get('invite_channel_id'),
-            invite_message_id=team.get('invite_message_id'),
-            team_channel_id=team.get('team_channel_id'),
-            team_message_id=team.get('team_message_id')
+            role=str(team.get('role')),
+            author_id=str(team.get('author_id')),
+            invite_channel_id=str(team.get('invite_channel_id')),
+            invite_message_id=str(team.get('invite_message_id')),
+            team_channel_id=str(team.get('team_channel_id')),
+            team_message_id=str(team.get('team_message_id'))
         )
         session.add(team)
         if commit:

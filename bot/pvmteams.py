@@ -10,6 +10,7 @@ from .cogs.models import Session, Team, BotMessage, Player
 async def team_maker(client):
     session = Session()
     while True:
+        session.query(Team).filter_by(active=False).delete()
         running_teams = session.query(Team).filter_by(active=True)
         if running_teams:
             pass
@@ -17,11 +18,20 @@ async def team_maker(client):
             continue
         try:
             for team in running_teams:
-                team_channel = client.get_channel(team.team_channel_id)
-                invite_channel = client.get_channel(team.invite_channel_id)
-                team_message = await team_channel.get_message(team.team_message_id)
-                invite_message = await invite_channel.get_message(team.invite_message_id)
-
+                team_channel = client.get_channel(int(team.team_channel_id))
+                invite_channel = client.get_channel(int(team.invite_channel_id))
+                try:
+                    team_message = await team_channel.get_message(int(team.team_message_id))
+                except discord.errors.NotFound:
+                    team.active = False
+                    session.commit()
+                    continue
+                try:
+                    invite_message = await invite_channel.get_message(int(team.invite_message_id))
+                except discord.errors.NotFound:
+                    team.active = False
+                    session.commit()
+                    continue
                 async for message in invite_channel.history(after=invite_message):
                     sent_message = None
                     current_players = session.query(Player).filter_by(team=team.id)
@@ -31,13 +41,13 @@ async def team_maker(client):
                         if message.author.bot:
                             continue
                         if has_role(message.author, int(team.role)) or team.role is None:
-                            if message.author.id not in current_players:
+                            if message.author.id not in [int(player.player_id) for player in current_players]:
                                 if current_players.count() < team.size:
                                     added_player = Player(player_id=message.author.id, team=team.id)
                                     session.add(added_player)
                                     sent_message = await invite_channel.send(
                                         f"{message.author.mention} foi adicionado ao time '{team.title}' "
-                                        f"({current_players.count() + 1}/{team.size})\n"
+                                        f"({current_players.count()}/{team.size})\n"
                                         f"*(`in {team.id}`)*"
                                     )
                                 else:
@@ -67,11 +77,11 @@ async def team_maker(client):
                         await message.delete()
                         if message.author.bot:
                             continue
-                        if message.author.id in current_players:
+                        if message.author.id in [int(player.player_id) for player in current_players]:
                             session.query(Player).filter_by(player_id=message.author.id, team=team.id).delete()
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} foi removido do time '{team.title}' "
-                                f"({current_players.count() - 1}/{team.size})\n"
+                                f"({current_players.count()}/{team.size})\n"
                                 f"*(`in {team.id}`)*"
                             )
                         else:
@@ -119,4 +129,4 @@ async def team_maker(client):
         except Exception as e:
             tb = traceback.format_exc()
             await client.send_logs(e, tb)
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
