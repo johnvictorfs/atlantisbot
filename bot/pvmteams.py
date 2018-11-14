@@ -10,7 +10,7 @@ from .cogs.models import Session, Team, BotMessage, Player
 async def team_maker(client):
     session = Session()
     while True:
-        session.query(Team).filter_by(active=False).delete()
+        # session.query(Team).filter_by(active=False).delete()
         running_teams = session.query(Team).filter_by(active=True)
         if running_teams:
             pass
@@ -40,7 +40,13 @@ async def team_maker(client):
                         await message.delete()
                         if message.author.bot:
                             continue
-                        if has_role(message.author, int(team.role)) or team.role is None:
+                        try:
+                            team_role = int(team.role)
+                        except TypeError:
+                            team_role = None
+                        except ValueError:
+                            team_role = None
+                        if has_role(message.author, team_role) or team.role is None:
                             if message.author.id not in [int(player.player_id) for player in current_players]:
                                 if current_players.count() < team.size:
                                     added_player = Player(player_id=str(message.author.id), team=team.id)
