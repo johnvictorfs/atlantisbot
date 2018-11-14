@@ -351,10 +351,14 @@ class TeamCommands:
     @staticmethod
     def save_team(team, commit=False):
         session = Session()
+        if team.get('role'):
+            role = str(team.get('role'))
+        else:
+            role = None
         team = Team(
             title=team.get('title'),
             size=team.get('size'),
-            role=str(team.get('role')),
+            role=role,
             author_id=str(team.get('author_id')),
             invite_channel_id=str(team.get('invite_channel_id')),
             invite_message_id=str(team.get('invite_message_id')),
