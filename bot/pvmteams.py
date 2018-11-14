@@ -45,6 +45,7 @@ async def team_maker(client):
                                 if current_players.count() < team.size:
                                     added_player = Player(player_id=message.author.id, team=team.id)
                                     session.add(added_player)
+                                    session.commit()
                                     sent_message = await invite_channel.send(
                                         f"{message.author.mention} foi adicionado ao time '{team.title}' "
                                         f"({current_players.count()}/{team.size})\n"
@@ -79,6 +80,7 @@ async def team_maker(client):
                             continue
                         if message.author.id in [int(player.player_id) for player in current_players]:
                             session.query(Player).filter_by(player_id=message.author.id, team=team.id).delete()
+                            session.commit()
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} foi removido do time '{team.title}' "
                                 f"({current_players.count()}/{team.size})\n"

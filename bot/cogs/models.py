@@ -1,5 +1,4 @@
 import os
-import json
 
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
