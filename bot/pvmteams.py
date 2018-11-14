@@ -43,7 +43,7 @@ async def team_maker(client):
                         if has_role(message.author, int(team.role)) or team.role is None:
                             if message.author.id not in [int(player.player_id) for player in current_players]:
                                 if current_players.count() < team.size:
-                                    added_player = Player(player_id=message.author.id, team=team.id)
+                                    added_player = Player(player_id=str(message.author.id), team=team.id)
                                     session.add(added_player)
                                     session.commit()
                                     sent_message = await invite_channel.send(
@@ -79,7 +79,7 @@ async def team_maker(client):
                         if message.author.bot:
                             continue
                         if message.author.id in [int(player.player_id) for player in current_players]:
-                            session.query(Player).filter_by(player_id=message.author.id, team=team.id).delete()
+                            session.query(Player).filter_by(player_id=str(message.author.id), team=team.id).delete()
                             session.commit()
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} foi removido do time '{team.title}' "

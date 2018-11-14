@@ -48,7 +48,7 @@ else:
     engine = create_engine('sqlite:///teams.sqlite3', connect_args={'timeout': 15})
 
 Base.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine, autoflush=False)
 
 
 def write_example():
