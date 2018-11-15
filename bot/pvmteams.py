@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+import psycopg2
 
 import discord
 
@@ -10,6 +11,9 @@ from .cogs.models import Session, Team, BotMessage, Player
 async def team_maker(client):
     session = Session()
     while True:
+        # Not deleting inactive teams because then i wouldn't be able to know
+        # which was the last ID, so i could display the next team's ID for users
+        # when creating a new team
         # session.query(Team).filter_by(active=False).delete()
         running_teams = session.query(Team).filter_by(active=True)
         if running_teams:
@@ -134,6 +138,8 @@ async def team_maker(client):
                         except discord.errors.NotFound:
                             team.active = False
                             session.commit()
+        except psycopg2.OperationalError:
+            session.rollback()
         except Exception as e:
             tb = traceback.format_exc()
             await client.send_logs(e, tb)
