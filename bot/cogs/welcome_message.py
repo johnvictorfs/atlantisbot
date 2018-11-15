@@ -40,9 +40,11 @@ class WelcomeMessage:
             name=f"**Veja alguns chats do Servidor:**",
             value=f"⯈ {tags_do_server} para info sobre os Roles do server\n"
                   f"⯈ {links_uteis} para links úteis gerais (principalmente PvM)\n"
+                  f"\n"
                   f"⯈ {pvmemes} para conversas gerais ou notificar trips de PvM\n"
-                  f"⯈ {discord_bots} para comandos de Bots\n"
-                  f"⯈ {raids} para aplicar para os Raids do Clã (Membros apenas)\n",
+                  f"⯈ {raids} para aplicar para os Raids do Clã (Membros apenas)\n"
+                  f"\n"
+                  f"⯈ {discord_bots} para comandos de Bots\n",
             inline=False
         )
 
@@ -58,7 +60,7 @@ class WelcomeMessage:
         )
 
         welcome_embed.set_footer(
-            text=f"Digite {self.bot.setting.prefix}atlcommands para ver os meus comandos!")
+            text=f"Digite {self.bot.setting.prefix}atlbot para ver os meus comandos!")
         return await member.send(embed=welcome_embed)
 
 

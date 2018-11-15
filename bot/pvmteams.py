@@ -11,14 +11,9 @@ from .cogs.models import Session, Team, BotMessage, Player
 async def team_maker(client):
     session = Session()
     while True:
-        # Not deleting inactive teams because then i wouldn't be able to know
-        # which was the last ID, so i could display the next team's ID for users
-        # when creating a new team
-        # session.query(Team).filter_by(active=False).delete()
-        running_teams = session.query(Team).filter_by(active=True)
-        if running_teams:
-            pass
-        else:
+        running_teams = session.query(Team).all()
+        if not running_teams:
+            await asyncio.sleep(1)
             continue
         try:
             for team in running_teams:
@@ -27,20 +22,20 @@ async def team_maker(client):
                 try:
                     team_message = await team_channel.get_message(int(team.team_message_id))
                 except discord.errors.NotFound:
-                    team.active = False
+                    session.delete(team)
                     session.commit()
                     continue
                 try:
                     invite_message = await invite_channel.get_message(int(team.invite_message_id))
                 except discord.errors.NotFound:
-                    team.active = False
+                    session.delete(team)
                     session.commit()
                     continue
                 async for message in invite_channel.history(after=invite_message):
                     sent_message = None
                     current_players = session.query(Player).filter_by(team=team.id)
                     # Validate Team Additions
-                    if message.content.lower() == f'in {team.id}':
+                    if message.content.lower() == f'in {team.team_id}':
                         await message.delete()
                         if message.author.bot:
                             continue
@@ -59,19 +54,19 @@ async def team_maker(client):
                                     sent_message = await invite_channel.send(
                                         f"{message.author.mention} foi adicionado ao time '{team.title}' "
                                         f"({current_players.count()}/{team.size})\n"
-                                        f"*(`in {team.id}`)*"
+                                        f"*(`in {team.team_id}`)*"
                                     )
                                 else:
                                     sent_message = await invite_channel.send(
                                         f"{message.author.mention}, o time '{team.title}' já está cheio. "
                                         f"({current_players.count()}/{team.size})\n"
-                                        f"*(`in {team.id}`)*"
+                                        f"*(`in {team.team_id}`)*"
                                     )
                             else:
                                 sent_message = await invite_channel.send(
                                     f"{message.author.mention} já está no time '{team.title}'. "
                                     f"({current_players.count()}/{team.size})\n"
-                                    f"*(`in {team.id}`)*"
+                                    f"*(`in {team.team_id}`)*"
                                 )
                         else:
                             no_perm_embed = discord.Embed(
@@ -79,12 +74,12 @@ async def team_maker(client):
                                 description=f"{message.author.mention}, você precisa ter o cargo <@&{team.role}> "
                                             f"para entrar no Time '{team.title}' "
                                             f"({current_players.count()}/{team.size})\n"
-                                            f"(*`in {team.id}`*)",
+                                            f"(*`in {team.team_id}`*)",
                                 color=discord.Color.dark_red()
                             )
                             sent_message = await invite_channel.send(embed=no_perm_embed)
                     # Validate Team Opt-outs
-                    elif message.content.lower() == f'out {team.id}':
+                    elif message.content.lower() == f'out {team.team_id}':
                         await message.delete()
                         if message.author.bot:
                             continue
@@ -94,13 +89,13 @@ async def team_maker(client):
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} foi removido do time '{team.title}' "
                                 f"({current_players.count()}/{team.size})\n"
-                                f"*(`in {team.id}`)*"
+                                f"*(`in {team.team_id}`)*"
                             )
                         else:
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} já não estava no time '{team.title}'. "
                                 f"({current_players.count()}/{team.size})\n"
-                                f"*(`in {team.id}`)*"
+                                f"*(`in {team.team_id}`)*"
                             )
                     if sent_message:
                         message = BotMessage(message_id=sent_message.id, team=team.id)
@@ -118,7 +113,7 @@ async def team_maker(client):
                             description=embed_description,
                             color=discord.Color.purple()
                         )
-                        footer = (f"Digite '{client.setting.prefix}del {team.id}' "
+                        footer = (f"Digite '{client.setting.prefix}del {team.team_id}' "
                                   f"para excluir o time. (Criador do time ou Mod/Mod+/Admin)")
                         team_embed.set_footer(
                             text=footer
@@ -136,9 +131,10 @@ async def team_maker(client):
                         try:
                             await team_message.edit(embed=team_embed)
                         except discord.errors.NotFound:
-                            team.active = False
+                            session.delete(team)
                             session.commit()
         except psycopg2.OperationalError:
+            print("OperationalError reading teams. Running `session.rollback()`")
             session.rollback()
         except Exception as e:
             tb = traceback.format_exc()

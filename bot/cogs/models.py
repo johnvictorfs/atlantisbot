@@ -1,6 +1,7 @@
 import os
+import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -24,7 +25,8 @@ class BotMessage(Base):
 class Team(Base):
     __tablename__ = 'team'
     id = Column(Integer, primary_key=True)
-    active = Column(Boolean, default=True)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow())
+    team_id = Column(Integer, unique=True)
     title = Column(String)
     size = Column(Integer)
     role = Column(String)

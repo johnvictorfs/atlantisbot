@@ -1,7 +1,6 @@
 import re
 import traceback
 import asyncio
-import json
 
 import discord
 from discord.ext import commands
@@ -29,45 +28,37 @@ class TeamCommands:
                 pk = int(pk)
             except ValueError:
                 return await ctx.send(f"ID inválida: {pk}")
-            team = session.query(Team).get(pk)
+            team = session.query(Team).filter_by(team_id=pk).first()
             if not team:
-                return await ctx.send(f"ID inválida: {pk}")
-            if not team.active:
                 return await ctx.send(f"ID inválida: {pk}")
             allowed_roles = ['mod', 'mod+', 'admin']
             has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
             if int(team.author_id) == ctx.author.id or has_mod_or_higher:
                 try:
                     team_channel = self.bot.get_channel(int(team.team_channel_id))
-                    invite_channel = self.bot.get_channel(int(team.invite_channel_id))
                     team_message = await team_channel.get_message(int(team.team_message_id))
-                    invite_message = await invite_channel.get_message(int(team.invite_message_id))
-                except Exception:
-                    pass
-                try:
-                    messages_to_delete = session.query(BotMessage).filter_by(team=team.id)
-                except Exception:
-                    messages_to_delete = None
-                if messages_to_delete:
-                    for message in messages_to_delete:
-                        try:
-                            message_ = await invite_channel.get_message(message.id)
-                            await message_.delete()
-                        except Exception:
-                            pass
-                try:
-                    session.query(BotMessage).filter_by(team=team.id).delete()
-                except Exception:
-                    pass
-                try:
                     await team_message.delete()
                 except Exception:
                     pass
                 try:
+                    invite_channel = self.bot.get_channel(int(team.invite_channel_id))
+                    invite_message = await invite_channel.get_message(int(team.invite_message_id))
                     await invite_message.delete()
                 except Exception:
                     pass
-                team.active = False
+                try:
+                    messages_to_delete = []
+                    for message in session.query(BotMessage).filter_by(team=team.id):
+                        to_delete = await invite_channel.get_message(message.message_id)
+                        messages_to_delete.append(to_delete)
+                    await invite_channel.delete_messages(messages_to_delete)
+                except Exception:
+                    pass
+                try:
+                    session.query(BotMessage).filter_by(team=team.id).delete()
+                except Exception:
+                    pass
+                session.delete(team)
                 session.commit()
                 await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
             else:
@@ -92,7 +83,7 @@ class TeamCommands:
                 color=discord.Color.red()
             )
             session = Session()
-            teams = session.query(Team).filter_by(active=True)
+            teams = session.query(Team).all()
             if not teams:
                 running_teams_embed.add_field(
                     name=separator,
@@ -102,9 +93,11 @@ class TeamCommands:
                 running_teams_embed.add_field(
                     name=separator,
                     value=f"**Título:** {team.title}\n"
-                          f"**ID:** {team.id}\n"
+                          f"**PK:** {team.id}\n"
+                          f"**Team ID:** {team.team_id}\n"
                           f"**Chat:** <#{team.team_channel_id}>\n"
-                          f"**Criado por:** <@{team.author_id}>"
+                          f"**Criado por:** <@{team.author_id}>\n"
+                          f"**Criado em:** {team.created_date}"
                 )
             session.close()
             await ctx.send(embed=running_teams_embed)
@@ -301,7 +294,6 @@ class TeamCommands:
                 description = f'Requisito: <@&{role_id}>\n{description}'
 
             team_id = self.current_id + 1
-
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
                 description=f"{separator}\n\n"
@@ -334,6 +326,7 @@ class TeamCommands:
                     f"Não foi possível enviar uma mensagem para o canal '<#{chat_presence_id}>'"
                 )
             created_team = {
+                'team_id': team_id,
                 'title': team_title,
                 'size': team_size,
                 'role': role_id,
@@ -363,6 +356,7 @@ class TeamCommands:
         else:
             role = None
         team = Team(
+            team_id=team.get('team_id'),
             title=team.get('title'),
             size=team.get('size'),
             role=role,
@@ -381,7 +375,7 @@ class TeamCommands:
     def current_id(self):
         session = Session()
         try:
-            current_id = session.query(Team).order_by(Team.id.desc()).first().id
+            current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
         except AttributeError:
             return 0
         session.close()
