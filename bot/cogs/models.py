@@ -1,7 +1,7 @@
 import os
 import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -44,6 +44,12 @@ class Team(Base):
         return (f"Team(title={repr(self.title)}, "
                 f"author={repr(self.author_id)}, "
                 f"team_channel_id={repr(self.team_channel_id)})")
+
+
+class RaidsState(Base):
+    __tablename__ = 'raidsstate'
+    id = Column(Integer, primary_key=True)
+    notifications = Column(Boolean, default=True)
 
 
 # SQLite local database for development, hosted postgres database for production

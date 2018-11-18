@@ -5,6 +5,7 @@ import discord
 import asyncio
 
 from .cogs.utils import separator
+from .cogs.models import Session, RaidsState
 
 
 def raids_embed(setting):
@@ -36,8 +37,6 @@ def raids_embed(setting):
 
 async def raids_notification(setting, user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
     while True:
-        # TODO: Save this in a json file, so the team can't be shut off if the bot resets
-        # raids_team.json
         today = datetime.datetime.utcnow().date()
         check_day = (today - start_day).days % 2
         if check_day == 0 or "testraid" in sys.argv and 'raids_notif' not in setting.disabled_extensions:
@@ -45,6 +44,18 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
             time = date[0:7]
             time_to_send = time_to_send[0:7]
             if time == time_to_send or "testraid" in sys.argv:
+                session = Session()
+                state = session.query(RaidsState).first()
+                if not state:
+                    state = RaidsState(notifications=True)
+                    session.add(state)
+                    session.commit()
+                if state.notifications:
+                    session.close()
+                    pass
+                else:
+                    session.close()
+                    continue
                 team_list = []
                 embed = raids_embed(setting=setting)
                 print(f"$ Sent Raids notification, time: {time}")
