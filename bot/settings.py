@@ -118,7 +118,7 @@ default_settings = {
             "vorago_chat": 506660836069212176,
 
             "drops_e_conquistas": 336182514886377482,
-            "discord_bots": 382691780996497416,
+            "discord_bots": 321012588924370945,
             "pof": 417725841271947277,
         },
         "role_id": {
