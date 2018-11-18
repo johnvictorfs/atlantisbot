@@ -54,6 +54,7 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
                     session.close()
                     pass
                 else:
+                    print("Notificação de Raids não foi enviada. Desabilitado.")
                     session.close()
                     continue
                 team_list = []
