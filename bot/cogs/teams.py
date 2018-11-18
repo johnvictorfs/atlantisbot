@@ -10,73 +10,65 @@ from .models import Session, Team, BotMessage
 
 
 class TeamCommands:
-
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx, pk):
+    async def delteam(self, ctx, pk: int):
         session = Session()
         try:
+            await ctx.message.delete()
+        except discord.errors.NotFound:
+            pass
+        try:
+            pk = int(pk)
+        except ValueError:
+            return await ctx.send(f"ID inválida: {pk}")
+        team = session.query(Team).filter_by(team_id=pk).first()
+        if not team:
+            return await ctx.send(f"ID inválida: {pk}")
+        allowed_roles = ['mod', 'mod+', 'admin']
+        has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
+        if int(team.author_id) == ctx.author.id or has_mod_or_higher:
+            invite_channel = None
             try:
-                await ctx.message.delete()
-            except discord.errors.Forbidden:
-                return await ctx.send("Erro: Permissões insuficientes (excluir mensagens)")
-            except discord.errors.NotFound:
+                team_channel = self.bot.get_channel(int(team.team_channel_id))
+                team_message = await team_channel.get_message(int(team.team_message_id))
+                await team_message.delete()
+            except Exception:
                 pass
             try:
-                pk = int(pk)
-            except ValueError:
-                return await ctx.send(f"ID inválida: {pk}")
-            team = session.query(Team).filter_by(team_id=pk).first()
-            if not team:
-                return await ctx.send(f"ID inválida: {pk}")
-            allowed_roles = ['mod', 'mod+', 'admin']
-            has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
-            if int(team.author_id) == ctx.author.id or has_mod_or_higher:
-                try:
-                    team_channel = self.bot.get_channel(int(team.team_channel_id))
-                    team_message = await team_channel.get_message(int(team.team_message_id))
-                    await team_message.delete()
-                except Exception:
-                    pass
-                try:
-                    invite_channel = self.bot.get_channel(int(team.invite_channel_id))
-                    invite_message = await invite_channel.get_message(int(team.invite_message_id))
-                    await invite_message.delete()
-                except Exception:
-                    pass
-                try:
-                    messages_to_delete = []
-                    for message in session.query(BotMessage).filter_by(team=team.id):
-                        to_delete = await invite_channel.get_message(message.message_id)
-                        messages_to_delete.append(to_delete)
-                    await invite_channel.delete_messages(messages_to_delete)
-                except Exception:
-                    pass
-                try:
-                    session.query(BotMessage).filter_by(team=team.id).delete()
-                except Exception:
-                    pass
-                session.delete(team)
-                session.commit()
-                await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
-            else:
-                await ctx.send("Você não tem permissão para fazer isso.")
-        except Exception as e:
-            await ctx.send(
-                "Erro inesperado :(\n"
-                "Os logs desse erro foram enviados para um Dev. Tente novamente."
-            )
-            tb = traceback.format_exc()
-            await self.bot.send_logs(e, tb)
-        finally:
-            session.close()
+                invite_channel = self.bot.get_channel(int(team.invite_channel_id))
+                invite_message = await invite_channel.get_message(int(team.invite_message_id))
+                await invite_message.delete()
+            except Exception:
+                pass
+            try:
+                messages_to_delete = []
+                for message in session.query(BotMessage).filter_by(team=team.id):
+                    to_delete = await invite_channel.get_message(message.message_id)
+                    messages_to_delete.append(to_delete)
+                await invite_channel.delete_messages(messages_to_delete)
+            except Exception:
+                pass
+            try:
+                session.query(BotMessage).filter_by(team=team.id).delete()
+            except Exception:
+                pass
+            session.delete(team)
+            session.commit()
+            await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
+        else:
+            await ctx.send("Você não tem permissão para fazer isso.")
+        session.close()
 
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['timesativos', 'times_ativos'])
     async def running_teams(self, ctx):
         if has_role(ctx.author, self.bot.setting.role.get('admin')):
-            await ctx.trigger_typing()
             running_teams_embed = discord.Embed(
                 title='__Times Ativos__',
                 description="",
@@ -102,20 +94,13 @@ class TeamCommands:
             session.close()
             await ctx.send(embed=running_teams_embed)
 
+    @commands.cooldown(1, 10)
+    @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx):
-        await ctx.trigger_typing()
+        creation_message = None
         try:
-            try:
-                await ctx.message.delete()
-            except discord.errors.Forbidden:
-                return await ctx.send(
-                    "Criação de time não pôde ser iniciada. Permissões insuficientes (Excluir mensagens)"
-                )
-            except discord.errors.NotFound:
-                return await ctx.send(
-                    "Criação de time não pôde ser iniciada. Erro inesperado."
-                )
+            await ctx.message.delete()
             cancel_command = f'{self.bot.setting.prefix}cancelar'
             creation_message_content = (
                 "Criação de time iniciada por {author}.\n\n"
@@ -142,32 +127,27 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o nome do time. (e.g.: Solak 20:00)"
             )
+            team_title_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                team_title_message = await self.bot.wait_for('message', timeout=60.0, check=check)
-                try:
-                    await sent_message.delete()
-                    await team_title_message.delete()
-                except discord.errors.NotFound:
-                    await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                    return await creation_message.delete()
-                if team_title_message.content.lower() == cancel_command:
-                    await creation_message.delete()
-                    return await ctx.send("Criação de time cancelada.")
-                team_title = team_title_message.content
-                await creation_message.edit(
-                    content=creation_message_content.format(
-                        author=ctx.author.mention,
-                        cancel=cancel_command,
-                        title=team_title,
-                        size='',
-                        chat='',
-                        requisito='',
-                    )
-                )
-            except asyncio.TimeoutError:
+                await sent_message.delete()
+                await team_title_message.delete()
+            except discord.errors.NotFound:
+                await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
+                return await creation_message.delete()
+            if team_title_message.content.lower() == cancel_command:
                 await creation_message.delete()
-                return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
-
+                return await ctx.send("Criação de time cancelada.")
+            team_title = team_title_message.content
+            await creation_message.edit(
+                content=creation_message_content.format(
+                    author=ctx.author.mention,
+                    cancel=cancel_command,
+                    title=team_title,
+                    size='',
+                    chat='',
+                    requisito='',
+                )
+            )
             # Tamanho do time
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o tamanho do time. (apenas números)"
@@ -194,9 +174,6 @@ class TeamCommands:
                         requisito='',
                     )
                 )
-            except asyncio.TimeoutError:
-                await creation_message.delete()
-                return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
             except ValueError:
                 await creation_message.delete()
                 return await ctx.send(
@@ -228,9 +205,6 @@ class TeamCommands:
                         requisito='',
                     )
                 )
-            except asyncio.TimeoutError:
-                await creation_message.delete()
-                return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
             except ValueError:
                 await creation_message.delete()
                 return await ctx.send(f"Criação de time cancelada. Chat inválido ({chat_presence_message.content}).")
@@ -274,10 +248,6 @@ class TeamCommands:
                         requisito=role_str
                     )
                 )
-
-            except asyncio.TimeoutError:
-                await creation_message.delete()
-                return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
             except ValueError:
                 await creation_message.delete()
                 return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
@@ -340,6 +310,9 @@ class TeamCommands:
             await creation_message.delete()
         except discord.errors.NotFound:
             return await ctx.send(f"Criação de time cancelada. A mensagem do Bot não foi encontrada.")
+        except asyncio.TimeoutError:
+            await creation_message.delete()
+            return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
         except Exception as e:
             await ctx.send(
                 "Erro inesperado :(\n"
@@ -349,7 +322,7 @@ class TeamCommands:
             await self.bot.send_logs(e, tb)
 
     @staticmethod
-    def save_team(team, commit=False):
+    def save_team(team: dict, commit: bool = False):
         session = Session()
         if team.get('role'):
             role = str(team.get('role'))

@@ -54,26 +54,3 @@ else:
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine, autoflush=False)
-
-
-def write_example():
-    """
-    Write example::
-        >>> session = Session()
-        >>> team = Team()
-        >>> team.id = 1
-        >>> team.title = "Aod 15:00"
-        >>> session.add(team)
-        >>> session.commit()
-        >>> session.close()
-    """
-
-
-def read_example():
-    """
-    Read example::
-        >>> session = Session()
-        >>> all_teams = session.query(Team).all()
-        >>> first_team = session.query(Team).first()
-        >>> first_team_messages = session.query(Team, id=first_team.id)
-    """

@@ -12,10 +12,10 @@ class ClanCommands:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
-    async def clan_user_info(self, ctx, *, username):
-        await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'clan_user_info'.")
+    async def clan_user_info(self, ctx, *, username: str):
         try:
             player = rs3clans.Player(name=username, runemetrics=True)
         except ConnectionError:
@@ -23,10 +23,9 @@ class ClanCommands:
                                   f"(Código {player.details_status_code})")
         if not player.exists:
             return await ctx.send(f"Jogador '{player.name}' não existe.")
-        try:
-            user_clan = rs3clans.Clan(name=player.clan)
-        except rs3clans.ClanNotFoundError:
+        if not player.clan:
             return await ctx.send(f"Jogador '{player.name}' não está em um clã.")
+        user_clan = rs3clans.Clan(name=player.clan)
         member = user_clan.get_member(username)
         user_clan_exp = member['exp']
         user_rank = member['rank']
@@ -90,11 +89,10 @@ class ClanCommands:
             )
         return await ctx.send(content=None, embed=clan_info_embed)
 
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
     async def ranks(self, ctx):
-        await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'ranks'.")
-        start_time = time.time()
         exp_general = 500_000_000
         exp_captain = 225_000_000
         exp_lieutenant = 125_000_000
@@ -147,7 +145,6 @@ class ClanCommands:
                 name="Nenhum Rank a ser atualizado no momento :)",
                 value=separator,
                 inline=False)
-        print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
         return await ctx.send(embed=ranks_embed)
 
 

@@ -160,7 +160,7 @@ class Bot(commands.Bot):
                 )
                 embed.add_field(
                     name=f"Por favor não utilize as seguintes menções sem permissão para tal:",
-                    value=f"{membro} - {convidado} - @everyone - @here",
+                    value=f"<@&{membro}> - <@&{convidado}> - @everyone - @here",
                     inline=False
                 )
                 embed.set_author(

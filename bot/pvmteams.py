@@ -17,11 +17,20 @@ async def team_maker(client):
             continue
         try:
             for team in running_teams:
-                team_channel = client.get_channel(int(team.team_channel_id))
-                invite_channel = client.get_channel(int(team.invite_channel_id))
+                try:
+                    team_channel = client.get_channel(int(team.team_channel_id))
+                    invite_channel = client.get_channel(int(team.invite_channel_id))
+                except discord.errors.Forbidden:
+                    session.delete(team)
+                    session.commit()
+                    continue
                 try:
                     team_message = await team_channel.get_message(int(team.team_message_id))
                 except discord.errors.NotFound:
+                    session.delete(team)
+                    session.commit()
+                    continue
+                except discord.errors.Forbidden:
                     session.delete(team)
                     session.commit()
                     continue

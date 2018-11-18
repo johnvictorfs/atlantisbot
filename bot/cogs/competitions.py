@@ -10,6 +10,8 @@ import requests
 
 from .utils import separator
 
+# TODO: The code from this whole freaking cog needs to be refactored
+
 skill = {
     'attack': 'Ataque',
     'defence': 'Defesa',
@@ -73,7 +75,7 @@ emoji = {
 }
 
 
-def translate(string):
+def translate(string: str):
     string = string.replace('hour', 'hora')
     string = string.replace('day', 'dia')
     string = string.replace('week', 'semana')
@@ -86,7 +88,7 @@ def translate(string):
     return string
 
 
-def competition_details(name, comp_id):
+def competition_details(name: str, comp_id: int):
     url = f"http://www.runeclan.com/clan/{name}/{comp_id}"
     request = requests.get(url)
     if request.status_code != 200:
@@ -166,14 +168,12 @@ class Competitions:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
     async def running_competitions(self, ctx, index=0, players=10):
-        await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'running_competitions'.")
-        start_time = time.time()
         competitions = get_competitions(self.bot.setting.clan_name)
         if not competitions['running_competitions']:
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send("Nenhuma competição ativa no momento :(")
         if len(competitions['running_competitions']) > 1 and index is 0:
             competitions_embed = discord.Embed(
@@ -197,7 +197,6 @@ class Competitions:
                                              value=field_value,
                                              inline=False)
                 index += 1
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
                         f"Selecione uma utilizando:\n`{self.bot.setting.prefix}comp <número da competição> "
@@ -244,11 +243,11 @@ class Competitions:
             print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send(content=None, embed=comp_embed)
 
+    @commands.cooldown(1, 5)
     @commands.command(
         aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
                  'compp', 'compps'])
     async def comp_pontos(self, ctx, number=10):
-        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'comp_pontos'.")
         start_time = time.time()
         url = 'https://docs.google.com/spreadsheets/d/{key}/gviz/tq?tqx=out:csv&sheet={sheet_name}'

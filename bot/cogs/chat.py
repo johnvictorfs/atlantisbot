@@ -11,10 +11,9 @@ class ChatCommands:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(1, 60)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx):
-        await ctx.trigger_typing()
-        print(f"> {ctx.author} issued command 'aplicar_role'.")
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"<@&{self.bot.setting.role.get('mod')}> "
                         f"<@&{self.bot.setting.role.get('admin')}> "
@@ -26,9 +25,9 @@ class ChatCommands:
         else:
             return await ctx.send(denied_message)
 
+    @commands.cooldown(1, 60)
     @commands.command(aliases=['aplicar', 'raids'])
     async def aplicar_raids(self, ctx):
-        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
@@ -58,7 +57,6 @@ Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>.
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
     async def aplicar_aod(self, ctx):
-        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'aplicar_aod'.")
         aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
         aod_teacher = f"<@&{self.bot.setting.role.get('aod_teacher')}>"
@@ -88,9 +86,9 @@ Aguarde uma resposta de um {aod_teacher}.
         else:
             return await ctx.send(aplicar_message)
 
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['git', 'source'])
     async def github(self, ctx):
-        await ctx.trigger_typing()
         print(f"> {ctx.author} issued command 'github'.")
         github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
@@ -109,9 +107,9 @@ Aguarde uma resposta de um {aod_teacher}.
             url=github_icon)
         return await ctx.send(content=None, embed=github_embed)
 
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
     async def atlcommands(self, ctx):
-        await ctx.trigger_typing()
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
         embed_title = "RuneClan"
@@ -188,7 +186,7 @@ Aguarde uma resposta de um {aod_teacher}.
         )
 
     @commands.command(aliases=['atlrepeat'])
-    async def atlsay(self, ctx, *, message):
+    async def atlsay(self, ctx, *, message: str):
         message = message.split(' ')
         channel = message[-1]
         if not has_role(ctx.author, self.bot.setting.role.get('admin')):

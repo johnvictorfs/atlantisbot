@@ -1,3 +1,6 @@
+import traceback
+import datetime
+
 import discord
 from discord.ext import commands
 
@@ -7,9 +10,22 @@ class CommandErrorHandler:
     def __init__(self, bot):
         self.bot = bot
 
+    @staticmethod
+    async def __global_check(ctx):
+        """This runs at the start of every command"""
+        await ctx.trigger_typing()
+        time = datetime.datetime.utcnow()
+        print(f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'")
+        return True
+
     async def on_command_error(self, ctx, error):
         prefix = self.bot.setting.prefix
-        if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
+        arguments_error = [
+            commands.MissingRequiredArgument,
+            commands.BadArgument,
+            commands.TooManyArguments,
+        ]
+        if any([isinstance(error, arg_error) for arg_error in arguments_error]):
             footer = None
             if ctx.command.qualified_name == 'clan_user_info':
                 command = "claninfo"
@@ -34,7 +50,35 @@ class CommandErrorHandler:
                 embed.set_footer(
                     text=footer
                 )
-            await ctx.send(embed=embed)
+            try:
+                await ctx.send(embed=embed)
+            except discord.errors.Forbidden:
+                await ctx.send("Erro. Permissões insuficientes para enviar um Embed.")
+        elif isinstance(error, commands.CommandNotFound):
+            pass
+        elif isinstance(error, commands.DisabledCommand):
+            await ctx.send("Esse comando está desabilitado.")
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send("Esse comando só pode ser usado em Guildas.")
+        elif isinstance(error, commands.NotOwner):
+            await ctx.send("Você não pode usar isso.")
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send(
+                f"Você não tem permissão para fazer isso: {', '.join(error.missing_perms)}"
+            )
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f"Ei! Você já usou este comando recentemente. "
+                f"Espere mais {error.retry_after:.1f}s para usar novamente"
+            )
+        elif isinstance(error, commands.BotMissingPermissions):
+            await ctx.send(
+                f"Eu não tenho permissão para fazer isso: {', '.join(error.missing_perms)}"
+            )
+        else:
+            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+            await self.bot.send_logs(error, tb)
+            await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev.")
 
 
 def setup(bot):
