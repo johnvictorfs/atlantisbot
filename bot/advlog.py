@@ -89,10 +89,9 @@ async def advlog(client):
                     embed.set_thumbnail(url=banner)
                     embed.set_footer(text=activity.get('date'))
                     try:
-                        # TODO: Remove after db has been built once
-                        if '19-Nov-2018' in activity.get('date'):
-                            await channel.send(embed=embed)
+                        await channel.send(embed=embed)
                     except Exception as e:
                         tb = traceback.format_exc()
                         print(e, tb)
-        await asyncio.sleep(180)
+                print("Sent adv. log data. Sleeping for 10 minutes.")
+        await asyncio.sleep(60 * 10)
