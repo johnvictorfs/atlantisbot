@@ -73,30 +73,31 @@ async def advlog(client):
             for player, activities in difference.items():
                 player_name = player.replace(' ', '%20').replace('%C2%A0', '%20')
                 icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_name}/chat.png"
-                for activity in activities:
-                    text = activity.get('text')
-                    details = activity.get('details')
-                    try:
-                        text_exp = int(re.findall('\d+', text)[0])
-                        details_exp = int(re.findall('\d+', text)[0])
-                        text = text.replace(str(text_exp), f"{text_exp:,}")
-                        details = details.replace(str(details_exp), f"{details_exp:,}")
-                    except IndexError:
-                        pass
-                    embed = discord.Embed(
-                        title=text,
-                        description=details
-                    )
-                    embed.set_author(
-                        name=player,
-                        icon_url=icon_url
-                    )
-                    embed.set_thumbnail(url=banner)
-                    embed.set_footer(text=activity.get('date'))
-                    try:
-                        await channel.send(embed=embed)
-                    except Exception as e:
-                        tb = traceback.format_exc()
-                        print(e, tb)
+                if activities:
+                    for activity in activities:
+                        text = activity.get('text')
+                        details = activity.get('details')
+                        try:
+                            text_exp = int(re.findall('\d+', text)[0])
+                            details_exp = int(re.findall('\d+', text)[0])
+                            text = text.replace(str(text_exp), f"{text_exp:,}")
+                            details = details.replace(str(details_exp), f"{details_exp:,}")
+                        except IndexError:
+                            pass
+                        embed = discord.Embed(
+                            title=text,
+                            description=details
+                        )
+                        embed.set_author(
+                            name=player,
+                            icon_url=icon_url
+                        )
+                        embed.set_thumbnail(url=banner)
+                        embed.set_footer(text=activity.get('date'))
+                        try:
+                            await channel.send(embed=embed)
+                        except Exception as e:
+                            tb = traceback.format_exc()
+                            print(e, tb)
                 print(f"Sent adv. log data at {datetime.datetime.utcnow()}. Sleeping for 10 minutes.")
         await asyncio.sleep(60 * 10)
