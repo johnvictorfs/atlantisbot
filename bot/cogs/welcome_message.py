@@ -1,5 +1,3 @@
-import datetime
-
 import discord
 from discord.ext import commands
 
@@ -18,12 +16,12 @@ class WelcomeMessage:
 
     @commands.command(aliases=['testwelcome'])
     async def test_welcome_message(self, ctx):
-        print('welcome')
         await ctx.author.send(embed=self.welcome_embed(ctx.author))
 
     async def on_member_join(self, member):
         print(f"'{member}' joined the server '{member.guild}' at {member.joined_at}")
         if self.bot.setting.mode == 'dev':
+            print("Development mode is on. Not sending welcome message.")
             return
         for name in self.bot.setting.not_allowed_in_name:
             if name in member.name:

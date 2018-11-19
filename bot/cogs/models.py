@@ -52,6 +52,13 @@ class RaidsState(Base):
     notifications = Column(Boolean, default=True)
 
 
+class PlayerActivities(Base):
+    __tablename__ = 'playeractivities'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    activities = Column(String, default="[]")
+
+
 # SQLite local database for development, hosted postgres database for production
 if os.environ.get('ATLBOT_HEROKU') == 'prod':
     engine = create_engine(os.environ.get('ATLBOT_DB_URI'))

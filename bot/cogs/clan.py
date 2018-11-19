@@ -1,5 +1,3 @@
-import time
-
 import rs3clans
 import discord
 from discord.ext import commands

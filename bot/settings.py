@@ -29,6 +29,13 @@ class Settings:
         return token_
 
     @property
+    def jsonbin_key(self):
+        key = self.read_data['BOT']['jsonbin_key']
+        if key == 'JSON_BIN_KEY_HERE':
+            return os.environ.get('JSONBIN_KEY')
+        return key
+
+    @property
     def description(self):
         return self.read_data['BOT']['description']
 
@@ -78,6 +85,7 @@ default_settings = {
         "mode": "prod",
         "developer_id": 148175892596785152,
         "bot_token": "BOT_TOKEN_HERE",
+        "jsonbin_key": "JSON_BIN_KEY_HERE",
         "description": "A discord bot with utilities for RS3 Clans Discords",
         "playing_message": "!atlbot",
         "commands_prefix": "!",

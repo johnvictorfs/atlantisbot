@@ -56,6 +56,7 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
                 else:
                     print("Notificação de Raids não foi enviada. Desabilitado.")
                     session.close()
+                    await asyncio.sleep(60)
                     continue
                 team_list = []
                 embed = raids_embed(setting=setting)

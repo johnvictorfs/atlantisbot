@@ -14,6 +14,7 @@ from discord.ext import commands
 from colorama import init, Fore
 
 from bot import settings
+from bot.advlog import advlog
 from bot.raids import raids_notification
 from bot.pvmteams import team_maker
 from bot.cogs.utils import separator, has_role
@@ -97,6 +98,7 @@ class Bot(commands.Bot):
             channel_public=self.raids_channel_public,
             time_to_send=raids_time))
         self.loop.create_task(team_maker(self))
+        self.loop.create_task(advlog(self))
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
