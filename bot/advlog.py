@@ -99,5 +99,5 @@ async def advlog(client):
                         except Exception as e:
                             tb = traceback.format_exc()
                             print(e, tb)
-                print(f"Sent adv. log data at {datetime.datetime.utcnow()}. Sleeping for 10 minutes.")
+        print(f"Sent adv. log data at {datetime.datetime.utcnow()}. Sleeping for 10 minutes.")
         await asyncio.sleep(60 * 10)
