@@ -54,10 +54,9 @@ async def advlog(client):
             difference = {}
             for key, item in new_activities.items():
                 if key not in new_keys:
-                    try:
+                    diff_items = []
+                    if item:
                         diff_items = [act for act in item if act not in old_activities.get(key)]
-                    except TypeError:
-                        diff_items = [act for act in item]
                     difference[key] = diff_items
             difference.update({k: new_activities[k] for k in new_keys})
             for key, item in new_activities.items():
