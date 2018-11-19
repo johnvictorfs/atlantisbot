@@ -22,7 +22,7 @@ async def advlog(client):
             success = 0
             profile_private = 0
             not_member = 0
-            print("Started checking for new adventurer's log entries frm clanmates.")
+            print("Started checking for new adventurer's log entries from clanmates.")
             for player in clan_list[1:]:
                 player = player[0]
                 profile_url = f'https://apps.runescape.com/runemetrics/profile/profile?user={player}&activities=20'
