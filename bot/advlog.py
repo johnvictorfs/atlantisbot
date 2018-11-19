@@ -3,6 +3,7 @@ import csv
 import traceback
 import re
 import ast
+import datetime
 from io import StringIO
 
 import aiohttp
@@ -22,7 +23,7 @@ async def advlog(client):
             success = 0
             profile_private = 0
             not_member = 0
-            print("Started checking for new adventurer's log entries from clanmates.")
+            print(f"Started checking for new adventurer's log entries from clanmates at {datetime.datetime.utcnow()}.")
             for player in clan_list[1:]:
                 player = player[0]
                 profile_url = f'https://apps.runescape.com/runemetrics/profile/profile?user={player}&activities=20'
@@ -53,7 +54,10 @@ async def advlog(client):
             difference = {}
             for key, item in new_activities.items():
                 if key not in new_keys:
-                    diff_items = [act for act in item if act not in old_activities.get(key)]
+                    try:
+                        diff_items = [act for act in item if act not in old_activities.get(key)]
+                    except TypeError:
+                        diff_items = [act for act in item]
                     difference[key] = diff_items
             difference.update({k: new_activities[k] for k in new_keys})
             for key, item in new_activities.items():
@@ -95,5 +99,5 @@ async def advlog(client):
                     except Exception as e:
                         tb = traceback.format_exc()
                         print(e, tb)
-                print("Sent adv. log data. Sleeping for 10 minutes.")
+                print(f"Sent adv. log data at {datetime.datetime.utcnow()}. Sleeping for 10 minutes.")
         await asyncio.sleep(60 * 10)
