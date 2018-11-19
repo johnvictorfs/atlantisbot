@@ -108,6 +108,7 @@ default_settings = {
             "tags_do_server": 382691780996497416,
             "visitantes": 321012324997529602,
 
+            "adv_log": 513848876063784960,
             "links_uteis": 388046792756953090,
             "pvmemes": 333083647991349249,
 

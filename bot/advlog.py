@@ -1,6 +1,5 @@
 import asyncio
 import csv
-import json
 import traceback
 import re
 import ast
@@ -10,8 +9,6 @@ import aiohttp
 import discord
 
 from .cogs.models import Session, PlayerActivities
-
-adv_log_id = 513848876063784960
 
 
 async def advlog(client):
@@ -67,7 +64,7 @@ async def advlog(client):
                     session.add(new_player)
                 session.commit()
             session.close()
-            channel = client.get_channel(adv_log_id)
+            channel = client.get_channel(client.setting.chat.get('adv_log'))
             banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{client.setting.clan_name}/clanmotif.png"
             for player, activities in difference.items():
                 icon_url = f"https://secure.runescape.com/m=avatar-rs/{player.replace(' ', '%20')}/chat.png"
