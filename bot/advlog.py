@@ -35,7 +35,7 @@ async def advlog(client):
                         not_member += 1
                     else:
                         if call.get('activities'):
-                            new_activities[player] = call.get('activities')
+                            new_activities[player] = call.get('activities').reverse()
                             success += 1
             print(f"Finished grabbing adv log data. Success: {success} "
                   f"- Private Profile: {profile_private} "
@@ -67,7 +67,8 @@ async def advlog(client):
             channel = client.get_channel(client.setting.chat.get('adv_log'))
             banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{client.setting.clan_name}/clanmotif.png"
             for player, activities in difference.items():
-                icon_url = f"https://secure.runescape.com/m=avatar-rs/{player.replace(' ', '%20')}/chat.png"
+                player_name = player.replace(' ', '%20').replace('%C2%A0', '%20')
+                icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_name}/chat.png"
                 for activity in activities:
                     text = activity.get('text')
                     details = activity.get('details')
