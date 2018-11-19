@@ -37,7 +37,7 @@ async def advlog(client):
                         not_member += 1
                     else:
                         if call.get('activities'):
-                            new_activities[player] = call.get('activities').reverse()
+                            new_activities[player] = list(call.get('activities')).reverse()
                             success += 1
             print(f"Finished grabbing adv log data. Success: {success} "
                   f"- Private Profile: {profile_private} "
@@ -49,7 +49,6 @@ async def advlog(client):
                 for act in all_activities:
                     act_list = ast.literal_eval(act.activities)
                     old_activities[act.name] = act_list
-
             new_keys = set(new_activities) - set(old_activities)
             difference = {}
             for key, item in new_activities.items():
