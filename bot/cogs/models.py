@@ -63,7 +63,7 @@ class PlayerActivities(Base):
 if os.environ.get('ATLBOT_HEROKU') == 'prod':
     engine = create_engine(os.environ.get('ATLBOT_DB_URI'))
 else:
-    engine = create_engine('sqlite:///teams.sqlite3', connect_args={'timeout': 15})
+    engine = create_engine('sqlite:///db.sqlite3', connect_args={'timeout': 15})
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine, autoflush=False)

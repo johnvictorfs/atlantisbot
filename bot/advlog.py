@@ -37,7 +37,8 @@ async def advlog(client):
                         not_member += 1
                     else:
                         if call.get('activities'):
-                            new_activities[player] = list(call.get('activities')).reverse()
+                            # TODO: Since this list can't be .reversed(), sort the dictionaries inside them by date
+                            new_activities[player] = ast.literal_eval(str(call.get('activities')))
                             success += 1
             print(f"Finished grabbing adv log data. Success: {success} "
                   f"- Private Profile: {profile_private} "
@@ -100,3 +101,107 @@ async def advlog(client):
                             print(e, tb)
         print(f"Sent adv. log data at {datetime.datetime.utcnow()}. Sleeping for 10 minutes.")
         await asyncio.sleep(60 * 10)
+
+
+a = [
+    {
+        'date': '19-Nov-2018 09:04',
+        'details': 'I now have at least 72000000 experience points in the Summoning skill.',
+        'text': '72000000XP in Summoning'
+    },
+    {
+        'date': '19-Nov-2018 08:32',
+        'details': 'I now have at least 70000000 experience points in the Summoning skill.',
+        'text': '70000000XP in Summoning'
+    },
+    {
+        'date': '19-Nov-2018 08:09',
+        'details': 'I now have at least 150000000 experience points in the Dungeoneering skill.',
+        'text': '150000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 07:38',
+        'details': 'I now have at least 148000000 experience points in the Dungeoneering skill.',
+        'text': '148000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 06:45',
+        'details': 'I now have at least 146000000 experience points in the Dungeoneering skill.',
+        'text': '146000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 06:00',
+        'details': 'I now have at least 144000000 experience points in the Dungeoneering skill.',
+        'text': '144000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 05:30',
+        'details': 'I now have at least 142000000 experience points in the Dungeoneering skill.',
+        'text': '142000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 04:49',
+        'details': 'I now have at least 140000000 experience points in the Dungeoneering skill.',
+        'text': '140000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 03:57',
+        'details': 'I now have at least 138000000 experience points in the Dungeoneering skill.',
+        'text': '138000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 03:26',
+        'details': 'I now have at least 136000000 experience points in the Dungeoneering skill.',
+        'text': '136000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 02:32',
+        'details': 'I now have at least 134000000 experience points in the Dungeoneering skill.',
+        'text': '134000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 01:43',
+        'details': 'I now have at least 132000000 experience points in the Dungeoneering skill.',
+        'text': '132000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 00:58',
+        'details': 'I now have at least 130000000 experience points in the Dungeoneering skill.',
+        'text': '130000000XP in Dungeoneering'
+    },
+    {
+        'date': '19-Nov-2018 00:17',
+        'details': 'I now have at least 128000000 experience points in the Dungeoneering skill.',
+        'text': '128000000XP in Dungeoneering'
+    },
+    {
+        'date': '18-Nov-2018 23:50',
+        'details': 'I now have at least 126000000 experience points in the Dungeoneering skill.',
+        'text': '126000000XP in Dungeoneering'
+    },
+    {
+        'date': '18-Nov-2018 22:41',
+        'details': 'I now have at least 124000000 experience points in the Dungeoneering skill.',
+        'text': '124000000XP in Dungeoneering'
+    },
+    {
+        'date': '18-Nov-2018 20:48',
+        'details': 'I now have at least 68000000 experience points in the Summoning skill.',
+        'text': '68000000XP in Summoning'
+    },
+    {
+        'date': '18-Nov-2018 19:23',
+        'details': 'I now have at least 66000000 experience points in the Summoning skill.',
+        'text': '66000000XP in Summoning'
+    },
+    {
+        'date': '18-Nov-2018 18:31',
+        'details': 'I now have at least 64000000 experience points in the Summoning skill.',
+        'text': '64000000XP in Summoning'
+    },
+    {
+        'date': '18-Nov-2018 17:14',
+        'details': 'I now have at least 62000000 experience points in the Summoning skill.',
+        'text': '62000000XP in Summoning'
+    }
+]
