@@ -65,36 +65,6 @@ class TeamCommands:
             await ctx.send("Você não tem permissão para fazer isso.")
         session.close()
 
-    @commands.cooldown(1, 5)
-    @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['timesativos', 'times_ativos'])
-    async def running_teams(self, ctx):
-        if has_role(ctx.author, self.bot.setting.role.get('admin')):
-            running_teams_embed = discord.Embed(
-                title='__Times Ativos__',
-                description="",
-                color=discord.Color.red()
-            )
-            session = Session()
-            teams = session.query(Team).all()
-            if not teams:
-                running_teams_embed.add_field(
-                    name=separator,
-                    value=f"Nenhum time ativo no momento."
-                )
-            for team in teams:
-                running_teams_embed.add_field(
-                    name=separator,
-                    value=f"**Título:** {team.title}\n"
-                          f"**PK:** {team.id}\n"
-                          f"**Team ID:** {team.team_id}\n"
-                          f"**Chat:** <#{team.team_channel_id}>\n"
-                          f"**Criado por:** <@{team.author_id}>\n"
-                          f"**Criado em:** {team.created_date}"
-                )
-            session.close()
-            await ctx.send(embed=running_teams_embed)
-
     @commands.cooldown(1, 10)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])

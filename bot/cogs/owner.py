@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 
 from .models import Session, RaidsState, Team, PlayerActivities, AdvLogState
+from .utils import separator
 
 
 class Owner:
@@ -12,6 +13,33 @@ class Owner:
 
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
+
+    @commands.command(aliases=['timesativos', 'times_ativos'])
+    async def running_teams(self, ctx):
+        running_teams_embed = discord.Embed(
+            title='__Times Ativos__',
+            description="",
+            color=discord.Color.red()
+        )
+        session = Session()
+        teams = session.query(Team).all()
+        if not teams:
+            running_teams_embed.add_field(
+                name=separator,
+                value=f"Nenhum time ativo no momento."
+            )
+        for team in teams:
+            running_teams_embed.add_field(
+                name=separator,
+                value=f"**Título:** {team.title}\n"
+                f"**PK:** {team.id}\n"
+                f"**Team ID:** {team.team_id}\n"
+                f"**Chat:** <#{team.team_channel_id}>\n"
+                f"**Criado por:** <@{team.author_id}>\n"
+                f"**Criado em:** {team.created_date}"
+            )
+        session.close()
+        await ctx.send(embed=running_teams_embed)
 
     @commands.command()
     async def check_raids(self, ctx):
