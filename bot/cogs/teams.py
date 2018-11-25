@@ -15,6 +15,7 @@ class TeamCommands:
 
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
+    @commands.guild_only()
     @commands.command(aliases=['del'])
     async def delteam(self, ctx, pk: int):
         session = Session()
@@ -30,7 +31,7 @@ class TeamCommands:
         if not team:
             return await ctx.send(f"ID inválida: {pk}")
         allowed_roles = ['mod', 'mod+', 'admin']
-        has_mod_or_higher = any([has_role(ctx.author, role) for role in allowed_roles])
+        has_mod_or_higher = any([has_role(ctx.author, self.bot.setting.role.get(role)) for role in allowed_roles])
         if int(team.author_id) == ctx.author.id or has_mod_or_higher:
             invite_channel = None
             try:

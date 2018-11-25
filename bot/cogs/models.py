@@ -52,6 +52,12 @@ class RaidsState(Base):
     notifications = Column(Boolean, default=True)
 
 
+class AdvLogState(Base):
+    __tablename__ = 'advlogstate'
+    id = Column(Integer, primary_key=True)
+    messages = Column(Boolean, default=True)
+
+
 class PlayerActivities(Base):
     __tablename__ = 'playeractivities'
     id = Column(Integer, primary_key=True)

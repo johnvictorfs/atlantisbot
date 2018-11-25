@@ -25,6 +25,8 @@ class CommandErrorHandler:
             commands.BadArgument,
             commands.TooManyArguments,
         ]
+        command = None
+        arguments = None
         if any([isinstance(error, arg_error) for arg_error in arguments_error]):
             footer = None
             if ctx.command.qualified_name == 'clan_user_info':
@@ -59,7 +61,7 @@ class CommandErrorHandler:
         elif isinstance(error, commands.DisabledCommand):
             await ctx.send("Esse comando está desabilitado.")
         elif isinstance(error, commands.NoPrivateMessage):
-            await ctx.send("Esse comando só pode ser usado em Guildas.")
+            await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
         elif isinstance(error, commands.NotOwner):
             await ctx.send("Você não pode usar isso.")
         elif isinstance(error, commands.MissingPermissions):

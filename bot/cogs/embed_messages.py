@@ -1,10 +1,7 @@
-# Non-Standard lib imports
 from discord.ext import commands
 import discord
 
-# Local imports
 from . import embeds
-from .utils import has_role
 
 
 class EmbedMessages:
@@ -12,13 +9,11 @@ class EmbedMessages:
     def __init__(self, bot):
         self.bot = bot
 
+    async def __local_check(self, ctx):
+        return await self.bot.is_owner(ctx.author)
+
     @commands.command(aliases=['server_tags_embed_', 'post_server_tags_embed'])
     async def server_tags_embed(self, ctx):
-        print(f"{ctx.author} issued command server_tags_embed")
-        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
-            print(f"{ctx.author}: denied access to server_tags_embed")
-            return
-
         pvm_embed = embeds.get_pvm_embed(
             chat=self.bot.setting.chat,
             role=self.bot.setting.role
@@ -38,11 +33,6 @@ class EmbedMessages:
 
     @commands.command()
     async def send_static_welcome_message(self, ctx):
-        print(f"{ctx.author} issued command send_static_welcome_message")
-
-        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
-            print(f"{ctx.author}: denied access to send_static_welcome_message")
-            return
         tags_do_server = f"<#{self.bot.setting.chat.get('tags_do_server')}>"
         discord_bots = f"<#{self.bot.setting.chat.get('discord_bots')}>"
         links_pvm = f"<#{self.bot.setting.chat.get('links_uteis')}>"
@@ -114,10 +104,6 @@ class EmbedMessages:
 
     @commands.command(aliases=['embed_edit', ])
     async def edit_embed(self, ctx, message_id, category, channel_id=382691780996497416):
-        print(f'Command edit_embed issued by {ctx.author}.')
-        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
-            print(f"{ctx.author}: denied access to server_tags_embed")
-            return
         try:
             message_id = int(message_id)
         except ValueError:
@@ -151,7 +137,8 @@ class EmbedMessages:
         async for message in channel.history():
             if message.id == message_id:
                 print(f"    Edited message: {message}")
-                return await message.edit(embed=embed)
+                await message.edit(embed=embed)
+                return await ctx.send("Mensagem editada com sucesso.")
 
 
 def setup(bot):

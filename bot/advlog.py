@@ -9,11 +9,24 @@ from io import StringIO
 import aiohttp
 import discord
 
-from .cogs.models import Session, PlayerActivities
+from .cogs.models import Session, PlayerActivities, AdvLogState
 
 
 async def advlog(client):
     while True:
+        session = Session()
+        state = session.query(AdvLogState).first()
+        if not state:
+            state = AdvLogState(messages=True)
+            session.add(state)
+            session.commit()
+        if state.messages:
+            session.close()
+            pass
+        else:
+            session.close()
+            await asyncio.sleep(60)
+            continue
         async with aiohttp.ClientSession() as cs:
             clan = f"http://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName={client.setting.clan_name}"
             async with cs.get(clan) as r:

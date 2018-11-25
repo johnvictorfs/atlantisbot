@@ -41,7 +41,7 @@ def get_general_embed(role, prefix, chat):
         name=line_break,
         value=f"<@&{role.get('membro')}>\n"
               f" Dado para membros do Clã. Caso seja um digite `{prefix}membro` no chat"
-              f" <#{chat.get('discord_bots')}>",
+              f" <#{chat.get('visitantes')}>",
         inline=False)
     general_embed.add_field(
         name=line_break,
