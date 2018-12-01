@@ -17,8 +17,7 @@ class ClanCommands:
         try:
             player = rs3clans.Player(name=username, runemetrics=True)
         except ConnectionError:
-            return await ctx.send(f"Houve um erro tentando conectar a API da Jagex. Tente novamente mais tarde. "
-                                  f"(Código {player.details_status_code})")
+            return await ctx.send(f"Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde.")
         if not player.exists:
             return await ctx.send(f"Jogador '{player.name}' não existe.")
         if not player.clan:
@@ -114,28 +113,28 @@ class ClanCommands:
                 ranks_embed.add_field(
                     name=member[0],
                     value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n"
-                          f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
                     inline=False)
                 found = True
             elif member[1]['exp'] >= exp_captain and member[1]['rank'] == 'Lieutenant':
-                ranks_embed.add_field \
-                    (name=member[0],
-                     value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n"
-                           f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
-                     inline=False)
+                ranks_embed.add_field(
+                    name=member[0],
+                    value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n"
+                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    inline=False)
                 found = True
             elif member[1]['exp'] >= exp_lieutenant and member[1]['rank'] == 'Sergeant':
                 ranks_embed.add_field(
                     name=member[0],
                     value=f"Sargento {rank_emoji['Sergeant']} > Tenente {rank_emoji['Lieutenant']}\n"
-                          f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
                     inline=False)
                 found = True
             elif member[1]['exp'] >= exp_seargent and member[1]['rank'] == 'Corporal':
                 ranks_embed.add_field(
                     name=member[0],
                     value=f"Cabo {rank_emoji['Corporal']} > Sargento {rank_emoji['Sergeant']}\n"
-                          f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
                     inline=False)
                 found = True
         if not found:

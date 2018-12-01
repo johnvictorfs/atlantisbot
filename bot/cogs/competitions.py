@@ -183,9 +183,11 @@ class Competitions:
                 url=f"http://www.runeclan.com/clan/{self.bot.setting.clan_name}/competitions")
             index = 0
             for comp in competitions['running_competitions']:
-                field_value = (f"{emoji[comp['skill'].lower()]} "
-                               f"{skill[comp['skill'].lower()]}\n"
-                               f"__Duração__: {translate(comp['duration'])}\n")
+                field_value = (
+                    f"{emoji[comp['skill'].lower()]} "
+                    f"{skill[comp['skill'].lower()]}\n"
+                    f"__Duração__: {translate(comp['duration'])}\n"
+                )
 
                 if comp['start_date'] == 'active':
                     field_value += f"__Tempo Restante__: {translate(comp['time_remaining'])}"
@@ -193,54 +195,58 @@ class Competitions:
                     field_value += f"__Início daqui a__: {translate(comp['start_date'])}"
                 field_value += "\n"
                 field_value += separator
-                competitions_embed.add_field(name=f"#{index + 1} - {comp['name']}",
-                                             value=field_value,
-                                             inline=False)
+                competitions_embed.add_field(
+                    name=f"#{index + 1} - {comp['name']}",
+                    value=field_value,
+                    inline=False)
                 index += 1
             return await ctx.send(
                 content=f"Há mais de uma competição ativa no momento\n"
-                        f"Selecione uma utilizando:\n`{self.bot.setting.prefix}comp <número da competição> "
-                        f"<número de jogadores (padrão = 10)>`\n"
-                        f"Ou use o comando `{self.bot.setting.prefix}pcomp` para ver informações sobre competições "
-                        f"que estejam usando o sistema de pontos.",
-                embed=competitions_embed)
+                f"Selecione uma utilizando:\n`{self.bot.setting.prefix}comp <número da competição> "
+                f"<número de jogadores (padrão = 10)>`\n"
+                f"Ou use o comando `{self.bot.setting.prefix}pcomp` para ver informações sobre competições "
+                f"que estejam usando o sistema de pontos.",
+                embed=competitions_embed
+            )
         else:
             if len(competitions['running_competitions']) is 1:
                 index = 1
             try:
                 competition = competitions['running_competitions'][index - 1]
             except IndexError:
-                await ctx.send(f"Você tentou acessar a competição número {index}, "
-                               f"mas o número de competições ativa no momento é "
-                               f"{len(competitions['running_competitions'])}.")
-                print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
-                return
+                return await ctx.send(
+                    f"Você tentou acessar a competição número {index}, "
+                    f"mas o número de competições ativa no momento é "
+                    f"{len(competitions['running_competitions'])}.")
             comp_embed = discord.Embed(
                 title=competition['name'],
                 description=f"{emoji[competition['skill'].lower()]} "
-                            f"{skill[competition['skill'].lower()]}",
+                f"{skill[competition['skill'].lower()]}",
                 color=discord.Colour.blue(),
                 url=f"http://www.runeclan.com/clan/{self.bot.setting.clan_name}/{competition['link']}")
-            comp_embed.add_field(name="__Duração Total__",
-                                 value=f"{translate(competition['duration'])}",
-                                 inline=False)
+            comp_embed.add_field(
+                name="__Duração Total__",
+                value=f"{translate(competition['duration'])}",
+                inline=False)
             if competition['start_date'] == 'active':
                 comp_details = competition_details(self.bot.setting.clan_name, competition['link'])
                 if comp_details == 'FAILURE':
                     await ctx.send("Erro ao conectar ao RuneClan. Tente novamente mais tarde.")
-                comp_embed.add_field(name="__Tempo Restante__",
-                                     value=f"{translate(competition['time_remaining'])}\n" + separator,
-                                     inline=False)
+                comp_embed.add_field(
+                    name="__Tempo Restante__",
+                    value=f"{translate(competition['time_remaining'])}\n" + separator,
+                    inline=False)
                 for i in range(players):
                     if int(comp_details[i]['exp_gained'].replace(',', '')) > 0:
-                        comp_embed.add_field(name=f"__#{i + 1}__ - {comp_details[i]['name']}",
-                                             value=f"**Exp:** {comp_details[i]['exp_gained']}\n" + separator,
-                                             inline=False)
+                        comp_embed.add_field(
+                            name=f"__#{i + 1}__ - {comp_details[i]['name']}",
+                            value=f"**Exp:** {comp_details[i]['exp_gained']}\n" + separator,
+                            inline=False)
             else:
-                comp_embed.add_field(name=f"__Início daqui a__",
-                                     value=f"{translate(competition['start_date'])}",
-                                     inline=False)
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
+                comp_embed.add_field(
+                    name=f"__Início daqui a__",
+                    value=f"{translate(competition['start_date'])}",
+                    inline=False)
             return await ctx.send(content=None, embed=comp_embed)
 
     @commands.cooldown(1, 5)
@@ -248,8 +254,6 @@ class Competitions:
         aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
                  'compp', 'compps'])
     async def comp_pontos(self, ctx, number=10):
-        print(f"> {ctx.author} issued command 'comp_pontos'.")
-        start_time = time.time()
         url = 'https://docs.google.com/spreadsheets/d/{key}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         url = url.format(key='1iHPQovW4NXFicJd6ot83QnrN9NyLlxcX3UraJHv9uPg', sheet_name='min')
         with closing(requests.get(url, stream=True)) as r:
@@ -258,7 +262,6 @@ class Competitions:
                     "Houve um erro tentando pegar as informações dessa competição, tente novamente mais tarde :(")
             reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'), delimiter=',', quotechar='"')
             if not reader:
-                print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
                 return await ctx.send(
                     f'Nenhuma competição fazendo uso do sistema de pontos no momento. '
                     f'tente o comando `{self.bot.setting.prefix}comp` para ver outras competições')
@@ -273,17 +276,15 @@ class Competitions:
                             f"\n__Dias Restantes:__ {remaining_days}\n" + separator,
                 color=discord.Colour.dark_red(),
                 url=f"https://docs.google.com/spreadsheets/d/e/"
-                    f"2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#")
-            i = 1
-            for player in list_reader[1:]:
+                f"2PACX-1vRS1xBkGJi6G5utxcbHJRkKxum2qmcKdvLv7A-O4bFKvnujF_pOSK0tps5gZU1MjSkIbEY-Bup5fJDm/pubhtml#"
+            )
+            for index, player in enumerate(list_reader[1:]):
                 comp_embed.add_field(
-                    name=f"__#{i}__ - {player[0]}",
+                    name=f"__#{index + 1}__ - {player[0]}",
                     value=f"**Pontos:** {player[2]}\n**Exp (Total top 10s):** {int(player[1]):,}\n" + separator,
                     inline=False)
-                i += 1
-                if i > number:
+                if index + 1 > number:
                     break
-            print(f"    - Answer sent. Took {time.time() - start_time:.4f}s")
             return await ctx.send(embed=comp_embed)
 
 
