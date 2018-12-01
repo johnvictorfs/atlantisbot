@@ -24,11 +24,11 @@ class WelcomeMessage:
             print("Development mode is on. Not sending welcome message.")
             return
         for name in self.bot.setting.not_allowed_in_name:
-            if name in member.name:
+            if name in member.name.lower():
                 print(f"Kicked {member} for having a not allowed string '{name}' in username.")
                 try:
                     await member.send(f"Você foi expulso do servidor por ter um nome não permitida em seu usuário. "
-                                      f"({name}) Caso deseja entrar no servidor, por favor a remova.")
+                                      f"({name}) Caso deseje entrar no servidor, por favor a remova.")
                 except Exception:
                     print(f"No permission to send private message to {member.name}")
                 return await member.kick(reason=f"Kick automático. String não permitida no usuário. ({name})")
