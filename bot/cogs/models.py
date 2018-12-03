@@ -66,8 +66,8 @@ class PlayerActivities(Base):
 
 
 # SQLite local database for development, hosted postgres database for production
-if os.environ.get('ATLBOT_HEROKU') == 'prod':
-    engine = create_engine(os.environ.get('ATLBOT_DB_URI'))
+if os.environ.get('DATABASE_URL'):
+    engine = create_engine(os.environ.get('DATABASE_URL'))
 else:
     engine = create_engine('sqlite:///db.sqlite3', connect_args={'timeout': 15})
 
