@@ -4,7 +4,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from .utils import separator, has_role
+from .utils import separator
 from .db.models import Team, BotMessage
 from .db.db import Session
 
@@ -23,50 +23,45 @@ class TeamCommands:
             await ctx.message.delete()
         except discord.errors.NotFound:
             pass
-        try:
-            pk = int(pk)
-        except ValueError:
-            return await ctx.send(f"ID inválida: {pk}")
         team = session.query(Team).filter_by(team_id=pk).first()
         if not team:
             return await ctx.send(f"ID inválida: {pk}")
-        allowed_roles = ['mod', 'mod+', 'admin']
-        has_mod_or_higher = any([has_role(ctx.author, self.bot.setting.role.get(role)) for role in allowed_roles])
-        if int(team.author_id) == ctx.author.id or has_mod_or_higher:
-            invite_channel = None
-            try:
-                team_channel = self.bot.get_channel(int(team.team_channel_id))
-                team_message = await team_channel.get_message(int(team.team_message_id))
-                await team_message.delete()
-            except Exception:
-                pass
-            try:
-                invite_channel = self.bot.get_channel(int(team.invite_channel_id))
-                invite_message = await invite_channel.get_message(int(team.invite_message_id))
-                await invite_message.delete()
-            except Exception:
-                pass
-            try:
-                messages_to_delete = []
-                for message in session.query(BotMessage).filter_by(team=team.id):
-                    to_delete = await invite_channel.get_message(message.message_id)
-                    messages_to_delete.append(to_delete)
-                await invite_channel.delete_messages(messages_to_delete)
-            except Exception:
-                pass
-            try:
-                session.query(BotMessage).filter_by(team=team.id).delete()
-            except Exception:
-                pass
-            session.delete(team)
-            session.commit()
-            await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
-        else:
-            await ctx.send("Você não tem permissão para fazer isso.")
+        if int(team.author_id) != ctx.author.id:
+            if not ctx.author.permissions_in(ctx.channel).manage_channels:
+                raise commands.MissingPermissions(['manage_channels'])
+        invite_channel = None
+        try:
+            team_channel = self.bot.get_channel(int(team.team_channel_id))
+            team_message = await team_channel.get_message(int(team.team_message_id))
+            await team_message.delete()
+        except Exception:
+            pass
+        try:
+            invite_channel = self.bot.get_channel(int(team.invite_channel_id))
+            invite_message = await invite_channel.get_message(int(team.invite_message_id))
+            await invite_message.delete()
+        except Exception:
+            pass
+        try:
+            messages_to_delete = []
+            for message in session.query(BotMessage).filter_by(team=team.id):
+                to_delete = await invite_channel.get_message(message.message_id)
+                messages_to_delete.append(to_delete)
+            await invite_channel.delete_messages(messages_to_delete)
+        except Exception:
+            pass
+        try:
+            session.query(BotMessage).filter_by(team=team.id).delete()
+        except Exception:
+            pass
+        session.delete(team)
+        session.commit()
+        await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
         session.close()
 
     @commands.cooldown(1, 10)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
+    @commands.guild_only()
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx):
         creation_message = None
@@ -238,11 +233,11 @@ class TeamCommands:
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
                 description=f"{separator}\n\n"
-                            f"{requisito}"
-                            f"Time: {ctx.channel.mention}\n"
-                            f"Criador: <@{ctx.author.id}>\n\n"
-                            f"`in {team_id}`: Marcar presença\n"
-                            f"`out {team_id}`: Retirar presença"
+                f"{requisito}"
+                f"Time: {ctx.channel.mention}\n"
+                f"Criador: <@{ctx.author.id}>\n\n"
+                f"`in {team_id}`: Marcar presença\n"
+                f"`out {team_id}`: Retirar presença"
             )
             team_embed = discord.Embed(
                 title=f"__{team_title}__ - 0/{team_size}",

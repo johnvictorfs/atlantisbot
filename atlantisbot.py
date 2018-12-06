@@ -150,6 +150,12 @@ class Bot(commands.Bot):
         """
         if message.author.bot:
             return
+
+        # If in development environment only accept answers from developer (configured by developer_id in settings)
+        if self.setting.mode == 'dev':
+            if message.author.id != self.setting.developer_id:
+                return
+
         membro = self.setting.role.get('membro')
         convidado = self.setting.role.get('convidado')
         unauthorized_mentions = ['@everyone', '@here', f"<@&{membro}>", f"<@&{convidado}>"]
@@ -205,21 +211,15 @@ class Bot(commands.Bot):
                 f'invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
                 f'{formatted_urls_string}'
                 f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
-        # If in development environment only accept answers from developer (configured by developer_id in settings)
-        if self.setting.mode == 'dev':
-            if message.author.id == self.setting.developer_id:
-                await self.process_commands(message)
-        else:
-            await self.process_commands(message)
+        await self.process_commands(message)
 
     async def on_message_edit(self, before, after):
         if after.author.bot or before.author.bot:
             return
         if self.setting.mode == 'dev':
-            if after.author.id == self.setting.developer_id:
-                await self.process_commands(after)
-        else:
-            await self.process_commands(after)
+            if after.author.id != self.setting.developer_id:
+                return
+        await self.process_commands(after)
 
 
 if __name__ == '__main__':
