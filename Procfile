@@ -1,1 +1,1 @@
-worker: pip uninstall discord-rewrite && python atlantisbot.py
+worker: pip uninstall discord-rewrite -y && python atlantisbot.py
