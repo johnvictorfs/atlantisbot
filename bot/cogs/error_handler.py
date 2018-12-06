@@ -75,6 +75,8 @@ class CommandErrorHandler:
         elif isinstance(error, commands.BotMissingPermissions):
             permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
             await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
+        elif isinstance(error, commands.errors.CheckFailure):
+            await ctx.send(f"Você não tem permissão para fazer isso.")
         else:
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
             await self.bot.send_logs(error, tb)

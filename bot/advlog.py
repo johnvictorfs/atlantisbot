@@ -21,11 +21,9 @@ async def advlog(client):
             state = AdvLogState(messages=True)
             session.add(state)
             session.commit()
-        if state.messages:
-            session.close()
-            pass
-        else:
-            session.close()
+        current_state = state.messages
+        session.close()
+        if not current_state:
             await asyncio.sleep(60)
             continue
         async with aiohttp.ClientSession() as cs:
