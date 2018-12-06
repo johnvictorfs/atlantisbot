@@ -3,7 +3,8 @@ import datetime
 from discord.ext import commands
 import discord
 
-from .models import Session, RaidsState, Team, PlayerActivities, AdvLogState
+from .db.models import RaidsState, Team, PlayerActivities, AdvLogState
+from .db.db import Session
 from .utils import separator
 
 

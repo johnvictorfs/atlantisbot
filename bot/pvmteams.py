@@ -1,14 +1,15 @@
 import asyncio
 import traceback
-import psycopg2
 
 import discord
 
 from .cogs.utils import has_role, separator
-from .cogs.models import Session, Team, BotMessage, Player
+from .cogs.db.models import Team, BotMessage, Player
+from .cogs.db.db import Session
 
 
 async def team_maker(client):
+    print("Starting team maker task.")
     session = Session()
     while True:
         running_teams = session.query(Team).all()
@@ -142,9 +143,6 @@ async def team_maker(client):
                         except discord.errors.NotFound:
                             session.delete(team)
                             session.commit()
-        except psycopg2.OperationalError:
-            print("OperationalError reading teams. Running `session.rollback()`")
-            session.rollback()
         except Exception as e:
             tb = traceback.format_exc()
             await client.send_logs(e, tb)

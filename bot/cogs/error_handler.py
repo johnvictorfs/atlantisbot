@@ -65,18 +65,16 @@ class CommandErrorHandler:
         elif isinstance(error, commands.NotOwner):
             await ctx.send("Você não pode usar isso.")
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send(
-                f"Você não tem permissão para fazer isso: {', '.join(error.missing_perms)}"
-            )
+            permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
+            await ctx.send(f"Você precisa das seguintes permissões para fazer isso: {', '.join(permissions)}")
         elif isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
                 f"Ei! Você já usou este comando recentemente. "
                 f"Espere mais {error.retry_after:.1f}s para usar novamente"
             )
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send(
-                f"Eu não tenho permissão para fazer isso: {', '.join(error.missing_perms)}"
-            )
+            permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
+            await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
         else:
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
             await self.bot.send_logs(error, tb)

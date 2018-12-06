@@ -1,7 +1,6 @@
 from contextlib import closing
 import codecs
 import csv
-import time
 
 from discord.ext import commands
 import discord

@@ -9,7 +9,8 @@ from io import StringIO
 import aiohttp
 import discord
 
-from .cogs.models import Session, PlayerActivities, AdvLogState
+from .cogs.db.models import PlayerActivities, AdvLogState
+from .cogs.db.db import Session
 
 
 async def advlog(client):

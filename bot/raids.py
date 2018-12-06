@@ -5,12 +5,13 @@ import discord
 import asyncio
 
 from .cogs.utils import separator
-from .cogs.models import Session, RaidsState
+
+from .cogs.db.models import RaidsState
+from .cogs.db.db import Session
 
 
 def raids_embed(setting):
     embed_title = "**Raids**"
-
     clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.clan_name}/clanmotif.png"
     raids_notif_embed = discord.Embed(
         title=embed_title,
@@ -36,6 +37,7 @@ def raids_embed(setting):
 
 
 async def raids_notification(setting, user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
+    print("Starting Raids notifications task.")
     while True:
         today = datetime.datetime.utcnow().date()
         check_day = (today - start_day).days % 2

@@ -1,12 +1,12 @@
 import re
-import traceback
 import asyncio
 
 import discord
 from discord.ext import commands
 
 from .utils import separator, has_role
-from .models import Session, Team, BotMessage
+from .db.models import Team, BotMessage
+from .db.db import Session
 
 
 class TeamCommands:
@@ -66,7 +66,7 @@ class TeamCommands:
         session.close()
 
     @commands.cooldown(1, 10)
-    @commands.bot_has_permissions(manage_messages=True, embed_links=True)
+    @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx):
         creation_message = None
@@ -234,7 +234,7 @@ class TeamCommands:
                 requisito = f'\nRequisito: <@&{role_id}>\n'
                 description = f'Requisito: <@&{role_id}>\n{description}'
 
-            team_id = self.current_id + 1
+            team_id = self.current_id() + 1
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
                 description=f"{separator}\n\n"
@@ -277,51 +277,46 @@ class TeamCommands:
                 'team_channel_id': ctx.channel.id,
                 'team_message_id': team_embed_message.id,
             }
-            self.save_team(team=created_team, commit=True)
+            self.save_team(team=created_team)
             await creation_message.delete()
         except discord.errors.NotFound:
             return await ctx.send(f"Criação de time cancelada. A mensagem do Bot não foi encontrada.")
         except asyncio.TimeoutError:
             await creation_message.delete()
             return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
-        except Exception as e:
-            await ctx.send(
-                "Erro inesperado :(\n"
-                "Os logs desse erro foram enviados para um Dev. Tente novamente."
-            )
-            tb = traceback.format_exc()
-            await self.bot.send_logs(e, tb)
 
     @staticmethod
-    def save_team(team: dict, commit: bool = False):
-        session = Session()
-        if team.get('role'):
-            role = str(team.get('role'))
-        else:
-            role = None
-        team = Team(
-            team_id=team.get('team_id'),
-            title=team.get('title'),
-            size=team.get('size'),
-            role=role,
-            author_id=str(team.get('author_id')),
-            invite_channel_id=str(team.get('invite_channel_id')),
-            invite_message_id=str(team.get('invite_message_id')),
-            team_channel_id=str(team.get('team_channel_id')),
-            team_message_id=str(team.get('team_message_id'))
-        )
-        session.add(team)
-        if commit:
+    def save_team(team: dict):
+        try:
+            session = Session()
+            if team.get('role'):
+                role = str(team.get('role'))
+            else:
+                role = None
+            team = Team(
+                team_id=team.get('team_id'),
+                title=team.get('title'),
+                size=team.get('size'),
+                role=role,
+                author_id=str(team.get('author_id')),
+                invite_channel_id=str(team.get('invite_channel_id')),
+                invite_message_id=str(team.get('invite_message_id')),
+                team_channel_id=str(team.get('team_channel_id')),
+                team_message_id=str(team.get('team_message_id'))
+            )
+            session.add(team)
             session.commit()
-        session.close()
+            session.close()
+        except Exception as e:
+            print(e)
 
-    @property
-    def current_id(self):
+    @staticmethod
+    def current_id():
         session = Session()
         try:
             current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
         except AttributeError:
-            return 0
+            current_id = 0
         session.close()
         return current_id
 
