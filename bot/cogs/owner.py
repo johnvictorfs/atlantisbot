@@ -3,9 +3,9 @@ import datetime
 from discord.ext import commands
 import discord
 
-from .db.models import RaidsState, Team, PlayerActivities, AdvLogState
-from .db.db import Session
-from .utils import separator
+from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState
+from bot.db.db import Session
+from bot.utils.tools import separator
 
 
 class Owner:

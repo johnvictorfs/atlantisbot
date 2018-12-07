@@ -3,9 +3,9 @@ import traceback
 
 import discord
 
-from .cogs.utils import has_role, separator
-from .cogs.db.models import Team, BotMessage, Player
-from .cogs.db.db import Session
+from bot.utils.tools import has_role, separator
+from bot.db.models import Team, BotMessage, Player
+from bot.db.db import Session
 
 
 async def team_maker(client):

@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 
-from . import embeds
+from bot.utils import embeds
 
 
 class EmbedMessages:

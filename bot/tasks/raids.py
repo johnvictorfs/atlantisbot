@@ -4,10 +4,10 @@ import sys
 import discord
 import asyncio
 
-from .cogs.utils import separator
+from bot.utils.tools import separator
 
-from .cogs.db.models import RaidsState
-from .cogs.db.db import Session
+from bot.db.models import RaidsState
+from bot.db.db import Session
 
 
 def raids_embed(setting):

@@ -2,7 +2,7 @@ import rs3clans
 import discord
 from discord.ext import commands
 
-from .utils import separator
+from bot.utils.tools import separator
 
 
 class ClanCommands:

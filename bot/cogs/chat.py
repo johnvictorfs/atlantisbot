@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from .utils import right_arrow, has_role
+from bot.utils.tools import right_arrow, has_role
 
 
 class ChatCommands:

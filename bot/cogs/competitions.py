@@ -7,7 +7,7 @@ import discord
 from bs4 import BeautifulSoup
 import requests
 
-from .utils import separator
+from bot.utils.tools import separator
 
 # TODO: The code from this whole freaking cog needs to be refactored
 

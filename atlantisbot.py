@@ -11,13 +11,14 @@ from pathlib import Path
 
 import discord
 from discord.ext import commands
-from colorama import init, Fore
+import colorama
+# from colorama import init, colorama.Fore
 
 from bot import settings
-from bot.advlog import advlog
-from bot.raids import raids_notification
-from bot.pvmteams import team_maker
-from bot.cogs.utils import separator, has_role
+from bot.tasks.advlog import advlog
+from bot.tasks.raids import raids_notification
+from bot.tasks.pvmteams import team_maker
+from bot.utils.tools import separator, has_role
 
 
 async def run():
@@ -25,10 +26,10 @@ async def run():
     try:
         await bot.start(bot.setting.token)
     except KeyboardInterrupt:
-        print(f"{Fore.RED}KeyBoardInterrupt. Logging out...")
+        print(f"{colorama.Fore.RED}KeyBoardInterrupt. Logging out...")
         await bot.logout()
     except discord.errors.LoginFailure:
-        print(f"{Fore.RED}Error: Invalid Token. Please input a valid token in the '/bot/bot_settings.json' file.")
+        print(f"{colorama.Fore.RED}Error: Invalid Token. Please input a valid token in the '/bot/bot_settings.json' file.")
         sys.exit(1)
 
 
@@ -65,7 +66,7 @@ class Bot(commands.Bot):
             with open('bot/bot_settings.json', 'w') as f:
                 json.dump(settings.default_settings, f, indent=4)
                 if not os.environ.get('ATLBOT_TOKEN'):
-                    print(f"{Fore.YELLOW}Settings not found. Default settings file created. "
+                    print(f"{colorama.Fore.YELLOW}Settings not found. Default settings file created. "
                           "Edit '/bot/bot_settings.json' to change settings, then reload the bot.")
                     sys.exit(1)
                 else:
@@ -125,12 +126,7 @@ class Bot(commands.Bot):
         """
         print('-' * 10)
         self.app_info = await self.application_info()
-        try:
-            await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
-        except TypeError:
-            # Compatibility with older versions of discord.py rewrite
-            print(f"{Fore.RED}Aviso: Versão não atualizada do discord.py rewrite sendo utilizada.")
-            await self.change_presence(game=discord.Game(name=self.setting.playing_message))
+        await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Mode: {self.setting.mode}\n"
               f"Argvs: {sys.argv}\n"
@@ -223,7 +219,7 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    init()  # Colorama init
+    colorama.init()
     logger = logging.getLogger('discord')
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')

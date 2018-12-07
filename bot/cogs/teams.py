@@ -4,9 +4,9 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from .utils import separator
-from .db.models import Team, BotMessage
-from .db.db import Session
+from bot.utils.tools import separator
+from bot.db.models import Team, BotMessage
+from bot.db.db import Session
 
 
 class TeamCommands:
