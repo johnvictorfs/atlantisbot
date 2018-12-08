@@ -5,7 +5,7 @@ import sqlite3
 from discord.ext import commands
 import discord
 
-from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState
+from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState
 from bot.db.db import Session
 from bot.utils.tools import separator, plot_table
 
@@ -162,8 +162,23 @@ class Owner:
             name="Mensagens de Adv Log",
             value=f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
         )
-
+        embed.add_field(
+            name="Amigo Secreto",
+            value=f"{'Ativo' if self.secret_santa() else 'Inativo'}"
+        )
         return await ctx.send(embed=embed)
+
+    @staticmethod
+    def secret_santa():
+        session = Session()
+        state = session.query(AmigoSecretoState).first()
+        if not state:
+            state = AmigoSecretoState(activated=False)
+            session.add(state)
+            session.commit()
+        state_ = state.activated
+        session.close()
+        return state_
 
     @staticmethod
     def raids_notifications():
