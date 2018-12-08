@@ -54,7 +54,7 @@ Using the Ranks command                |
 
 - `!team` - Saves information about a Team that gets saved in the Bot's database, this information is used to automate team creation and joining of other people, explained in the automated team making task above
 
-Using the Team command                |
+Using the Team command (gif)          |
 :------------------------------------:|
 ![](/images/commands/team_example.gif)|
 
