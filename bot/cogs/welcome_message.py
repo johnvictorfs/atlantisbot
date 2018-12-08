@@ -7,7 +7,7 @@ class WelcomeMessage:
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx):
+    async def __local_check(self, ctx: commands.Context):
         if ctx.author.id == self.bot.setting.developer_id:
             return True
         if self.bot.setting.mode == 'dev':
@@ -15,7 +15,7 @@ class WelcomeMessage:
         return True
 
     @commands.command(aliases=['testwelcome'])
-    async def test_welcome_message(self, ctx):
+    async def test_welcome_message(self, ctx: commands.Context):
         await ctx.author.send(embed=self.welcome_embed(ctx.author))
 
     async def on_member_join(self, member):
@@ -52,7 +52,7 @@ class WelcomeMessage:
         )
 
         welcome_embed.set_thumbnail(
-            url="http://rsatlantis.com/images/logo.png"
+            url=self.bot.setting.banner_image
         )
 
         welcome_embed.add_field(

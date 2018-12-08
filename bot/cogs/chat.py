@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from bot.utils.tools import right_arrow, has_role
+from bot.utils.tools import right_arrow, has_any_role
 
 
 class ChatCommands:
@@ -11,21 +11,20 @@ class ChatCommands:
 
     @commands.cooldown(1, 60)
     @commands.command(aliases=['role', 'membro'])
-    async def aplicar_role(self, ctx):
+    async def aplicar_role(self, ctx: commands.Context):
         role_message = (f"Informe seu usuário in-game.\n\n"
                         f"<@&{self.bot.setting.role.get('mod')}> "
                         f"<@&{self.bot.setting.role.get('admin')}> "
                         f"- O(a) Senhor(a) acima deseja receber um cargo acima de Convidado. Favor verificar :)")
 
         denied_message = "Fool! Você não é um Convidado!"
-        if has_role(ctx.author, self.bot.setting.role.get('convidado')):
+        if has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
             return await ctx.send(role_message)
-        else:
-            return await ctx.send(denied_message)
+        return await ctx.send(denied_message)
 
     @commands.cooldown(1, 60)
     @commands.command(aliases=['aplicar', 'raids'])
-    async def aplicar_raids(self, ctx):
+    async def aplicar_raids(self, ctx: commands.Context):
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
@@ -48,13 +47,12 @@ Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>.
 ***Exemplo:*** https://i.imgur.com/CMNzquL.png"""
 
         denied_message = "Fool! Você já tem permissão para ir Raids!"
-        if has_role(ctx.author, self.bot.setting.role.get('raids')):
+        if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
-        else:
-            return await ctx.send(aplicar_message)
+        return await ctx.send(aplicar_message)
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
-    async def aplicar_aod(self, ctx):
+    async def aplicar_aod(self, ctx: commands.Context):
         print(f"> {ctx.author} issued command 'aplicar_aod'.")
         aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
         aod_teacher = f"<@&{self.bot.setting.role.get('aod_teacher')}>"
@@ -79,35 +77,28 @@ Aguarde uma resposta de um {aod_teacher}.
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
-        if has_role(ctx.author, self.bot.setting.role.get('aod')):
+        if has_any_role(ctx.author, self.bot.setting.role.get('aod')):
             return await ctx.send(denied_message)
-        else:
-            return await ctx.send(aplicar_message)
+        return await ctx.send(aplicar_message)
 
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['git', 'source'])
-    async def github(self, ctx):
+    async def github(self, ctx: commands.Context):
         print(f"> {ctx.author} issued command 'github'.")
         github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
         johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
         johnvictorfs_url = "https://github.com/johnvictorfs"
 
-        github_embed = discord.Embed(
-            title="atlantisbot-rewrite",
-            description="",
-            color=discord.Colour.dark_blue(),
-            url=repo_url)
-        github_embed.set_author(
-            icon_url=johnvictorfs_img,
-            url=johnvictorfs_url, name="johnvictorfs")
-        github_embed.set_thumbnail(
-            url=github_icon)
+        github_embed = discord.Embed(title="atlantisbot-rewrite", description="", color=discord.Colour.dark_blue(),
+                                     url=repo_url)
+        github_embed.set_author(icon_url=johnvictorfs_img, url=johnvictorfs_url, name="johnvictorfs")
+        github_embed.set_thumbnail(url=github_icon)
         return await ctx.send(content=None, embed=github_embed)
 
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
-    async def atlcommands(self, ctx):
+    async def atlcommands(self, ctx: commands.Context):
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
         embed_title = "RuneClan"
@@ -118,13 +109,8 @@ Aguarde uma resposta de um {aod_teacher}.
             color=discord.Colour.dark_blue(),
             url=runeclan_url,
         )
-        atlcommands_embed.set_author(
-            icon_url=clan_banner,
-            name="AtlantisBot"
-        )
-        atlcommands_embed.set_thumbnail(
-            url="http://rsatlantis.com/images/logo.png"
-        )
+        atlcommands_embed.set_author(icon_url=clan_banner, name="AtlantisBot")
+        atlcommands_embed.set_thumbnail(url=self.bot.setting.banner_image)
 
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}claninfo <nome de jogador>",
@@ -176,19 +162,14 @@ Aguarde uma resposta de um {aod_teacher}.
             value="Ver essa mensagem",
             inline=False
         )
-        atlcommands_embed.set_footer(
-            text="Criado por @NRiver#2263"
-        )
-        return await ctx.send(
-            embed=atlcommands_embed
-        )
+        atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
+        return await ctx.send(embed=atlcommands_embed)
 
+    @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['atlrepeat'])
-    async def atlsay(self, ctx, *, message: str):
+    async def atlsay(self, ctx: commands.Context, *, message: str):
         message = message.split(' ')
         channel = message[-1]
-        if not has_role(ctx.author, self.bot.setting.role.get('admin')):
-            return await ctx.send('Você não tem permissão para usar isso.')
         try:
             channel_id = int(channel.replace('<', '').replace('#', '').replace('>', ''))
         except ValueError:

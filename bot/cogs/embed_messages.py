@@ -9,11 +9,11 @@ class EmbedMessages:
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx):
+    async def __local_check(self, ctx: commands.Context):
         return await self.bot.is_owner(ctx.author)
 
     @commands.command(aliases=['server_tags_embed_', 'post_server_tags_embed'])
-    async def server_tags_embed(self, ctx):
+    async def server_tags_embed(self, ctx: commands.Context):
         pvm_embed = embeds.get_pvm_embed(
             chat=self.bot.setting.chat,
             role=self.bot.setting.role
@@ -32,7 +32,7 @@ class EmbedMessages:
         await ctx.send(content=None, embed=reactions_embed)
 
     @commands.command()
-    async def send_static_welcome_message(self, ctx):
+    async def send_static_welcome_message(self, ctx: commands.Context):
         tags_do_server = f"<#{self.bot.setting.chat.get('tags_do_server')}>"
         discord_bots = f"<#{self.bot.setting.chat.get('discord_bots')}>"
         links_pvm = f"<#{self.bot.setting.chat.get('links_uteis')}>"
@@ -103,7 +103,7 @@ class EmbedMessages:
         return await ctx.send(content=None, embed=welcome_embed)
 
     @commands.command(aliases=['embed_edit', ])
-    async def edit_embed(self, ctx, message_id, category, channel_id=382691780996497416):
+    async def edit_embed(self, ctx: commands.Context, message_id, category, channel_id=382691780996497416):
         try:
             message_id = int(message_id)
         except ValueError:

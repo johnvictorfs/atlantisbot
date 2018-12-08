@@ -11,14 +11,14 @@ class CommandErrorHandler:
         self.bot = bot
 
     @staticmethod
-    async def __global_check(ctx):
+    async def __global_check(ctx: commands.Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()
         time = datetime.datetime.utcnow()
         print(f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'")
         return True
 
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx: commands.Context, error: Exception):
         prefix = self.bot.setting.prefix
         arguments_error = [
             commands.MissingRequiredArgument,
@@ -79,7 +79,7 @@ class CommandErrorHandler:
             await ctx.send(f"Você não tem permissão para fazer isso.")
         else:
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-            await self.bot.send_logs(error, tb)
+            await self.bot.send_logs(error, tb, ctx)
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev.")
 
 

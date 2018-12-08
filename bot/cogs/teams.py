@@ -17,7 +17,7 @@ class TeamCommands:
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx, pk: int):
+    async def delteam(self, ctx: commands.Context, pk: int):
         session = Session()
         try:
             await ctx.message.delete()
@@ -63,7 +63,7 @@ class TeamCommands:
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
     @commands.guild_only()
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
-    async def team(self, ctx):
+    async def team(self, ctx: commands.Context):
         creation_message = None
         try:
             await ctx.message.delete()
@@ -245,7 +245,7 @@ class TeamCommands:
                 color=discord.Color.purple()
             )
             footer = (f"Digite '{self.bot.setting.prefix}del {team_id}' "
-                      f"para excluir o time. (Criador do time ou Mod+)")
+                      f"para excluir o time. (Criador do time ou Admin e acima)")
             team_embed.set_footer(
                 text=footer
             )

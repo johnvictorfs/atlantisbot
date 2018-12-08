@@ -106,9 +106,20 @@ venv.bak/
 # PyCharm
 *.idea
 
-# Local
-*.ini
+# VsCode
 *.vscode
+
+# Setting files
 bot_settings.json
-pvm_teams.json
+
+# Local
+local.*
+local/
+
+# Development db
 db.sqlite3
+
+# Runtime created files
+player_activities.json
+amigosecreto.png
+

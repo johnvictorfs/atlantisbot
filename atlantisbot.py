@@ -9,16 +9,15 @@ import sys
 import json
 from pathlib import Path
 
+import colorama
 import discord
 from discord.ext import commands
-import colorama
-# from colorama import init, colorama.Fore
 
 from bot import settings
 from bot.tasks.advlog import advlog
 from bot.tasks.raids import raids_notification
 from bot.tasks.pvmteams import team_maker
-from bot.utils.tools import separator, has_role
+from bot.utils.tools import separator, has_any_role
 
 
 async def run():
@@ -29,7 +28,7 @@ async def run():
         print(f"{colorama.Fore.RED}KeyBoardInterrupt. Logging out...")
         await bot.logout()
     except discord.errors.LoginFailure:
-        print(f"{colorama.Fore.RED}Error: Invalid Token. Please input a valid token in the '/bot/bot_settings.json' file.")
+        print(f"{colorama.Fore.RED}Error: Invalid Token. Please input a valid token in '/bot/bot_settings.json' file.")
         sys.exit(1)
 
 
@@ -49,8 +48,15 @@ class Bot(commands.Bot):
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
 
-    async def send_logs(self, e, tb):
+    async def send_logs(self, e, tb, ctx: commands.Context = None):
         dev = self.get_user(self.setting.developer_id)
+        if ctx:
+            info_embed = discord.Embed(title="__Error Info__", color=discord.Color.dark_red())
+            info_embed.add_field(name="Message", value=ctx.message.content, inline=False)
+            info_embed.add_field(name="By", value=ctx.author, inline=False)
+            info_embed.add_field(name="In Guild", value=ctx.guild, inline=False)
+            info_embed.add_field(name="In Channel", value=ctx.channel, inline=False)
+            await dev.send(embed=info_embed)
         try:
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
@@ -150,13 +156,14 @@ class Bot(commands.Bot):
         # If in development environment only accept answers from developer (configured by developer_id in settings)
         if self.setting.mode == 'dev':
             if message.author.id != self.setting.developer_id:
-                return
+                if message.author.id != 458809094329860097:
+                    return
 
         membro = self.setting.role.get('membro')
         convidado = self.setting.role.get('convidado')
         unauthorized_mentions = ['@everyone', '@here', f"<@&{membro}>", f"<@&{convidado}>"]
-        if any(_ in message.content for _ in unauthorized_mentions):
-            if has_role(message.author, membro) or has_role(message.author, convidado):
+        if any(mention in message.content for mention in unauthorized_mentions):
+            if has_any_role(message.author, membro, convidado):
                 embed = discord.Embed(
                     title="__Quebra de Conduta__",
                     description=separator,

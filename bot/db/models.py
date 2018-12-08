@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -64,9 +64,18 @@ class PlayerActivities(Base):
     activities = Column(String, default="[]")
 
 
-# class AmigoSecreto(Base):
-#     __tablename__ = 'amigosecreto'
-#     id = Column(Integer, primary_key=True)
-#     discord_name = Column(String, )
-#     ingame_name = ''
-#     question = relationship('AmigoSecreto', remote_side=[id], backref=backref('name'), uselist=False)
+class AmigoSecretoPerson(Base):
+    __tablename__ = 'amigosecreto'
+    id = Column(Integer, primary_key=True)
+    discord_id = Column(String, unique=True)
+    discord_name = Column(String)
+    ingame_name = Column(String)
+    giving_to_id = Column(Integer, nullable=True, default=None, unique=True)
+    giving_to_name = Column(String, nullable=True, default=None, unique=True)
+    receiving = Column(Boolean, default=False)
+
+
+class AmigoSecretoState(Base):
+    __tablename__ = 'amigosecretostate'
+    id = Column(Integer, primary_key=True)
+    activated = Column(Boolean, default=False)

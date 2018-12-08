@@ -4,11 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-discord-py = {extras = ["voice"], editable = true, ref = "rewrite", git = "https://github.com/Rapptz/discord.py"}
+discord-py = {extras = ["voice"],editable = true,ref = "rewrite",git = "https://github.com/Rapptz/discord.py"}
 "rs3clans" = "==1.0.8"
 "beautifulsoup4" = "*"
 colorama = "*"
 sqlalchemy = "*"
+pandas = "*"
+matplotlib = "*"
 
 [dev-packages]
 

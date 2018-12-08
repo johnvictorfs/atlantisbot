@@ -86,7 +86,8 @@ async def advlog(client):
             channel = client.get_channel(client.setting.chat.get('adv_log'))
             banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{client.setting.clan_name}/clanmotif.png"
             for player, activities in difference.items():
-                icon_url = f"https://secure.runescape.com/m=avatar-rs/{player.replace(' ', '%20')}/chat.png"
+                player_name = player.replace(' ', '%20')
+                icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_name}/chat.png"
                 if activities:
                     for activity in activities[::-1]:
                         text = activity.get('text')

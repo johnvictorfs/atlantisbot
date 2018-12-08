@@ -3,8 +3,8 @@ import os
 
 
 class Settings:
-    @property
-    def read_data(self):
+    @staticmethod
+    def read_data():
         with open('bot/bot_settings.json', 'r') as f:
             return json.load(f)
 
@@ -15,69 +15,70 @@ class Settings:
 
     @property
     def mode(self):
-        return self.read_data['BOT']['mode']
+        return self.read_data()['BOT']['mode']
 
     @property
     def developer_id(self):
-        return self.read_data['BOT']['developer_id']
+        return self.read_data()['BOT']['developer_id']
 
     @property
     def token(self):
-        token_ = self.read_data['BOT']['bot_token']
+        token_ = self.read_data()['BOT']['bot_token']
         if token_ == 'BOT_TOKEN_HERE':
             return os.environ.get('ATLBOT_TOKEN')
         return token_
 
     @property
-    def jsonbin_key(self):
-        key = self.read_data['BOT']['jsonbin_key']
-        if key == 'JSON_BIN_KEY_HERE':
-            return os.environ.get('JSONBIN_KEY')
-        return key
-
-    @property
     def description(self):
-        return self.read_data['BOT']['description']
+        return self.read_data()['BOT']['description']
 
     @property
     def playing_message(self):
-        return self.read_data['BOT']['playing_message']
+        return self.read_data()['BOT']['playing_message']
 
     @property
     def prefix(self):
-        return self.read_data['BOT']['commands_prefix']
+        return self.read_data()['BOT']['commands_prefix']
 
     @property
     def disabled_extensions(self):
-        return self.read_data['BOT']['disabled_extensions']
+        return self.read_data()['BOT']['disabled_extensions']
 
     @property
     def clan_name(self):
-        return self.read_data['RUNESCAPE']['clan_name']
+        return self.read_data()['RUNESCAPE']['clan_name']
 
     @property
     def show_titles(self):
-        return self.read_data['RUNESCAPE']['show_titles']
+        return self.read_data()['RUNESCAPE']['show_titles']
+
+    @property
+    def banner_image(self):
+        return self.read_data()['OTHER']['banner_image']
 
     @property
     def raids_start_date(self):
-        return self.read_data['OTHER']['raids_start_date']
+        return self.read_data()['OTHER']['raids_start_date']
 
     @property
     def raids_time_utc(self):
-        return self.read_data['OTHER']['raids_time_utc']
+        return self.read_data()['OTHER']['raids_time_utc']
 
     @property
     def not_allowed_in_name(self):
-        return self.read_data['OTHER']['not_allowed_in_name']
+        return self.read_data()['OTHER']['not_allowed_in_name']
+
+    @property
+    def server_id(self):
+        return self.read_data()['SERVER']['server_id']
 
     @property
     def chat(self):
-        return self.read_data['SERVER']['chat_id']
+        return self.read_data()['SERVER']['chat_id']
 
     @property
     def role(self):
-        return self.read_data['SERVER']['role_id']
+        return self.read_data()['SERVER']['role_id']
 
 
 default_settings = {
@@ -85,7 +86,6 @@ default_settings = {
         "mode": "prod",
         "developer_id": 148175892596785152,
         "bot_token": "BOT_TOKEN_HERE",
-        "jsonbin_key": "JSON_BIN_KEY_HERE",
         "description": "A discord bot with utilities for RS3 Clans Discords",
         "playing_message": "!atlbot",
         "commands_prefix": "!",
@@ -96,12 +96,14 @@ default_settings = {
         "show_titles": False
     },
     "OTHER": {
+        "banner_image": "http://rsatlantis.com/images/logo.png",
         "raids_start_date": "2018/10/25",
         "raids_time_utc": "23:00:00",
         "not_allowed_in_name": ["discord.me", "discord.gg", "bit.ly", "tinyurl", "tiny.cc", "is.gd", "bc.vc",
                                 "twitch.tv", "twitter", "youtube", "youtu.be"]
     },
     "SERVER": {
+        "server_id": 321012107942428673,
         "chat_id": {
             "geral": 321012292160454657,
             "anuncios": 467069985270005760,
@@ -134,6 +136,7 @@ default_settings = {
             "admin": 321015469341540352,
             "mod+": 480520619163779085,
             "mod": 321015489583251467,
+            "mod_trial": 511283550591647746,
             "membro": 321015529059909674,
             "bot": 324359293304438787,
             "convidado": 321015669883797506,

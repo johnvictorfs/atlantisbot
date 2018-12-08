@@ -1,22 +1,46 @@
+import asyncio
 import datetime
+import sqlite3
 
 from discord.ext import commands
 import discord
 
 from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState
 from bot.db.db import Session
-from bot.utils.tools import separator
+from bot.utils.tools import separator, plot_table
 
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx):
+    async def __local_check(self, ctx: commands.Context):
         return await self.bot.is_owner(ctx.author)
 
+    @commands.is_owner()
+    @commands.command()
+    async def send_table(self, ctx: commands.Context, table: str, safe: bool = True):
+        if not safe:
+            await ctx.send(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'? (y/N)")
+
+            def check(msg):
+                return ctx.author == msg.author
+            try:
+                message = await self.bot.wait_for('message', check=check, timeout=60.0)
+            except asyncio.TimeoutError:
+                return await ctx.send("Comando cancelado. Tempo expirado.")
+            if 'y' not in message.content.lower():
+                return await ctx.send("Envio de Tabela cancelada.")
+        try:
+            plot_table(table, f'{table}_tmp.png', safe=safe)
+        except IndexError:
+            return await ctx.send("Não há nenhuma linha nessa tabela.")
+        except sqlite3.OperationalError:
+            return await ctx.send("Essa tabela não existe.")
+        return await ctx.send(file=discord.File(f'{table}_tmp.png'))
+
     @commands.command(aliases=['admin'])
-    async def admin_commands(self, ctx):
+    async def admin_commands(self, ctx: commands.Context):
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
 
         embed = discord.Embed(
@@ -54,12 +78,12 @@ class Owner:
             name="AtlantisBot"
         )
         embed.set_thumbnail(
-            url="http://rsatlantis.com/images/logo.png"
+            url=self.bot.setting.banner_image
         )
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['timesativos', 'times_ativos'])
-    async def running_teams(self, ctx):
+    async def running_teams(self, ctx: commands.Context):
         running_teams_embed = discord.Embed(
             title='__Times Ativos__',
             description="",
@@ -86,27 +110,27 @@ class Owner:
         await ctx.send(embed=running_teams_embed)
 
     @commands.command()
-    async def check_raids(self, ctx):
+    async def check_raids(self, ctx: commands.Context):
         notifications = self.raids_notifications()
         return await ctx.send(f"Notificações de Raids estão {'habilitadas' if notifications else 'desabilitadas'}.")
 
     @commands.command()
-    async def toggle_raids(self, ctx):
+    async def toggle_raids(self, ctx: commands.Context):
         toggle = self.toggle_raids_notifications()
         return await ctx.send(f"Notificações de Raids agora estão {'habilitadas' if toggle else 'desabilitadas'}.")
 
     @commands.command()
-    async def check_advlog(self, ctx):
+    async def check_advlog(self, ctx: commands.Context):
         messages = self.advlog_messages()
         return await ctx.send(f"Mensagens do Adv log estão {'habilitadas' if messages else 'desabilitadas'}.")
 
     @commands.command()
-    async def toggle_advlog(self, ctx):
+    async def toggle_advlog(self, ctx: commands.Context):
         toggle = self.toggle_advlog_messages()
         return await ctx.send(f"Mensagens do Adv log agora estão {'habilitadas' if toggle else 'desabilitadas'}.")
 
     @commands.command()
-    async def status(self, ctx):
+    async def status(self, ctx: commands.Context):
         session = Session()
         team_count = session.query(Team).count()
         advlog_count = session.query(PlayerActivities).count()
@@ -120,7 +144,7 @@ class Owner:
             text=f"Uptime: {datetime.datetime.utcnow() - self.bot.start_time}"
         )
         embed.set_thumbnail(
-            url="http://rsatlantis.com/images/logo.png"
+            url=self.bot.setting.banner_image
         )
         embed.add_field(
             name="Times ativos",

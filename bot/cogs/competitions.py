@@ -170,7 +170,7 @@ class Competitions:
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
-    async def running_competitions(self, ctx, index=0, players=10):
+    async def running_competitions(self, ctx: commands.Context, index=0, players=10):
         competitions = get_competitions(self.bot.setting.clan_name)
         if not competitions['running_competitions']:
             return await ctx.send("Nenhuma competição ativa no momento :(")
@@ -252,7 +252,7 @@ class Competitions:
     @commands.command(
         aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
                  'compp', 'compps'])
-    async def comp_pontos(self, ctx, number=10):
+    async def comp_pontos(self, ctx: commands.Context, number=10):
         url = 'https://docs.google.com/spreadsheets/d/{key}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         url = url.format(key='1iHPQovW4NXFicJd6ot83QnrN9NyLlxcX3UraJHv9uPg', sheet_name='min')
         with closing(requests.get(url, stream=True)) as r:

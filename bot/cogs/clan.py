@@ -13,7 +13,7 @@ class ClanCommands:
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
-    async def clan_user_info(self, ctx, *, username: str):
+    async def clan_user_info(self, ctx: commands.Context, *, username: str):
         try:
             player = rs3clans.Player(name=username, runemetrics=True)
         except ConnectionError:
@@ -89,7 +89,7 @@ class ClanCommands:
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
-    async def ranks(self, ctx):
+    async def ranks(self, ctx: commands.Context):
         exp_general = 500_000_000
         exp_captain = 225_000_000
         exp_lieutenant = 125_000_000

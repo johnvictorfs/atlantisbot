@@ -3,7 +3,7 @@ import traceback
 
 import discord
 
-from bot.utils.tools import has_role, separator
+from bot.utils.tools import has_any_role, separator
 from bot.db.models import Team, BotMessage, Player
 from bot.db.db import Session
 
@@ -55,7 +55,7 @@ async def team_maker(client):
                             team_role = None
                         except ValueError:
                             team_role = None
-                        if has_role(message.author, team_role) or team.role is None:
+                        if has_any_role(message.author, team_role) or not team.role:
                             if message.author.id not in [int(player.player_id) for player in current_players]:
                                 if current_players.count() < team.size:
                                     added_player = Player(player_id=str(message.author.id), team=team.id)
@@ -99,13 +99,13 @@ async def team_maker(client):
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} foi removido do time '{team.title}' "
                                 f"({current_players.count()}/{team.size})\n"
-                                f"*(`in {team.team_id}`)*"
+                                f"*(`out {team.team_id}`)*"
                             )
                         else:
                             sent_message = await invite_channel.send(
                                 f"{message.author.mention} já não estava no time '{team.title}'. "
                                 f"({current_players.count()}/{team.size})\n"
-                                f"*(`in {team.team_id}`)*"
+                                f"*(`out {team.team_id}`)*"
                             )
                     if sent_message:
                         message = BotMessage(message_id=sent_message.id, team=team.id)
@@ -124,7 +124,7 @@ async def team_maker(client):
                             color=discord.Color.purple()
                         )
                         footer = (f"Digite '{client.setting.prefix}del {team.team_id}' "
-                                  f"para excluir o time. (Criador do time ou Mod/Mod+/Admin)")
+                                  f"para excluir o time. (Criador do time ou Admin e acima)")
                         team_embed.set_footer(
                             text=footer
                         )
