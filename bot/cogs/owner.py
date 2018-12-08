@@ -32,12 +32,12 @@ class Owner:
             if 'y' not in message.content.lower():
                 return await ctx.send("Envio de Tabela cancelada.")
         try:
-            plot_table(table, f'{table}_tmp.png', safe=safe)
+            plot_table(table, table, safe=safe)
         except IndexError:
             return await ctx.send("Não há nenhuma linha nessa tabela.")
         except sqlite3.OperationalError:
             return await ctx.send("Essa tabela não existe.")
-        return await ctx.send(file=discord.File(f'{table}_tmp.png'))
+        return await ctx.send(file=discord.File(f'{table}.tmp.png'))
 
     @commands.command(aliases=['admin'])
     async def admin_commands(self, ctx: commands.Context):

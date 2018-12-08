@@ -113,7 +113,6 @@ venv.bak/
 bot_settings.json
 
 # Local
-*.png
 local.*
 local/
 
@@ -122,5 +121,5 @@ db.sqlite3
 
 # Runtime created files
 player_activities.json
-amigosecreto.png
+*.tmp.png
 

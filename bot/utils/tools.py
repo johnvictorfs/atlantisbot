@@ -33,4 +33,4 @@ def plot_table(table_name: str, image_name: str, safe: bool = True):
     plt.margins(0, 0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
-    plt.savefig(image_name, bbox_inches='tight', pad_inches=0, transparent=True)
+    plt.savefig(f"{image_name}.tmp.png", bbox_inches='tight', pad_inches=0, transparent=True)
