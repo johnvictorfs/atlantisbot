@@ -38,7 +38,8 @@ async def advlog(client):
         ]
         for get_clan in clans:
             async with aiohttp.ClientSession() as cs:
-                clan = f"http://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName={get_clan.get('name')}"
+                clan_name = get_clan.get('name').replace(' ', '%20')
+                clan = f"http://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName={clan_name}"
                 async with cs.get(clan) as r:
                     clan_csv = await r.text()
                     clan_list = list(csv.reader(StringIO(clan_csv), delimiter=','))
@@ -96,7 +97,7 @@ async def advlog(client):
                     session.commit()
                 session.close()
                 channel = client.get_channel(get_clan.get('chat'))
-                banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{get_clan.get('name')}/clanmotif.png"
+                banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{clan_name}/clanmotif.png"
                 for player, activities in difference.items():
                     player_name = player.replace(' ', '%20')
                     icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_name}/chat.png"
