@@ -144,7 +144,7 @@ class Bot(commands.Bot):
               f"- Commands prefix: '{self.setting.prefix}'\n"
               f"- Show titles on claninfo: '{self.setting.show_titles}'")
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         """
         This event triggers on every message received by the bot. Including one's that it sent itself.
         If you wish to have multiple event listeners they can be added in other cogs. All on_message listeners should
@@ -153,11 +153,10 @@ class Bot(commands.Bot):
         if message.author.bot:
             return
 
-        # If in development environment only accept answers from developer (configured by developer_id in settings)
+        # If in development environment only accept answers in dev server and channel
         if self.setting.mode == 'dev':
-            if message.author.id != self.setting.developer_id:
-                if message.author.id != 458809094329860097:
-                    return
+            if message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
+                return
 
         membro = self.setting.role.get('membro')
         convidado = self.setting.role.get('convidado')
@@ -215,14 +214,6 @@ class Bot(commands.Bot):
                 f'{formatted_urls_string}'
                 f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
         await self.process_commands(message)
-
-    async def on_message_edit(self, before, after):
-        if after.author.bot or before.author.bot:
-            return
-        if self.setting.mode == 'dev':
-            if after.author.id != self.setting.developer_id:
-                return
-        await self.process_commands(after)
 
 
 if __name__ == '__main__':

@@ -33,6 +33,10 @@ class Settings:
         return self.read_data()['BOT']['description']
 
     @property
+    def dev_guild(self):
+        return self.read_data()['BOT']['dev_guild']
+
+    @property
     def playing_message(self):
         return self.read_data()['BOT']['playing_message']
 
@@ -87,6 +91,7 @@ default_settings = {
         "developer_id": 148175892596785152,
         "bot_token": "BOT_TOKEN_HERE",
         "description": "A discord bot with utilities for RS3 Clans Discords",
+        "dev_guild": 268897682066505738,
         "playing_message": "!atlbot",
         "commands_prefix": "!",
         "disabled_extensions": []
