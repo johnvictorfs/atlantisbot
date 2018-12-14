@@ -4,14 +4,15 @@ import sys
 import discord
 import asyncio
 
-from bot.utils.tools import separator
+from bot.utils.tools import separator, has_any_role
 
 from bot.db.models import RaidsState
 from bot.db.db import Session
 
 
 def raids_embed(setting):
-    clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{setting.clan_name}/clanmotif.png"
+    clan_name = setting.clan_name.replaec(' ', '%20')
+    clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{clan_name}/clanmotif.png"
     raids_notif_embed = discord.Embed(title="**Raids**", color=discord.Colour.dark_blue())
     raids_notif_embed.set_thumbnail(url=clan_banner_url)
 
@@ -80,7 +81,7 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
                                     f"{message.author.mention}, o time de Raids já está cheio! ({len(team_list)}/10)"
                                     f"\n(*`in`*)")
                             else:
-                                if 'Raids' in str(message.author.roles):
+                                if has_any_role(message.author, setting.role.get('raids')):
                                     if message.author.mention in team_list:
                                         await channel_public.send(
                                             f"Ei {message.author.mention}, você já está no time! Não tente me enganar."

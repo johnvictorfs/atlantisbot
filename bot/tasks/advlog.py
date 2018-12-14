@@ -112,14 +112,8 @@ async def advlog(client):
                                 details = details.replace(str(details_exp), f"{details_exp:,}")
                             except IndexError:
                                 pass
-                            embed = discord.Embed(
-                                title=text,
-                                description=details
-                            )
-                            embed.set_author(
-                                name=player,
-                                icon_url=icon_url
-                            )
+                            embed = discord.Embed(title=text, description=details)
+                            embed.set_author(name=player, icon_url=icon_url)
                             embed.set_thumbnail(url=banner)
                             embed.set_footer(text=activity.get('date'))
                             try:
