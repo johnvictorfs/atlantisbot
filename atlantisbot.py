@@ -155,7 +155,10 @@ class Bot(commands.Bot):
 
         # If in development environment only accept answers in dev server and channel
         if self.setting.mode == 'dev':
-            if message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
+            if not message.guild:
+                if message.author.id != self.setting.developer_id:
+                    return
+            elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
                 return
 
         membro = self.setting.role.get('membro')

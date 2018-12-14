@@ -5,7 +5,7 @@ import sqlite3
 from discord.ext import commands
 import discord
 
-from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState
+from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
 from bot.db.db import Session
 from bot.utils.tools import separator, plot_table
 
@@ -134,6 +134,7 @@ class Owner:
         session = Session()
         team_count = session.query(Team).count()
         advlog_count = session.query(PlayerActivities).count()
+        amigosecreto_count = session.query(AmigoSecretoPerson).count()
         session.close()
         embed = discord.Embed(
             title="",
@@ -165,6 +166,10 @@ class Owner:
         embed.add_field(
             name="Amigo Secreto",
             value=f"{'Ativo' if self.secret_santa() else 'Inativo'}"
+        )
+        embed.add_field(
+            name="Amigo Secreto Entries",
+            value=amigosecreto_count
         )
         return await ctx.send(embed=embed)
 

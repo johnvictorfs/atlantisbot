@@ -164,42 +164,52 @@ class AmigoSecreto:
         current_state = state.activated
         session.close()
         if not current_state:
-            return await ctx.send("O Amigo Secreto do Atlantis ainda não está ativo.")
+            return await ctx.send(f"{ctx.author.mention}, o Amigo Secreto do Atlantis ainda não está ativo.")
 
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         member = atlantis.get_member(ctx.author.id)
 
         if not member:
-            return await ctx.send(f"É necessário estar no Servidor do Atlantis para participar do Amigo Secreto"
-                                  f"\nhttps://discord.me/atlantis")
+            return await ctx.send(
+                f"{ctx.author.mention}, é necessário estar no Servidor do Atlantis "
+                f"para participar do Amigo Secreto\nhttps://discord.me/atlantis"
+            )
 
         allowed_roles = ['membro', 'mod_trial', 'mod', 'mod+', 'admin']
         allowed_roles = [self.bot.setting.role.get(role) for role in allowed_roles]
         if not has_any_role(member, *allowed_roles):
-            return await ctx.send("Você precisa ser um Membro do Clã para participar do Amigo Secreto.")
+            return await ctx.send(
+                f"{ctx.author.mention}, você precisa ser um Membro do Clã para participar do Amigo Secreto."
+            )
 
         # Só aceitar respostas de quem iniciou o comando
         def check(message):
             return message.author == ctx.author
 
-        await ctx.send("Digite o seu nome in-game.")
+        await ctx.send(f"{ctx.author.mention}, digite o seu nome in-game.")
         try:
             ingame_name_message = await self.bot.wait_for('message', timeout=60.0, check=check)
         except asyncio.TimeoutError:
-            return await ctx.send("Entrada cancelada. Tempo esgotado.")
+            return await ctx.send(f"{ctx.author.mention}, entrada cancelada. Tempo esgotado.")
         try:
             player = rs3clans.Player(ingame_name_message.content)
         except ConnectionError:
-            return await ctx.send("Erro ao se conectar com a API da Jagex. Tente novamente mais tarde :(")
+            return await ctx.send(
+                f"{ctx.author.mention}, erro ao se conectar com a API da Jagex. Tente novamente mais tarde :("
+            )
 
         if player.clan != 'Atlantis':
-            return await ctx.send("Você precisa ser um membro do Clã para participar do Amigo Secreto.")
+            return await ctx.send(
+                f"{ctx.author.mention}, você precisa ser um membro do Clã para participar do Amigo Secreto."
+            )
 
         session = Session()
         exists = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.discord_id == ctx.author.id).first()
         if exists:
             session.close()
-            return await ctx.send("Você já está cadastrado no Amigo Secreto! Tentando ganhar presentes extras?!")
+            return await ctx.send(
+                f"{ctx.author.mention}, você já está cadastrado no Amigo Secreto! Tentando ganhar presentes extras?!"
+            )
         session.add(AmigoSecretoPerson(
             discord_id=ctx.author.id,
             ingame_name=player.name,
@@ -209,8 +219,8 @@ class AmigoSecreto:
         session.close()
 
         return await ctx.send(
-            "Você foi cadastrado no Amigo Secreto do Atlantis com sucesso! :)\n"
-            "Uma mensagem será enviada pra você no privado do Discord com o nome do seu Amigo Secreto no dia 21/12"
+            f"{ctx.author.mention}, você foi cadastrado no Amigo Secreto do Atlantis com sucesso! :)\n"
+            f"Uma mensagem será enviada pra você no privado do Discord com o nome do seu Amigo Secreto no dia 21/12"
         )
 
 
