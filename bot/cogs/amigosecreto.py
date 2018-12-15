@@ -73,7 +73,7 @@ class AmigoSecreto:
 
     @commands.is_owner()
     @commands.command()
-    async def send_amigo_secreto_messages(self, ctx: commands.Context, dia: str, test: bool = True):
+    async def send_amigo_secreto_messages(self, ctx: commands.Context, dia: str, test: bool):
         session = Session()
         query = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.giving_to_id.isnot(None)).all()
         if not query:
@@ -94,7 +94,7 @@ class AmigoSecreto:
                 ingame_name = giving_to.ingame_name.replace(' ', '%20')
                 icon_url = f"https://secure.runescape.com/m=avatar-rs/{ingame_name}/chat.png"
                 embed.set_author(name=f"{giving_to.ingame_name}", icon_url=icon_url)
-                embed.set_footer(text=f"Evento: {dia}/12 - Tenha seu presente em mãos até lá!")
+                embed.set_footer(text=f"Evento: {dia}/12 às 18:00 - Tenha seu presente em mãos até lá!")
                 embed.set_thumbnail(url=self.bot.setting.banner_image)
                 if test:
                     await dev.send(embed=embed)
