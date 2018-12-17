@@ -25,6 +25,7 @@ class Owner:
 
             def check(msg):
                 return ctx.author == msg.author
+
             try:
                 message = await self.bot.wait_for('message', check=check, timeout=60.0)
             except asyncio.TimeoutError:
@@ -43,11 +44,7 @@ class Owner:
     async def admin_commands(self, ctx: commands.Context):
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
 
-        embed = discord.Embed(
-            title="__Comandos Admin__",
-            description="",
-            color=discord.Color.blue()
-        )
+        embed = discord.Embed(title="__Comandos Admin__", description="", color=discord.Color.blue())
         embed.add_field(
             name=f"{self.bot.setting.prefix}timesativos",
             value="Ver informações sobre os times ativos no momento",
@@ -84,18 +81,11 @@ class Owner:
 
     @commands.command(aliases=['timesativos', 'times_ativos'])
     async def running_teams(self, ctx: commands.Context):
-        running_teams_embed = discord.Embed(
-            title='__Times Ativos__',
-            description="",
-            color=discord.Color.red()
-        )
+        running_teams_embed = discord.Embed(title='__Times Ativos__', description="", color=discord.Color.red())
         session = Session()
         teams = session.query(Team).all()
         if not teams:
-            running_teams_embed.add_field(
-                name=separator,
-                value=f"Nenhum time ativo no momento."
-            )
+            running_teams_embed.add_field(name=separator, value=f"Nenhum time ativo no momento.")
         for team in teams:
             running_teams_embed.add_field(
                 name=separator,
@@ -135,42 +125,23 @@ class Owner:
         team_count = session.query(Team).count()
         advlog_count = session.query(PlayerActivities).count()
         amigosecreto_count = session.query(AmigoSecretoPerson).count()
+        raids_notif = f"{'Habilitadas' if self.raids_notifications() else 'Desabilitadas'}"
+        advlog = f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
+        amigo_secreto = f"{'Ativo' if self.secret_santa() else 'Inativo'}"
+
         session.close()
-        embed = discord.Embed(
-            title="",
-            description="",
-            color=discord.Color.blue()
-        )
-        embed.set_footer(
-            text=f"Uptime: {datetime.datetime.utcnow() - self.bot.start_time}"
-        )
-        embed.set_thumbnail(
-            url=self.bot.setting.banner_image
-        )
-        embed.add_field(
-            name="Times ativos",
-            value=team_count
-        )
-        embed.add_field(
-            name="Adv Log Entries",
-            value=advlog_count
-        )
-        embed.add_field(
-            name="Notificações de Raids",
-            value=f"{'Habilitadas' if self.raids_notifications() else 'Desabilitadas'}",
-        )
-        embed.add_field(
-            name="Mensagens de Adv Log",
-            value=f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
-        )
-        embed.add_field(
-            name="Amigo Secreto",
-            value=f"{'Ativo' if self.secret_santa() else 'Inativo'}"
-        )
-        embed.add_field(
-            name="Amigo Secreto Entries",
-            value=amigosecreto_count
-        )
+        embed = discord.Embed(title="", description="", color=discord.Color.blue())
+
+        embed.set_footer(text=f"Uptime: {datetime.datetime.utcnow() - self.bot.start_time}")
+
+        embed.set_thumbnail(url=self.bot.setting.banner_image)
+
+        embed.add_field(name="Times ativos", value=team_count)
+        embed.add_field(name="Adv Log Entries", value=advlog_count)
+        embed.add_field(name="Notificações de Raids", value=raids_notif)
+        embed.add_field(name="Mensagens de Adv Log", value=advlog)
+        embed.add_field(name="Amigo Secreto", value=amigo_secreto)
+        embed.add_field(name="Amigo Secreto Entries", value=amigosecreto_count)
         return await ctx.send(embed=embed)
 
     @staticmethod
