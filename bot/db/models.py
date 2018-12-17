@@ -67,11 +67,11 @@ class PlayerActivities(Base):
 class AmigoSecretoPerson(Base):
     __tablename__ = 'amigosecreto'
     id = Column(Integer, primary_key=True)
-    discord_id = Column(String)
+    discord_id = Column(String, unique=True)
     discord_name = Column(String)
     ingame_name = Column(String)
     giving_to_id = Column(Integer, nullable=True, default=None, unique=True)
-    giving_to_name = Column(String, nullable=True, default=None)
+    giving_to_name = Column(String, nullable=True, default=None, unique=True)
     receiving = Column(Boolean, default=False)
 
 
