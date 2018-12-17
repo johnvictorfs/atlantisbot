@@ -212,14 +212,12 @@ class AmigoSecreto:
             return await ctx.send(
                 f"{ctx.author.mention}, você já está cadastrado no Amigo Secreto! Tentando ganhar presentes extras?!"
             )
-        session.add(AmigoSecretoPerson(
-            discord_id=ctx.author.id,
-            ingame_name=player.name,
-            discord_name=str(ctx.author),
-        ))
+        session.add(AmigoSecretoPerson(discord_id=ctx.author.id, ingame_name=player.name, discord_name=str(ctx.author)))
         session.commit()
         session.close()
+
         await dev.send(f'{ctx.author} foi cadastrado no Amigo Secreto com sucesso ({player.name})')
+
         return await ctx.send(
             f"{ctx.author.mention}, você foi cadastrado no Amigo Secreto do Atlantis com sucesso! :)\n"
             f"Uma mensagem será enviada pra você no privado do Discord com o nome do seu Amigo Secreto no dia 21/12"

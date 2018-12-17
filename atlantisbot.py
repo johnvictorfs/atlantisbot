@@ -60,8 +60,9 @@ class Bot(commands.Bot):
         try:
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
-            await dev.send(f"{separator}\n**{e}:** (Sending first 1000 chars of traceback, too long)"
-                           f"\n```python\n{tb[:1000]}```")
+            print(f"{e}: {tb}")
+            await dev.send(f"{separator}\n**{e}:** (Sending first 500 chars of traceback, too long)"
+                           f"\n```python\n{tb[:500]}```")
 
     @property
     def setting(self):
