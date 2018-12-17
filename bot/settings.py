@@ -102,7 +102,7 @@ default_settings = {
     },
     "OTHER": {
         "banner_image": "http://rsatlantis.com/images/logo.png",
-        "raids_start_date": "2018/10/25",
+        "raids_start_date": "2018/10/26",
         "raids_time_utc": "23:00:00",
         "not_allowed_in_name": ["discord.me", "discord.gg", "bit.ly", "tinyurl", "tiny.cc", "is.gd", "bc.vc",
                                 "twitch.tv", "twitter", "youtube", "youtu.be"]

@@ -113,11 +113,10 @@ async def team_maker(client):
                         session.commit()
                         embed_description = (
                             f"Marque presença no <#{team.invite_channel_id}>\n"
-                            f"Criador: <@{team.author_id}>")
+                            f"Criador: <@{team.author_id}>"
+                        )
                         if team.role:
-                            embed_description = (
-                                f"Requisito: <@&{team.role}>\n"
-                                f"{embed_description}")
+                            embed_description = f"Requisito: <@&{team.role}>\n{embed_description}"
                         team_embed = discord.Embed(
                             title=f"__{team.title}__ - {current_players.count()}/{team.size}",
                             description=embed_description,
