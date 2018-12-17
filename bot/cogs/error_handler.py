@@ -78,9 +78,9 @@ class CommandErrorHandler:
         elif isinstance(error, commands.errors.CheckFailure):
             await ctx.send(f"Você não tem permissão para fazer isso.")
         else:
+            await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
             await self.bot.send_logs(error, tb, ctx)
-            await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev.")
 
 
 def setup(bot):
