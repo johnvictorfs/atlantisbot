@@ -18,7 +18,7 @@ class Owner:
         return await self.bot.is_owner(ctx.author)
 
     @commands.is_owner()
-    @commands.command()
+    @commands.command(aliases=['sendtable'])
     async def send_table(self, ctx: commands.Context, table: str, safe: bool = True):
         if not safe:
             await ctx.send(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'? (y/N)")

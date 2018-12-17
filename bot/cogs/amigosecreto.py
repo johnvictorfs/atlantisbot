@@ -192,26 +192,31 @@ class AmigoSecreto:
         try:
             ingame_name_message = await self.bot.wait_for('message', timeout=60.0, check=check)
         except asyncio.TimeoutError:
-            return await ctx.send(f"{ctx.author.mention}, entrada cancelada. Tempo esgotado.")
+
+            await ctx.send(f"{ctx.author.mention}, entrada cancelada. Tempo expirado.")
+            return await dev.send(f'{ctx.author}: Inscrição cancelada. Tempo expirado.')
         try:
             player = rs3clans.Player(ingame_name_message.content)
         except ConnectionError:
-            return await ctx.send(
+            await ctx.send(
                 f"{ctx.author.mention}, erro ao se conectar com a API da Jagex. Tente novamente mais tarde :("
             )
+            return await dev.send(f'{ctx.author}: Inscrição cancelada. Erro na API da Jagex.')
 
         if player.clan != 'Atlantis':
-            return await ctx.send(
+            await ctx.send(
                 f"{ctx.author.mention}, você precisa ser um membro do Clã para participar do Amigo Secreto."
             )
+            return await dev.send(f'{ctx.author}: Inscrição cancelada. Não é do clã ({player.name})')
 
         session = Session()
         exists = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.discord_id == str(ctx.author.id)).first()
         if exists:
             session.close()
-            return await ctx.send(
+            await ctx.send(
                 f"{ctx.author.mention}, você já está cadastrado no Amigo Secreto! Tentando ganhar presentes extras?!"
             )
+            return await dev.send(f'{ctx.author}: Inscrição cancelada. Já está no Amigo Secreto.')
         session.add(AmigoSecretoPerson(
             discord_id=str(ctx.author.id),
             ingame_name=str(player.name),
