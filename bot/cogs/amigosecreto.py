@@ -206,15 +206,14 @@ class AmigoSecreto:
             )
 
         session = Session()
-        exists = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.discord_id == ctx.author.id).first()
+        exists = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.discord_id == str(ctx.author.id)).first()
         if exists:
             session.close()
             return await ctx.send(
                 f"{ctx.author.mention}, você já está cadastrado no Amigo Secreto! Tentando ganhar presentes extras?!"
             )
-        a = str(ctx.author.id)
         session.add(AmigoSecretoPerson(
-            discord_id='test',
+            discord_id=str(ctx.author.id),
             ingame_name=str(player.name),
             discord_name=str(ctx.author)
         ))
