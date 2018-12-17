@@ -155,6 +155,8 @@ class AmigoSecreto:
 
     @commands.command(aliases=['amigosecreto', 'amigo'])
     async def amigo_secreto(self, ctx: commands.Context):
+        dev = self.bot.get_user(self.bot.setting.developer_id)
+        await dev.send(f'{ctx.author} está se inscrevendo no amigo secreto.')
         session = Session()
         state = session.query(AmigoSecretoState).first()
         if not state:
@@ -217,7 +219,7 @@ class AmigoSecreto:
         ))
         session.commit()
         session.close()
-
+        await dev.send(f'{ctx.author} foi cadastrado no Amigo Secreto com sucesso ({player.name})')
         return await ctx.send(
             f"{ctx.author.mention}, você foi cadastrado no Amigo Secreto do Atlantis com sucesso! :)\n"
             f"Uma mensagem será enviada pra você no privado do Discord com o nome do seu Amigo Secreto no dia 21/12"
