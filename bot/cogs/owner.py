@@ -1,4 +1,6 @@
 import asyncio
+import os
+import sys
 import datetime
 import sqlite3
 
@@ -16,6 +18,39 @@ class Owner:
 
     async def __local_check(self, ctx: commands.Context):
         return await self.bot.is_owner(ctx.author)
+
+    @commands.is_owner()
+    @commands.command()
+    async def restart(self, ctx: commands.Context):
+        await ctx.send("Restarting bot...")
+        if self.bot.setting.mode == 'dev':
+            # Heroku will make sure the bot logs back in after getting logged out without needing to do it manually
+            os.execv(sys.executable, ['python3'] + sys.argv)
+        await self.bot.logout()
+
+    @commands.is_owner()
+    @commands.command(aliases=['reload'])
+    async def reload_cog(self, ctx: commands.Context, cog: str):
+        """Reloads a cog"""
+        try:
+            self.bot.unload_extension(f'bot.cogs.{cog}')
+            self.bot.load_extension(f'bot.cogs.{cog}')
+            return await ctx.send(f'Extensão {cog} reiniciada com sucesso.')
+        except ModuleNotFoundError:
+            return await ctx.send(f"Extensão {cog} não existe.")
+        except Exception as e:
+            error = f'{cog}:\n {type(e).__name__} : {e}'
+            return await ctx.send(f'Erro ao reiniciar extensão {error}')
+
+    @commands.is_owner()
+    @commands.command(aliases=['reloadall'])
+    async def reload_all_cogs(self, ctx: commands.Context):
+        """Reloads all cogs"""
+        err1 = await self.bot.unload_all_extensions()
+        err2 = await self.bot.load_all_extensions()
+        if err1 or err2:
+            return await ctx.send('Houve algum erro reiniciando extensões. Verificar os Logs do bot.')
+        return await ctx.send('Todas as extensões foram reiniciadas com sucesso.')
 
     @commands.is_owner()
     @commands.command(aliases=['sendtable'])

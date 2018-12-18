@@ -142,6 +142,8 @@ async def team_maker(client):
                         except discord.errors.NotFound:
                             session.delete(team)
                             session.commit()
+        except asyncio.TimeoutError:
+            continue
         except Exception as e:
             tb = traceback.format_exc()
             await client.send_logs(e, tb)

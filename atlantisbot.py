@@ -35,11 +35,7 @@ async def run():
 class Bot(commands.Bot):
 
     def __init__(self):
-        super().__init__(
-            command_prefix=self.setting.prefix,
-            description=self.setting.description,
-            case_insensitive=True,
-        )
+        super().__init__(command_prefix=self.setting.prefix, description=self.setting.description, case_insensitive=True)
         self.remove_command('help')
         self.start_time = None
         self.app_info = None
@@ -61,7 +57,7 @@ class Bot(commands.Bot):
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
             print(f"{e}: {tb}")
-            await dev.send(f"{separator}\n**{e}:** (Sending first 500 chars of traceback, too long)"
+            await dev.send(f"(Sending first 500 chars of traceback, too long)\n{separator}\n**{e}:**"
                            f"\n```python\n{tb[:500]}```")
 
     @property
@@ -88,6 +84,66 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)
+        self.start_time = datetime.datetime.utcnow()
+
+    @staticmethod
+    def get_cogs():
+        """Gets cog names from /cogs/ folder"""
+        not_extensions = ['utils', 'embeds', 'models', '__init__']
+        cogs = [x.stem for x in Path('bot/cogs').glob('*.py')]
+        for cog in cogs:
+            if cog in not_extensions:
+                cogs.remove(cog)
+        return cogs
+
+    async def unload_all_extensions(self):
+        """Unloads all cog extensions"""
+        errored = False
+        for extension in self.get_cogs():
+            if extension not in self.setting.disabled_extensions:
+                try:
+                    self.unload_extension(f'bot.cogs.{extension}')
+                    print(f'- Unloaded extension {extension}')
+                except Exception as e:
+                    error = f'{extension}:\n {type(e).__name__} : {e}'
+                    print(f'Failed to unload extension {error}')
+                    errored = True
+        return errored
+
+    async def load_all_extensions(self):
+        """Attempts to load all .py files in /cogs/ as cog extensions"""
+        await self.wait_until_ready()
+        await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
+        errored = False
+        for extension in self.get_cogs():
+            if extension not in self.setting.disabled_extensions:
+                try:
+                    self.load_extension(f'bot.cogs.{extension}')
+                    print(f'- loaded Extension: {extension}')
+                except Exception as e:
+                    error = f'{extension}:\n {type(e).__name__} : {e}'
+                    print(f'Failed to load extension {error}')
+                    errored = True
+        print('-' * 10)
+        return errored
+
+    async def on_ready(self):
+        """
+        This event is called every time the bot connects or resumes connection.
+        """
+        print('-' * 10)
+        self.app_info = await self.application_info()
+        await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
+        print(f"Bot logged on as '{self.user.name}'\n"
+              f"Mode: {self.setting.mode}\n"
+              f"Argvs: {sys.argv}\n"
+              f"Owner: '{self.app_info.owner}'\n"
+              f"ID: '{self.user.id}'\n"
+              f"[ Bot Settings ]\n"
+              f"- Clan Name: '{self.setting.clan_name}'\n"
+              f"- Playing Message: '{self.setting.playing_message}'\n"
+              f"- Commands prefix: '{self.setting.prefix}'\n"
+              f"- Show titles on claninfo: '{self.setting.show_titles}'")
         if self.setting.mode == 'prod':
             self.raids_channel = self.get_channel(self.setting.chat.get('raids'))
             self.raids_channel_public = self.get_channel(self.setting.chat.get('raids_chat'))
@@ -107,43 +163,6 @@ class Bot(commands.Bot):
             time_to_send=raids_time))
         self.loop.create_task(team_maker(self))
         self.loop.create_task(advlog(self))
-        self.start_time = datetime.datetime.utcnow()
-
-    async def load_all_extensions(self):
-        """
-        Attempts to load all .py files in /cogs/ as cog extensions
-        """
-        await self.wait_until_ready()
-        await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        cogs = [x.stem for x in Path('bot/cogs').glob('*.py')]
-        not_extensions = ['utils', 'embeds', 'models', '__init__']
-        for extension in cogs:
-            if extension not in self.setting.disabled_extensions and extension not in not_extensions:
-                try:
-                    self.load_extension(f'bot.cogs.{extension}')
-                    print(f'- loaded Extension: {extension}')
-                except Exception as e:
-                    error = f'{extension}:\n {type(e).__name__} : {e}'
-                    print(f'Failed to load extension {error}')
-        print('-' * 10)
-
-    async def on_ready(self):
-        """
-        This event is called every time the bot connects or resumes connection.
-        """
-        print('-' * 10)
-        self.app_info = await self.application_info()
-        await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
-        print(f"Bot logged on as '{self.user.name}'\n"
-              f"Mode: {self.setting.mode}\n"
-              f"Argvs: {sys.argv}\n"
-              f"Owner: '{self.app_info.owner}'\n"
-              f"ID: '{self.user.id}'\n"
-              f"[ Bot Settings ]\n"
-              f"- Clan Name: '{self.setting.clan_name}'\n"
-              f"- Playing Message: '{self.setting.playing_message}'\n"
-              f"- Commands prefix: '{self.setting.prefix}'\n"
-              f"- Show titles on claninfo: '{self.setting.show_titles}'")
 
     async def on_message(self, message: discord.Message):
         """
