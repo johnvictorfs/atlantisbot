@@ -25,6 +25,10 @@ async def team_maker(client):
                     session.delete(team)
                     session.commit()
                     continue
+                if not team_channel or not invite_channel:
+                    session.delete(team)
+                    session.commit()
+                    continue
                 try:
                     team_message = await team_channel.get_message(int(team.team_message_id))
                 except discord.errors.NotFound:
