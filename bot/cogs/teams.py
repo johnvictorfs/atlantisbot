@@ -118,8 +118,8 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o tamanho do time. (apenas números)"
             )
+            team_size_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                team_size_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await sent_message.delete()
                     await team_size_message.delete()
@@ -149,8 +149,8 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o chat onde o bot deve aceitar presenças para esse time."
             )
+            chat_presence_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                chat_presence_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await sent_message.delete()
                     await chat_presence_message.delete()
@@ -160,7 +160,7 @@ class TeamCommands:
                 if chat_presence_message.content.lower() == cancel_command:
                     await creation_message.delete()
                     return await ctx.send("Criação de time cancelada.")
-                chat_presence_id = int(re.findall('\d+', chat_presence_message.content)[0])
+                chat_presence_id = int(re.findall(r'\d+', chat_presence_message.content)[0])
                 await creation_message.edit(
                     content=creation_message_content.format(
                         author=ctx.author.mention,
@@ -182,9 +182,9 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum' caso nenhum)"
             )
+            role_str = 'Nenhum'
+            role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                role_str = 'Nenhum'
-                role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await role_message.delete()
                     await sent_message.delete()
@@ -197,7 +197,7 @@ class TeamCommands:
                     await creation_message.delete()
                     return await ctx.send("Criação de time cancelada.")
                 else:
-                    role_id = int(re.findall('\d+', role_message.content)[0])
+                    role_id = int(re.findall(r'\d+', role_message.content)[0])
                     if not any(role.id == role_id for role in ctx.guild.roles):
                         await creation_message.delete()
                         return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
