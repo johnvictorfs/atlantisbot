@@ -160,7 +160,7 @@ class AmigoSecreto:
         def check(message):
             return message.author == ctx.author
 
-        session = Session
+        session = Session()
         query = session.query(AmigoSecretoPerson).all()
         for member in query:
             player = rs3clans.Player(member.ingame_name)
