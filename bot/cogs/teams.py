@@ -143,7 +143,8 @@ class TeamCommands:
             except ValueError:
                 await creation_message.delete()
                 return await ctx.send(
-                    f"Criação de time cancelada. Tamanho de time inválido ({team_size_message.content}).")
+                    f"Criação de time cancelada. Tamanho de time inválido ({team_size_message.content})."
+                )
 
             # Chat para aceitar presenças
             sent_message = await ctx.send(

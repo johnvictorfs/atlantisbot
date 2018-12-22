@@ -153,6 +153,27 @@ class AmigoSecreto:
             return await ctx.send("O Amigo Secreto do Atlantis não está ativo.")
         return await ctx.send("O Amigo Secreto do Atlantis está ativo.")
 
+    @commands.is_owner()
+    @commands.command()
+    async def amigo_secreto_check_clan(self, ctx: commands.Context):
+        # Só aceitar respostas de quem iniciou o comando
+        def check(message):
+            return message.author == ctx.author
+
+        session = Session
+        query = session.query(AmigoSecretoPerson).all()
+        for member in query:
+            player = rs3clans.Player(member.ingame_name)
+            if player.clan != 'Atlantis':
+                await ctx.send(f'{member.ingame_name} ({member.discord_name}) não está no clã. Remover? (Y/n)')
+                answer = await self.bot.wait_for('message', timeout=60.0, check=check)
+                if answer.content.lower() == 'y':
+                    session.delete(member)
+                    session.commit()
+                    await ctx.send(f'{member.ingame_name} ({member.discord_name}) removido do Amigo Secreto.')
+        session.close()
+        return await ctx.send('Finalizado.')
+
     @commands.command(aliases=['amigosecreto', 'amigo'])
     async def amigo_secreto(self, ctx: commands.Context):
         dev = self.bot.get_user(self.bot.setting.developer_id)
