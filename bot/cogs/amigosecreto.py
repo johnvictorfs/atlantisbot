@@ -171,6 +171,8 @@ class AmigoSecreto:
                     session.delete(member)
                     session.commit()
                     await ctx.send(f'{member.ingame_name} ({member.discord_name}) removido do Amigo Secreto.')
+            else:
+                await ctx.send(f'{member.ingame_name} ({member.discord_name}) está no Clã.')
         session.close()
         return await ctx.send('Finalizado.')
 
