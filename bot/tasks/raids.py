@@ -63,7 +63,7 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
                 team_embed = discord.Embed(title=f"__Time Raids__ - {len(team_list)}/10")
                 substitute_team_embed = discord.Embed(title=f"__Substitutos__ - {len(substitute_team)}")
                 raids_team_message = await channel.send(embed=team_embed, delete_after=60 * 90)
-                substitute_team_message = await channel.send(substitute_team_embed, delete_after=60 * 90)
+                substitute_team_message = await channel.send(embed=substitute_team_embed, delete_after=60 * 90)
                 invite_embed = discord.Embed(
                     title=f"Marque presença para 'Raids' (10 pessoas)",
                     description=f"{separator}\nTime: {channel.mention}\nRequisito: <@&{setting.role.get('raids')}>\n\n"
@@ -131,7 +131,7 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
                     for index, person in enumerate(substitute_team):
                         substitute_team_embed.add_field(name=separator, value=f"{index + 1}- {person}", inline=False)
                     try:
-                        await substitute_team_message.edit(substitute_team_embed)
+                        await substitute_team_message.edit(embed=substitute_team_embed)
                     except discord.errors.NotFound:
                         break
                     diff = datetime.datetime.now() - sent_time
