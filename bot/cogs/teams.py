@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from bot.utils.tools import separator
 from bot.db.models import Team, BotMessage
-from bot.db.db import Session
+import bot.db.db as db
 
 
 class TeamCommands:
@@ -18,46 +18,45 @@ class TeamCommands:
     @commands.guild_only()
     @commands.command(aliases=['del'])
     async def delteam(self, ctx: commands.Context, pk: int):
-        session = Session()
-        try:
-            await ctx.message.delete()
-        except discord.errors.NotFound:
-            pass
-        team = session.query(Team).filter_by(team_id=pk).first()
-        if not team:
-            return await ctx.send(f"ID inválida: {pk}")
-        if int(team.author_id) != ctx.author.id:
-            if not ctx.author.permissions_in(ctx.channel).manage_channels:
-                raise commands.MissingPermissions(['manage_channels'])
-        invite_channel = None
-        try:
-            team_channel = self.bot.get_channel(int(team.team_channel_id))
-            team_message = await team_channel.get_message(int(team.team_message_id))
-            await team_message.delete()
-        except Exception:
-            pass
-        try:
-            invite_channel = self.bot.get_channel(int(team.invite_channel_id))
-            invite_message = await invite_channel.get_message(int(team.invite_message_id))
-            await invite_message.delete()
-        except Exception:
-            pass
-        try:
-            messages_to_delete = []
-            for message in session.query(BotMessage).filter_by(team=team.id):
-                to_delete = await invite_channel.get_message(message.message_id)
-                messages_to_delete.append(to_delete)
-            await invite_channel.delete_messages(messages_to_delete)
-        except Exception:
-            pass
-        try:
-            session.query(BotMessage).filter_by(team=team.id).delete()
-        except Exception:
-            pass
-        session.delete(team)
-        session.commit()
-        await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
-        session.close()
+        with db.Session() as session:
+            try:
+                await ctx.message.delete()
+            except discord.errors.NotFound:
+                pass
+            team = session.query(Team).filter_by(team_id=pk).first()
+            if not team:
+                return await ctx.send(f"ID inválida: {pk}")
+            if int(team.author_id) != ctx.author.id:
+                if not ctx.author.permissions_in(ctx.channel).manage_channels:
+                    raise commands.MissingPermissions(['manage_channels'])
+            invite_channel = None
+            try:
+                team_channel = self.bot.get_channel(int(team.team_channel_id))
+                team_message = await team_channel.get_message(int(team.team_message_id))
+                await team_message.delete()
+            except Exception:
+                pass
+            try:
+                invite_channel = self.bot.get_channel(int(team.invite_channel_id))
+                invite_message = await invite_channel.get_message(int(team.invite_message_id))
+                await invite_message.delete()
+            except Exception:
+                pass
+            try:
+                messages_to_delete = []
+                for message in session.query(BotMessage).filter_by(team=team.id):
+                    to_delete = await invite_channel.get_message(message.message_id)
+                    messages_to_delete.append(to_delete)
+                await invite_channel.delete_messages(messages_to_delete)
+            except Exception:
+                pass
+            try:
+                session.query(BotMessage).filter_by(team=team.id).delete()
+            except Exception:
+                pass
+            session.delete(team)
+            session.commit()
+            await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
     @commands.cooldown(1, 10)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
@@ -118,8 +117,8 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o tamanho do time. (apenas números)"
             )
+            team_size_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                team_size_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await sent_message.delete()
                     await team_size_message.delete()
@@ -143,14 +142,15 @@ class TeamCommands:
             except ValueError:
                 await creation_message.delete()
                 return await ctx.send(
-                    f"Criação de time cancelada. Tamanho de time inválido ({team_size_message.content}).")
+                    f"Criação de time cancelada. Tamanho de time inválido ({team_size_message.content})."
+                )
 
             # Chat para aceitar presenças
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o chat onde o bot deve aceitar presenças para esse time."
             )
+            chat_presence_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                chat_presence_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await sent_message.delete()
                     await chat_presence_message.delete()
@@ -160,7 +160,7 @@ class TeamCommands:
                 if chat_presence_message.content.lower() == cancel_command:
                     await creation_message.delete()
                     return await ctx.send("Criação de time cancelada.")
-                chat_presence_id = int(re.findall('\d+', chat_presence_message.content)[0])
+                chat_presence_id = int(re.findall(r'\d+', chat_presence_message.content)[0])
                 await creation_message.edit(
                     content=creation_message_content.format(
                         author=ctx.author.mention,
@@ -182,9 +182,9 @@ class TeamCommands:
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum' caso nenhum)"
             )
+            role_str = 'Nenhum'
+            role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
             try:
-                role_str = 'Nenhum'
-                role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     await role_message.delete()
                     await sent_message.delete()
@@ -197,7 +197,7 @@ class TeamCommands:
                     await creation_message.delete()
                     return await ctx.send("Criação de time cancelada.")
                 else:
-                    role_id = int(re.findall('\d+', role_message.content)[0])
+                    role_id = int(re.findall(r'\d+', role_message.content)[0])
                     if not any(role.id == role_id for role in ctx.guild.roles):
                         await creation_message.delete()
                         return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
@@ -282,8 +282,7 @@ class TeamCommands:
 
     @staticmethod
     def save_team(team: dict):
-        try:
-            session = Session()
+        with db.Session() as session:
             if team.get('role'):
                 role = str(team.get('role'))
             else:
@@ -301,18 +300,14 @@ class TeamCommands:
             )
             session.add(team)
             session.commit()
-            session.close()
-        except Exception as e:
-            print(e)
 
     @staticmethod
     def current_id():
-        session = Session()
-        try:
-            current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
-        except AttributeError:
-            current_id = 0
-        session.close()
+        with db.Session() as session:
+            try:
+                current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
+            except AttributeError:
+                current_id = 0
         return current_id
 
 

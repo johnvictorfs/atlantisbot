@@ -10,19 +10,18 @@ import aiohttp
 import discord
 
 from bot.db.models import PlayerActivities, AdvLogState
-from bot.db.db import Session
+import bot.db.db as db
 
 
 async def advlog(client):
     while True:
-        session = Session()
-        state = session.query(AdvLogState).first()
-        if not state:
-            state = AdvLogState(messages=True)
-            session.add(state)
-            session.commit()
-        current_state = state.messages
-        session.close()
+        with db.Session() as session:
+            state = session.query(AdvLogState).first()
+            if not state:
+                state = AdvLogState(messages=True)
+                session.add(state)
+                session.commit()
+            current_state = state.messages
         if not current_state:
             await asyncio.sleep(60)
             continue
@@ -47,8 +46,7 @@ async def advlog(client):
                 success = 0
                 profile_private = 0
                 not_member = 0
-                print(
-                    f"Started checking for new adventurer's log entries from clanmates at {datetime.datetime.utcnow()}.")
+                print(f"Checking for new adventurer's log entries from clanmates at {datetime.datetime.utcnow()}.")
                 for player in clan_list[1:]:
                     player = player[0]
                     profile_url = f'https://apps.runescape.com/runemetrics/profile/profile?user={player}&activities=20'
@@ -68,34 +66,33 @@ async def advlog(client):
                 print(f"Finished grabbing adv log data for clan {get_clan.get('name')}. Success: {success} "
                       f"- Private Profile: {profile_private} "
                       f"- Not a Member: {not_member}")
-                session = Session()
-                all_activities = session.query(PlayerActivities).all()
-                old_activities = {}
-                if all_activities:
-                    for act in all_activities:
-                        act_list = ast.literal_eval(act.activities)
-                        old_activities[act.name] = act_list
-                new_keys = set(new_activities) - set(old_activities)
-                difference = {}
-                for key, item in new_activities.items():
-                    if key not in new_keys:
-                        diff_items = []
-                        if item:
-                            if old_activities.get(key):
-                                diff_items = [act for act in item if act not in old_activities.get(key)]
-                            else:
-                                diff_items = [act for act in item]
-                        difference[key] = diff_items
-                difference.update({k: new_activities[k] for k in new_keys})
-                for key, item in new_activities.items():
-                    old_player = session.query(PlayerActivities).filter_by(name=key).first()
-                    if old_player:
-                        old_player.activities = str(item)
-                    else:
-                        new_player = PlayerActivities(name=key, activities=str(item))
-                        session.add(new_player)
-                    session.commit()
-                session.close()
+                with db.Session() as session:
+                    all_activities = session.query(PlayerActivities).all()
+                    old_activities = {}
+                    if all_activities:
+                        for act in all_activities:
+                            act_list = ast.literal_eval(act.activities)
+                            old_activities[act.name] = act_list
+                    new_keys = set(new_activities) - set(old_activities)
+                    difference = {}
+                    for key, item in new_activities.items():
+                        if key not in new_keys:
+                            diff_items = []
+                            if item:
+                                if old_activities.get(key):
+                                    diff_items = [act for act in item if act not in old_activities.get(key)]
+                                else:
+                                    diff_items = [act for act in item]
+                            difference[key] = diff_items
+                    difference.update({k: new_activities[k] for k in new_keys})
+                    for key, item in new_activities.items():
+                        old_player = session.query(PlayerActivities).filter_by(name=key).first()
+                        if old_player:
+                            old_player.activities = str(item)
+                        else:
+                            new_player = PlayerActivities(name=key, activities=str(item))
+                            session.add(new_player)
+                        session.commit()
                 channel = client.get_channel(get_clan.get('chat'))
                 banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{clan_name}/clanmotif.png"
                 for player, activities in difference.items():
@@ -106,8 +103,8 @@ async def advlog(client):
                             text = activity.get('text')
                             details = activity.get('details')
                             try:
-                                text_exp = int(re.findall('\d+', text)[0])
-                                details_exp = int(re.findall('\d+', text)[0])
+                                text_exp = int(re.findall(r'\d+', text)[0])
+                                details_exp = int(re.findall(r'\d+', text)[0])
                                 text = text.replace(str(text_exp), f"{text_exp:,}")
                                 details = details.replace(str(details_exp), f"{details_exp:,}")
                             except IndexError:
