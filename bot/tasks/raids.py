@@ -7,7 +7,7 @@ import asyncio
 from bot.utils.tools import separator, has_any_role
 
 from bot.db.models import RaidsState
-from bot.db.db import Session
+import bot.db.db as db
 
 
 def raids_embed(setting):
@@ -43,14 +43,13 @@ async def raids_notification(setting, user, channel, start_day, channel_public=N
             time = date[0:7]
             time_to_send = time_to_send[0:7]
             if time == time_to_send or "testraid" in sys.argv:
-                session = Session()
-                state = session.query(RaidsState).first()
-                if not state:
-                    state = RaidsState(notifications=True)
-                    session.add(state)
-                    session.commit()
-                current_state = state.notifications
-                session.close()
+                with db.Session() as session:
+                    state = session.query(RaidsState).first()
+                    if not state:
+                        state = RaidsState(notifications=True)
+                        session.add(state)
+                        session.commit()
+                    current_state = state.notifications
                 if not current_state:
                     print("Notificação de Raids não foi enviada. Desabilitado.")
                     await asyncio.sleep(60)
