@@ -19,8 +19,14 @@ async def manage_team(team_id: int, client):
         team_channel = client.get_channel(int(team.team_channel_id))
         if not invite_channel or not team_channel:
             return
-        invite_message = await invite_channel.get_message(int(team.invite_message_id))
-        team_message = await team_channel.get_message(int(team.team_message_id))
+
+        try:
+            invite_message = await invite_channel.get_message(int(team.invite_message_id))
+            team_message = await team_channel.get_message(int(team.team_message_id))
+        except discord.errors.NotFound:
+            session.delete(team)
+            session.commit()
+            return
 
         async for message in invite_channel.history(after=invite_message):
             sent_message = None
@@ -123,6 +129,7 @@ async def manage_team(team_id: int, client):
                 except discord.errors.NotFound:
                     session.delete(team)
                     session.commit()
+
 
 def has_any_role(member: discord.member.Member, *role_ids: int):
     for role_id in role_ids:

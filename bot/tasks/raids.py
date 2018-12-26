@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import sys
 
 import discord
@@ -12,7 +13,7 @@ import bot.db.db as db
 
 def raids_embed(setting):
     clan_name = setting.clan_name.replace(' ', '%20')
-    clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{clan_name}/clanmotif.png"
+    clan_banner_url = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
     raids_notif_embed = discord.Embed(title="**Raids**", color=discord.Colour.dark_blue())
     raids_notif_embed.set_thumbnail(url=clan_banner_url)
 
@@ -36,81 +37,86 @@ def raids_embed(setting):
 async def raids_task(client):
     print("Starting Raids notifications task.")
     while True:
-        if 'testraid' not in sys.argv:
-            if not day_to_send(client.setting.raids_start_date):
-                continue
-            if not time_to_send(client.setting.raids_time_utc):
-                continue
-            if not raids_notifications():
-                await asyncio.sleep(60)
+        try:
+            if 'testraid' not in sys.argv:
+                if not day_to_send(client.setting.raids_start_date):
+                    await asyncio.sleep(1)
+                    continue
+                if not time_to_send(client.setting.raids_time_utc):
+                    await asyncio.sleep(1)
+                    continue
+                if not raids_notifications():
+                    await asyncio.sleep(60)
+                    continue
+
+            with db.Session() as session:
+                old_team = session.query(Team).filter_by(team_id='raids').first()
+                if old_team:
+                    session.delete(old_team)
+                    session.commit()
+            if client.setting.mode == 'prod':
+                invite_channel_id = client.setting.chat.get('raids_chat')
+                team_channel_id = client.setting.chat.get('raids')
+            else:
+                invite_channel_id = 505240135390986262
+                team_channel_id = 505240114662998027
+
+            invite_channel = client.get_channel(invite_channel_id)
+            team_channel = client.get_channel(team_channel_id)
+
+            if not invite_channel or not team_channel:
+                dev = client.get_user(client.setting.developer_id)
+                await dev.send(f'Erro ao pegar canais para o time de Raids'
+                               f'\n- Invite: {invite_channel}'
+                               f'\n- Team: {team_channel}')
                 continue
 
-        with db.Session() as session:
-            old_team = session.query(Team).filter_by(team_id='raids').first()
-            if old_team:
-                session.delete(old_team)
+            presence = f'Marque presença no <#{invite_channel_id}>\nCriador: {client.user.mention}'
+            description = f"Requisito: <@&{client.setting.role.get('raids')}>\n{presence}"
+            invite_embed = discord.Embed(
+                title=f"Marque presença para 'Raids' (10 pessoas)",
+                description=f"{separator}\n\n"
+                f"Requisito: <@&{client.setting.role.get('raids')}>\n"
+                f"Time: {team_channel.mention}\n"
+                f"Criador: {client.user.mention}\n\n"
+                f"`in raids`: Marcar presença\n"
+                f"`out raids`: Retirar presença"
+            )
+            team_embed = discord.Embed(
+                title=f"__Raids__ - 0/10",
+                description=description,
+                color=discord.Color.purple()
+            )
+            footer = (f"Digite '{client.setting.prefix}del raids' "
+                      f"para excluir o time. (Criador do time ou Admin e acima)")
+            team_embed.set_footer(text=footer)
+
+            await team_channel.send(
+                content=f"<@&{client.setting.role.get('raids')}>",
+                embed=raids_embed(client.setting),
+                delete_after=60 * 90
+            )
+            team_message = await team_channel.send(embed=team_embed, delete_after=60 * 90)
+            invite_message = await invite_channel.send(embed=invite_embed)
+
+            raids_team = Team(
+                team_id='raids',
+                title='Raids',
+                size=10,
+                role=client.setting.role.get('raids'),
+                author_id=str(client.user.id),
+                invite_channel_id=str(invite_channel_id),
+                invite_message_id=str(invite_message.id),
+                team_channel_id=str(team_channel_id),
+                team_message_id=str(team_message.id)
+            )
+            with db.Session() as session:
+                session.add(raids_team)
                 session.commit()
-        if client.setting.mode == 'prod':
-            invite_channel_id = client.setting.chat.get('raids_chat')
-            team_channel_id = client.setting.chat.get('raids')
-        else:
-            invite_channel_id = 505240135390986262
-            team_channel_id = 505240114662998027
-
-        invite_channel = client.get_channel(invite_channel_id)
-        team_channel = client.get_channel(team_channel_id)
-
-        if not invite_channel or not team_channel:
-            dev = client.get_user(client.setting.developer_id)
-            await dev.send(f'Erro ao pegar canais para o time de Raids'
-                           f'\n- Invite: {invite_channel}'
-                           f'\n- Team: {team_channel}')
-            continue
-
-        presence = f'Marque presença no <#{invite_channel_id}>\nCriador: {client.user.mention}'
-        description = f"Requisito: <@&{client.setting.role.get('raids')}>\n{presence}"
-
-        invite_embed = discord.Embed(
-            title=f"Marque presença para 'Raids' (10 pessoas)",
-            description=f"{separator}\n\n"
-            f"<@&{client.setting.role.get('raids')}>"
-            f"Time: {team_channel.mention}\n"
-            f"Criador: {client.user.mention}\n\n"
-            f"`in raids`: Marcar presença\n"
-            f"`out raids`: Retirar presença"
-        )
-        team_embed = discord.Embed(
-            title=f"__Raids__ - 0/10",
-            description=description,
-            color=discord.Color.purple()
-        )
-        footer = (f"Digite '{client.setting.prefix}del raids' "
-                  f"para excluir o time. (Criador do time ou Admin e acima)")
-        team_embed.set_footer(text=footer)
-
-        await team_channel.send(
-            content=f"<@&{client.setting.role.get('raids')}>",
-            embed=raids_embed(client.setting),
-            delete_after=60 * 90
-        )
-        team_message = await team_channel.send(embed=team_embed, delete_after=60 * 90)
-        invite_message = await invite_channel.send(embed=invite_embed)
-
-        raids_team = Team(
-            team_id='raids',
-            title='Raids',
-            size=10,
-            role=client.setting.role.get('raids'),
-            author_id=str(client.user.id),
-            invite_channel_id=str(invite_channel_id),
-            invite_message_id=str(invite_message.id),
-            team_channel_id=str(team_channel_id),
-            team_message_id=str(team_message.id)
-        )
-        with db.Session() as session:
-            session.add(raids_team)
-            session.commit()
-        await asyncio.sleep(60 * 30)
+            await asyncio.sleep(60 * 30)
+        except Exception as e:
+            tb = traceback.format_exc()
+            await client.send_logs(e, tb)
 
 
 def raids_notifications():

@@ -17,7 +17,7 @@ class TeamCommands:
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx: commands.Context, pk: int):
+    async def delteam(self, ctx: commands.Context, pk: str):
         with db.Session() as session:
             try:
                 await ctx.message.delete()
