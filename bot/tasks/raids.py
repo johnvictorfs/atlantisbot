@@ -4,9 +4,9 @@ import sys
 import discord
 import asyncio
 
-from bot.utils.tools import separator, has_any_role
+from bot.utils.tools import separator
 
-from bot.db.models import RaidsState
+from bot.db.models import RaidsState, Team
 import bot.db.db as db
 
 
@@ -33,108 +33,107 @@ def raids_embed(setting):
     return raids_notif_embed
 
 
-async def raids_notification(setting, user, channel, start_day, channel_public=None, time_to_send="23:00:00"):
+async def raids_task(client):
     print("Starting Raids notifications task.")
     while True:
-        today = datetime.datetime.utcnow().date()
-        check_day = (today - start_day).days % 2
-        if check_day == 0 or "testraid" in sys.argv:
-            date = str(datetime.datetime.utcnow().time())
-            time = date[0:7]
-            time_to_send = time_to_send[0:7]
-            if time == time_to_send or "testraid" in sys.argv:
-                with db.Session() as session:
-                    state = session.query(RaidsState).first()
-                    if not state:
-                        state = RaidsState(notifications=True)
-                        session.add(state)
-                        session.commit()
-                    current_state = state.notifications
-                if not current_state:
-                    print("Notificação de Raids não foi enviada. Desabilitado.")
-                    await asyncio.sleep(60)
-                    continue
-                team_list = []
-                substitute_team = []
-                embed = raids_embed(setting=setting)
-                print(f"$ Sent Raids notification at: {time}")
-                await channel.send(content=f"<@&{setting.role.get('raids')}>", embed=embed, delete_after=60 * 90)
-                team_embed = discord.Embed(title=f"__Time Raids__ - {len(team_list)}/10")
-                substitute_team_embed = discord.Embed(title=f"__Substitutos__ - {len(substitute_team)}")
-                raids_team_message = await channel.send(embed=team_embed, delete_after=60 * 90)
-                substitute_team_message = await channel.send(embed=substitute_team_embed, delete_after=60 * 90)
-                invite_embed = discord.Embed(
-                    title=f"Marque presença para 'Raids' (10 pessoas)",
-                    description=f"{separator}\nTime: {channel.mention}\nRequisito: <@&{setting.role.get('raids')}>\n\n"
-                    f"Marque presença apenas se for estar **online** no jogo até 20:50 em ponto "
-                    f"**no Mundo 75. Caso contrário irá ser substituido.**\n\n"
-                    f"`in`: Marcar presença\n"
-                    f"`out`: Retirar presença"
-                )
-                await channel_public.send(embed=invite_embed)
-                last_message = await channel_public.history().get(author=user)
-                sent_time = datetime.datetime.now()
-                while True:
-                    async for message in channel_public.history(after=last_message):
-                        if message.content.lower() == 'in':
-                            await message.delete()
-                            if has_any_role(message.author, setting.role.get('raids')):
-                                if message.author.mention in team_list:
-                                    await channel_public.send(
-                                        f"Ei {message.author.mention}, você já está no time! Não tente me enganar."
-                                        f"\n(*`in`*)"
-                                    )
-                                else:
-                                    if len(team_list) >= 10:
-                                        substitute_team.append(message.author.mention)
-                                        await channel_public.send(
-                                            f"{message.author.mention}, o time de Raids já está cheio, você foi "
-                                            f"adicionado como substituto ({len(team_list)}/10)\n(*`in`*)"
-                                        )
-                                    team_list.append(message.author.mention)
-                                    await channel_public.send(
-                                        f"{message.author.mention} foi adicionado ao time de Raids. "
-                                        f"({len(team_list)}/10)\n(*`in`*)"
-                                    )
-                            else:
-                                await channel_public.send(
-                                    f"{message.author.mention}, você não tem permissão para ir Raids ainda. "
-                                    f"Aplique agora usando o comando `{setting.prefix}raids`!\n(*`in`*)"
-                                )
-                        if message.content.lower() == 'out':
-                            await message.delete()
-                            if message.author.mention in team_list:
-                                team_list.remove(message.author.mention)
-                                await channel_public.send(
-                                    f"{message.author.mention} foi removido do time de Raids. ({len(team_list)}/10)"
-                                    f"\n(*`out`*)")
-                            else:
-                                await channel_public.send(
-                                    f"Ei {message.author.mention}, você já não estava no time! Não tente me enganar."
-                                    f"\n(*`out`*)")
-                        last_message = message
-                    team_embed = discord.Embed(title=f"__Time Raids__ - {len(team_list)}/10")
-                    if len(team_list) < 10:
-                        if len(substitute_team) > 0:
-                            await channel_public.send(
-                                f'Substituto {substitute_team[0]} foi adicionado ao time principal.'
-                            )
-                            team_list.append(substitute_team[0])
-                            del substitute_team[0]
-                    for index, person in enumerate(team_list):
-                        team_embed.add_field(name=separator, value=f"{index + 1}- {person}", inline=False)
-                    try:
-                        await raids_team_message.edit(embed=team_embed)
-                    except discord.errors.NotFound:
-                        break
-                    for index, person in enumerate(substitute_team):
-                        substitute_team_embed.add_field(name=separator, value=f"{index + 1}- {person}", inline=False)
-                    try:
-                        await substitute_team_message.edit(embed=substitute_team_embed)
-                    except discord.errors.NotFound:
-                        break
-                    diff = datetime.datetime.now() - sent_time
-                    if diff.total_seconds() > (60 * 60):
-                        await channel_public.send('Não aceitando mais entradas para o time de Raids.')
-                        break
-        await asyncio.sleep(1)
+        if 'testraid' not in sys.argv:
+            if not day_to_send(client.setting.raids_start_date):
+                continue
+            if not time_to_send(client.setting.raids_time_utc):
+                continue
+            if not raids_notifications():
+                await asyncio.sleep(60)
+                continue
+
+        with db.Session() as session:
+            old_team = session.query(Team).filter_by(team_id='raids').first()
+            if old_team:
+                session.delete(old_team)
+                session.commit()
+        if client.setting.mode == 'prod':
+            invite_channel_id = client.setting.chat.get('raids_chat')
+            team_channel_id = client.setting.chat.get('raids')
+        else:
+            invite_channel_id = 505240135390986262
+            team_channel_id = 505240114662998027
+
+        invite_channel = client.get_channel(invite_channel_id)
+        team_channel = client.get_channel(team_channel_id)
+
+        if not invite_channel or not team_channel:
+            dev = client.get_user(client.setting.developer_id)
+            await dev.send(f'Erro ao pegar canais para o time de Raids'
+                           f'\n- Invite: {invite_channel}'
+                           f'\n- Team: {team_channel}')
+            continue
+
+        presence = f'Marque presença no <#{invite_channel_id}>\nCriador: {client.user.mention}'
+        description = f"Requisito: <@&{client.setting.role.get('raids')}>\n{presence}"
+
+        invite_embed = discord.Embed(
+            title=f"Marque presença para 'Raids' (10 pessoas)",
+            description=f"{separator}\n\n"
+            f"<@&{client.setting.role.get('raids')}>"
+            f"Time: {team_channel.mention}\n"
+            f"Criador: {client.user.mention}\n\n"
+            f"`in raids`: Marcar presença\n"
+            f"`out raids`: Retirar presença"
+        )
+        team_embed = discord.Embed(
+            title=f"__Raids__ - 0/10",
+            description=description,
+            color=discord.Color.purple()
+        )
+        footer = (f"Digite '{client.setting.prefix}del raids' "
+                  f"para excluir o time. (Criador do time ou Admin e acima)")
+        team_embed.set_footer(text=footer)
+
+        await team_channel.send(
+            content=f"<@&{client.setting.role.get('raids')}>",
+            embed=raids_embed(client.setting),
+            delete_after=60 * 90
+        )
+        team_message = await team_channel.send(embed=team_embed, delete_after=60 * 90)
+        invite_message = await invite_channel.send(embed=invite_embed)
+
+        raids_team = Team(
+            team_id='raids',
+            title='Raids',
+            size=10,
+            role=client.setting.role.get('raids'),
+            author_id=str(client.user.id),
+            invite_channel_id=str(invite_channel_id),
+            invite_message_id=str(invite_message.id),
+            team_channel_id=str(team_channel_id),
+            team_message_id=str(team_message.id)
+        )
+        with db.Session() as session:
+            session.add(raids_team)
+            session.commit()
+        await asyncio.sleep(60 * 30)
+
+
+def raids_notifications():
+    with db.Session() as session:
+        state = session.query(RaidsState).first()
+        if not state:
+            state = RaidsState(notifications=True)
+            session.add(state)
+            session.commit()
+        return state.notifications
+
+
+def day_to_send(start_day):
+    today = datetime.datetime.utcnow().date()
+    check_day = (today - start_day).days % 2
+    if check_day == 0:
+        return True
+    return False
+
+
+def time_to_send(to_send):
+    date = str(datetime.datetime.utcnow().time())
+    time = date[0:7]
+    if time == to_send[0:7]:
+        return True
+    return False

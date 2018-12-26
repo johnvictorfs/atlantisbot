@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -62,7 +63,7 @@ class Settings:
 
     @property
     def raids_start_date(self):
-        return self.read_data()['OTHER']['raids_start_date']
+        return datetime.datetime.strptime(self.read_data()['OTHER']['raids_start_date'], "%Y/%m/%d").date()
 
     @property
     def raids_time_utc(self):
