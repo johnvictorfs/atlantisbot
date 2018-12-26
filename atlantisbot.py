@@ -15,9 +15,10 @@ from discord.ext import commands
 
 from bot import settings
 from bot.tasks.advlog import advlog
-from bot.tasks.raids import raids_notification
+from bot.tasks.raids import raids_task
 from bot.tasks.pvmteams import team_maker
 from bot.utils.tools import separator, has_any_role
+
 
 
 async def run():
@@ -35,7 +36,11 @@ async def run():
 class Bot(commands.Bot):
 
     def __init__(self):
-        super().__init__(command_prefix=self.setting.prefix, description=self.setting.description, case_insensitive=True)
+        super().__init__(
+            command_prefix=self.setting.prefix,
+            description=self.setting.description,
+            case_insensitive=True
+        )
         self.remove_command('help')
         self.start_time = None
         self.app_info = None
@@ -144,23 +149,7 @@ class Bot(commands.Bot):
               f"- Playing Message: '{self.setting.playing_message}'\n"
               f"- Commands prefix: '{self.setting.prefix}'\n"
               f"- Show titles on claninfo: '{self.setting.show_titles}'")
-        if self.setting.mode == 'prod':
-            self.raids_channel = self.get_channel(self.setting.chat.get('raids'))
-            self.raids_channel_public = self.get_channel(self.setting.chat.get('raids_chat'))
-        elif self.setting.mode == 'dev':
-            self.raids_channel = self.get_channel(505240114662998027)
-            self.raids_channel_public = self.get_channel(505240135390986262)
-        raids_start_day = datetime.datetime.strptime(self.setting.raids_start_date, "%Y/%m/%d").date()
-        raids_time = self.setting.raids_time_utc
-        print(f"-- Channel set to send raids notification: #{self.raids_channel} at {raids_time}")
-        print(f"-- Channel set to send raids presence notifications: #{self.raids_channel_public}")
-        self.loop.create_task(raids_notification(
-            setting=self.setting,
-            user=self.user,
-            channel=self.raids_channel,
-            start_day=raids_start_day,
-            channel_public=self.raids_channel_public,
-            time_to_send=raids_time))
+        self.loop.create_task(raids_task(self))
         self.loop.create_task(team_maker(self))
         self.loop.create_task(advlog(self))
 

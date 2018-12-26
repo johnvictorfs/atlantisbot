@@ -17,7 +17,7 @@ class TeamCommands:
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx: commands.Context, pk: int):
+    async def delteam(self, ctx: commands.Context, pk: str):
         with db.Session() as session:
             try:
                 await ctx.message.delete()
@@ -229,7 +229,7 @@ class TeamCommands:
                 requisito = f'\nRequisito: <@&{role_id}>\n'
                 description = f'Requisito: <@&{role_id}>\n{description}'
 
-            team_id = self.current_id() + 1
+            team_id = str(self.current_id() + 1)
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
                 description=f"{separator}\n\n"
@@ -246,9 +246,7 @@ class TeamCommands:
             )
             footer = (f"Digite '{self.bot.setting.prefix}del {team_id}' "
                       f"para excluir o time. (Criador do time ou Admin e acima)")
-            team_embed.set_footer(
-                text=footer
-            )
+            team_embed.set_footer(text=footer)
             try:
                 invite_embed_message = await invite_channel.send(embed=invite_embed)
                 team_embed_message = await ctx.channel.send(embed=team_embed)
@@ -308,7 +306,7 @@ class TeamCommands:
                 current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
             except AttributeError:
                 current_id = 0
-        return current_id
+        return int(current_id)
 
 
 def setup(bot):

@@ -32,14 +32,17 @@ class CommandErrorHandler:
             if ctx.command.qualified_name == 'clan_user_info':
                 command = "claninfo"
                 arguments = f"`<nome de jogador>`"
-            if ctx.command.qualified_name == 'running_competitions':
+            elif ctx.command.qualified_name == 'running_competitions':
                 command = "comp"
                 arguments = f"`<número da competição>` `(número de jogadores|10)`"
-            if ctx.command.qualified_name == 'team':
+            elif ctx.command.qualified_name == 'delteam':
+                command = "del"
+                arguments = f"`<ID do Time>`"
+            elif ctx.command.qualified_name == 'team':
                 command = "team"
                 arguments = f"<\"Título\"> `<Tamanho>` `(Chat para presenças|Chat atual) (Role Requisito)`"
                 footer = "É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços"
-            if ctx.command.qualified_name == 'delteam':
+            elif ctx.command.qualified_name == 'delteam':
                 command = "del"
                 arguments = f"<ID do Time (número)>"
             embed = discord.Embed(

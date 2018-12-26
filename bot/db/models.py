@@ -25,7 +25,7 @@ class Team(Base):
     __tablename__ = 'team'
     id = Column(Integer, primary_key=True)
     created_date = Column(DateTime, default=datetime.datetime.utcnow())
-    team_id = Column(Integer, unique=True)
+    team_id = Column(String, unique=True)
     title = Column(String)
     size = Column(Integer)
     role = Column(String)
