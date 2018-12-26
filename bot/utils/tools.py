@@ -33,7 +33,10 @@ async def manage_team(team_id: int, client):
             current_players = session.query(Player).filter_by(team=team.id)
             # Validate Team Additions
             if message.content.lower() == f'in {team.team_id}':
-                await message.delete()
+                try:
+                    await message.delete()
+                except discord.errors.NotFound:
+                    continue
                 if message.author.bot:
                     continue
                 try:
