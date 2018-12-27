@@ -9,6 +9,7 @@ class ChatCommands:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.guild_only()
     @commands.cooldown(1, 60)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
@@ -22,6 +23,7 @@ class ChatCommands:
             return await ctx.send(role_message)
         return await ctx.send(denied_message)
 
+    @commands.guild_only()
     @commands.cooldown(1, 60)
     @commands.command(aliases=['aplicar', 'raids'])
     async def aplicar_raids(self, ctx: commands.Context):
