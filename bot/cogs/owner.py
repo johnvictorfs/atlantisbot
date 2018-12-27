@@ -9,7 +9,7 @@ import discord
 
 from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
 import bot.db.db as db
-from bot.utils.tools import separator, plot_table
+from bot.utils.tools import separator, plot_table, start_raids_team
 
 
 class Owner:
@@ -51,6 +51,13 @@ class Owner:
         if err1 or err2:
             return await ctx.send('Houve algum erro reiniciando extensões. Verificar os Logs do bot.')
         return await ctx.send('Todas as extensões foram reiniciadas com sucesso.')
+
+    @commands.is_owner()
+    @commands.command(aliases=['startraids'])
+    async def start_raids(self, ctx: commands.Context):
+        await ctx.send(f'Iniciando time de Raids... (mode={self.bot.setting.mode})')
+        await start_raids_team(client=self.bot)
+        await ctx.author.send('Time de Raids iniciado com sucesso.')
 
     @commands.is_owner()
     @commands.command(aliases=['sendtable'])
