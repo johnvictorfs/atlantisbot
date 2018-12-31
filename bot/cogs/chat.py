@@ -120,6 +120,11 @@ Aguarde uma resposta de um {aod_teacher}.
             inline=False
         )
         atlcommands_embed.add_field(
+            name=f"{self.bot.setting.prefix}clan <nome de clã>",
+            value=f"Ver info Básica de um Clã",
+            inline=False
+        )
+        atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}raids",
             value="Aplicar para ter acesso aos Raids do Clã",
             inline=False
