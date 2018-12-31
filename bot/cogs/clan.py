@@ -12,6 +12,34 @@ class ClanCommands:
 
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(embed_links=True)
+    @commands.command(aliases=['clan'])
+    async def clan_detail_info(self, ctx: commands.Context, *, clan_name: str):
+        try:
+            clan = rs3clans.Clan(name=clan_name, set_exp=True)
+        except ConnectionError:
+            return await ctx.send(f"Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde.")
+        except rs3clans.ClanNotFoundError:
+            return await ctx.send(f"O clã '{clan_name}' não existe.")
+        clan_leader = None
+        for member in clan:
+            if member[1]['rank'] == 'Owner':
+                clan_leader = member[0]
+        clan_url = clan.name.replace(' ', '%20')
+        clan_embed = discord.Embed(
+            title=clan.name,
+            color=discord.Color.green(),
+            url=f'http://services.runescape.com/m=clan-home/clan/{clan_url}'
+        )
+        clan_embed.set_author(name='RuneClan', url=f'https://runeclan.com/clan/{clan_url}')
+        clan_embed.set_thumbnail(url=f'http://services.runescape.com/m=avatar-rs/{clan_url}/clanmotif.png')
+        clan_embed.add_field(name="Exp Total", value=f'{clan.exp:,}')
+        clan_embed.add_field(name="Membros", value=clan.count)
+        clan_embed.add_field(name="Líder", value=clan_leader)
+        clan_embed.add_field(name="Exp Média por Membro", value=f'{clan.avg_exp:,.0f}')
+        return await ctx.send(embed=clan_embed)
+
+    @commands.cooldown(1, 5)
+    @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo', 'clan', 'cla'])
     async def clan_user_info(self, ctx: commands.Context, *, username: str):
         try:

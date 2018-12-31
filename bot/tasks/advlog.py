@@ -94,7 +94,7 @@ async def advlog(client):
                             session.add(new_player)
                         session.commit()
                 channel = client.get_channel(get_clan.get('chat'))
-                banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{clan_name}/clanmotif.png"
+                banner = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
                 for player, activities in difference.items():
                     player_name = player.replace(' ', '%20')
                     icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_name}/chat.png"
