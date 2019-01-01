@@ -107,7 +107,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
         atlcommands_embed = discord.Embed(
             title=embed_title,
-            description="`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional",
+            description="`<argumento>` : Obrigatório\n`(argumento|padrão:máximo)` : Opcional",
             color=discord.Colour.dark_blue(),
             url=runeclan_url,
         )
@@ -122,6 +122,11 @@ Aguarde uma resposta de um {aod_teacher}.
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}clan <nome de clã>",
             value=f"Ver info Básica de um Clã",
+            inline=False
+        )
+        atlcommands_embed.add_field(
+            name=f"{self.bot.setting.prefix}ptbr_rankings (número de clãs|10:25)",
+            value=f"Ver os Rankings dos Clãs PT-BR por base em Exp",
             inline=False
         )
         atlcommands_embed.add_field(
@@ -140,12 +145,12 @@ Aguarde uma resposta de um {aod_teacher}.
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{self.bot.setting.prefix}comp (número da comp|1) (número de jogadores|10)",
+            name=f"{self.bot.setting.prefix}comp (número da comp|1) (número de jogadores|10:50)",
             value="Ver as competições ativas do Clã",
             inline=False
         )
         atlcommands_embed.add_field(
-            name=f"{self.bot.setting.prefix}pcomp (número de jogadores|10)",
+            name=f"{self.bot.setting.prefix}pcomp (número de jogadores|10:50)",
             value="Ver informação sobre a atual competição de Pontos em andamento",
             inline=False
         )
