@@ -11,4 +11,4 @@ async def update_all_clans():
                     print(f'Erro ao atualizar clãs: {r.status}')
                 else:
                     print(f'Exp dos Clãs atualizada com sucesso.')
-        await asyncio.sleep(60 * 2)
+        await asyncio.sleep(60 * 5)
