@@ -17,6 +17,7 @@ from bot import settings
 from bot.tasks.advlog import advlog
 from bot.tasks.raids import raids_task
 from bot.tasks.pvmteams import team_maker
+from bot.tasks.update_clans import update_all_clans
 from bot.utils.tools import separator, has_any_role
 
 
@@ -152,6 +153,7 @@ class Bot(commands.Bot):
         self.loop.create_task(raids_task(self))
         self.loop.create_task(team_maker(self))
         self.loop.create_task(advlog(self))
+        self.loop.create_task(update_all_clans())
 
     async def on_message(self, message: discord.Message):
         """

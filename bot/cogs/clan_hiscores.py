@@ -40,7 +40,7 @@ class ClanHiscores:
                     value=f'{clan["exp"]:,.0f}',
                     inline=False
                 )
-        rankings_embed.set_footer(text='A exp dos clãs atualizam todo dia ás 00:00 UTC.')
+        rankings_embed.set_footer(text='A exp dos Clãs é atualizada a cada 5 minutos.')
         rankings_embed.set_thumbnail(url='https://cdn.countryflags.com/thumbs/brazil/flag-round-250.png')
         return await ctx.send(embed=rankings_embed)
 
