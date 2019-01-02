@@ -4,6 +4,7 @@ import aiohttp
 
 async def update_all_clans():
     base_url = 'https://nriver.pythonanywhere.com'
+    print('Starting Update Clans task')
     while True:
         async with aiohttp.ClientSession() as cs:
             async with cs.get(f'{base_url}/clan/update-all/') as r:
