@@ -24,6 +24,7 @@ async def raids_task(client):
                 continue
         try:
             await start_raids_team(client=client)
+            await asyncio.sleep(60 * 10)
         except Exception as e:
             tb = traceback.format_exc()
             await client.send_logs(e, tb)
