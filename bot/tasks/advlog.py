@@ -28,6 +28,7 @@ async def advlog(client):
                 continue
             async with aiohttp.ClientSession() as cs:
                 for get_clan in client.setting.advlog_clans:
+                    clan = get_clan.get('name')
                     clan_name = get_clan.get('name').replace(' ', '%20')
                     clan_list = await retrieve_clan_list(cs, get_clan.get('name'))
 
@@ -37,7 +38,7 @@ async def advlog(client):
                     banner = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
 
                     with db.Session() as session:
-                        all_activities = session.query(PlayerActivities).all()
+                        all_activities = session.query(PlayerActivities).filter_by(clan=clan).all()
                         old_activities = {}
                         if all_activities:
                             for act in all_activities:
@@ -55,7 +56,7 @@ async def advlog(client):
 
                             if not session.query(PlayerActivities).filter_by(name=player).first():
                                 print(f'Adding {player} to Adv. Log database.')
-                                new_player = PlayerActivities(name=player, activities=str(activities))
+                                new_player = PlayerActivities(name=player, activities=str(activities), clan=clan)
                                 session.add(new_player)
                                 session.commit()
                                 continue

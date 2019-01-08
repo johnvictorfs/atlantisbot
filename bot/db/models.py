@@ -61,6 +61,7 @@ class PlayerActivities(Base):
     __tablename__ = 'playeractivities'
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
+    clan = Column(String)
     activities = Column(String, default="[]")
 
 
