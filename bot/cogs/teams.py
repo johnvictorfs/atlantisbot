@@ -304,8 +304,8 @@ class TeamCommands:
         with db.Session() as session:
             try:
                 current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
-            except AttributeError:
-                current_id = 0
+            except (AttributeError, ValueError):
+                return 0
         return int(current_id)
 
 
