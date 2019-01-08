@@ -303,10 +303,10 @@ class TeamCommands:
     def current_id():
         with db.Session() as session:
             try:
-                current_id = session.query(Team).order_by(Team.team_id.desc()).first().team_id
+                current_id = int(session.query(Team).order_by(Team.team_id.desc()).first().team_id)
             except (AttributeError, ValueError):
                 return 0
-        return int(current_id)
+        return current_id
 
 
 def setup(bot):
