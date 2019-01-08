@@ -58,16 +58,16 @@ class Settings:
         return self.read_data()['RUNESCAPE']['show_titles']
 
     @property
+    def advlog_clans(self):
+        return self.read_data()['RUNESCAPE']['advlog_clans']
+
+    @property
     def banner_image(self):
         return self.read_data()['OTHER']['banner_image']
 
     @property
     def raids_start_date(self):
-        return datetime.datetime.strptime(self.read_data()['OTHER']['raids_start_date'], "%Y/%m/%d").date()
-
-    @property
-    def raids_time_utc(self):
-        return self.read_data()['OTHER']['raids_time_utc']
+        return datetime.datetime.strptime(self.read_data()['OTHER']['raids_start_date'], '%H:%M:%S %Y/%m/%d')
 
     @property
     def not_allowed_in_name(self):
@@ -99,12 +99,21 @@ default_settings = {
     },
     "RUNESCAPE": {
         "clan_name": "Atlantis",
-        "show_titles": False
+        "show_titles": False,
+        "advlog_clans": [
+            {
+                "name": "Iron Atlantis",
+                "chat": 521499765696102420
+            },
+            {
+                "name": "Atlantis",
+                "chat": 514151461362597919
+            }
+        ]
     },
     "OTHER": {
         "banner_image": "http://rsatlantis.com/images/logo.png",
-        "raids_start_date": "2018/10/26",
-        "raids_time_utc": "23:00:00",
+        "raids_start_date": "23:00:00 2019/01/06",
         "not_allowed_in_name": ["discord.me", "discord.gg", "bit.ly", "tinyurl", "tiny.cc", "is.gd", "bc.vc",
                                 "twitch.tv", "twitter", "youtube", "youtu.be"]
     },

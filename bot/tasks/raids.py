@@ -10,27 +10,35 @@ import bot.db.db as db
 
 
 async def raids_task(client):
-    print("Starting Raids notifications task.")
+    print("Starting Raids Notifications task.")
     while True:
-        if 'testraid' not in sys.argv:
-            if not day_to_send(start_date=client.setting.raids_start_date):
-                await asyncio.sleep(1)
-                continue
-            if not is_time_to_send(time_to_send=client.setting.raids_time_utc):
-                await asyncio.sleep(1)
-                continue
+        if 'testraid' in sys.argv:
+            try:
+                await start_raids_team(client=client)
+                await asyncio.sleep(60 * 10)
+            except Exception as e:
+                tb = traceback.format_exc()
+                await client.send_logs(e, tb)
+        else:
+            seconds_till_raids = time_till_raids(client.setting.raids_start_date)
+            raids_diff = datetime.timedelta(seconds=seconds_till_raids)
+            print(f'Next Raids in: {raids_diff.days} '
+                  f'Days, {raids_diff.seconds//3600} '
+                  f'Hours, {(raids_diff.seconds//60)%60} '
+                  f'Minutes')
+            await asyncio.sleep(seconds_till_raids)
             if not raids_notifications():
                 await asyncio.sleep(60)
                 continue
-        try:
-            await start_raids_team(client=client)
-            await asyncio.sleep(60 * 10)
-        except Exception as e:
-            tb = traceback.format_exc()
-            await client.send_logs(e, tb)
+            try:
+                await start_raids_team(client=client)
+            except Exception as e:
+                tb = traceback.format_exc()
+                await client.send_logs(e, tb)
 
 
 def raids_notifications():
+    """Checks if raids notifications are turned on or off in the bot settings"""
     with db.Session() as session:
         state = session.query(RaidsState).first()
         if not state:
@@ -40,17 +48,11 @@ def raids_notifications():
         return state.notifications
 
 
-def day_to_send(start_date):
-    today = datetime.datetime.utcnow().date()
-    check_day = (today - start_date).days % 2
-    if check_day == 0:
-        return True
-    return False
-
-
-def is_time_to_send(time_to_send):
-    date = str(datetime.datetime.utcnow().time())
-    time = date[0:7]
-    if time == time_to_send[0:7]:
-        return True
-    return False
+def time_till_raids(start_date):
+    """Calculates the time between now and the next raids, assuming raids occur every 2 days"""
+    now = datetime.datetime.utcnow()
+    difference = start_date - now
+    if (now - start_date).days % 2 == 0:
+        # Add a day to the difference in case it has been an even number of days between start_date and now
+        return difference.seconds + (24 * 60 * 60)
+    return difference.seconds

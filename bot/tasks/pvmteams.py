@@ -7,7 +7,7 @@ import bot.db.db as db
 
 
 async def team_maker(client):
-    print("Starting team maker task.")
+    print("Starting Team Maker task.")
     while True:
         with db.Session() as session:
             running_teams = session.query(Team).all()
