@@ -303,7 +303,8 @@ class TeamCommands:
     def current_id():
         with db.Session() as session:
             try:
-                current_id = int(session.query(Team).order_by(Team.team_id.desc()).first().team_id)
+                current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
+                    Team.team_id.desc()).first().team_id)
             except (AttributeError, ValueError):
                 return 0
         return current_id
