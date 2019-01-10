@@ -35,6 +35,8 @@ async def raids_task(client):
             except Exception as e:
                 tb = traceback.format_exc()
                 await client.send_logs(e, tb)
+            finally:
+                await asyncio.sleep(60)
 
 
 def raids_notifications():
