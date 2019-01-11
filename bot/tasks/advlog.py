@@ -51,7 +51,10 @@ async def advlog(client):
 
                         for player in clan_list[1:]:
                             player = player[0]
-                            icon_url = f"https://secure.runescape.com/m=avatar-rs/{player.replace(' ', '%20')}/chat.png"
+                            # Removing non-breaking spaces from the player's name, since they would break the URL
+                            # Source: https://stackoverflow.com/a/52254293
+                            player_icon_url = ' '.join(player.split()).replace(' ', '%20')
+                            icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_icon_url}/chat.png"
                             activities = await retrieve_activities(cs, player)
 
                             if not session.query(PlayerActivities).filter_by(name=player).first():
