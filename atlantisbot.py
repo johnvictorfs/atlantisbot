@@ -212,23 +212,20 @@ class Bot(commands.Bot):
             formatted_urls = []
             for url in urls:
                 if 'runescape.fandom.com/wiki' in url:
-                    url = url.replace('runescape.fandom.com/wiki', 'runescape.wiki/w/')
+                    url = url.replace('runescape.fandom.com/wiki/', 'rs.wiki/w/')
                     formatted_urls.append(url)
 
             formatted_urls_string = ''
             for url in formatted_urls:
-                formatted_urls_string += f'- ***<{url}>***\n\n'
-            plural = ''
-            if len(formatted_urls) > 1:
-                plural = 's'
+                formatted_urls_string += f'- ***<{url}>***\n'
+
+            plural = 's' if len(formatted_urls) > 1 else ''
             await message.channel.send(
                 f'Olá, parece que você usou um ou mais links para a antiga Wiki do RuneScape!'
                 f'\n\n'
-                f'Recentemente os Admins da Wiki, com ajuda da Jagex, '
-                f'passou a hostear a wiki do jogo no site oficial do RuneScape, ao '
-                f'invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
-                f'{formatted_urls_string}'
-                f'Ajude-nos a fazer a nova wiki ser conhecida por todos :)')
+                f'A wiki antiga não é mais suportada e está muito desatualizada. '
+                f'Ao invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
+                f'{formatted_urls_string}')
         await self.process_commands(message)
 
 

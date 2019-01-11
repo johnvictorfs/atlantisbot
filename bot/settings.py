@@ -107,7 +107,7 @@ default_settings = {
             },
             {
                 "name": "Atlantis",
-                "chat": 514151461362597919
+                "chat": 513848876063784960
             }
         ]
     },
