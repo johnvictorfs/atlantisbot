@@ -48,6 +48,8 @@ class WelcomeMessage:
         solak = self.bot.setting.chat.get('solak')
         pvmemes = self.bot.setting.chat.get('pvmemes')
 
+        prefix = self.bot.setting.prefix
+
         welcome_embed = discord.Embed(
             title=f"{member.name}, Bem vindo ao Discord do Atlantis!",
             description="",
@@ -60,7 +62,7 @@ class WelcomeMessage:
 
         welcome_embed.add_field(
             name="Você recebeu o cargo de `convidado`",
-            value=f"Caso seja um membro do Clã, digite `{self.bot.setting.prefix}membro` no canal <#{visitantes}>",
+            value=f"Caso seja um **membro do Clã**, digite **`{prefix}membro`** no canal <#{visitantes}>",
             inline=False
         )
 
@@ -92,7 +94,7 @@ class WelcomeMessage:
         )
 
         welcome_embed.set_footer(
-            text=f"Digite {self.bot.setting.prefix}atlbot para ver os meus comandos!")
+            text=f"Digite {prefix}atlbot para ver os meus comandos!")
         return welcome_embed
 
 
