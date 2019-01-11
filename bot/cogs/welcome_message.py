@@ -20,8 +20,8 @@ class WelcomeMessage:
 
     async def on_member_join(self, member):
         print(f"'{member}' joined the server '{member.guild}' at {member.joined_at}")
-        if member.guild != self.bot.setting.clan_name:
-            print('Not sending welcome message.')
+        if member.guild.id != self.bot.setting.guild_id:
+            print('Not sending welcome message. Not in main guild.')
             return
         if self.bot.setting.mode == 'dev':
             print("Development mode is on. Not sending welcome message.")

@@ -23,6 +23,10 @@ class Settings:
         return self.read_data()['BOT']['developer_id']
 
     @property
+    def guild_id(self):
+        return self.read_data()['BOT']['guild_id']
+
+    @property
     def token(self):
         token_ = self.read_data()['BOT']['bot_token']
         if token_ == 'BOT_TOKEN_HERE':
@@ -90,6 +94,7 @@ default_settings = {
     "BOT": {
         "mode": "prod",
         "developer_id": 148175892596785152,
+        "guild_id": 321012107942428673,
         "bot_token": "BOT_TOKEN_HERE",
         "description": "A discord bot with utilities for RS3 Clans Discords",
         "dev_guild": 268897682066505738,
