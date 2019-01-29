@@ -23,12 +23,14 @@ class TeamCommands:
                 await ctx.message.delete()
             except discord.errors.NotFound:
                 pass
-            team = session.query(Team).filter_by(team_id=pk).first()
+            team: Team = session.query(Team).filter_by(team_id=pk).first()
             if not team:
                 return await ctx.send(f"ID inválida: {pk}")
             if int(team.author_id) != ctx.author.id:
                 if not ctx.author.permissions_in(ctx.channel).manage_channels:
                     raise commands.MissingPermissions(['manage_channels'])
+            if int(team.team_channel_id) != ctx.channel.id:
+                return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
             invite_channel = None
             try:
                 team_channel = self.bot.get_channel(int(team.team_channel_id))

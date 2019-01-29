@@ -1,5 +1,6 @@
 import traceback
 import datetime
+import logging
 
 import discord
 from discord.ext import commands
@@ -15,7 +16,9 @@ class CommandErrorHandler:
         """This runs at the start of every command"""
         await ctx.trigger_typing()
         time = datetime.datetime.utcnow()
-        print(f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'")
+        msg = f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'"
+        logging.info(msg)
+        print(msg)
         return True
 
     async def on_command_error(self, ctx: commands.Context, error: Exception):

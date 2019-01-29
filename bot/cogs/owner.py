@@ -39,8 +39,7 @@ class Owner:
         except ModuleNotFoundError:
             return await ctx.send(f"Extensão {cog} não existe.")
         except Exception as e:
-            error = f'{cog}:\n {type(e).__name__} : {e}'
-            return await ctx.send(f'Erro ao reiniciar extensão {error}')
+            return await ctx.send(f'Erro ao reiniciar extensão {cog}:\n {type(e).__name__} : {e}')
 
     @commands.is_owner()
     @commands.command(aliases=['reloadall'])

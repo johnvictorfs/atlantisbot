@@ -16,10 +16,8 @@ from discord.ext import commands
 from bot import settings
 from bot.tasks.advlog import advlog
 from bot.tasks.raids import raids_task
-from bot.tasks.pvmteams import team_maker
 from bot.tasks.update_clans import update_all_clans
-from bot.utils.tools import separator, has_any_role
-
+from bot.utils.tools import separator, has_any_role, TeamNotFoundError, WrongChannelError, manage_team
 
 
 async def run():
@@ -62,9 +60,12 @@ class Bot(commands.Bot):
         try:
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
-            print(f"{e}: {tb}")
-            await dev.send(f"(Sending first 500 chars of traceback, too long)\n{separator}\n**{e}:**"
-                           f"\n```python\n{tb[:500]}```")
+            logging.error(f"{e}: {tb}")
+            try:
+                await dev.send(f"(Sending first 500 chars of traceback, too long)\n{separator}\n**{e}:**"
+                               f"\n```python\n{tb[:500]}```")
+            except Exception:
+                await dev.send("Erro ao tentar enviar logs.")
 
     @property
     def setting(self):
@@ -151,7 +152,6 @@ class Bot(commands.Bot):
               f"- Commands prefix: '{self.setting.prefix}'\n"
               f"- Show titles on claninfo: '{self.setting.show_titles}'")
         self.loop.create_task(raids_task(self))
-        self.loop.create_task(team_maker(self))
         self.loop.create_task(advlog(self))
         self.loop.create_task(update_all_clans())
 
@@ -226,6 +226,19 @@ class Bot(commands.Bot):
                 f'A wiki antiga não é mais suportada e está muito desatualizada. '
                 f'Ao invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
                 f'{formatted_urls_string}')
+        # Checks for 'in {number}' or 'out {number}' in message, for team join/leave commands (case-insensitive)
+        team_join = re.search(r'(^in |^out )\d+|(^in raids)|(^out raids)', message.content, flags=re.IGNORECASE)
+        if team_join:
+            team_join = team_join.group()
+            team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
+            team_id = ''.join(team_id).lower()
+            mode = 'join' if 'in' in team_join.lower() else 'leave'
+            try:
+                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
+            except TeamNotFoundError:
+                return await message.channel.send(f"Time com ID '{team_id}' não existe.")
+            except WrongChannelError:
+                return await message.channel.send(f"Você não pode entrar nesse time por esse canal.")
         await self.process_commands(message)
 
 
