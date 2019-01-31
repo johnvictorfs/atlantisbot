@@ -24,7 +24,7 @@ class ChatCommands:
         await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
 
         ingame_name = await self.bot.wait_for('message', timeout=60.0, check=check)
-
+        await ctx.trigger_typing()
         player = rs3clans.Player(ingame_name.content)
         if not player.exists:
             return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
