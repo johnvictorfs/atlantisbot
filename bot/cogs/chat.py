@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import rs3clans
 
 from bot.utils.tools import right_arrow, has_any_role
 
@@ -13,15 +14,26 @@ class ChatCommands:
     @commands.cooldown(1, 60)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
-        role_message = (f"Informe seu usuário in-game.\n\n"
-                        f"<@&{self.bot.setting.role.get('mod')}> "
-                        f"<@&{self.bot.setting.role.get('admin')}> "
-                        f"- O(a) Senhor(a) acima deseja receber um cargo acima de Convidado. Favor verificar :)")
+        if ctx.author.id == 403632514800943104:
+            return await ctx.send('Are u havin\' a laugh mate?')
+        if not has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
+            return await ctx.send("Fool! Você não é um Convidado!")
 
-        denied_message = "Fool! Você não é um Convidado!"
-        if has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
-            return await ctx.send(role_message)
-        return await ctx.send(denied_message)
+        def check(message):
+            return message.author == ctx.author
+        await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
+
+        ingame_name = await self.bot.wait_for('message', timeout=60.0, check=check)
+
+        player = rs3clans.Player(ingame_name.content)
+        if not player.exists:
+            return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
+        elif player.clan != self.bot.setting.clan_name:
+            return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
+        return await ctx.send(
+            f"{ctx.author.mention} um <@&{self.bot.setting.role.get('mod')}> ou "
+            f"<@&{self.bot.setting.role.get('admin')}> irá dar seu cargo em breve :)"
+        )
 
     @commands.guild_only()
     @commands.cooldown(1, 60)
