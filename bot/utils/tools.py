@@ -81,7 +81,10 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             team_role = None
             if team.role:
                 team_role = int(team.role)
-            if has_any_role(message.author, team_role) or not team.role:
+            secondary_team_role = None
+            if team.role_secondary:
+                secondary_team_role = int(team.role_secondary)
+            if has_any_role(message.author, team_role, secondary_team_role) or not team.role:
                 if message.author.id not in [int(player.player_id) for player in current_players]:
                     if current_players.count() < team.size:
                         added_player = Player(player_id=str(message.author.id), team=team.id)
@@ -105,12 +108,15 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                         f"*(`in {team.team_id}`)*"
                     )
             else:
+                description = f"{message.author.mention}, você precisa ter o cargo <@&{team.role}>"
+                if team.role_secondary:
+                    description = f"{description} ou o cargo <@&{team.role_secondary}>"
+                description = (f"{description} para entrar no Time '{team.title}' "
+                               f"({current_players.count()}/{team.size})\n"
+                               f"(*`in {team.team_id}`*)")
                 no_perm_embed = discord.Embed(
                     title=f"__Permissões insuficientes__",
-                    description=f"{message.author.mention}, você precisa ter o cargo <@&{team.role}> "
-                    f"para entrar no Time '{team.title}' "
-                    f"({current_players.count()}/{team.size})\n"
-                    f"(*`in {team.team_id}`*)",
+                    description=description,
                     color=discord.Color.dark_red()
                 )
                 sent_message = await invite_channel.send(embed=no_perm_embed)
@@ -138,8 +144,16 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             f"Marque presença no <#{team.invite_channel_id}>\n"
             f"Criador: <@{team.author_id}>"
         )
+
+        requisito = ""
+        requisito2 = ""
         if team.role:
-            embed_description = f"Requisito: <@&{team.role}>\n{embed_description}"
+            requisito = f"Requisito: <@&{team.role}>\n"
+        if team.role_secondary:
+            requisito2 = f"Requisito Secundário: <@&{team.role_secondary}>\n\n"
+
+        embed_description = f"{requisito}{requisito2}{embed_description}"
+
         team_embed = discord.Embed(
             title=f"__{team.title}__ - {current_players.count()}/{team.size}",
             description=embed_description,
@@ -147,9 +161,9 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
         )
         footer = (f"Digite '{client.setting.prefix}del {team.team_id}' "
                   f"para excluir o time. (Criador do time ou Admin e acima)")
-        team_embed.set_footer(
-            text=footer
-        )
+
+        team_embed.set_footer(text=footer)
+
         players = session.query(Player).filter_by(team=team.id)
         index = 0
         if players:
