@@ -75,7 +75,8 @@ class TeamCommands:
                 "**Título:** {title}\n"
                 "**Tamanho:** {size}\n"
                 "**Chat:** {chat}\n"
-                "**Requisito:** {requisito}"
+                "**Requisito:** {requisito}\n"
+                "**Requisito Secundário:** {requisito_secundario}"
             )
             creation_message = await ctx.send(creation_message_content.format(
                 author=ctx.author.mention,
@@ -84,13 +85,16 @@ class TeamCommands:
                 size='',
                 chat='',
                 requisito='',
+                requisito_secundario=''
             ))
 
-            # Só aceitar respostas de quem iniciou o comando
+            # Only accept answers from the the message author and in the same channel the commands was invoked
             def check(message):
+                if ctx.channel != message.channel:
+                    return False
                 return message.author == ctx.author
 
-            # Título do time
+            # Team Title
             sent_message = await ctx.send(
                 f"{ctx.author.mention}, digite o nome do time. (e.g.: Solak 20:00)"
             )
@@ -113,6 +117,7 @@ class TeamCommands:
                     size='',
                     chat='',
                     requisito='',
+                    requisito_secundario=''
                 )
             )
             # Tamanho do time
@@ -139,6 +144,7 @@ class TeamCommands:
                         size=team_size,
                         chat='',
                         requisito='',
+                        requisito_secundario=''
                     )
                 )
             except ValueError:
@@ -171,6 +177,7 @@ class TeamCommands:
                         size=team_size,
                         chat=f"<#{chat_presence_id}>",
                         requisito='',
+                        requisito_secundario=''
                     )
                 )
             except ValueError:
@@ -213,7 +220,8 @@ class TeamCommands:
                         title=team_title,
                         size=team_size,
                         chat=f"<#{chat_presence_id}>",
-                        requisito=role_str
+                        requisito=role_str,
+                        requisito_secundario=''
                     )
                 )
             except ValueError:
@@ -223,19 +231,72 @@ class TeamCommands:
                 await creation_message.delete()
                 return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
 
+            role_id2 = None
+            if role_id:
+                # Role requisito secundário (opcional)
+                sent_message = await ctx.send(
+                    f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum' caso nenhum)"
+                )
+                role_str2 = 'Nenhum'
+                role_message2 = await self.bot.wait_for('message', timeout=60.0, check=check)
+
+                try:
+                    try:
+                        await role_message2.delete()
+                        await sent_message.delete()
+                    except discord.errors.NotFound:
+                        await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
+                        return await creation_message.delete()
+                    if role_message2.content.lower() == 'nenhum':
+                        role_id2 = None
+                    elif role_message2.content.lower() == cancel_command:
+                        await creation_message.delete()
+                        return await ctx.send("Criação de time cancelada.")
+                    else:
+                        role_id2 = int(re.findall(r'\d+', role_message2.content)[0])
+                        if not any(role.id == role_id2 for role in ctx.guild.roles):
+                            await creation_message.delete()
+                            return await ctx.send(
+                                f"Criação de time cancelada. Role inválido ({role_message2.content}).")
+                        for role in ctx.guild.roles:
+                            if role.id == role_id2:
+                                role_str2 = str(role)
+                    await creation_message.edit(
+                        content=creation_message_content.format(
+                            author=ctx.author.mention,
+                            cancel=cancel_command,
+                            title=team_title,
+                            size=team_size,
+                            chat=f"<#{chat_presence_id}>",
+                            requisito=role_str,
+                            requisito_secundario=role_str2
+                        )
+                    )
+                except ValueError:
+                    await creation_message.delete()
+                    return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message2.content}).")
+                except IndexError:
+                    await creation_message.delete()
+                    return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message2.content}).")
+
             invite_channel = self.bot.get_channel(chat_presence_id)
 
-            requisito = ''
             description = f'Marque presença no <#{chat_presence_id}>\nCriador: <@{ctx.author.id}>'
+            requisito = ""
+            requisito2 = ""
             if role_id:
-                requisito = f'\nRequisito: <@&{role_id}>\n'
-                description = f'Requisito: <@&{role_id}>\n{description}'
+                requisito = f"Requisito: <@&{role_id}>\n"
+            if role_id2:
+                requisito2 = f"Requisito Secundário: <@&{role_id2}>\n\n"
+
+            description = f"{requisito}{requisito2}{description}"
 
             team_id = str(self.current_id() + 1)
             invite_embed = discord.Embed(
                 title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
                 description=f"{separator}\n\n"
                 f"{requisito}"
+                f"{requisito2}"
                 f"Time: {ctx.channel.mention}\n"
                 f"Criador: <@{ctx.author.id}>\n\n"
                 f"`in {team_id}`: Marcar presença\n"
@@ -266,6 +327,7 @@ class TeamCommands:
                 'title': team_title,
                 'size': team_size,
                 'role': role_id,
+                'role_secondary': role_id2,
                 'author_id': ctx.author.id,
                 'invite_channel_id': invite_channel.id,
                 'invite_message_id': invite_embed_message.id,
@@ -283,15 +345,20 @@ class TeamCommands:
     @staticmethod
     def save_team(team: dict):
         with db.Session() as session:
+            role = None
             if team.get('role'):
                 role = str(team.get('role'))
-            else:
-                role = None
+
+            role_secondary = None
+            if team.get('role_secondary'):
+                role_secondary = str(team.get('role_secondary'))
+
             team = Team(
                 team_id=team.get('team_id'),
                 title=team.get('title'),
                 size=team.get('size'),
                 role=role,
+                role_secondary=role_secondary,
                 author_id=str(team.get('author_id')),
                 invite_channel_id=str(team.get('invite_channel_id')),
                 invite_message_id=str(team.get('invite_message_id')),
