@@ -1,10 +1,11 @@
 import re
 import asyncio
+import traceback
 
 import discord
 from discord.ext import commands
 
-from bot.utils.tools import separator
+from bot.utils.tools import separator, delete_team
 from bot.db.models import Team, BotMessage
 import bot.db.db as db
 
@@ -31,33 +32,7 @@ class TeamCommands:
                     raise commands.MissingPermissions(['manage_channels'])
             if int(team.team_channel_id) != ctx.channel.id:
                 return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
-            invite_channel = None
-            try:
-                team_channel = self.bot.get_channel(int(team.team_channel_id))
-                team_message = await team_channel.get_message(int(team.team_message_id))
-                await team_message.delete()
-            except Exception:
-                pass
-            try:
-                invite_channel = self.bot.get_channel(int(team.invite_channel_id))
-                invite_message = await invite_channel.get_message(int(team.invite_message_id))
-                await invite_message.delete()
-            except Exception:
-                pass
-            try:
-                messages_to_delete = []
-                for message in session.query(BotMessage).filter_by(team=team.id):
-                    to_delete = await invite_channel.get_message(message.message_id)
-                    messages_to_delete.append(to_delete)
-                await invite_channel.delete_messages(messages_to_delete)
-            except Exception:
-                pass
-            try:
-                session.query(BotMessage).filter_by(team=team.id).delete()
-            except Exception:
-                pass
-            session.delete(team)
-            session.commit()
+            await delete_team(team, self.bot)
             await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
     @commands.cooldown(1, 10)
