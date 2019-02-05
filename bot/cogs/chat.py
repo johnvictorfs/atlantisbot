@@ -1,3 +1,5 @@
+import random
+
 import discord
 from discord.ext import commands
 import rs3clans
@@ -15,12 +17,30 @@ class ChatCommands:
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
         if ctx.author.id == 403632514800943104:
-            return await ctx.send('Are u havin\' a laugh mate?')
+            messages = [
+                "Are u havin' a laugh mate?",
+                "Umbasa",
+                "⬆ ⬆ ⬇ ⬇ ⬅ ➡ ⬅ ➡ 🅱 🅰 start",
+                "Keep Trying",
+                "Shout, “Jesus is alive!”",
+                "But Our Princess is in Another Castle!",
+                "01110111 01110010 01101001 01101111 01100001 01111001 01110010 01100110 01101001 01101111 01100001 01110111 01100100 01101111 01101001 01110111 01100001 01101000 01101111 01101001 01100100 01101000 01110111 01100001 01101111 01101001 01111001 01110010 01101111 01101001 01100001 01110111 01101000 01100100 01101111 01101001 01100001 01101000 01110111 01101111 01101001 01100100"
+                "Reality can be whatever I want",
+                "I'm like TT, just like TT!",
+                "1. e4 e5 2. Ke2 Ke7 3. Qe1 Qe8 4. Kd1 Kd8",
+                "apt-get moo",
+                "Hello World",
+                "Kono Dio Da!",
+                "lero lero lero lero lero",
+                "Wryyyyyyyyyy"
+            ]
+            return await ctx.send(random.choice(messages))
         if not has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
             return await ctx.send("Fool! Você não é um Convidado!")
 
         def check(message):
             return message.author == ctx.author
+
         await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
 
         ingame_name = await self.bot.wait_for('message', timeout=60.0, check=check)
