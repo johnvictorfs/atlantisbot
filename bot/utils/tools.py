@@ -241,7 +241,7 @@ async def start_raids_team(client):
 
 
 async def delete_team(team: Team, client):
-    with db.Session as session:
+    with db.Session() as session:
         try:
             team_channel = client.get_channel(int(team.team_channel_id))
             invite_channel = client.get_channel(int(team.invite_channel_id))

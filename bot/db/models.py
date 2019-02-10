@@ -12,14 +12,14 @@ class Player(Base):
     id = Column(Integer, primary_key=True)
     player_id = Column(String)
     in_team = Column(Boolean)
-    team = Column(Integer, ForeignKey('team.id'))
+    team = Column(Integer, ForeignKey('team.id', ondelete='CASCADE'))
 
 
 class BotMessage(Base):
     __tablename__ = 'botmessage'
     id = Column(Integer, primary_key=True)
     message_id = Column(String)
-    team = Column(Integer, ForeignKey('team.id'))
+    team = Column(Integer, ForeignKey('team.id', ondelete='CASCADE'))
 
 
 class Team(Base):
@@ -37,8 +37,8 @@ class Team(Base):
     team_channel_id = Column(String)
     team_message_id = Column(String)
 
-    players = relationship(Player, backref='parent', passive_deletes=True, cascade="all, delete-orphan")
-    botmessages = relationship(BotMessage, backref='parent', passive_deletes=True, cascade="all, delete-orphan")
+    players = relationship(Player, backref='parent', cascade="all,delete,delete-orphan")
+    botmessages = relationship(BotMessage, backref='parent', cascade="all,delete,delete-orphan")
 
     def __repr__(self):
         return (f"Team(title={repr(self.title)}, "
