@@ -12,6 +12,7 @@ class Player(Base):
     id = Column(Integer, primary_key=True)
     player_id = Column(String)
     in_team = Column(Boolean)
+    substitute = Column(Boolean, default=False)
     team = Column(Integer, ForeignKey('team.id', ondelete='CASCADE'))
 
 

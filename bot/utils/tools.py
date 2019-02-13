@@ -84,13 +84,17 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                         session.add(added_player)
                         session.commit()
                         sent_message = await invite_channel.send(
-                            f"{message.author.mention} foi adicionado ao time '{team.title}' "
+                            f"{message.author.mention} entrou no time '{team.title}' "
                             f"({current_players.count()}/{team.size})\n"
                             f"*(`in {team.team_id}`)*"
                         )
                     else:
+                        added_player = Player(player_id=str(message.author.id), team=team.id, substitute=True)
+                        session.add(added_player)
+                        session.commit()
+
                         sent_message = await invite_channel.send(
-                            f"{message.author.mention}, o time '{team.title}' já está cheio. "
+                            f"{message.author.mention} entrou no time '{team.title}' ***como substituto*** "
                             f"({current_players.count()}/{team.size})\n"
                             f"*(`in {team.team_id}`)*"
                         )
@@ -115,13 +119,35 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 sent_message = await invite_channel.send(embed=no_perm_embed)
         elif mode == 'leave':
             if message.author.id in [int(player.player_id) for player in current_players]:
-                session.query(Player).filter_by(player_id=str(message.author.id), team=team.id).delete()
-                session.commit()
                 sent_message = await invite_channel.send(
-                    f"{message.author.mention} foi removido do time '{team.title}' "
-                    f"({current_players.count()}/{team.size})\n"
+                    f"{message.author.mention} saiu do time '{team.title}' "
+                    f"({current_players.count()}/{team.size - 1})\n"
                     f"*(`out {team.team_id}`)*"
                 )
+                # Check for substitutes, but discarding the person who sent the message to leave in the first place
+                substitute = session.query(Player).filter(
+                    Player.substitute == True,
+                    Player.player_id != str(message.author.id)
+                ).first()
+
+                # Checks if the person leaving the team was already a substitute or not
+                is_substitute = session.query(Player).filter_by(
+                    player_id=str(message.author.id), team=team.id
+                ).first().substitute
+                # If the person leaving is not a substitute and there is one available, then
+                # make that substitute not be a substitute anymore
+                if substitute and not is_substitute:
+                    substitute.substitute = False
+                    session.commit()
+                    sent_message2 = await invite_channel.send(
+                        f"<@{substitute.player_id}> não é mais um substituto do time '{team.title}' "
+                        f"({current_players.count()}/{team.size - 1})"
+                    )
+                    bot_message = BotMessage(message_id=sent_message2.id, team=team.id)
+                    session.add(bot_message)
+                    session.commit()
+                session.query(Player).filter_by(player_id=str(message.author.id), team=team.id).delete()
+                session.commit()
             else:
                 sent_message = await invite_channel.send(
                     f"{message.author.mention} já não estava no time '{team.title}'. "
@@ -161,12 +187,22 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
         index = 0
         if players:
             for player in players:
-                team_embed.add_field(
-                    name=separator,
-                    value=f"{index + 1}- <@{player.player_id}>",
-                    inline=False
-                )
-                index += 1
+                if not player.substitute:
+                    team_embed.add_field(
+                        name=separator,
+                        value=f"{index + 1}- <@{player.player_id}>",
+                        inline=False
+                    )
+                    index += 1
+        if players:
+            for player in players:
+                if player.substitute:
+                    team_embed.add_field(
+                        name=separator,
+                        value=f"{index + 1}- <@{player.player_id}> ***(Substituto)***",
+                        inline=False
+                    )
+                    index += 1
         try:
             await team_message.edit(embed=team_embed)
         except discord.errors.NotFound:
