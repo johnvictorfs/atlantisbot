@@ -11,7 +11,6 @@ colorama = "*"
 sqlalchemy = "*"
 pandas = "*"
 matplotlib = "*"
-psycopg2-binary = "*"
 
 [dev-packages]
 
