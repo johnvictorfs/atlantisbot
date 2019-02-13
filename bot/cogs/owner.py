@@ -8,7 +8,6 @@ from discord.ext import commands
 import discord
 
 from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
-import bot.db.db as db
 from bot.utils.tools import separator, plot_table, start_raids_team
 
 
@@ -123,7 +122,7 @@ class Owner:
     @commands.command(aliases=['timesativos', 'times_ativos'])
     async def running_teams(self, ctx: commands.Context):
         running_teams_embed = discord.Embed(title='__Times Ativos__', description="", color=discord.Color.red())
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             teams = session.query(Team).all()
             if not teams:
                 running_teams_embed.add_field(name=separator, value=f"Nenhum time ativo no momento.")
@@ -161,7 +160,7 @@ class Owner:
 
     @commands.command()
     async def status(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             team_count = session.query(Team).count()
             advlog_count = session.query(PlayerActivities).count()
             amigosecreto_count = session.query(AmigoSecretoPerson).count()
@@ -182,9 +181,8 @@ class Owner:
         embed.add_field(name="Amigo Secreto Entries", value=amigosecreto_count)
         return await ctx.send(embed=embed)
 
-    @staticmethod
-    def secret_santa():
-        with db.Session() as session:
+    def secret_santa(self):
+        with self.bot.db_session() as session:
             state = session.query(AmigoSecretoState).first()
             if not state:
                 state = AmigoSecretoState(activated=False)
@@ -193,9 +191,8 @@ class Owner:
             state_ = state.activated
         return state_
 
-    @staticmethod
-    def raids_notifications():
-        with db.Session() as session:
+    def raids_notifications(self):
+        with self.bot.db_session() as session:
             state = session.query(RaidsState).first()
             if not state:
                 state = RaidsState(notifications=True)
@@ -204,9 +201,8 @@ class Owner:
             state_ = state.notifications
         return state_
 
-    @staticmethod
-    def toggle_raids_notifications():
-        with db.Session() as session:
+    def toggle_raids_notifications(self):
+        with self.bot.db_session() as session:
             state = session.query(RaidsState).first()
             if not state:
                 state = RaidsState(notifications=True)
@@ -217,9 +213,8 @@ class Owner:
             session.commit()
         return state_
 
-    @staticmethod
-    def advlog_messages():
-        with db.Session() as session:
+    def advlog_messages(self):
+        with self.bot.db_session() as session:
             state = session.query(AdvLogState).first()
             if not state:
                 state = AdvLogState(messages=True)
@@ -228,9 +223,8 @@ class Owner:
             state_ = state.messages
         return state_
 
-    @staticmethod
-    def toggle_advlog_messages():
-        with db.Session() as session:
+    def toggle_advlog_messages(self):
+        with self.bot.db_session() as session:
             state = session.query(AdvLogState).first()
             if not state:
                 state = AdvLogState(messages=True)

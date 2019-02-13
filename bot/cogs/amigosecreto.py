@@ -17,7 +17,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def toggle_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             state = session.query(AmigoSecretoState).first()
             if not state:
                 state = AmigoSecretoState(activated=True)
@@ -32,7 +32,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def inscritos_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             embed = discord.Embed(
                 title="Inscritos no Amigo Secreto",
                 description="Evento dia: 21/12",
@@ -50,7 +50,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def clear_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             deleted = session.query(AmigoSecretoPerson).delete()
             session.commit()
             await ctx.send(f"{deleted} linhas deletadas com sucesso.")
@@ -58,7 +58,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def null_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             query = session.query(AmigoSecretoPerson).all()
             for member in query:
                 member.giving_to_id = None
@@ -70,7 +70,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def send_amigo_secreto_messages(self, ctx: commands.Context, dia: str, test: bool):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             query = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.giving_to_id.isnot(None)).all()
             if not query:
                 return await ctx.send("Não há nenhuma mensagem de Amigo Secreto para enviar.")
@@ -105,7 +105,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def roll_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             query = session.query(AmigoSecretoPerson).order_by(func.random()).all()
             query_count = session.query(AmigoSecretoPerson).count()
             if not query:
@@ -136,7 +136,7 @@ class AmigoSecreto:
     @commands.is_owner()
     @commands.command()
     async def check_amigo_secreto(self, ctx: commands.Context):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             state = session.query(AmigoSecretoState).first()
             if not state:
                 state = AmigoSecretoState(activated=False)
@@ -154,7 +154,7 @@ class AmigoSecreto:
         def check(message):
             return message.author == ctx.author
 
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             query = session.query(AmigoSecretoPerson).all()
             for member in query:
                 player = rs3clans.Player(member.ingame_name)
@@ -173,7 +173,7 @@ class AmigoSecreto:
     async def amigo_secreto(self, ctx: commands.Context):
         dev = self.bot.get_user(self.bot.setting.developer_id)
         await dev.send(f'{ctx.author} está se inscrevendo no amigo secreto.')
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             state = session.query(AmigoSecretoState).first()
             if not state:
                 state = AmigoSecretoState(activated=False)
@@ -224,7 +224,7 @@ class AmigoSecreto:
             )
             return await dev.send(f'{ctx.author}: Inscrição cancelada. Não é do clã ({player.name})')
 
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             exists = session.query(AmigoSecretoPerson).filter(
                 AmigoSecretoPerson.discord_id == str(ctx.author.id)).first()
             if exists:

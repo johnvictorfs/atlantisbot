@@ -6,7 +6,6 @@ import asyncio
 
 from bot.utils.tools import start_raids_team
 from bot.db.models import RaidsState
-import bot.db.db as db
 
 
 async def raids_task(client):
@@ -27,7 +26,7 @@ async def raids_task(client):
                   f'Hours, {(raids_diff.seconds//60)%60} '
                   f'Minutes')
             await asyncio.sleep(seconds_till_raids)
-            if not raids_notifications():
+            if not raids_notifications(client):
                 await asyncio.sleep(60)
                 continue
             try:
@@ -39,9 +38,9 @@ async def raids_task(client):
                 await asyncio.sleep(60)
 
 
-def raids_notifications():
+def raids_notifications(client):
     """Checks if raids notifications are turned on or off in the bot settings"""
-    with db.Session() as session:
+    with client.db_session() as session:
         state = session.query(RaidsState).first()
         if not state:
             state = RaidsState(notifications=True)

@@ -10,13 +10,12 @@ import aiohttp
 import discord
 
 from bot.db.models import PlayerActivities, AdvLogState
-import bot.db.db as db
 
 
 async def advlog(client):
     while True:
         try:
-            with db.Session() as session:
+            with client.db_session() as session:
                 state = session.query(AdvLogState).first()
                 if not state:
                     state = AdvLogState(messages=True)
@@ -37,7 +36,7 @@ async def advlog(client):
                     channel = client.get_channel(get_clan.get('chat'))
                     banner = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
 
-                    with db.Session() as session:
+                    with client.db_session() as session:
                         all_activities = session.query(PlayerActivities).filter_by(clan=clan).all()
                         old_activities = {}
                         if all_activities:

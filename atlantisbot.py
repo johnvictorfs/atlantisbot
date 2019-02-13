@@ -8,12 +8,14 @@ import re
 import sys
 import json
 from pathlib import Path
+from contextlib import contextmanager
 
 import colorama
 import discord
 from discord.ext import commands
 
 from bot import settings
+from bot.db import db
 from bot.tasks.advlog import advlog
 from bot.tasks.raids import raids_task
 from bot.tasks.update_clans import update_all_clans
@@ -234,12 +236,29 @@ class Bot(commands.Bot):
             team_id = ''.join(team_id).lower()
             mode = 'join' if 'in' in team_join.lower() else 'leave'
             try:
-                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
+                await manage_team(team_id=team_id, client=self, message=message, mode=mode)
+                return
             except TeamNotFoundError:
                 return await message.channel.send(f"Time com ID '{team_id}' não existe.")
             except WrongChannelError:
                 return await message.channel.send(f"Você não pode entrar nesse time por esse canal.")
         await self.process_commands(message)
+
+    @contextmanager
+    def db_session(self):
+        """
+        http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
+        Provide a transactional scope around a series of operations.
+        """
+        session = db.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
 
 if __name__ == '__main__':

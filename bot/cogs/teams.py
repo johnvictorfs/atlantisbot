@@ -1,13 +1,11 @@
 import re
 import asyncio
-import traceback
 
 import discord
 from discord.ext import commands
 
 from bot.utils.tools import separator, delete_team
-from bot.db.models import Team, BotMessage
-import bot.db.db as db
+from bot.db.models import Team
 
 
 class TeamCommands:
@@ -19,7 +17,7 @@ class TeamCommands:
     @commands.guild_only()
     @commands.command(aliases=['del'])
     async def delteam(self, ctx: commands.Context, pk: str):
-        with db.Session() as session:
+        with self.bot.db_session() as session:
             try:
                 await ctx.message.delete()
             except discord.errors.NotFound:
@@ -32,7 +30,7 @@ class TeamCommands:
                     raise commands.MissingPermissions(['manage_channels'])
             if int(team.team_channel_id) != ctx.channel.id:
                 return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
-            await delete_team(team, self.bot)
+            await delete_team(session, team, self.bot)
             await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
     @commands.cooldown(1, 10)
@@ -164,7 +162,7 @@ class TeamCommands:
 
             # Role requisito (opcional)
             sent_message = await ctx.send(
-                f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum' caso nenhum)"
+                f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum')"
             )
             role_str = 'Nenhum'
             role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
@@ -210,7 +208,7 @@ class TeamCommands:
             if role_id:
                 # Role requisito secundário (opcional)
                 sent_message = await ctx.send(
-                    f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum' caso nenhum)"
+                    f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum')"
                 )
                 role_str2 = 'Nenhum'
                 role_message2 = await self.bot.wait_for('message', timeout=60.0, check=check)
@@ -317,9 +315,8 @@ class TeamCommands:
             await creation_message.delete()
             return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
 
-    @staticmethod
-    def save_team(team: dict):
-        with db.Session() as session:
+    def save_team(self, team: dict):
+        with self.bot.db_session() as session:
             role = None
             if team.get('role'):
                 role = str(team.get('role'))
@@ -343,9 +340,8 @@ class TeamCommands:
             session.add(team)
             session.commit()
 
-    @staticmethod
-    def current_id():
-        with db.Session() as session:
+    def current_id(self):
+        with self.bot.db_session() as session:
             try:
                 current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
                     Team.team_id.desc()).first().team_id)

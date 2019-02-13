@@ -5,7 +5,6 @@ from pandas.plotting import table
 
 from bot.db.db import engine
 from bot.db.models import Team, Player, BotMessage
-import bot.db.db as db
 
 import discord
 
@@ -53,13 +52,9 @@ def raids_embed(setting):
 
 async def manage_team(team_id: str, client, message: discord.Message, mode: str):
     """
-    :param message:
-    :param team_id:
-    :param client:
-    :param mode: can be 'join' or 'leave'
-    :return:
+    mode: can be 'join' or 'leave'
     """
-    with db.Session() as session:
+    with client.db_session() as session:
         team: Team = session.query(Team).filter_by(team_id=team_id).first()
         if not team:
             raise TeamNotFoundError
@@ -70,11 +65,11 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
         invite_channel: discord.TextChannel = client.get_channel(int(team.invite_channel_id))
         team_channel: discord.TextChannel = client.get_channel(int(team.team_channel_id))
         if not invite_channel or not team_channel:
-            return await delete_team(team, client)
+            return await delete_team(session, team, client)
         try:
             team_message = await team_channel.get_message(int(team.team_message_id))
         except discord.errors.NotFound:
-            return await delete_team(team, client)
+            return await delete_team(session, team, client)
         if mode == 'join':
             team_role = None
             if team.role:
@@ -180,11 +175,10 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
 
 
 async def start_raids_team(client):
-    with db.Session() as session:
+    with client.db_session() as session:
         old_team = session.query(Team).filter_by(team_id='raids').first()
         if old_team:
-            session.delete(old_team)
-            session.commit()
+            await delete_team(session, old_team, client)
     if client.setting.mode == 'prod':
         invite_channel_id = client.setting.chat.get('raids_chat')
         team_channel_id = client.setting.chat.get('raids')
@@ -234,40 +228,42 @@ async def start_raids_team(client):
         team_channel_id=str(team_channel_id),
         team_message_id=str(team_message.id)
     )
-    with db.Session() as session:
+    with client.db_session() as session:
         session.add(raids_team)
         session.commit()
     await asyncio.sleep(60 * 30)
 
 
-async def delete_team(team: Team, client):
-    with db.Session() as session:
-        try:
-            team_channel = client.get_channel(int(team.team_channel_id))
-            invite_channel = client.get_channel(int(team.invite_channel_id))
-            try:
-                team_message = await team_channel.get_message(int(team.team_message_id))
-                await team_message.delete()
-            except Exception:
-                pass
-            try:
-                invite_message = await invite_channel.get_message(int(team.invite_message_id))
-                await invite_message.delete()
-            except Exception:
-                pass
-            try:
-                messages_to_delete = []
-                qs = session.query(BotMessage).filter_by(team=team.id)
-                if qs:
-                    for message in qs:
-                        to_delete = await invite_channel.get_message(message.message_id)
-                        messages_to_delete.append(to_delete)
-                    await invite_channel.delete_messages(messages_to_delete)
-            except Exception:
-                pass
-        finally:
-            session.delete(team)
-            session.commit()
+async def delete_team(session, team: Team, client):
+    try:
+        team_channel = client.get_channel(int(team.team_channel_id))
+        invite_channel = client.get_channel(int(team.invite_channel_id))
+    except Exception:
+        session.delete(team)
+        session.commit()
+        return
+    try:
+        team_message = await team_channel.get_message(int(team.team_message_id))
+        await team_message.delete()
+    except Exception:
+        pass
+    try:
+        invite_message = await invite_channel.get_message(int(team.invite_message_id))
+        await invite_message.delete()
+    except Exception:
+        pass
+    try:
+        messages_to_delete = []
+        qs = session.query(BotMessage).filter_by(team=team.id)
+        if qs:
+            for message in qs:
+                to_delete = await invite_channel.get_message(message.message_id)
+                messages_to_delete.append(to_delete)
+            await invite_channel.delete_messages(messages_to_delete)
+    except Exception:
+        pass
+    session.delete(team)
+    session.commit()
 
 
 def plot_table(table_name: str, image_name: str, safe: bool = True):
