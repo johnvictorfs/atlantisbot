@@ -121,7 +121,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             if message.author.id in [int(player.player_id) for player in current_players]:
                 sent_message = await invite_channel.send(
                     f"{message.author.mention} saiu do time '{team.title}' "
-                    f"({current_players.count()}/{team.size - 1})\n"
+                    f"({current_players.count() - 1}/{team.size})\n"
                     f"*(`out {team.team_id}`)*"
                 )
                 # Check for substitutes, but discarding the person who sent the message to leave in the first place
@@ -141,7 +141,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                     session.commit()
                     sent_message2 = await invite_channel.send(
                         f"<@{substitute.player_id}> não é mais um substituto do time '{team.title}' "
-                        f"({current_players.count()}/{team.size - 1})"
+                        f"({current_players.count() - 1}/{team.size})"
                     )
                     bot_message = BotMessage(message_id=sent_message2.id, team=team.id)
                     session.add(bot_message)
