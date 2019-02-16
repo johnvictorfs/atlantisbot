@@ -127,7 +127,8 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 # Check for substitutes, but discarding the person who sent the message to leave in the first place
                 substitute = session.query(Player).filter(
                     Player.substitute == True,
-                    Player.player_id != str(message.author.id)
+                    Player.player_id != str(message.author.id),
+                    Player.team == team.id
                 ).first()
 
                 # Checks if the person leaving the team was already a substitute or not
