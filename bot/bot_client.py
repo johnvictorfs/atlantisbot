@@ -15,7 +15,7 @@ from discord.ext import commands
 from bot import settings
 from bot.orm import db
 from bot.tasks.advlog import advlog
-from bot.tasks.raids import raids_task
+from bot.tasks.raids import raids_task, update_next_raids
 from bot.tasks.update_clans import update_all_clans
 from bot.utils.tools import separator, has_any_role, TeamNotFoundError, WrongChannelError, manage_team
 
@@ -159,6 +159,7 @@ class Bot(commands.Bot):
         self.loop.create_task(raids_task(self))
         self.loop.create_task(advlog(self))
         self.loop.create_task(update_all_clans())
+        self.loop.create_task(update_next_raids(self))
 
     async def on_message(self, message: discord.Message):
         """
