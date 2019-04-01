@@ -42,6 +42,8 @@ async def raids_task(client) -> None:
 async def update_next_raids(client) -> None:
     """Updates the message with the time until the next raids in the #raids channel"""
     while True:
+        if client.setting.mode == 'dev':
+            return
         try:
             seconds_till_raids = time_till_raids(client.setting.raids_start_date)
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
@@ -54,7 +56,8 @@ async def update_next_raids(client) -> None:
                     f"{minutes} Minuto{'s' if minutes > 1 else ''}.")
             channel: discord.TextChannel = client.get_channel(client.setting.chat.get('raids'))
             message: discord.Message = await channel.fetch_message(562099376823205888)
-            await message.edit(content=text)
+            print("Updating Raids Message.")
+            await message.edit(content=text, embed=None)
             await asyncio.sleep(1)
         except Exception as e:
             tb = traceback.format_exc()
