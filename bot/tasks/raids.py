@@ -41,9 +41,9 @@ async def raids_task(client) -> None:
 
 async def update_next_raids(client) -> None:
     """Updates the message with the time until the next raids in the #raids channel"""
+    if client.setting.mode == 'dev':
+        return
     while True:
-        if client.setting.mode == 'dev':
-            return
         try:
             seconds_till_raids = time_till_raids(client.setting.raids_start_date)
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)

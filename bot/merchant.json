@@ -1,127 +1,127 @@
 {
   "stock": {
     "Uncharted island map": {
-      "text": "",
+      "name": "",
       "description": ""
     },
     "Barril de isca": {
-      "text": "Barril de isca",
+      "name": "Barril de isca",
       "description": "10% de chance de pescar um peixe a mais durante 3 minutos. "
     },
     "Tangled fishbowl": {
-      "text": "",
+      "name": "",
       "description": "Bonus de 5% de experiencia em pesca durante 3 minutos."
     },
     "Broken fishing rod": {
-      "text": "Vara de pesca quebrada",
+      "name": "Vara de pesca quebrada",
       "description": "Bonus de 5-10% de pescar durante 3-30 minutos."
     },
     "Small goebie burial charm": {
-      "text": "Talismã pequeno funerario goebie",
+      "name": "Talismã pequeno funerario goebie",
       "description": "50 reputação nos goebi ou 50 teci."
     },
     "Goebie burial charm": {
-      "text": "Talismã funerario gobie",
+      "name": "Talismã funerario gobie",
       "description": "100 reputação nos goebi ou 100 teci."
     },
     "Menaphite gift offering (small)": {
-      "text": "Presente menaphita (pequeno)",
+      "name": "Presente menaphita (pequeno)",
       "description": "Grande variedade de recompensas."
     },
     "Menaphite gift offering (medium)": {
-      "text": "Presente menaphita (médio)",
+      "name": "Presente menaphita (médio)",
       "description": "Grande variedade de recompensas."
     },
     "Unstable air rune": {
-      "text": "Runa do ar instavél",
+      "name": "Runa do ar instavél",
       "description": "5.000 pontos no runiuniverso."
     },
     "Anima crystal": {
-      "text": "Cristal de anima",
+      "name": "Cristal de anima",
       "description": "500 pontos em uma facção na masmorra da guerra dos deuses 2."
     },
     "Slayer VIP Coupon": {
-      "text": "Cupom de ficha de extermínio ",
+      "name": "Cupom de ficha de extermínio ",
       "description": "resgate de 1-7 fichas vip de extermínio."
     },
     "D&D token (daily)": {
-      "text": "Ficha de D&D (diária) ",
+      "name": "Ficha de D&D (diária) ",
       "description": "Único uso para resetar um d&d diário."
     },
     "Unfocused damage enhancer": {
-      "text": "melhorador de dano não sintoniz.",
+      "name": "melhorador de dano não sintoniz.",
       "description": "permite escolher qualquer melhorador de dano com carga diminuída."
     },
     "Sacred clay": {
-      "text": "Argila sagrada",
+      "name": "Argila sagrada",
       "description": "50-100 pontos em criações profanas."
     },
     "Shattered anima": {
-      "text": "Anima fragmentada",
+      "name": "Anima fragmentada",
       "description": "500k-2m de anima em mundos fragmentados."
     },
     "Advanced pulse core": {
-      "text": "Núcleo de pulsação avançado",
+      "name": "Núcleo de pulsação avançado",
       "description": ""
     },
     "Livid plant": {
-      "text": "",
+      "name": "",
       "description": "10.000-40.000 de pontos na fazenda vil"
     },
     "Gift for the Reaper": {
-      "text": "Presete para o ceifador",
+      "name": "Presete para o ceifador",
       "description": "20 pontos do ceifador."
     },
     "Silverhawk down": {
-      "text": "Plumas de falcão de prata",
+      "name": "Plumas de falcão de prata",
       "description": "50-100 plumas de falcão, uso para Exp em agilidade."
     },
     "Large goebie burial charm": {
-      "text": "Talismã funerario goebie grande",
+      "name": "Talismã funerario goebie grande",
       "description": "150 reputação dos goebie ou 150 teci."
     },
     "Dragonkin lamp": {
-      "text": "Lampada dragonkin",
+      "name": "Lampada dragonkin",
       "description": "Garante uma quantidade de experiencia e uma chande de 1/100 de obter o bicho de estimação effy."
     },
     "Dungeoneering Wildcard": {
-      "text": "",
+      "name": "",
       "description": ""
     },
     "Menaphite gift offering (large)": {
-      "text": "Presente menaphita (grande)",
+      "name": "Presente menaphita (grande)",
       "description": "Grande variedade de recompensas."
     },
     "Taijitu": {
-      "text": "taijitu",
+      "name": "taijitu",
       "description": "3-5 taijitu, moeda segundaria usada na loja de recompensa do waiko."
     },
     "D&D token (weekly)": {
-      "text": "Ficha de D&D (semanal) ",
+      "name": "Ficha de D&D (semanal) ",
       "description": "Único uso para resetar um d&d semanal."
     },
     "D&D token (monthly)": {
-      "text": "Ficha de D&D (mensal) ",
+      "name": "Ficha de D&D (mensal) ",
       "description": "Único uso para resetar um d&d mensal."
     },
     "Starved ancient effigy": {
-      "text": "Antiga efige faminta",
+      "name": "Antiga efige faminta",
       "description": "Garante uma quantidade de experiencia em multipals habilidades e uma chande de 1/100 de obter o bicho de estimação effy."
     },
     "Harmonic dust": {
-      "text": "Poeira harmonica",
+      "name": "Poeira harmonica",
       "description": "500-1000 de poeira hamonica, usada para cantoria de cristal."
     },
     "Crystal triskelion": {
-      "text": "Triscéle de cristal",
+      "name": "Triscéle de cristal",
       "description": "Depositado em um moro ao sul de relleka para obter um pergaminho de dicas (elite) e uma variedade de outras recompensas"
     },
     "Deathtouched dart": {
-      "text": "dardo mata tudo",
+      "name": "dardo mata tudo",
       "description": "mata a maior parte dos alvos com 1 golpe."
     },
     "Unfocused reward enhancer": {
-      "text": "Melhorador de recompensa não sintoniz.",
+      "name": "Melhorador de recompensa não sintoniz.",
       "description": "permite escolher qualquer melhorador de recompensa com carga diminuída."
     }
   }
