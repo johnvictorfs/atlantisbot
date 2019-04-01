@@ -162,7 +162,7 @@ def get_competitions(clan):
     return competitions_dict
 
 
-class Competitions:
+class Competitions(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

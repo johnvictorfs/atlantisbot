@@ -2,12 +2,12 @@ import discord
 from discord.ext import commands
 
 
-class WelcomeMessage:
+class WelcomeMessage(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: commands.Context):
         if ctx.author.id == self.bot.setting.developer_id:
             return True
         if self.bot.setting.mode == 'dev':

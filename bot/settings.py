@@ -82,12 +82,36 @@ class Settings:
         return self.read_data()['SERVER']['server_id']
 
     @property
+    def welcome_channel_id(self):
+        return self.read_data()['SERVER']['welcome_channel_id']
+
+    @property
+    def welcome_message_id(self):
+        return self.read_data()['SERVER']['welcome_message_id']
+
+    @property
     def chat(self):
         return self.read_data()['SERVER']['chat_id']
 
     @property
     def role(self):
         return self.read_data()['SERVER']['role_id']
+
+    @property
+    def roles_channel_id(self):
+        return self.read_data()['SERVER']['roles_channel_id']
+
+    @property
+    def general_roles_id(self):
+        return self.read_data()['SERVER']['general_roles_id']
+
+    @property
+    def pvm_roles_id(self):
+        return self.read_data()['SERVER']['pvm_roles_id']
+
+    @property
+    def react_roles_id(self):
+        return self.read_data()['SERVER']['react_roles_id']
 
 
 default_settings = {
@@ -124,6 +148,12 @@ default_settings = {
     },
     "SERVER": {
         "server_id": 321012107942428673,
+        "welcome_channel_id": 321012107942428673,
+        "welcome_message_id": 511313046212182056,
+        "roles_channel_id": 382691780996497416,
+        "general_roles_id": 488180629775843328,
+        "pvm_roles_id": 488180630803316756,
+        "react_roles_id": 488180632057544704,
         "chat_id": {
             "geral": 321012292160454657,
             "anuncios": 467069985270005760,
@@ -144,6 +174,7 @@ default_settings = {
 
             "solak": 474018053693243402,
             "solak_chat": 473194321043259392,
+            "solak_apply": 541779397204508682,
 
             "vorago_hm": 506660452617420802,
             "vorago_chat": 506660836069212176,
@@ -151,6 +182,7 @@ default_settings = {
             "drops_e_conquistas": 336182514886377482,
             "discord_bots": 321012588924370945,
             "pof": 417725841271947277,
+            "merchant_call": 560980279360094208
         },
         "role_id": {
             "admin": 321015469341540352,
@@ -181,10 +213,13 @@ default_settings = {
             "tio_patinhas": 475409581481263104,
             "lannister": 509400346951680001,
             "smaug": 509400283642855427,
+            "200k_dpm": 562063656443969561,
             "180k_dpm": 488125956679270410,
             "100k_dpm": 348857911084187648,
             "fortnight": 494634882643787776,
             "osugame": 499261292188794912,
+            "merchant": 560997610954162198,
+            "ironmemes": 520670978158624768
         }
     }
 }

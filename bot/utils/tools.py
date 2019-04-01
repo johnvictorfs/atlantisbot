@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 
-from bot.db.db import engine
-from bot.db.models import Team, Player, BotMessage
+from bot.orm.db import engine
+from bot.orm.models import Team, Player, BotMessage
 
 import discord
 

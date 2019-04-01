@@ -6,13 +6,12 @@ import discord
 from discord.ext import commands
 
 
-class CommandErrorHandler:
+class CommandErrorHandler(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @staticmethod
-    async def __global_check(ctx: commands.Context):
+    async def bot_check(self, ctx: commands.Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()
         time = datetime.datetime.utcnow()
@@ -21,6 +20,7 @@ class CommandErrorHandler:
         print(msg)
         return True
 
+    @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         prefix = self.bot.setting.prefix
         arguments_error = [

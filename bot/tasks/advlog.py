@@ -9,7 +9,7 @@ from io import StringIO
 import aiohttp
 import discord
 
-from bot.db.models import PlayerActivities, AdvLogState
+from bot.orm.models import PlayerActivities, AdvLogState
 
 
 async def advlog(client):

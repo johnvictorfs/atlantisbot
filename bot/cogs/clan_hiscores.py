@@ -7,7 +7,7 @@ from discord.ext import commands
 from bot.utils.tools import separator
 
 
-class ClanHiscores:
+class ClanHiscores(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

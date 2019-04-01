@@ -116,9 +116,6 @@ bot_settings.json
 local.*
 local/
 
-# Development db
-db.sqlite3
-
 # Runtime created files
 player_activities.json
 *.tmp.png

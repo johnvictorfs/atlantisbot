@@ -7,7 +7,7 @@ import rs3clans
 from bot.utils.tools import right_arrow, has_any_role
 
 
-class ChatCommands:
+class ChatCommands(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

@@ -5,10 +5,10 @@ import discord
 from discord.ext import commands
 
 from bot.utils.tools import separator, delete_team
-from bot.db.models import Team
+from bot.orm.models import Team
 
 
-class TeamCommands:
+class TeamCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

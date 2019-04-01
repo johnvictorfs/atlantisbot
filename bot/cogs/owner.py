@@ -7,15 +7,15 @@ import sqlite3
 from discord.ext import commands
 import discord
 
-from bot.db.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
+from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
 from bot.utils.tools import separator, plot_table, start_raids_team
 
 
-class Owner:
+class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: commands.Context):
         return await self.bot.is_owner(ctx.author)
 
     @commands.is_owner()
@@ -32,8 +32,7 @@ class Owner:
     async def reload_cog(self, ctx: commands.Context, cog: str):
         """Reloads a cog"""
         try:
-            self.bot.unload_extension(f'bot.cogs.{cog}')
-            self.bot.load_extension(f'bot.cogs.{cog}')
+            self.bot.reload_extension(f'bot.cogs.{cog}')
             return await ctx.send(f'Extensão {cog} reiniciada com sucesso.')
         except ModuleNotFoundError:
             return await ctx.send(f"Extensão {cog} não existe.")
@@ -44,9 +43,8 @@ class Owner:
     @commands.command(aliases=['reloadall'])
     async def reload_all_cogs(self, ctx: commands.Context):
         """Reloads all cogs"""
-        err1 = await self.bot.unload_all_extensions()
-        err2 = await self.bot.load_all_extensions()
-        if err1 or err2:
+        err = await self.bot.reload_all_extensions()
+        if err:
             return await ctx.send('Houve algum erro reiniciando extensões. Verificar os Logs do bot.')
         return await ctx.send('Todas as extensões foram reiniciadas com sucesso.')
 

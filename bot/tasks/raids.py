@@ -3,12 +3,13 @@ import traceback
 import sys
 
 import asyncio
+import discord
 
 from bot.utils.tools import start_raids_team
-from bot.db.models import RaidsState
+from bot.orm.models import RaidsState
 
 
-async def raids_task(client):
+async def raids_task(client) -> None:
     print("Starting Raids Notifications task.")
     while True:
         if 'testraid' in sys.argv:
@@ -38,7 +39,22 @@ async def raids_task(client):
                 await asyncio.sleep(60)
 
 
-def raids_notifications(client):
+async def update_next_raids(client) -> None:
+    """Updates the message with the time until the next raids in the #raids channel"""
+    while True:
+        seconds_till_raids = time_till_raids(client.setting.raids_start_date)
+        raids_diff = datetime.timedelta(seconds=seconds_till_raids)
+        days = raids_diff.days
+        hours = raids_diff.seconds // 3600
+        minutes = (raids_diff.seconds // 60) % 60
+
+        text = f"Próxima notificação de Raids em: {days} Dias, {hours} Horas, {minutes} Minutos."
+        channel: discord.TextChannel = client.get_channel(client.setting.chat.get('raids'))
+        await channel.send(text)
+        await asyncio.sleep(60)
+
+
+def raids_notifications(client) -> bool:
     """Checks if raids notifications are turned on or off in the bot settings"""
     with client.db_session() as session:
         state = session.query(RaidsState).first()

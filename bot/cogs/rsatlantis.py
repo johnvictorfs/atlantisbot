@@ -1,12 +1,12 @@
 from discord.ext import commands
 
 
-class RsAtlantisCommands:
+class RsAtlantisCommands(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: commands.Context):
         return await self.bot.is_owner(ctx.author)
 
     @commands.command(aliases=['atlantisrs'])

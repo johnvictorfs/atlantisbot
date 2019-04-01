@@ -4,12 +4,12 @@ import discord
 from discord.ext import commands
 from sqlalchemy.sql.expression import func
 
-import bot.db.db as db
-from bot.db.models import AmigoSecretoPerson, AmigoSecretoState
+import bot.orm.db as db
+from bot.orm.models import AmigoSecretoPerson, AmigoSecretoState
 from bot.utils.tools import has_any_role
 
 
-class AmigoSecreto:
+class AmigoSecreto(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

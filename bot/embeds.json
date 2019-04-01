@@ -1,0 +1,278 @@
+{
+  "welcome_message": {
+    "title": "**Conheça alguns chats do Servidor:**",
+    "chats": [
+      {
+        "name": "geral",
+        "display_name": "Geral",
+        "chats": [
+          {
+            "name": "links_uteis",
+            "text": "Links úteis para PvM/Fóruns/etc."
+          }
+        ]
+      },
+      {
+        "name": "lobby",
+        "display_name": "Lobby",
+        "chats": [
+          {
+            "name": "tags_do_server",
+            "text": "Informação sobre os cargos do Servidor"
+          },
+          {
+            "name": "geral",
+            "text": "Bate-papo de assuntos Gerais (Membros+ apenas)"
+          },
+          {
+            "name": "anuncios",
+            "text": "Anúncios sobre assuntos gerais vindo da administração do Clã"
+          },
+          {
+            "name": "visitantes",
+            "text": "Bate-papo de assuntos Gerais (Aberto para Todos)"
+          }
+        ]
+      },
+      {
+        "name": "pvm",
+        "display_name": "PvM",
+        "chats": [
+          {
+            "name": "pvmemes",
+            "text": "Bate-papo sobre PvM e chamadas para bosses"
+          }
+        ]
+      },
+      {
+        "name": "raids",
+        "display_name": "Raids",
+        "chats": [
+          {
+            "name": "raids",
+            "text": "Organização e Aplicação dos Times de Raids do Clã"
+          }
+        ]
+      },
+      {
+        "name": "aod",
+        "display_name": "Nex: AoD",
+        "chats": [
+          {
+            "name": "aod",
+            "text": "Organização e Aplicação dos Times de AoD do Clã"
+          }
+        ]
+      },
+      {
+        "name": "solak",
+        "display_name": "Solak",
+        "chats": [
+          {
+            "name": "solak",
+            "text": "Organização dos Times de Solak do Clã"
+          }
+        ]
+      },
+      {
+        "name": "vorago",
+        "display_name": "Vorago",
+        "chats": []
+      },
+      {
+        "name": "midia",
+        "display_name": "Mídia",
+        "chats": [
+          {
+            "name": "drops_e_conquistas",
+            "text": "Exposição de conquistas dos Membros do Clã"
+          },
+          {
+            "name": "discord_bots",
+            "text": "Chat para usar comandos de Bots"
+          }
+        ]
+      },
+      {
+        "name": "misc",
+        "display_name": "Misc.",
+        "chats": []
+      }
+    ],
+    "extra_fields": [
+      {
+        "name": "Site do Clã",
+        "value": "<https://rsatlantis.com>"
+      },
+      {
+        "name": "Convite para o Nosso Discord",
+        "value": "<https://discord.me/atlantis>"
+      },
+      {
+        "name": "Alguma reclamação/elogio/outro? Fale conosco!",
+        "value": "<http://tiny.cc/atlantisouvidoria>"
+      }
+    ],
+    "footer": "Digite {prefix}atlbot para ver os meus comandos!"
+  },
+  "roles": {
+    "gerais": {
+      "title": "Cargos Gerais",
+      "description": "",
+      "roles": [
+        {
+          "name": "eventos",
+          "text": "Notificações de Eventos Gerais do Clã"
+        },
+        {
+          "name": "admin",
+          "text": "Administração do Discord, não diretamente relacionado com Ranks do jogo"
+        },
+        {
+          "name": "mod",
+          "text": "Administradores+ do Clã, moderadores do Discord"
+        },
+        {
+          "name": "bot",
+          "text": "Bots"
+        },
+        {
+          "name": "membro",
+          "text": "Dado para membros do Clã. Caso seja um digite `!membro` no chat <#321012324997529602>"
+        },
+        {
+          "name": "convidado",
+          "text": "Dado para todos que entram no servidor, ver acima caso seja um Membro do Clã"
+        },
+        {
+          "name": "fortnight",
+          "text": "Notificações para jogos de Fortnite"
+        },
+        {
+          "name": "merchant",
+          "text": "Notificações para Loja Diária do Mercador de Pesca em Alto Mar"
+        },
+        {
+          "name": "doador",
+          "text": "Ganho ao doar mais de 20m para o Clã"
+        },
+        {
+          "name": "filantropo",
+          "text": "Ganho ao doar mais de 50m para o Clã"
+        },
+        {
+          "name": "tio_patinhas",
+          "text": "Ganho ao doar mais de 100m para o Clã"
+        },
+        {
+          "name": "lannister",
+          "text": "Ganho ao doar mais de 200m para o Clã"
+        },
+        {
+          "name": "smaug",
+          "text": "Ganho ao doar mais de 350m para o Clã"
+        },
+        {
+          "name": "`Cargo com Nome e Cor Personalizados`",
+          "text": "Ganho ao doar mais de 500m para o Clã"
+        }
+      ]
+    },
+    "pvm": {
+      "title": "Cargos de PvM",
+      "description": "Cargos usados para notificação de Eventos e Trips de PvM",
+      "roles": [
+        {
+          "name": "pvmemos",
+          "text": "Notificação de qualquer tipo de Evento/Trip PvM"
+        },
+        {
+          "name": "vorago",
+          "text": "Notificações de trips de Vorago"
+        },
+        {
+          "name": "rots",
+          "text": "Notificações de trips de Rots"
+        },
+        {
+          "name": "elite_dungeon",
+          "text": "Notificações de trips de Elite Dungeons 1 ou 2"
+        },
+        {
+          "name": "solak",
+          "text": "Notificações de trips de Solak - Aplique aqui <#474018053693243402>"
+        },
+        {
+          "name": "aod",
+          "text": "Notificações de trips de AoD - Aplique aqui <#499740247647846401>"
+        },
+        {
+          "name": "raids",
+          "text": "Notificações de Raids do Clã - Aplique aqui <#393104367471034369>"
+        },
+        {
+          "name": "durzag",
+          "text": "Notificações de eventos de Beastmaster Durzag do Clã"
+        },
+        {
+          "names": [
+            "raids_teacher",
+            "aod_teacher",
+            "vorago_teacher",
+            "solak_teacher"
+          ],
+          "text": "Dado pra proeficientes em seus respectivos bosses, tague eles para perguntas sobre pvm! :)"
+        },
+        {
+          "names": [
+            "100k_dpm",
+            "200k_dpm"
+          ],
+          "text": "Ganho por fazer uma determinada quantidade de DPM em gemas de desafio, veja: https://i.imgur.com/kSmjjIS.png, vem em 3 Cores diferentes para os 3 estilos"
+        }
+      ]
+    }
+  },
+  "react": {
+    "title": "Obter Tags",
+    "description": "Use as reações abaixo para receber ou remover as respectivas tags.",
+    "roles": [
+      {
+        "name": "durzag",
+        "emoji": "<:durzag:488178236774154240>"
+      },
+      {
+        "name": "fortnight",
+        "emoji": "<:fortnite:497821209413550109>"
+      },
+      {
+        "name": "vorago",
+        "emoji": "<:vorago:428678603476172810>"
+      },
+      {
+        "name": "rots",
+        "emoji": "<:rots:497822431378145291>"
+      },
+      {
+        "name": "elite_dungeon",
+        "emoji": "<:elitedungeons:497824706687139841>"
+      },
+      {
+        "name": "eventos",
+        "emoji": "<:eventos:428679384954568706>"
+      },
+      {
+        "name": "merchant",
+        "emoji": ":sailboat:"
+      },
+      {
+        "name": "pvmemos",
+        "emoji": "<:pvmemos:428679267228975105>"
+      },
+      {
+        "name": "ironmemes",
+        "emoji": "<:ironman:562065451719589895>"
+      }
+    ]
+  }
+}
