@@ -42,7 +42,7 @@ def translate_item(item: dict):
         if file['stock'].get(item.get('name')).get('name'):
             return {
                 "name": file['stock'].get(item.get('name')).get('name'),
-                "emoji": item['emoji'],
+                "emoji": file['stock'].get(item.get('name')).get('emoji'),
                 "price": item['price'],
                 "quantity": item['quantity'],
                 "description": file['stock'].get(item.get('name')).get('description')
