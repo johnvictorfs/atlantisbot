@@ -67,7 +67,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
         if not invite_channel or not team_channel:
             return await delete_team(session, team, client)
         try:
-            team_message = await team_channel.get_message(int(team.team_message_id))
+            team_message = await team_channel.fetch_message(int(team.team_message_id))
         except discord.errors.NotFound:
             return await delete_team(session, team, client)
         if mode == 'join':
@@ -280,12 +280,12 @@ async def delete_team(session, team: Team, client):
         session.commit()
         return
     try:
-        team_message = await team_channel.get_message(int(team.team_message_id))
+        team_message = await team_channel.fetch_message(int(team.team_message_id))
         await team_message.delete()
     except Exception:
         pass
     try:
-        invite_message = await invite_channel.get_message(int(team.invite_message_id))
+        invite_message = await invite_channel.fetch_message(int(team.invite_message_id))
         await invite_message.delete()
     except Exception:
         pass
@@ -294,7 +294,7 @@ async def delete_team(session, team: Team, client):
         qs = session.query(BotMessage).filter_by(team=team.id)
         if qs:
             for message in qs:
-                to_delete = await invite_channel.get_message(message.message_id)
+                to_delete = await invite_channel.fetch_message(message.message_id)
                 messages_to_delete.append(to_delete)
             await invite_channel.delete_messages(messages_to_delete)
     except Exception:
