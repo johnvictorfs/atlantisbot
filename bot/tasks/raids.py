@@ -56,7 +56,6 @@ async def update_next_raids(client) -> None:
                     f"{minutes} Minuto{'s' if minutes > 1 else ''}.")
             channel: discord.TextChannel = client.get_channel(client.setting.chat.get('raids'))
             message: discord.Message = await channel.fetch_message(562099376823205888)
-            print("Updating Raids Message.")
             await message.edit(content=text, embed=None)
             await asyncio.sleep(1)
         except Exception as e:

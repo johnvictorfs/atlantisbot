@@ -67,7 +67,7 @@ async def update_merchant_stock(client):
                 value=f"{item['description']}\n",
                 inline=False
             )
-        embed.set_footer(text="Imagens para os produtos em breve...")
+        embed.set_footer(text="https://runescape.wiki/w/Travelling_Merchant's_Shop")
         channel: discord.TextChannel = client.get_channel(560980279360094208)
         message: discord.Message = await channel.fetch_message(562120346979794944)
         await message.edit(content=None, embed=embed)
