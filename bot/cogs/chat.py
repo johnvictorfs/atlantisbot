@@ -1,5 +1,6 @@
 import random
 
+import asyncio
 import discord
 from discord.ext import commands
 import rs3clans
@@ -13,7 +14,7 @@ class ChatCommands(commands.Cog):
         self.bot = bot
 
     @commands.guild_only()
-    @commands.cooldown(1, 60)
+    @commands.cooldown(1, 30)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
         if ctx.author.id == 403632514800943104:
@@ -49,7 +50,10 @@ class ChatCommands(commands.Cog):
 
         await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
 
-        ingame_name = await self.bot.wait_for('message', timeout=60.0, check=check)
+        try:
+            ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
+        except asyncio.TimeoutError:
+            return await ctx.send("Tempo Esgotado. Por favor tente novamente mais tarde.")
         await ctx.trigger_typing()
         player = rs3clans.Player(ingame_name.content)
         if not player.exists:
