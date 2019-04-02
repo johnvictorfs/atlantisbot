@@ -9,10 +9,10 @@ from bs4 import BeautifulSoup
 
 async def daily_stock():
     async with aiohttp.ClientSession() as cs:
-        async with cs.get('https://runescape.wiki/w/Template:Travelling_Merchant') as r:
+        async with cs.get('https://runescape.wiki/w/Travelling_Merchant%27s_Shop') as r:
             source = await r.text()
             soup = BeautifulSoup(source, 'lxml')
-            table = soup.find('table', attrs={'class': 'wikitable align-center-1 align-center-4'})
+            table = soup.find_all('table', attrs={'class': 'wikitable align-center-1 align-center-4'})[1]
             items = []
             for row in table.find_all('tr'):
                 item = row.find_all('td')
@@ -63,7 +63,7 @@ async def update_merchant_stock(client):
         for item in stock:
             item = translate_item(item)
             embed.add_field(
-                name=f"{item['name']} ({item['quantity']})\n- {item['price']}",
+                name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['price']}",
                 value=f"{item['description']}\n",
                 inline=False
             )
@@ -71,10 +71,11 @@ async def update_merchant_stock(client):
         channel: discord.TextChannel = client.get_channel(560980279360094208)
         message: discord.Message = await channel.fetch_message(562120346979794944)
         await message.edit(content=None, embed=embed)
-        await asyncio.sleep(time_till_midnight())
+        await asyncio.sleep(time_till_midnight() + 60)
         await channel.send('<@&560997610954162198>', delete_after=600)
 
 if __name__ == '__main__':
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     result = loop.run_until_complete(daily_stock())
+    print(result)
