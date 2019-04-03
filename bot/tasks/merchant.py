@@ -41,20 +41,22 @@ def translate_item(item: dict):
     with open('bot/merchant.json') as f:
         file = json.load(f)
     if file['stock'].get(item.get('name')):
-        if file['stock'].get(item.get('name')).get('name'):
-            return {
-                "name": file['stock'].get(item.get('name')).get('name'),
-                "emoji": file['stock'].get(item.get('name')).get('emoji'),
-                "price": item['price'],
-                "quantity": item['quantity'],
-                "description": file['stock'].get(item.get('name')).get('description')
-            }
+        name = file['stock'].get(item.get('name')).get('name')
+        description = file['stock'].get(item.get('name')).get('description')
+
+        return {
+            "name": name if name else item['name'],
+            "emoji": file['stock'].get(item.get('name')).get('emoji'),
+            "price": item['price'],
+            "quantity": item['quantity'],
+            "description": description if description else item['description']
+        }
     return item
 
 
 async def update_merchant_stock(client):
-    if client.setting.mode == 'dev':
-        return
+    # if client.setting.mode == 'dev':
+    #     return
     while True:
         try:
             stock = await daily_stock()
@@ -71,6 +73,8 @@ async def update_merchant_stock(client):
                     value=f"{item['description']}\n",
                     inline=False
                 )
+            print(embed)
+            print(embed.fields)
             embed.set_footer(text="https://runescape.wiki/w/Travelling_Merchant's_Shop")
             channel: discord.TextChannel = client.get_channel(560980279360094208)
             message: discord.Message = await channel.fetch_message(562120346979794944)
@@ -79,7 +83,8 @@ async def update_merchant_stock(client):
             await channel.send('<@&560997610954162198>', delete_after=600)
         except Exception as e:
             tb = traceback.format_exc()
-            await client.send_logs(e, tb)
+            print(e, tb)
+            # await client.send_logs(e, tb)
 
 
 if __name__ == '__main__':
