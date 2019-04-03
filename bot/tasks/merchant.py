@@ -55,8 +55,8 @@ def translate_item(item: dict):
 
 
 async def update_merchant_stock(client):
-    # if client.setting.mode == 'dev':
-    #     return
+    if client.setting.mode == 'dev':
+        return
     while True:
         try:
             stock = await daily_stock()
@@ -69,12 +69,10 @@ async def update_merchant_stock(client):
             for item in stock:
                 item = translate_item(item)
                 embed.add_field(
-                    name=f"{item['name']} {item['emoji']} ({item['quantity']})\n- {item['price']}",
+                    name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['price']}",
                     value=f"{item['description']}\n",
                     inline=False
                 )
-            print(embed)
-            print(embed.fields)
             embed.set_footer(text="https://runescape.wiki/w/Travelling_Merchant's_Shop")
             channel: discord.TextChannel = client.get_channel(560980279360094208)
             message: discord.Message = await channel.fetch_message(562120346979794944)
@@ -84,7 +82,7 @@ async def update_merchant_stock(client):
         except Exception as e:
             tb = traceback.format_exc()
             print(e, tb)
-            # await client.send_logs(e, tb)
+            await client.send_logs(e, tb)
 
 
 if __name__ == '__main__':
