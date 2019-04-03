@@ -67,7 +67,7 @@ async def update_merchant_stock(client):
             for item in stock:
                 item = translate_item(item)
                 embed.add_field(
-                    name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['price']}",
+                    name=f"{item['name']} {item['emoji']} ({item['quantity']})\n- {item['price']}",
                     value=f"{item['description']}\n",
                     inline=False
                 )
