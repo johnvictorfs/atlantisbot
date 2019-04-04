@@ -18,7 +18,8 @@ from bot.tasks.advlog import advlog
 from bot.tasks.merchant import update_merchant_stock
 from bot.tasks.raids import raids_task, update_next_raids
 from bot.tasks.update_clans import update_all_clans
-from bot.utils.tools import separator, has_any_role, TeamNotFoundError, WrongChannelError, manage_team
+from bot.utils.tools import separator, has_any_role
+from bot.utils.teams import manage_team, TeamNotFoundError, WrongChannelError
 
 
 class Bot(commands.Bot):
@@ -188,7 +189,7 @@ class Bot(commands.Bot):
         if any(mention in message.content for mention in unauthorized_mentions):
             if has_any_role(message.author, membro, convidado):
                 embed = discord.Embed(
-                    title="__Quebra de Conduta__",
+                    title="__Ei__",
                     description=separator,
                     color=discord.Color.dark_red(),
                 )
@@ -248,6 +249,11 @@ class Bot(commands.Bot):
                 return await message.channel.send(f"Time com ID '{team_id}' não existe.")
             except WrongChannelError:
                 return await message.channel.send(f"Você não pode entrar nesse time por esse canal.")
+            except Exception as e:
+                msg = 'entrar em' if mode == 'join' else 'sair de'
+                return await message.channel.send(
+                    f"Erro inesperado ao tentar {msg} time. Favor reportar o erro para @NRiver#2263: {e}"
+                )
         await self.process_commands(message)
 
     @contextmanager

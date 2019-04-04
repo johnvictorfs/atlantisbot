@@ -5,7 +5,7 @@ import sys
 import asyncio
 import discord
 
-from bot.utils.tools import start_raids_team
+from bot.utils.raids import start_raids_team
 from bot.orm.models import RaidsState
 
 

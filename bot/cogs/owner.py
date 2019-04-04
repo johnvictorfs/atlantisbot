@@ -8,7 +8,8 @@ from discord.ext import commands
 import discord
 
 from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
-from bot.utils.tools import separator, plot_table, start_raids_team
+from bot.utils.tools import separator, plot_table
+from bot.utils.raids import start_raids_team
 
 
 class Owner(commands.Cog):

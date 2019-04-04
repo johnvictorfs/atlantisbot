@@ -4,7 +4,8 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from bot.utils.tools import separator, delete_team
+from bot.utils.tools import separator
+from bot.utils.teams import delete_team
 from bot.orm.models import Team
 
 
@@ -49,7 +50,8 @@ class TeamCommands(commands.Cog):
                 "**Tamanho:** {size}\n"
                 "**Chat:** {chat}\n"
                 "**Requisito:** {requisito}\n"
-                "**Requisito Secundário:** {requisito_secundario}"
+                "**Requisito Secundário:** {requisito_secundario}\n"
+                "**Limite Secundário:** {limite_secundario}"
             )
             creation_message = await ctx.send(creation_message_content.format(
                 author=ctx.author.mention,
@@ -58,7 +60,8 @@ class TeamCommands(commands.Cog):
                 size='',
                 chat='',
                 requisito='',
-                requisito_secundario=''
+                requisito_secundario='',
+                limite_secundario=''
             ))
 
             # Only accept answers from the the message author and in the same channel the commands was invoked
@@ -90,7 +93,8 @@ class TeamCommands(commands.Cog):
                     size='',
                     chat='',
                     requisito='',
-                    requisito_secundario=''
+                    requisito_secundario='',
+                    limite_secundario=''
                 )
             )
             # Tamanho do time
@@ -117,7 +121,8 @@ class TeamCommands(commands.Cog):
                         size=team_size,
                         chat='',
                         requisito='',
-                        requisito_secundario=''
+                        requisito_secundario='',
+                        limite_secundario=''
                     )
                 )
             except ValueError:
@@ -150,7 +155,8 @@ class TeamCommands(commands.Cog):
                         size=team_size,
                         chat=f"<#{chat_presence_id}>",
                         requisito='',
-                        requisito_secundario=''
+                        requisito_secundario='',
+                        limite_secundario=''
                     )
                 )
             except ValueError:
@@ -194,7 +200,8 @@ class TeamCommands(commands.Cog):
                         size=team_size,
                         chat=f"<#{chat_presence_id}>",
                         requisito=role_str,
-                        requisito_secundario=''
+                        requisito_secundario='',
+                        limite_secundario=''
                     )
                 )
             except ValueError:
@@ -204,13 +211,13 @@ class TeamCommands(commands.Cog):
                 await creation_message.delete()
                 return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
 
+            role_str2 = 'Nenhum'
             role_id2 = None
             if role_id:
                 # Role requisito secundário (opcional)
                 sent_message = await ctx.send(
                     f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum')"
                 )
-                role_str2 = 'Nenhum'
                 role_message2 = await self.bot.wait_for('message', timeout=60.0, check=check)
 
                 try:
@@ -220,7 +227,7 @@ class TeamCommands(commands.Cog):
                     except discord.errors.NotFound:
                         await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
                         return await creation_message.delete()
-                    if role_message2.content.lower() == 'nenhum':
+                    if 'nenhum' in role_message2.content.lower():
                         role_id2 = None
                     elif role_message2.content.lower() == cancel_command:
                         await creation_message.delete()
@@ -242,7 +249,8 @@ class TeamCommands(commands.Cog):
                             size=team_size,
                             chat=f"<#{chat_presence_id}>",
                             requisito=role_str,
-                            requisito_secundario=role_str2
+                            requisito_secundario=role_str2,
+                            limite_secundario=''
                         )
                     )
                 except ValueError:
@@ -251,6 +259,46 @@ class TeamCommands(commands.Cog):
                 except IndexError:
                     await creation_message.delete()
                     return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message2.content}).")
+            secondary_limit = None
+            if role_id2:
+                # Limit of people in the team that only have the secondary role
+                sent_message = await ctx.send(
+                    f"{ctx.author.mention}, qual o limite para o número de pessoas no Time que tenham apenas"
+                    f" o cargo secundário? (ou 'nenhum')"
+                )
+                secondary_limit_message = await self.bot.wait_for('message', timeout=60.0, check=check)
+
+                try:
+                    try:
+                        await secondary_limit_message.delete()
+                        await sent_message.delete()
+                    except discord.errors.NotFound:
+                        await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
+                        return await creation_message.delete()
+                    if 'nenhum' in secondary_limit_message.content.lower():
+                        secondary_limit = None
+                    elif cancel_command in secondary_limit_message.content.lower():
+                        await creation_message.delete()
+                        return await ctx.send("Criação de time cancelada.")
+                    else:
+                        secondary_limit = int(secondary_limit_message.content)
+                    await creation_message.edit(
+                        content=creation_message_content.format(
+                            author=ctx.author.mention,
+                            cancel=cancel_command,
+                            title=team_title,
+                            size=team_size,
+                            chat=f"<#{chat_presence_id}>",
+                            requisito=role_str,
+                            requisito_secundario=role_str2,
+                            limite_secundario=secondary_limit
+                        )
+                    )
+                except ValueError:
+                    await creation_message.delete()
+                    return await ctx.send(
+                        f"Criação de time cancelada. Limite inválido ({secondary_limit_message.content})."
+                    )
 
             invite_channel = self.bot.get_channel(chat_presence_id)
 
@@ -260,7 +308,8 @@ class TeamCommands(commands.Cog):
             if role_id:
                 requisito = f"Requisito: <@&{role_id}>\n"
             if role_id2:
-                requisito2 = f"Requisito Secundário: <@&{role_id2}>\n\n"
+                limit = "" if not secondary_limit else f"(Limite: {secondary_limit})"
+                requisito2 = f"Requisito Secundário: <@&{role_id2}> {limit}\n\n"
 
             description = f"{requisito}{requisito2}{description}"
 
@@ -306,6 +355,7 @@ class TeamCommands(commands.Cog):
                 'invite_message_id': invite_embed_message.id,
                 'team_channel_id': ctx.channel.id,
                 'team_message_id': team_embed_message.id,
+                'secondary_limit': secondary_limit
             }
             self.save_team(team=created_team)
             await creation_message.delete()
@@ -335,7 +385,8 @@ class TeamCommands(commands.Cog):
                 invite_channel_id=str(team.get('invite_channel_id')),
                 invite_message_id=str(team.get('invite_message_id')),
                 team_channel_id=str(team.get('team_channel_id')),
-                team_message_id=str(team.get('team_message_id'))
+                team_message_id=str(team.get('team_message_id')),
+                secondary_limit=team.get('secondary_limit')
             )
             session.add(team)
             session.commit()

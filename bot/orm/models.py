@@ -13,6 +13,7 @@ class Player(Base):
     player_id = Column(String)
     in_team = Column(Boolean)
     substitute = Column(Boolean, default=False)
+    secondary = Column(Boolean, default=False)
     team = Column(Integer, ForeignKey('team.id', ondelete='CASCADE'))
 
 
@@ -37,6 +38,7 @@ class Team(Base):
     invite_message_id = Column(String)
     team_channel_id = Column(String)
     team_message_id = Column(String)
+    secondary_limit = Column(Integer, nullable=True)
 
     players = relationship(Player, backref='parent', cascade="all,delete,delete-orphan")
     botmessages = relationship(BotMessage, backref='parent', cascade="all,delete,delete-orphan")
@@ -50,13 +52,13 @@ class Team(Base):
 class RaidsState(Base):
     __tablename__ = 'raidsstate'
     id = Column(Integer, primary_key=True)
-    notifications = Column(Boolean, default=True)
+    notifications = Column(Boolean, default=False)
 
 
 class AdvLogState(Base):
     __tablename__ = 'advlogstate'
     id = Column(Integer, primary_key=True)
-    messages = Column(Boolean, default=True)
+    messages = Column(Boolean, default=False)
 
 
 class PlayerActivities(Base):

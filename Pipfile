@@ -12,6 +12,8 @@ sqlalchemy = "*"
 pandas = "*"
 matplotlib = "*"
 lxml = "*"
+alembic = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
