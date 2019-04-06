@@ -39,7 +39,7 @@ class Merchant(commands.Cog):
     def get_item(name: str):
         with open('bot/merchant.json') as f:
             merchant_file = json.load(f)
-        return merchant_file['stock'][name.replace(u'\xa0', u' ')]
+        return merchant_file['stock'][name.replace(u'\xa0', u'')]
 
     @staticmethod
     async def future_stock() -> dict:
@@ -104,6 +104,7 @@ class Merchant(commands.Cog):
                 tb = traceback.format_exc()
                 print(e, tb)
                 await self.bot.send_logs(e, tb)
+                await asyncio.sleep(60 * 15)
 
 
 def setup(bot):
