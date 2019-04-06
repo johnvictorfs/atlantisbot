@@ -21,14 +21,17 @@ class Merchant(commands.Cog):
     def cog_unload(self):
         self.update_merchant_task.cancel()
 
+    @staticmethod
+    def today_str() -> str:
+        today = datetime.datetime.utcnow()
+        return f"{today.day} {today.strftime('%B')} {today.year}"
+
     async def daily_stock(self) -> list:
         full_stock = await self.future_stock()
-        today = datetime.datetime.utcnow()
-        today_str = f"{today.day} {today.strftime('%B')} {today.year}"
-
-        item = full_stock.get(today_str)
+        today = self.today_str()
+        item = full_stock.get(today)
         if not item:
-            await self.bot.send_logs(full_stock, f'KeyError: {today_str}')
+            await self.bot.send_logs(full_stock, f'KeyError: {today}')
             return []
         return [self.get_item(item[f'slot_{letter}']) for letter in ['a', 'b', 'c']]
 
@@ -36,7 +39,7 @@ class Merchant(commands.Cog):
     def get_item(name: str):
         with open('bot/merchant.json') as f:
             merchant_file = json.load(f)
-        return merchant_file['stock'][name]
+        return merchant_file['stock'][name.replace(u'\xa0', u' ')]
 
     @staticmethod
     async def future_stock() -> dict:
@@ -69,7 +72,7 @@ class Merchant(commands.Cog):
 
     async def merchant_embed(self):
         embed = discord.Embed(
-            title="Estoque de Hoje",
+            title=f"Estoque de Hoje ({self.today_str()})",
             description=f"",
             color=discord.Colour.dark_red(),
             url=f"https://runescape.wiki/w/Travelling_Merchant's_Shop"
