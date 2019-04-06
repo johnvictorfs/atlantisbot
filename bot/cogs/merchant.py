@@ -78,6 +78,7 @@ class Merchant(commands.Cog):
                 value=f"{item['description']}\n",
                 inline=False
             )
+        return embed
 
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
@@ -89,7 +90,7 @@ class Merchant(commands.Cog):
             try:
                 channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
                 message: discord.Message = await channel.fetch_message(562120346979794944)
-                embed = self.merchant_embed()
+                embed = await self.merchant_embed()
                 await message.edit(content=None, embed=embed)
                 await asyncio.sleep(self.time_till_midnight() + 30)
                 await channel.send('<@&560997610954162198>', delete_after=600)
