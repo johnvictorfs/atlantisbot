@@ -6,7 +6,7 @@ from bot.bot_client import Bot
 from bot.utils.tools import separator
 
 
-class ClanCommands(commands.Cog):
+class Clan(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
@@ -175,4 +175,4 @@ class ClanCommands(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(ClanCommands(bot))
+    bot.add_cog(Clan(bot))

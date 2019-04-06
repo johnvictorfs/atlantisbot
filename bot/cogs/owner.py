@@ -10,15 +10,11 @@ import discord
 from bot.bot_client import Bot
 from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
 from bot.utils.tools import separator, plot_table
-from bot.utils.raids import start_raids_team
 
 
 class Owner(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-
-    async def cog_check(self, ctx: commands.Context):
-        return await self.bot.is_owner(ctx.author)
 
     @commands.is_owner()
     @commands.command()
@@ -49,13 +45,6 @@ class Owner(commands.Cog):
         if err:
             return await ctx.send('Houve algum erro reiniciando extensões. Verificar os Logs do bot.')
         return await ctx.send('Todas as extensões foram reiniciadas com sucesso.')
-
-    @commands.is_owner()
-    @commands.command(aliases=['startraids'])
-    async def start_raids(self, ctx: commands.Context):
-        await ctx.send(f'Iniciando time de Raids... (mode={self.bot.setting.mode})')
-        await start_raids_team(client=self.bot)
-        await ctx.author.send('Time de Raids iniciado com sucesso.')
 
     @commands.is_owner()
     @commands.command(aliases=['sendtable'])

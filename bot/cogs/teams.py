@@ -7,10 +7,10 @@ from discord.ext import commands
 from bot.bot_client import Bot
 from bot.utils.tools import separator
 from bot.utils.teams import delete_team
-from bot.orm.models import Team, RaidsState
+from bot.orm.models import Team
 
 
-class TeamCommands(commands.Cog):
+class Teams(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
@@ -34,30 +34,6 @@ class TeamCommands(commands.Cog):
                 return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
             await delete_team(session, team, self.bot)
             await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
-
-    @commands.cooldown(1, 10)
-    @commands.has_permissions(manage_messages=True, manage_channels=True)
-    @commands.command()
-    async def resend_raids(self, ctx: commands.Context):
-        """
-        Re-sends the "Next Raids Notification in (...)" message to the #raids Channel, so it becomes the newest message.
-        """
-        await ctx.message.delete()
-
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
-        sent: discord.Message = await channel.send("Próxima notificação de Raids em:")
-
-        with self.bot.db_session() as session:
-            state: RaidsState = session.query(RaidsState).first()
-            if state:
-                if state.time_to_next_message:
-                    message = await channel.fetch_message(int(state.time_to_next_message))
-                    if message:
-                        await message.delete()
-                state.time_to_next_message = str(sent.id)
-            else:
-                session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
-        await ctx.author.send("Mensagem da próxima notificação de Raids reenviada com sucesso.")
 
     @commands.cooldown(1, 10)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
@@ -427,4 +403,4 @@ class TeamCommands(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(TeamCommands(bot))
+    bot.add_cog(Teams(bot))

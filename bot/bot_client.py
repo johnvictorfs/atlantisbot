@@ -16,10 +16,6 @@ from sqlalchemy.orm.session import Session
 
 from bot import settings
 from bot.orm import db
-from bot.tasks.advlog import advlog
-from bot.tasks.merchant import update_merchant_stock
-from bot.tasks.raids import raids_task, update_next_raids
-from bot.tasks.update_clans import update_all_clans
 from bot.utils.tools import separator, has_any_role
 from bot.utils.teams import manage_team, TeamNotFoundError, WrongChannelError
 
@@ -160,11 +156,6 @@ class Bot(commands.Bot):
               f"- Playing Message: '{self.setting.playing_message}'\n"
               f"- Commands prefix: '{self.setting.prefix}'\n"
               f"- Show titles on claninfo: '{self.setting.show_titles}'")
-        self.loop.create_task(raids_task(self))
-        self.loop.create_task(advlog(self))
-        self.loop.create_task(update_all_clans())
-        self.loop.create_task(update_next_raids(self))
-        self.loop.create_task(update_merchant_stock(self))
 
     async def on_message(self, message: discord.Message):
         """

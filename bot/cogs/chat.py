@@ -9,7 +9,7 @@ from bot.bot_client import Bot
 from bot.utils.tools import right_arrow, has_any_role
 
 
-class ChatCommands(commands.Cog):
+class Chat(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
@@ -241,4 +241,4 @@ Aguarde uma resposta de um {aod_teacher}.
 
 
 def setup(bot):
-    bot.add_cog(ChatCommands(bot))
+    bot.add_cog(Chat(bot))
