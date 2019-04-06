@@ -26,7 +26,10 @@ class Merchant(commands.Cog):
         today = datetime.datetime.utcnow()
         today_str = f"{today.day} {today.strftime('%B')} {today.year}"
 
-        item = full_stock[today_str]
+        item = full_stock.get(today_str)
+        if not item:
+            await self.bot.send_logs(full_stock, f'KeyError: {today_str}')
+            return []
         return [self.get_item(item[f'slot_{letter}']) for letter in ['a', 'b', 'c']]
 
     @staticmethod
