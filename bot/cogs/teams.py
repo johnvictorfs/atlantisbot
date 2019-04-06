@@ -44,7 +44,7 @@ class TeamCommands(commands.Cog):
         """
         await ctx.message.delete()
 
-        channel: discord.TextChannel = await self.bot.get_channel(self.bot.setting.chat.get('raids'))
+        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
         sent: discord.Message = await channel.send("Próxima notificação de Raids em:")
 
         with self.bot.db_session() as session:
