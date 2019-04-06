@@ -55,7 +55,22 @@ async def update_next_raids(client) -> None:
                     f"{hours} Hora{'s' if hours > 1 else ''} e "
                     f"{minutes} Minuto{'s' if minutes > 1 else ''}.")
             channel: discord.TextChannel = client.get_channel(client.setting.chat.get('raids'))
-            message: discord.Message = await channel.fetch_message(562099376823205888)
+
+            with client.db_session() as session:
+                state = session.query(RaidsState).first()
+                if state:
+                    if state.time_to_next_message:
+                        message_id = int(state.time_to_next_message)
+                    else:
+                        sent = await channel.send("Próxima notificação de Raids em:")
+                        state.time_to_next_message = str(sent.id)
+                        message_id = sent.id
+                else:
+                    sent = await channel.send("Próxima notificação de Raids em:")
+                    session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
+                    message_id = sent.id
+
+            message: discord.Message = await channel.fetch_message(message_id)
             await message.edit(content=text, embed=None)
             await asyncio.sleep(1)
         except Exception as e:

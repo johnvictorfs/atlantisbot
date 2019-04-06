@@ -53,6 +53,7 @@ class RaidsState(Base):
     __tablename__ = 'raidsstate'
     id = Column(Integer, primary_key=True)
     notifications = Column(Boolean, default=False)
+    time_to_next_message = Column(String, nullable=True)
 
 
 class AdvLogState(Base):

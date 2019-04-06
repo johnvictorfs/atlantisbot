@@ -2,12 +2,13 @@ import rs3clans
 import discord
 from discord.ext import commands
 
+from bot.bot_client import Bot
 from bot.utils.tools import separator
 
 
 class ClanCommands(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.cooldown(1, 5)

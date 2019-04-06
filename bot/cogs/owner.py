@@ -7,13 +7,14 @@ import sqlite3
 from discord.ext import commands
 import discord
 
+from bot.bot_client import Bot
 from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
 from bot.utils.tools import separator, plot_table
 from bot.utils.raids import start_raids_team
 
 
 class Owner(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     async def cog_check(self, ctx: commands.Context):

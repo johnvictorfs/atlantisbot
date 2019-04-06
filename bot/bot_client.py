@@ -7,10 +7,12 @@ import sys
 import json
 from pathlib import Path
 from contextlib import contextmanager
+from typing import ContextManager
 
 import colorama
 import discord
 from discord.ext import commands
+from sqlalchemy.orm.session import Session
 
 from bot import settings
 from bot.orm import db
@@ -257,12 +259,12 @@ class Bot(commands.Bot):
         await self.process_commands(message)
 
     @contextmanager
-    def db_session(self) -> db.Session:
+    def db_session(self) -> ContextManager[Session]:
         """
         http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
         Provide a transactional scope around a series of operations.
         """
-        session = db.Session()
+        session: Session = db.Session()
         try:
             yield session
             session.commit()

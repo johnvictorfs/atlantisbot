@@ -1,16 +1,17 @@
 import random
 
-import asyncio
-import discord
 from discord.ext import commands
+import discord
+import asyncio
 import rs3clans
 
+from bot.bot_client import Bot
 from bot.utils.tools import right_arrow, has_any_role
 
 
 class ChatCommands(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.guild_only()

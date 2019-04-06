@@ -3,10 +3,11 @@ import codecs
 import csv
 
 from discord.ext import commands
-import discord
 from bs4 import BeautifulSoup
+import discord
 import requests
 
+from bot.bot_client import Bot
 from bot.utils.tools import separator
 
 # TODO: The code from this whole freaking cog needs to be refactored
@@ -164,7 +165,7 @@ def get_competitions(clan):
 
 class Competitions(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.cooldown(1, 5)

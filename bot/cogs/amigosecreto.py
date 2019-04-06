@@ -5,13 +5,14 @@ from discord.ext import commands
 from sqlalchemy.sql.expression import func
 
 import bot.orm.db as db
+from bot.bot_client import Bot
 from bot.orm.models import AmigoSecretoPerson, AmigoSecretoState
 from bot.utils.tools import has_any_role
 
 
 class AmigoSecreto(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.is_owner()

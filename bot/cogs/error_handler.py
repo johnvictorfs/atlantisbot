@@ -5,10 +5,12 @@ import logging
 import discord
 from discord.ext import commands
 
+from bot.bot_client import Bot
+
 
 class CommandErrorHandler(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     async def bot_check(self, ctx: commands.Context):

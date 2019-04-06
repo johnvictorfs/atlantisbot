@@ -1,15 +1,16 @@
-import discord
-import aiohttp
-
 from operator import itemgetter
+import discord
 
 from discord.ext import commands
+import aiohttp
+
+from bot.bot_client import Bot
 from bot.utils.tools import separator
 
 
 class ClanHiscores(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.command(aliases=[
