@@ -18,7 +18,7 @@ class RaidsTasks(commands.Cog):
         self.bot = bot
 
         self.raids_task = self.bot.loop.create_task(self.raids_teams())
-        self.raids_notifications_task = self.bot.loop.create_task(self.raids_notifications())
+        self.raids_notifications_task = self.bot.loop.create_task(self.update_next_raids())
 
     def cog_unload(self):
         self.raids_task.cancel()

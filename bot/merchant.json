@@ -10,7 +10,7 @@
     "Barrel of bait": {
       "emoji": "<:bait_barrel:562799081030680577>",
       "name": "Barril de isca",
-      "description": "10% de chance de pescar um peixe a mais durante 3 minutos. ",
+      "description": "10% de chance de pescar um peixe a mais durante 3 minutos.",
       "cost": 50000,
       "quantity": "1"
     },
