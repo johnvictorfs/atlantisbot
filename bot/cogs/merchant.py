@@ -49,7 +49,7 @@ class Merchant(commands.Cog):
                 for row in table.find_all('tr'):
                     item = row.find_all('td')
                     try:
-                        items['date'] = {
+                        items[item[0].text] = {
                             "slot_a": item[1].text,
                             "slot_b": item[2].text,
                             "slot_c": item[3].text
