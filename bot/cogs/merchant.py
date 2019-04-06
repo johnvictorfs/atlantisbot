@@ -80,7 +80,7 @@ class Merchant(commands.Cog):
         stock = await self.daily_stock()
         for item in stock:
             embed.add_field(
-                name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['price']}",
+                name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['cost']:,}",
                 value=f"{item['description']}\n",
                 inline=False
             )
