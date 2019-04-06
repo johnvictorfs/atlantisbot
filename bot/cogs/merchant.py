@@ -33,7 +33,7 @@ class Merchant(commands.Cog):
         if not item:
             await self.bot.send_logs(full_stock, f'KeyError: {today}')
             return []
-        return [self.get_item(item[f'slot_{letter}']) for letter in ['a', 'b', 'c']]
+        return [self.get_item(item[f'slot_{letter}']) for letter in ['1', 'a', 'b', 'c']]
 
     @staticmethod
     def get_item(name: str):
@@ -53,6 +53,7 @@ class Merchant(commands.Cog):
                     item = row.find_all('td')
                     try:
                         items[item[0].text] = {
+                            "slot_1": "Uncharted island map",
                             "slot_a": item[1].text,
                             "slot_b": item[2].text,
                             "slot_c": item[3].text
