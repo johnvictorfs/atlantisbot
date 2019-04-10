@@ -152,7 +152,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             elif mode == 'leave':
                 if in_team(message.author.id, team, session):
                     text = 'saiu do time'
-                    substitute = first_substitute(team, session, message.author.id)
+                    substitute: Player = first_substitute(team, session, message.author.id)
                     is_substitute = session.query(Player).filter_by(
                         player_id=str(message.author.id), team=team.id
                     ).first().substitute
@@ -165,7 +165,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                             substitute.substitute = False
                             session.commit()
                             msg = await invite_channel.send(
-                                f"{message.author.mention} não é mais um substituto do time **{team.title}** "
+                                f"<@{substitute.player_id}> não é mais um substituto do time **{team.title}** "
                                 f"({current_players.count() - 1}/{team.size})\n"
                             )
                             session.add(BotMessage(message_id=msg.id, team=team.id))
