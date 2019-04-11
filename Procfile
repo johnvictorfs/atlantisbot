@@ -1,1 +1,1 @@
-worker: pip uninstall discord-rewrite -y && ./migrate.sh && python atlantisbot.py
+worker: ./migrate.sh && python atlantisbot.py

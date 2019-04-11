@@ -89,9 +89,11 @@ class RaidsTasks(commands.Cog):
                         sent = await channel.send("Próxima notificação de Raids em:")
                         session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
                         message_id = sent.id
-
-                message: discord.Message = await channel.fetch_message(message_id)
-                await message.edit(content=text, embed=None)
+                try:
+                    message: discord.Message = await channel.fetch_message(message_id)
+                    await message.edit(content=text, embed=None)
+                except discord.errors.NotFound:
+                    await channel.send(text)
                 await asyncio.sleep(1)
             except Exception as e:
                 tb = traceback.format_exc()
