@@ -90,13 +90,13 @@ class RaidsTasks(commands.Cog):
                         session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
                         state = session.query(RaidsState).first()
                         message_id = sent.id
-                try:
-                    message: discord.Message = await channel.fetch_message(message_id)
-                    sent = await message.edit(content=text, embed=None)
-                    state.time_to_next_message = str(sent)
-                except discord.errors.NotFound:
-                    await channel.send(text)
-                await asyncio.sleep(1)
+                    try:
+                        message: discord.Message = await channel.fetch_message(message_id)
+                        sent = await message.edit(content=text, embed=None)
+                        state.time_to_next_message = str(sent)
+                    except discord.errors.NotFound:
+                        await channel.send(text)
+                    await asyncio.sleep(1)
             except Exception as e:
                 tb = traceback.format_exc()
                 await self.bot.send_logs(e, tb)
