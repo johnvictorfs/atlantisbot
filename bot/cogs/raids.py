@@ -92,10 +92,10 @@ class RaidsTasks(commands.Cog):
                         message_id = sent.id
                     try:
                         message: discord.Message = await channel.fetch_message(message_id)
-                        sent = await message.edit(content=text, embed=None)
-                        state.time_to_next_message = str(sent.id)
+                        await message.edit(content=text, embed=None)
                     except discord.errors.NotFound:
-                        await channel.send(text)
+                        sent = await channel.send(text)
+                        state.time_to_next_message = str(sent.id)
                     await asyncio.sleep(1)
             except Exception as e:
                 tb = traceback.format_exc()
