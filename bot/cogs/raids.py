@@ -73,7 +73,7 @@ class RaidsTasks(commands.Cog):
 
                 text = (f"Próxima notificação de Raids em: {days} Dia{'s' if days > 1 else ''}, "
                         f"{hours} Hora{'s' if hours > 1 else ''} e "
-                        f"{minutes} Minuto{'s' if minutes > 1 else ''}. Leia as mensagens fixas "
+                        f"{minutes} Minuto{'s' if minutes > 1 else ''}. \nLeia as mensagens fixas "
                         f"acima para saber como participar.")
                 channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
 
