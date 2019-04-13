@@ -71,10 +71,14 @@ class RaidsTasks(commands.Cog):
                 hours = raids_diff.seconds // 3600
                 minutes = (raids_diff.seconds // 60) % 60
 
-                text = (f"Próxima notificação de Raids em: {days} Dia{'s' if days > 1 else ''}, "
+                msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/393106804709523457'
+                text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
                         f"{hours} Hora{'s' if hours > 1 else ''} e "
-                        f"{minutes} Minuto{'s' if minutes > 1 else ''}. \nLeia as mensagens fixas "
-                        f"acima para saber como participar.")
+                        f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
+                        f"• [Clique aqui para saber como participar]({msg_url})")
+
+                embed = discord.Embed(title='', description=text, color=discord.Color.blue())
+
                 channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
 
                 with self.bot.db_session() as session:
@@ -83,7 +87,7 @@ class RaidsTasks(commands.Cog):
                         if state.time_to_next_message:
                             message_id = int(state.time_to_next_message)
                         else:
-                            sent = await channel.send("Próxima notificação de Raids em:")
+                            sent = await channel.send(content=None, embed=embed)
                             state.time_to_next_message = str(sent.id)
                             message_id = sent.id
                     else:
@@ -93,9 +97,9 @@ class RaidsTasks(commands.Cog):
                         message_id = sent.id
                     try:
                         message: discord.Message = await channel.fetch_message(message_id)
-                        await message.edit(content=text, embed=None)
+                        await message.edit(content=None, embed=embed)
                     except discord.errors.NotFound:
-                        sent = await channel.send(text)
+                        sent = await channel.send(content=None, embed=embed)
                         state.time_to_next_message = str(sent.id)
                     await asyncio.sleep(1)
             except Exception as e:

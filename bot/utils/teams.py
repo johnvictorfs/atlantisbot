@@ -135,7 +135,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                     text = 'já está no time'
                 elif has_any:
                     add_to_team(message.author, team, substitute=is_team_full, secondary=is_secondary, session=session)
-                    text = 'foi adicionado como substituto no time' if is_team_full else 'foi adicionado no time'
+                    text = 'foi adicionado ***como substituto*** no time' if is_team_full else 'foi adicionado no time'
                 else:
                     description = f"{message.author.mention}, você precisa ter o cargo <@&{team.role}>"
                     if team.role_secondary:
@@ -188,6 +188,13 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             except discord.errors.NotFound:
                 session.delete(team)
                 session.commit()
+
+        except TeamNotFoundError:
+            raise TeamNotFoundError
+            return
+        except WrongChannelError:
+            raise WrongChannelError
+            return
         except Exception as e:
             await client.send_logs(e, traceback.format_exc())
 
