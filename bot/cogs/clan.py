@@ -23,8 +23,8 @@ class Clan(commands.Cog):
             return await ctx.send(f"O clã '{clan_name}' não existe.")
         clan_leader = None
         for member in clan:
-            if member[1]['rank'] == 'Owner':
-                clan_leader = member[0]
+            if member.rank == 'Owner':
+                clan_leader = member.name
         clan_url = clan.name.replace(' ', '%20')
         clan_embed = discord.Embed(
             title=clan.name,
@@ -34,7 +34,7 @@ class Clan(commands.Cog):
         clan_embed.set_author(name='RuneClan', url=f'https://runeclan.com/clan/{clan_url}')
         clan_embed.set_thumbnail(url=f'http://services.runescape.com/m=avatar-rs/{clan_url}/clanmotif.png')
         clan_embed.add_field(name="Exp Total", value=f'{clan.exp:,}')
-        clan_embed.add_field(name="Membros", value=clan.count)
+        clan_embed.add_field(name="Membros", value=str(clan.count))
         clan_embed.add_field(name="Líder", value=clan_leader)
         clan_embed.add_field(name="Exp Média por Membro", value=f'{clan.avg_exp:,.0f}')
         return await ctx.send(embed=clan_embed)
@@ -53,8 +53,8 @@ class Clan(commands.Cog):
             return await ctx.send(f"Jogador '{player.name}' não está em um clã.")
         user_clan = rs3clans.Clan(name=player.clan)
         member = user_clan.get_member(username)
-        user_clan_exp = member['exp']
-        user_rank = member['rank']
+        user_clan_exp = member.exp
+        user_rank = member.rank
         display_username = player.name
         if self.bot.setting.show_titles:
             if player.suffix:
@@ -137,33 +137,33 @@ class Clan(commands.Cog):
             description=" ", )
         found = False
         clan = rs3clans.Clan(self.bot.setting.clan_name, set_exp=False)
-        for member in clan.member.items():
-            if member[1]['exp'] >= exp_general and member[1]['rank'] == 'Captain':
+        for member in clan:
+            if member.exp >= exp_general and member.rank == 'Captain':
                 ranks_embed.add_field(
-                    name=member[0],
+                    name=member.name,
                     value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n"
-                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
-            elif member[1]['exp'] >= exp_captain and member[1]['rank'] == 'Lieutenant':
+            elif member.exp >= exp_captain and member.rank == 'Lieutenant':
                 ranks_embed.add_field(
-                    name=member[0],
+                    name=member.name,
                     value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n"
-                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
-            elif member[1]['exp'] >= exp_lieutenant and member[1]['rank'] == 'Sergeant':
+            elif member.exp >= exp_lieutenant and member.rank == 'Sergeant':
                 ranks_embed.add_field(
-                    name=member[0],
+                    name=member.name,
                     value=f"Sargento {rank_emoji['Sergeant']} > Tenente {rank_emoji['Lieutenant']}\n"
-                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
-            elif member[1]['exp'] >= exp_seargent and member[1]['rank'] == 'Corporal':
+            elif member.exp >= exp_seargent and member.rank == 'Corporal':
                 ranks_embed.add_field(
-                    name=member[0],
+                    name=member.name,
                     value=f"Cabo {rank_emoji['Corporal']} > Sargento {rank_emoji['Sergeant']}\n"
-                    f"**__Exp:__** {member[1]['exp']:,}\n{separator}",
+                    f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
         if not found:
