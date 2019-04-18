@@ -43,6 +43,9 @@ class CommandErrorHandler(commands.Cog):
             elif ctx.command.qualified_name == 'delteam':
                 command = "del"
                 arguments = f"`<ID do Time>`"
+            elif ctx.command.qualified_name == 'team_role':
+                command = "teamrole"
+                arguments = f"`<ID do Time> <Pessoa para alterar> <Role para colocar>`"
             elif ctx.command.qualified_name == 'team':
                 command = "team"
                 arguments = f"<\"Título\"> `<Tamanho>` `(Chat para presenças|Chat atual) (Role Requisito)`"

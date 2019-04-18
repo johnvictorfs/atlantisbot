@@ -32,7 +32,7 @@ def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary:
 
 def first_substitute(team: Team, session, exclude: int) -> Player or None:
     return session.query(Player).filter(
-        Player.substitute == True,
+        Player.substitute == True,  # noqa: E712
         Player.player_id != str(exclude),
         Player.team == team.id
     ).first()
@@ -74,7 +74,8 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
         for player in players:
             if not player.substitute:
                 player_role = f"({player.role})" if player.role else ""
-                player_value = f"{index + 1}- <@{player.player_id}> {player_role} {'***(Secundário)***' if player.secondary else ''}"
+                player_value = (f"{index + 1}- <@{player.player_id}> {player_role} "
+                                f"{'***(Secundário)***' if player.secondary else ''}")
                 team_embed.add_field(
                     name=separator,
                     value=player_value,
@@ -85,7 +86,8 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
         for player in players:
             if player.substitute:
                 player_role = f"({player.role})" if player.role else ""
-                player_value = f"- <@{player.player_id}> {player_role} ***(Substituto)*** {'***(Secundário)***' if player.secondary else ''}"
+                player_value = (f"- <@{player.player_id}> {player_role} ***(Substituto)*** "
+                                f"{'***(Secundário)***' if player.secondary else ''}")
                 team_embed.add_field(
                     name=separator,
                     value=player_value,

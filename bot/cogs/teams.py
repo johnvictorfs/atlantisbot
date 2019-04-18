@@ -31,7 +31,11 @@ class Teams(commands.Cog):
             team_message: discord.Message = await team_channel.fetch_message(int(team.team_message_id))
             await update_team_message(team_message, team, self.bot.setting.prefix, session)
             team_url = team_message.jump_url
-            embed = discord.Embed(title='', description=f"Role de {to_add.mention} no time **{team.title}** foi alterado para ***{role}*** - [Time]({team_url})")
+            msg = f"Role de {to_add.mention} no time **{team.title}** foi alterado para '{role}' - [Time]({team_url})"
+            embed = discord.Embed(
+                title='',
+                description=msg
+            )
             return await ctx.send(embed=embed)
 
     @commands.cooldown(1, 5)
