@@ -23,7 +23,7 @@ def secondary_full(team: Team, session) -> (int, bool):
     return secondary_count, (secondary_count >= team.secondary_limit)
 
 
-def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary: bool, session):
+def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary: bool, session) -> None:
     """Adds a Player to a Team"""
     added_player = Player(player_id=str(author.id), team=team.id, substitute=substitute, secondary=secondary)
     session.add(added_player)
