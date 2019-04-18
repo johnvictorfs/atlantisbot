@@ -6,13 +6,33 @@ from discord.ext import commands
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
-from bot.utils.teams import delete_team
-from bot.orm.models import Team
+from bot.utils.teams import delete_team, update_team_message
+from bot.orm.models import Team, Player
 
 
 class Teams(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
+
+    @commands.guild_only()
+    @commands.command(aliases=['teamrole'])
+    async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, role: str):
+        with self.bot.db_session() as session:
+            team: Team = session.query(Team).filter_by(team_id=team_id).first()
+            if not team:
+                return await ctx.send(f"{ctx.author.mention}, Time com ID {team_id} não existe.")
+            if not int(team.author_id) == ctx.author.id:
+                return await ctx.send(f"{ctx.author.mention}, você não é o criador desse time.")
+            player = session.query(Player).filter_by(player_id=str(to_add.id), team=str(team.id)).first()
+            if not player:
+                return await ctx.send(f"{ctx.author.mention}, esse jogador não está no time de ID {team_id}.")
+            player.role = role
+            team_channel: discord.TextChannel = self.bot.get_channel(int(team.team_channel_id))
+            team_message: discord.Message = await team_channel.fetch_message(int(team.team_message_id))
+            await update_team_message(team_message, team, self.bot.setting.prefix, session)
+            team_url = team_message.jump_url
+            embed = discord.Embed(title='', description=f"Role de {to_add.mention} no time **{team.title}** foi alterado para ***{role}*** - [Time]({team_url})")
+            return await ctx.send(embed=embed)
 
     @commands.cooldown(1, 5)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)

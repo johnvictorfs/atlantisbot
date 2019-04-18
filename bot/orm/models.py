@@ -14,6 +14,7 @@ class Player(Base):
     in_team = Column(Boolean)
     substitute = Column(Boolean, default=False)
     secondary = Column(Boolean, default=False)
+    role = Column(String, nullable=True)
     team = Column(Integer, ForeignKey('team.id', ondelete='CASCADE'))
 
 
