@@ -57,7 +57,7 @@ class CommandErrorHandler(commands.Cog):
                 title=f"Uso do comando '{command}'",
                 description=f"`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional\n\n"
                             f"{prefix}{command} {arguments}\n",
-                color=discord.Colour.blue()
+                color=discord.Colour.red()
             )
             if footer:
                 embed.set_footer(
