@@ -142,7 +142,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                     text = 'já está no time'
                 elif has_any:
                     add_to_team(message.author, team, substitute=is_team_full, secondary=is_secondary, session=session)
-                    text = 'foi adicionado ***como substituto*** ao time' if is_team_full else 'foi adicionado ao time'
+                    text = 'entrou ***como substituto*** no time' if is_team_full else 'entrou no time'
                 else:
                     description = f"{message.author.mention}, você precisa ter o cargo <@&{team.role}>"
                     if team.role_secondary:

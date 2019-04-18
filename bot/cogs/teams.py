@@ -32,10 +32,7 @@ class Teams(commands.Cog):
             await update_team_message(team_message, team, self.bot.setting.prefix, session)
             team_url = team_message.jump_url
             msg = f"Role de {to_add.mention} no time **[{team.title}]({team_url})** foi alterado para '{role}'"
-            embed = discord.Embed(
-                title='',
-                description=msg
-            )
+            embed = discord.Embed(title='', description=msg, color=discord.Color.green())
             return await ctx.send(embed=embed)
 
     @commands.cooldown(1, 5)
