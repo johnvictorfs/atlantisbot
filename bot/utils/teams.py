@@ -76,11 +76,7 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
                 player_role = f"({player.role})" if player.role else ""
                 player_value = (f"{index + 1}- <@{player.player_id}> {player_role} "
                                 f"{'***(Secundário)***' if player.secondary else ''}")
-                team_embed.add_field(
-                    name=separator,
-                    value=player_value,
-                    inline=False
-                )
+                team_embed.add_field(name=separator, value=player_value, inline=False)
                 index += 1
     if players:
         for player in players:
@@ -88,11 +84,7 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
                 player_role = f"({player.role})" if player.role else ""
                 player_value = (f"- <@{player.player_id}> {player_role} ***(Substituto)*** "
                                 f"{'***(Secundário)***' if player.secondary else ''}")
-                team_embed.add_field(
-                    name=separator,
-                    value=player_value,
-                    inline=False
-                )
+                team_embed.add_field(name=separator, value=player_value, inline=False)
     await message.edit(embed=team_embed)
 
 
@@ -134,7 +126,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 is_secondary = True if (has_secondary and not has_main) else False
 
                 if is_secondary:
-                    is_team_full = secondary_full(team, session)[1]
+                    _, is_team_full = secondary_full(team, session)
                 else:
                     is_team_full = is_full(team, session)
 
@@ -213,7 +205,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
 
 def is_full(team: Team, session) -> bool:
     """Verifies if a team is full or not"""
-    count = session.query(Player).filter_by(team=team.id).count()
+    count = session.query(Player).filter_by(team=team.id, substitute=False).count()
     return count >= team.size
 
 
