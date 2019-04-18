@@ -17,10 +17,20 @@ class WrongChannelError(Exception):
 def secondary_full(team: Team, session) -> (int, bool):
     """Checks if a team has hit its limit for number of players that only have its secondary role requirement"""
     secondary_count = session.query(Player).filter_by(team=team.id, secondary=True).count()
+<<<<<<< HEAD
     return secondary_count, (secondary_count >= team.secondary_limit)
 
 
 def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary: bool, session):
+=======
+    if not team.secondary_limit:
+        # If the team does not have a secondary role limit, then it can't ever reach that
+        return False
+    return secondary_count, (secondary_count >= team.secondary_limit)
+
+
+def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary: bool, session) -> None:
+>>>>>>> dev
     """Adds a Player to a Team"""
     added_player = Player(player_id=str(author.id), team=team.id, substitute=substitute, secondary=secondary)
     session.add(added_player)
