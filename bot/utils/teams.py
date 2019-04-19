@@ -171,7 +171,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                             session.add(BotMessage(message_id=msg.id, team=team.id))
                     remove_from_team(message.author.id, team, session)
                 else:
-                    text = 'já estava no time'
+                    text = 'já não estava no time'
             if no_perm_embed:
                 sent_message = await invite_channel.send(embed=no_perm_embed)
             else:
