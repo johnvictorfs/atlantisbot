@@ -15,7 +15,7 @@ class Teams(commands.Cog):
         self.bot = bot
 
     @commands.guild_only()
-    @commands.command(aliases=['teamrole'])
+    @commands.command(aliases=['teamrole', 'tr'])
     async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, role: str):
         with self.bot.db_session() as session:
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
@@ -413,7 +413,7 @@ class Teams(commands.Cog):
             session.add(team)
             session.commit()
 
-    def current_id(self):
+    def current_id(self) -> int:
         with self.bot.db_session() as session:
             try:
                 current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
