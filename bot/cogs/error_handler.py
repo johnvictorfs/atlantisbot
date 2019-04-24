@@ -26,36 +26,39 @@ class CommandErrorHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         # Don't try to handle the error if the command has a local handler
+        ctx.command: commands.Command
         if hasattr(ctx.command, 'on_error'):
             return
-
-        prefix = self.bot.setting.prefix
         arguments_error = [
             commands.MissingRequiredArgument,
             commands.BadArgument,
             commands.TooManyArguments,
         ]
-        command = None
-        arguments = None
         if any([isinstance(error, arg_error) for arg_error in arguments_error]):
-            if ctx.command.qualified_name == 'clan_user_info':
-                command = "claninfo / clanexp"
-                arguments = f"`<nome de jogador>`"
-            elif ctx.command.qualified_name == 'running_competitions':
-                command = "comp"
-                arguments = f"`<número da competição>` `(número de jogadores|10)`"
-            elif ctx.command.qualified_name == 'delteam':
-                command = "del"
-                arguments = f"`<ID do Time>`"
-            elif ctx.command.qualified_name == 'team_role':
-                command = "tr / teamrole"
-                arguments = f"`<ID do Time> <Pessoa para alterar> <Role para colocar>`"
             embed = discord.Embed(
-                title=f"Uso do comando '{command}'",
-                description=f"`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional\n\n"
-                            f"{prefix}{command} {arguments}\n",
+                title=f"Argumentos do comando '{ctx.command}':",
+                description="",
                 color=discord.Colour.red()
             )
+            for param, param_type in ctx.command.clean_params.items():
+                try:
+                    default_name = param_type.default.__name__
+                except AttributeError:
+                    default_name = param_type.default
+                default = f"(Padrão: {default_name})" if default_name != '_empty' else '(Obrigatório)'
+
+                p_type = param_type.annotation.__name__
+
+                if p_type == 'str':
+                    p_type = 'Texto'
+                elif p_type == 'bool':
+                    p_type = '[True, False]'
+                elif p_type == 'Member':
+                    p_type = 'Membro'
+                elif p_type == 'int':
+                    p_type = 'Número'
+
+                embed.add_field(name=param, value=f"**Tipo:** *{p_type}*\n*{default}*", inline=False)
             try:
                 await ctx.send(embed=embed)
             except discord.errors.Forbidden:
@@ -82,8 +85,6 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.errors.CheckFailure):
             await ctx.send(f"Você não tem permissão para fazer isso.")
         else:
-            # if error.message:
-            #     return await ctx.send(error.message)
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
             await self.bot.send_logs(error, tb, ctx)

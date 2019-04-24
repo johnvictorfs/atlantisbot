@@ -41,9 +41,13 @@ class ClanHiscores(commands.Cog):
         clans = sorted(clans, key=itemgetter('rank'))
         for clan in clans[:num_clans]:
             if clan['approved']:
+                url = f'https://runeclan.com/clan/{clan["name"].replace(" ", "_")}'
+                runeclan = f"[RuneClan]({url})"
+                exp = f'{clan["exp"]:,.0f}'
+                today = f'{clan["exp_today"]:,.0f}'
                 rankings_embed.add_field(
                     name=f'{clan["rank"]}- {clan["name"]}',
-                    value=f'**Total:** {clan["exp"]:,.0f}\n**Hoje:** {clan["exp_today"]:,.0f}\n{separator}',
+                    value=f'{runeclan}\n**Total:** {exp}\n**Hoje:** {today}\n{separator}',
                     inline=False
                 )
         rankings_embed.set_footer(text='Os dados dos clãs são atualizados a cada 5 minutos.')

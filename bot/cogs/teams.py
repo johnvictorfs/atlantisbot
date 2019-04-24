@@ -18,8 +18,7 @@ def is_team_owner(ctx: commands.Context):
     """Raises NotTeamOwnerError if the Context author is not the owner of the team_id being passed"""
     with ctx.bot.db_session() as session:
         if not ctx.kwargs.get('team_id'):
-            print(ctx.args)
-            raise commands.MissingRequiredArgument()  # algum argumento que eu n entendo aqui
+            raise commands.MissingRequiredArgument(ctx.command)
         team: Team = session.query(Team).filter_by(team_id=ctx.kwargs.get('team_id')).first()
         if not team or not int(team.author_id) == ctx.author.id:
             raise NotTeamOwnerError
@@ -31,9 +30,9 @@ class Teams(commands.Cog):
         self.bot = bot
 
     @commands.guild_only()
-    @commands.command(aliases=['teamrole', 'tr'])
+    @commands.command(aliases=['teamrole', 'tr', 'setrole', 'sr'])
     @commands.check(is_team_owner)
-    async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, role: str):
+    async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, *, role: str):
         with self.bot.db_session() as session:
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             # if not team:
