@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 
 from bot.bot_client import Bot
+from bot.cogs.teams import NotTeamOwnerError
 
 
 class CommandErrorHandler(commands.Cog):
@@ -24,6 +25,10 @@ class CommandErrorHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
+        # Don't try to handle the error if the command has a local handler
+        if hasattr(ctx.command, 'on_error'):
+            return
+
         prefix = self.bot.setting.prefix
         arguments_error = [
             commands.MissingRequiredArgument,
@@ -33,9 +38,8 @@ class CommandErrorHandler(commands.Cog):
         command = None
         arguments = None
         if any([isinstance(error, arg_error) for arg_error in arguments_error]):
-            footer = None
             if ctx.command.qualified_name == 'clan_user_info':
-                command = "claninfo"
+                command = "claninfo / clanexp"
                 arguments = f"`<nome de jogador>`"
             elif ctx.command.qualified_name == 'running_competitions':
                 command = "comp"
@@ -44,25 +48,14 @@ class CommandErrorHandler(commands.Cog):
                 command = "del"
                 arguments = f"`<ID do Time>`"
             elif ctx.command.qualified_name == 'team_role':
-                command = "teamrole"
+                command = "tr / teamrole"
                 arguments = f"`<ID do Time> <Pessoa para alterar> <Role para colocar>`"
-            elif ctx.command.qualified_name == 'team':
-                command = "team"
-                arguments = f"<\"Título\"> `<Tamanho>` `(Chat para presenças|Chat atual) (Role Requisito)`"
-                footer = "É necessário que o título do Time esteja contido em aspas (\" \") caso ele contenha espaços"
-            elif ctx.command.qualified_name == 'delteam':
-                command = "del"
-                arguments = f"<ID do Time (número)>"
             embed = discord.Embed(
                 title=f"Uso do comando '{command}'",
                 description=f"`<argumento>` : Obrigatório\n`(argumento|padrão)` : Opcional\n\n"
                             f"{prefix}{command} {arguments}\n",
                 color=discord.Colour.red()
             )
-            if footer:
-                embed.set_footer(
-                    text=footer
-                )
             try:
                 await ctx.send(embed=embed)
             except discord.errors.Forbidden:
@@ -89,6 +82,8 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.errors.CheckFailure):
             await ctx.send(f"Você não tem permissão para fazer isso.")
         else:
+            # if error.message:
+            #     return await ctx.send(error.message)
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
             await self.bot.send_logs(error, tb, ctx)

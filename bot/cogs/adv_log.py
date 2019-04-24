@@ -19,7 +19,8 @@ class AdvLog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.advlog_task = self.bot.loop.create_task(self.advlog())
+        if self.bot.setting.mode == 'prod':
+            self.advlog_task = self.bot.loop.create_task(self.advlog())
 
     def cog_unload(self):
         self.advlog_task.cancel()
@@ -107,7 +108,8 @@ class AdvLog(commands.Cog):
 
     @staticmethod
     async def retrieve_clan_list(cs: aiohttp.ClientSession, clan_name: str) -> list:
-        clan = f"http://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName={clan_name.replace(' ', '%20')}"
+        clan_name = clan_name.replace(' ', '%20')
+        clan = f"http://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName={clan_name}"
         async with cs.get(clan) as r:
             clan_csv = await r.text()
             return list(csv.reader(StringIO(clan_csv), delimiter=','))

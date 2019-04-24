@@ -16,7 +16,8 @@ class Merchant(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.update_merchant_task = self.bot.loop.create_task(self.update_merchant_stock())
+        if self.bot.setting.mode == 'prod':
+            self.update_merchant_task = self.bot.loop.create_task(self.update_merchant_stock())
 
     def cog_unload(self):
         self.update_merchant_task.cancel()
@@ -89,9 +90,6 @@ class Merchant(commands.Cog):
 
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
-
-        if self.bot.setting.mode == 'dev':
-            return
 
         while True:
             try:

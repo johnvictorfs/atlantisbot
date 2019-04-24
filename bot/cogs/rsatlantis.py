@@ -12,7 +12,8 @@ class RsAtlantis(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.update_clans_task = self.bot.loop.create_task(self.update_all_clans())
+        if self.bot.setting.mode == 'prod':
+            self.update_clans_task = self.bot.loop.create_task(self.update_all_clans())
 
     def cog_unload(self):
         self.update_clans_task.cancel()

@@ -132,7 +132,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
 
                 if in_team(message.author.id, team, session):
                     text = 'já está no time'
-                elif has_any:
+                elif has_any or not team_role:
                     add_to_team(message.author, team, substitute=is_team_full, secondary=is_secondary, session=session)
                     text = 'entrou ***como substituto*** no time' if is_team_full else 'entrou no time'
                 else:
@@ -195,10 +195,8 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
 
         except TeamNotFoundError:
             raise TeamNotFoundError
-            return
         except WrongChannelError:
             raise WrongChannelError
-            return
         except Exception as e:
             await client.send_logs(e, traceback.format_exc())
 

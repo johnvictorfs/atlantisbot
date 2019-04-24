@@ -63,6 +63,12 @@ class AdvLogState(Base):
     messages = Column(Boolean, default=False)
 
 
+class DisabledCommand(Base):
+    __tablename__ = 'disabled_command'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+
+
 class PlayerActivities(Base):
     __tablename__ = 'playeractivities'
     id = Column(Integer, primary_key=True)

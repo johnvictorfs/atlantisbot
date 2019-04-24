@@ -8,7 +8,8 @@ from discord.ext import commands
 import discord
 
 from bot.bot_client import Bot
-from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson
+from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson, \
+    DisabledCommand
 from bot.utils.tools import separator, plot_table
 
 
@@ -45,6 +46,36 @@ class Owner(commands.Cog):
         if err:
             return await ctx.send('Houve algum erro reiniciando extensões. Verificar os Logs do bot.')
         return await ctx.send('Todas as extensões foram reiniciadas com sucesso.')
+
+    @commands.is_owner()
+    @commands.command()
+    async def disable(self, ctx: commands.Context, command_name: str):
+        """Disables a command"""
+        command = self.bot.get_command(command_name)
+        if not command:
+            return await ctx.send(f"O comando {command_name} não existe.")
+        if not command.enabled:
+            return await ctx.send(f"O comando {command_name} já está desabilitado.")
+        with self.bot.db_session() as session:
+            command.enabled = False
+            session.add(DisabledCommand(name=command_name))
+        return await ctx.send(f"Comando {command_name} desabilitado com sucesso.")
+
+    @commands.is_owner()
+    @commands.command()
+    async def enable(self, ctx: commands.Context, command_name: str):
+        """Enables a command"""
+        command = self.bot.get_command(command_name)
+        if not command:
+            return await ctx.send(f"O comando {command_name} não existe.")
+        if command.enabled:
+            return await ctx.send(f"O comando {command_name} já está habilitado.")
+
+        with self.bot.db_session() as session:
+            disabled_command = session.query(DisabledCommand).filter_by(name=command_name).first()
+            session.delete(disabled_command)
+            command.enabled = True
+        return await ctx.send(f"Comando {command_name} habilitado com sucesso.")
 
     @commands.is_owner()
     @commands.command(aliases=['sendtable'])

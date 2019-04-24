@@ -16,6 +16,7 @@ from sqlalchemy.orm.session import Session
 
 from bot import settings
 from bot.orm import db
+from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator, has_any_role
 from bot.utils.teams import manage_team, TeamNotFoundError, WrongChannelError
 
@@ -120,6 +121,7 @@ class Bot(commands.Bot):
                     print(f'Failed to load extension {error}')
                     errored = True
         print('-' * 10)
+        self.disabled_commands()
         return errored
 
     async def reload_all_extensions(self):
@@ -138,6 +140,16 @@ class Bot(commands.Bot):
                     errored = True
         print('-' * 10)
         return errored
+
+    def disabled_commands(self):
+        with self.db_session() as session:
+            qs = session.query(DisabledCommand).all()
+            if qs:
+                for item in qs:
+                    command = self.get_command(item.name)
+                    if command:
+                        command.enabled = False
+                        print(f"Disabling command {command}.")
 
     async def on_ready(self):
         """
