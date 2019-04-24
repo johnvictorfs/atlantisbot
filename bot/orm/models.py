@@ -72,9 +72,7 @@ class DisabledCommand(Base):
 class PlayerActivities(Base):
     __tablename__ = 'playeractivities'
     id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True)
-    clan = Column(String)
-    activities = Column(String, default="[]")
+    activities_id = Column(String, unique=True)
 
 
 class AmigoSecretoPerson(Base):

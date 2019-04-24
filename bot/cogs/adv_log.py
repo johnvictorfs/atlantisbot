@@ -4,6 +4,8 @@ import traceback
 import re
 import ast
 import datetime
+import feedparser
+import urllib.parse as urlparse
 from io import StringIO
 
 from discord.ext import commands
@@ -19,11 +21,87 @@ class AdvLog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        if self.bot.setting.mode == 'prod':
-            self.advlog_task = self.bot.loop.create_task(self.advlog())
+        # if self.bot.setting.mode == 'prod':
+        #     self.advlog_task = self.bot.loop.create_task(self.advlog())
+        self.advlog_task2 = self.bot.loop.create_task(self.adv_log())
 
     def cog_unload(self):
-        self.advlog_task.cancel()
+        self.advlog_task2.cancel()
+        # self.advlog_task.cancel()
+
+    async def adv_log(self):
+        await self.bot.wait_until_ready()
+
+        while True:
+            with self.bot.db_session() as session:
+                state = session.query(AdvLogState).first()
+                if not state:
+                    state = AdvLogState(messages=True)
+                    session.add(state)
+                    session.commit()
+                current_state = state.messages
+            if not current_state:
+                await asyncio.sleep(60)
+                continue
+            async with aiohttp.ClientSession() as cs:
+                try:
+                    for get_clan in self.bot.setting.advlog_clans:
+                        clan_name = get_clan.get('name').replace(' ', '%20')
+                        clan_list: list = await self.retrieve_clan_list(cs, clan_name)
+                        channel: discord.TextChannel = self.bot.get_channel(get_clan.get('chat'))
+                        banner = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
+
+                        for player in clan_list[1:]:
+                            player = player[0]
+                            entries = await self.retrieve_activities(cs, player)
+                            if not entries:
+                                continue
+                            for entry in entries:
+                                parsed_url = urlparse.urlparse(entry.get('guid'))
+                                entry_id = urlparse.parse_qs(parsed_url.query).get('id')[0]
+                                with self.bot.db_session() as session:
+                                    exists = session.query(PlayerActivities).filter_by(activities_id=entry_id).first()
+                                if exists:
+                                    continue
+                                with self.bot.db_session() as session:
+                                    session.add(PlayerActivities(activities_id=entry_id))
+                                title = entry.get('title')
+                                description = entry.get('description')
+                                try:
+                                    description_exp = int(re.findall(r'\d+', entry.get('description'))[0])
+                                    if description_exp:
+                                        description = description.replace(str(description_exp), f"{description_exp:,}")
+                                    title_exp = int(re.findall(r'\d+', entry.get('title'))[0])
+                                    if title_exp:
+                                        title = title.replace(str(title_exp), f"{title_exp:,} ")
+                                except IndexError:
+                                    pass
+                                # Removing non-breaking spaces from the player's name, since they would break the URL
+                                # Source: https://stackoverflow.com/a/52254293
+                                player_icon_url = ' '.join(player.split()).replace(' ', '%20')
+                                icon_url = f"https://secure.runescape.com/m=avatar-rs/{player_icon_url}/chat.png"
+
+                                embed = discord.Embed(title=title, description=description)
+                                embed.set_author(name=player, icon_url=icon_url)
+                                embed.set_thumbnail(url=banner)
+                                pub_date = entry.get('pubDate')
+                                if pub_date:
+                                    embed.set_footer(text=pub_date.replace(' 00:00:00 GMT', ''))
+                                await channel.send(embed=embed)
+                                await asyncio.sleep(5)
+                except Exception as e:
+                    await self.bot.send_logs(e, traceback.format_exc())
+                    await asyncio.sleep(60 * 3)
+                await asyncio.sleep(15)
+
+    @staticmethod
+    async def retrieve_activities(cs: aiohttp.ClientSession, player: str) -> list:
+        url = f'http://services.runescape.com/m=adventurers-log/l=3/a=869/rssfeed?searchName={player}'
+        async with cs.get(url) as r:
+            text = await r.text()
+            feed = feedparser.parse(text)
+            if r.status == 200:
+                return feed.get('entries')
 
     async def advlog(self):
         await self.bot.wait_until_ready()
@@ -114,22 +192,22 @@ class AdvLog(commands.Cog):
             clan_csv = await r.text()
             return list(csv.reader(StringIO(clan_csv), delimiter=','))
 
-    @staticmethod
-    async def retrieve_activities(cs: aiohttp.ClientSession, player_name: str) -> list:
-        player_name = player_name.replace(' ', '%20')
-        profile_url = f'https://apps.runescape.com/runemetrics/profile/profile?user={player_name}&activities=20'
-        async with cs.get(profile_url) as r:
-            if r.status != 200:
-                return []
-            call = await r.json()
-            if call.get('error') == 'PROFILE_PRIVATE':
-                return []
-            elif call.get('error') == 'NOT_A_MEMBER':
-                return []
-            else:
-                if call.get('activities'):
-                    return ast.literal_eval(str(call.get('activities')))
-                return []
+    # @staticmethod
+    # async def retrieve_activities(cs: aiohttp.ClientSession, player_name: str) -> list:
+    #     player_name = player_name.replace(' ', '%20')
+    #     profile_url = f'https://apps.runescape.com/runemetrics/profile/profile?user={player_name}&activities=20'
+    #     async with cs.get(profile_url) as r:
+    #         if r.status != 200:
+    #             return []
+    #         call = await r.json()
+    #         if call.get('error') == 'PROFILE_PRIVATE':
+    #             return []
+    #         elif call.get('error') == 'NOT_A_MEMBER':
+    #             return []
+    #         else:
+    #             if call.get('activities'):
+    #                 return ast.literal_eval(str(call.get('activities')))
+    #             return []
 
 
 def setup(bot):

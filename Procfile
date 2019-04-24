@@ -1,1 +1,1 @@
-worker: ./migrate.sh && python atlantisbot.py
+worker: ./makemigrations.sh && ./migrate.sh && python atlantisbot.py

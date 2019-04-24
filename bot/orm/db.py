@@ -12,7 +12,7 @@ with open('bot/bot_settings.json', 'r') as f:
     database_url = settings['BOT']['database_url']
 
 if database_url:
-    engine = create_engine(os.environ.get(database_url), pool_size=35, max_overflow=0)
+    engine = create_engine(database_url, pool_size=35, max_overflow=0)
 else:
     engine = create_engine('sqlite:///db.sqlite3', connect_args={'timeout': 15})
 
