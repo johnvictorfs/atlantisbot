@@ -20,6 +20,7 @@ class WelcomeMessage(commands.Cog):
     async def test_welcome_message(self, ctx: commands.Context):
         await ctx.author.send(embed=self.welcome_embed(ctx.author))
 
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         print(f"'{member}' joined the server '{member.guild}' at {member.joined_at}")
         if member.guild.id != self.bot.setting.guild_id:
