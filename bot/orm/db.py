@@ -7,9 +7,13 @@ from sqlalchemy.orm import sessionmaker
 
 from bot.orm.models import Base
 
-with open('bot/bot_settings.json', 'r') as f:
-    settings = json.load(f)
-    database_url = settings['BOT']['database_url']
+
+database_url = os.environ.get('DATABASE_URL')
+
+if not database_url:
+    with open('bot/bot_settings.json', 'r') as f:
+        settings = json.load(f)
+        database_url = settings['BOT']['database_url']
 
 if database_url:
     engine = create_engine(database_url, pool_size=35, max_overflow=0)
