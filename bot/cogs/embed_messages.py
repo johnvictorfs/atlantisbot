@@ -34,7 +34,7 @@ class EmbedMessages(commands.Cog):
             for chat in embed['chats']:
                 message += f"\n⯈ <#{self.bot.setting.chat.get(chat['name'])}> - {chat['text']}"
 
-        welcome_embed.add_field(name=embeds_file['title'], value=message, inline=False)
+        welcome_embed.add_field(name=embeds_file['welcome_message']['title'], value=message, inline=False)
 
         for field in embeds_file['welcome_message']['extra_fields']:
             welcome_embed.add_field(name=field['name'], value=field['value'], inline=False)
