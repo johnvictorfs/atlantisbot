@@ -50,7 +50,7 @@ class EmbedMessages(commands.Cog):
 
     @commands.command(aliases=['update_welcome'])
     async def update_welcome_message(self, ctx: commands.Context):
-        channel: discord.TextChannel = await self.bot.get_channel(self.bot.setting.welcome_channel_id)
+        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.welcome_channel_id)
         message: discord.Message = await channel.fetch_message(self.bot.setting.welcome_message_id)
         await ctx.message.delete()
         return await message.edit(content=None, embed=self.welcome_embed())

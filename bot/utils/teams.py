@@ -19,7 +19,7 @@ def secondary_full(team: Team, session) -> (int, bool):
     secondary_count = session.query(Player).filter_by(team=team.id, secondary=True).count()
     if not team.secondary_limit:
         # If the team does not have a secondary role limit, then it can't ever reach that
-        return False
+        return 0, False
     return secondary_count, (secondary_count >= team.secondary_limit)
 
 

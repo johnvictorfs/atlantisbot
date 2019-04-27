@@ -213,7 +213,7 @@ class RaidsTasks(commands.Cog):
         await self.start_raids_team()
         await ctx.author.send('Time de Raids iniciado com sucesso.')
 
-    @commands.cooldown(1, 10)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
     @commands.command()
     async def resend_raids(self, ctx: commands.Context) -> None:

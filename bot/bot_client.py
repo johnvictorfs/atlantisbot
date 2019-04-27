@@ -176,8 +176,11 @@ class Bot(commands.Bot):
         always ignore bots.
         """
         if message.author.bot:
-            if message.content == 'HECK YES!':
-                return await message.channel.send('HECK NO!')
+            if self.setting.mode == 'prod':
+                if message.content == 'HECK YES!':
+                    return await message.channel.send('HECK NO!')
+                if self.user.mention in message.content:
+                    return await message.channel.send('What did you say about me you little *****?!')
             return
 
         # If in development environment only accept answers in dev server and channel

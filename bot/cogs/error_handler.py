@@ -6,7 +6,6 @@ import discord
 from discord.ext import commands
 
 from bot.bot_client import Bot
-from bot.cogs.teams import NotTeamOwnerError
 
 
 class CommandErrorHandler(commands.Cog):
@@ -45,7 +44,7 @@ class CommandErrorHandler(commands.Cog):
                     default_name = param_type.default.__name__
                 except AttributeError:
                     default_name = param_type.default
-                default = f"(Padrão: {default_name})" if default_name != '_empty' else '(Obrigatório)'
+                default = f"(Opcional, Padrão: {default_name})" if default_name != '_empty' else '(Obrigatório)'
 
                 p_type = param_type.annotation.__name__
 
@@ -83,7 +82,7 @@ class CommandErrorHandler(commands.Cog):
             permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
             await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
         elif isinstance(error, commands.errors.CheckFailure):
-            await ctx.send(f"Você não tem permissão para fazer isso.")
+            pass
         else:
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))

@@ -168,7 +168,7 @@ class Competitions(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @commands.cooldown(1, 5)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
     async def running_competitions(self, ctx: commands.Context, index=0, players=10):
@@ -249,7 +249,7 @@ class Competitions(commands.Cog):
                     inline=False)
             return await ctx.send(content=None, embed=comp_embed)
 
-    @commands.cooldown(1, 5)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.command(
         aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
                  'compp', 'compps'])

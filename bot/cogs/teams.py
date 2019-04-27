@@ -10,18 +10,38 @@ from bot.utils.teams import delete_team, update_team_message
 from bot.orm.models import Team, Player
 
 
-class NotTeamOwnerError(commands.CommandError):
-    message = 'Você precisa ser o criador desse Time para fazer isso.'
-
-
-def is_team_owner(ctx: commands.Context):
-    """Raises NotTeamOwnerError if the Context author is not the owner of the team_id being passed"""
+async def is_team_owner(ctx: commands.Context):
+    """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
-        if not ctx.kwargs.get('team_id'):
+        team_id = re.findall(r"(?:\S+\s+)(\S+)", ctx.message.content)
+        if not team_id:
             raise commands.MissingRequiredArgument(ctx.command)
-        team: Team = session.query(Team).filter_by(team_id=ctx.kwargs.get('team_id')).first()
-        if not team or not int(team.author_id) == ctx.author.id:
-            raise NotTeamOwnerError
+        team_id = team_id[0]
+        team: Team = session.query(Team).filter_by(team_id=team_id).first()
+        if not team:
+            await ctx.send(f"Time com ID {team_id} não existe.")
+            return False
+        if not int(team.author_id) == ctx.author.id:
+            await ctx.send(f"Você precisa ser o criador desse Time para fazer isso.")
+            return False
+        return True
+
+
+async def is_in_team(ctx: commands.Context):
+    """Checks if the command caller is in the team or not, team_id has to be the first argument of the command"""
+    with ctx.bot.db_session() as session:
+        team_id = re.findall(r"(?:\S+\s+)(\S+)", ctx.message.content)
+        if not team_id:
+            raise commands.MissingRequiredArgument(ctx.command)
+        team_id = team_id[0]
+        team: Team = session.query(Team).filter_by(team_id=team_id).first()
+        if not team:
+            await ctx.send(f"Time com ID {team_id} não existe.")
+            return False
+        in_team = session.query(Player).filter_by(team=team.id, player_id=str(ctx.author.id)).first()
+        if not in_team:
+            await ctx.send(f"Você precisa estar no Time para fazer isso.")
+            return False
         return True
 
 
@@ -31,14 +51,14 @@ class Teams(commands.Cog):
 
     @commands.guild_only()
     @commands.command(aliases=['teamrole', 'tr', 'setrole', 'sr'])
-    @commands.check(is_team_owner)
     async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, *, role: str):
         with self.bot.db_session() as session:
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
-            # if not team:
-            #     return await ctx.send(f"{ctx.author.mention}, Time com ID {team_id} não existe.")
-            # if not int(team.author_id) == ctx.author.id:
-            #     return await ctx.send(f"{ctx.author.mention}, você não é o criador desse time.")
+            if not team:
+                return await ctx.send(f"Time com ID {team_id} não existe.")
+            team_channel = self.bot.get_channel(int(team.team_channel_id))
+            if not ctx.author.permissions_in(team_channel).manage_channels:
+                raise commands.MissingPermissions(['manage_messages'])
             player = session.query(Player).filter_by(player_id=str(to_add.id), team=str(team.id)).first()
             if not player:
                 return await ctx.send(f"{ctx.author.mention}, esse jogador não está no time de ID {team_id}.")
@@ -51,19 +71,36 @@ class Teams(commands.Cog):
             embed = discord.Embed(title='', description=msg, color=discord.Color.green())
             return await ctx.send(embed=embed)
 
-    @commands.cooldown(1, 5)
+    @commands.guild_only()
+    @commands.check(is_in_team)
+    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.command(aliases=['tagall'])
+    async def tag_all(self, ctx: commands.Context, team_id: str, *, message: str = None):
+        with self.bot.db_session() as session:
+            team: Team = session.query(Team).filter_by(team_id=team_id).first()
+            players = session.query(Player).filter_by(team=team.id)
+            if not players:
+                return await ctx.send(f"O time '{team.title}' está vazio.")
+            text = ""
+            for player in players:
+                text = f"{text} <@{player.player_id}>"
+            if message:
+                text = f"{text}\n{message}"
+            return await ctx.send(text)
+
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx: commands.Context, pk: str):
+    async def delteam(self, ctx: commands.Context, team_id: str):
         with self.bot.db_session() as session:
             try:
                 await ctx.message.delete()
             except discord.errors.NotFound:
                 pass
-            team: Team = session.query(Team).filter_by(team_id=pk).first()
+            team: Team = session.query(Team).filter_by(team_id=team_id).first()
             if not team:
-                return await ctx.send(f"ID inválida: {pk}")
+                return await ctx.send(f"ID inválida: {team_id}")
             if int(team.author_id) != ctx.author.id:
                 if not ctx.author.permissions_in(ctx.channel).manage_channels:
                     raise commands.MissingPermissions(['manage_channels'])
@@ -72,336 +109,256 @@ class Teams(commands.Cog):
             await delete_team(session, team, self.bot)
             await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
-    @commands.cooldown(1, 10)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
     @commands.guild_only()
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx: commands.Context):
-        creation_message = None
-        try:
-            await ctx.message.delete()
-            cancel_command = f'{self.bot.setting.prefix}cancelar'
-            creation_message_content = (
-                "Criação de time iniciada por {author}.\n\n"
-                "Digite `{cancel}` a qualquer momento para cancelar.\n\n"
-                "**Título:** {title}\n"
-                "**Tamanho:** {size}\n"
-                "**Chat:** {chat}\n"
-                "**Requisito:** {requisito}\n"
-                "**Requisito Secundário:** {requisito_secundario}\n"
-                "**Limite Secundário:** {limite_secundario}"
-            )
-            creation_message = await ctx.send(creation_message_content.format(
-                author=ctx.author.mention,
-                cancel=cancel_command,
-                title='',
-                size='',
-                chat='',
-                requisito='',
-                requisito_secundario='',
-                limite_secundario=''
-            ))
+        await ctx.message.delete()
 
-            # Only accept answers from the the message author and in the same channel the commands was invoked
-            def check(message):
-                if ctx.channel != message.channel:
-                    return False
-                return message.author == ctx.author
+        cancel_command = f'{self.bot.setting.prefix}cancelar'
+        orange = discord.Color.orange()
 
-            # Team Title
-            sent_message = await ctx.send(
-                f"{ctx.author.mention}, digite o nome do time. (e.g.: Solak 20:00)"
-            )
-            team_title_message = await self.bot.wait_for('message', timeout=60.0, check=check)
+        embed = discord.Embed(title="Criação de Time", description=f"", color=orange)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+        embed.set_thumbnail(url=self.bot.setting.banner_image)
+        team_message: discord.Message = await ctx.send(embed=embed)
+
+        def author_check(message):
+            if ctx.channel != message.channel:
+                return False
+            return message.author == ctx.author
+
+        def size_check(message):
+            if ctx.channel != message.channel:
+                return False
+            if message.author != ctx.author:
+                return False
             try:
-                await sent_message.delete()
-                await team_title_message.delete()
-            except discord.errors.NotFound:
-                await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                return await creation_message.delete()
-            if team_title_message.content.lower() == cancel_command:
-                await creation_message.delete()
-                return await ctx.send("Criação de time cancelada.")
-            team_title = team_title_message.content
-            await creation_message.edit(
-                content=creation_message_content.format(
-                    author=ctx.author.mention,
-                    cancel=cancel_command,
-                    title=team_title,
-                    size='',
-                    chat='',
-                    requisito='',
-                    requisito_secundario='',
-                    limite_secundario=''
-                )
-            )
-            # Tamanho do time
-            sent_message = await ctx.send(
-                f"{ctx.author.mention}, digite o tamanho do time. (apenas números)"
-            )
-            team_size_message = await self.bot.wait_for('message', timeout=60.0, check=check)
-            try:
-                try:
-                    await sent_message.delete()
-                    await team_size_message.delete()
-                except discord.errors.NotFound:
-                    await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                    return await creation_message.delete()
-                if team_size_message.content.lower() == cancel_command:
-                    await creation_message.delete()
-                    return await ctx.send("Criação de time cancelada.")
-                team_size = int(team_size_message.content)
-                await creation_message.edit(
-                    content=creation_message_content.format(
-                        author=ctx.author.mention,
-                        cancel=cancel_command,
-                        title=team_title,
-                        size=team_size,
-                        chat='',
-                        requisito='',
-                        requisito_secundario='',
-                        limite_secundario=''
-                    )
-                )
+                size = int(message.content)
+                return size > 0
             except ValueError:
-                await creation_message.delete()
-                return await ctx.send(
-                    f"Criação de time cancelada. Tamanho de time inválido ({team_size_message.content})."
-                )
+                return False
 
-            # Chat para aceitar presenças
-            sent_message = await ctx.send(
-                f"{ctx.author.mention}, digite o chat onde o bot deve aceitar presenças para esse time."
-            )
-            chat_presence_message = await self.bot.wait_for('message', timeout=60.0, check=check)
+        def limit_check(message):
+            if ctx.channel != message.channel:
+                return False
+            if message.author != ctx.author:
+                return False
             try:
-                try:
-                    await sent_message.delete()
-                    await chat_presence_message.delete()
-                except discord.errors.NotFound:
-                    await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                    return await creation_message.delete()
-                if chat_presence_message.content.lower() == cancel_command:
-                    await creation_message.delete()
-                    return await ctx.send("Criação de time cancelada.")
-                chat_presence_id = int(re.findall(r'\d+', chat_presence_message.content)[0])
-                await creation_message.edit(
-                    content=creation_message_content.format(
-                        author=ctx.author.mention,
-                        cancel=cancel_command,
-                        title=team_title,
-                        size=team_size,
-                        chat=f"<#{chat_presence_id}>",
-                        requisito='',
-                        requisito_secundario='',
-                        limite_secundario=''
-                    )
-                )
+                _limit = int(message.content)
+                return _limit >= 0
             except ValueError:
-                await creation_message.delete()
-                return await ctx.send(f"Criação de time cancelada. Chat inválido ({chat_presence_message.content}).")
-            except IndexError:
-                await creation_message.delete()
-                return await ctx.send(f"Criação de time cancelada. Chat inválido ({chat_presence_message.content}).")
+                return False
 
-            # Role requisito (opcional)
-            sent_message = await ctx.send(
-                f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum')"
-            )
-            role_str = 'Nenhum'
-            role_message = await self.bot.wait_for('message', timeout=60.0, check=check)
+        def chat_check(message):
+            if ctx.channel != message.channel:
+                return False
+            if message.author != ctx.author:
+                return False
+            _chat_id = re.search(r'\d+', message.content)
+            if not _chat_id:
+                return False
             try:
-                try:
-                    await role_message.delete()
-                    await sent_message.delete()
-                except discord.errors.NotFound:
-                    await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                    return await creation_message.delete()
-                if role_message.content.lower() == 'nenhum':
-                    role_id = None
-                elif role_message.content.lower() == cancel_command:
-                    await creation_message.delete()
-                    return await ctx.send("Criação de time cancelada.")
-                else:
-                    role_id = int(re.findall(r'\d+', role_message.content)[0])
-                    if not any(role.id == role_id for role in ctx.guild.roles):
-                        await creation_message.delete()
-                        return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
-                    for role in ctx.guild.roles:
-                        if role.id == role_id:
-                            role_str = str(role)
-                await creation_message.edit(
-                    content=creation_message_content.format(
-                        author=ctx.author.mention,
-                        cancel=cancel_command,
-                        title=team_title,
-                        size=team_size,
-                        chat=f"<#{chat_presence_id}>",
-                        requisito=role_str,
-                        requisito_secundario='',
-                        limite_secundario=''
-                    )
-                )
+                _chat_id = _chat_id.group()
+                _chat_id = int(_chat_id)
             except ValueError:
-                await creation_message.delete()
-                return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
-            except IndexError:
-                await creation_message.delete()
-                return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message.content}).")
+                return False
+            channel = self.bot.get_channel(_chat_id)
+            if not channel:
+                return False
+            return True
 
-            role_str2 = 'Nenhum'
-            role_id2 = None
-            if role_id:
-                # Role requisito secundário (opcional)
-                sent_message = await ctx.send(
-                    f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum')"
-                )
-                role_message2 = await self.bot.wait_for('message', timeout=60.0, check=check)
+        def role_check(message):
+            if ctx.channel != message.channel:
+                return False
+            if message.author != ctx.author:
+                return False
+            if message.content.lower() == 'nenhum':
+                return True
+            _role_id = re.search(r'\d+', message.content)
+            if not _role_id:
+                return False
+            _role_id = int(_role_id.group())
+            if not any(role.id == _role_id for role in ctx.guild.roles):
+                return False
+            return True
 
-                try:
-                    try:
-                        await role_message2.delete()
-                        await sent_message.delete()
-                    except discord.errors.NotFound:
-                        await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                        return await creation_message.delete()
-                    if 'nenhum' in role_message2.content.lower():
-                        role_id2 = None
-                    elif role_message2.content.lower() == cancel_command:
-                        await creation_message.delete()
-                        return await ctx.send("Criação de time cancelada.")
-                    else:
-                        role_id2 = int(re.findall(r'\d+', role_message2.content)[0])
-                        if not any(role.id == role_id2 for role in ctx.guild.roles):
-                            await creation_message.delete()
-                            return await ctx.send(
-                                f"Criação de time cancelada. Role inválido ({role_message2.content}).")
-                        for role in ctx.guild.roles:
-                            if role.id == role_id2:
-                                role_str2 = str(role)
-                    await creation_message.edit(
-                        content=creation_message_content.format(
-                            author=ctx.author.mention,
-                            cancel=cancel_command,
-                            title=team_title,
-                            size=team_size,
-                            chat=f"<#{chat_presence_id}>",
-                            requisito=role_str,
-                            requisito_secundario=role_str2,
-                            limite_secundario=''
-                        )
-                    )
-                except ValueError:
-                    await creation_message.delete()
-                    return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message2.content}).")
-                except IndexError:
-                    await creation_message.delete()
-                    return await ctx.send(f"Criação de time cancelada. Role inválido ({role_message2.content}).")
-            secondary_limit = None
-            if role_id2:
-                # Limit of people in the team that only have the secondary role
-                sent_message = await ctx.send(
-                    f"{ctx.author.mention}, qual o limite para o número de pessoas no Time que tenham apenas"
-                    f" o cargo secundário? (ou 'nenhum')"
-                )
-                secondary_limit_message = await self.bot.wait_for('message', timeout=60.0, check=check)
-
-                try:
-                    try:
-                        await secondary_limit_message.delete()
-                        await sent_message.delete()
-                    except discord.errors.NotFound:
-                        await ctx.send("Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-                        return await creation_message.delete()
-                    if 'nenhum' in secondary_limit_message.content.lower():
-                        secondary_limit = None
-                    elif cancel_command in secondary_limit_message.content.lower():
-                        await creation_message.delete()
-                        return await ctx.send("Criação de time cancelada.")
-                    else:
-                        secondary_limit = int(secondary_limit_message.content)
-                    await creation_message.edit(
-                        content=creation_message_content.format(
-                            author=ctx.author.mention,
-                            cancel=cancel_command,
-                            title=team_title,
-                            size=team_size,
-                            chat=f"<#{chat_presence_id}>",
-                            requisito=role_str,
-                            requisito_secundario=role_str2,
-                            limite_secundario=secondary_limit
-                        )
-                    )
-                except ValueError:
-                    await creation_message.delete()
-                    return await ctx.send(
-                        f"Criação de time cancelada. Limite inválido ({secondary_limit_message.content})."
-                    )
-
-            invite_channel = self.bot.get_channel(chat_presence_id)
-
-            description = f'Marque presença no <#{chat_presence_id}>\nCriador: <@{ctx.author.id}>'
-            requisito = ""
-            requisito2 = ""
-            if role_id:
-                requisito = f"Requisito: <@&{role_id}>\n"
-            if role_id2:
-                limit = "" if not secondary_limit else f"(Limite: {secondary_limit})"
-                requisito2 = f"Requisito Secundário: <@&{role_id2}> {limit}\n\n"
-
-            description = f"{requisito}{requisito2}{description}"
-
-            team_id = str(self.current_id() + 1)
-            invite_embed = discord.Embed(
-                title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
-                description=f"{separator}\n\n"
-                f"{requisito}"
-                f"{requisito2}"
-                f"Time: {ctx.channel.mention}\n"
-                f"Criador: <@{ctx.author.id}>\n\n"
-                f"`in {team_id}`: Marcar presença\n"
-                f"`out {team_id}`: Retirar presença"
-            )
-            team_embed = discord.Embed(
-                title=f"__{team_title}__ - 0/{team_size}",
-                description=description,
-                color=discord.Color.purple()
-            )
-            footer = (f"Digite '{self.bot.setting.prefix}del {team_id}' "
-                      f"para excluir o time. (Criador do time ou Admin e acima)")
-            team_embed.set_footer(text=footer)
-            try:
-                invite_embed_message = await invite_channel.send(embed=invite_embed)
-                team_embed_message = await ctx.channel.send(embed=team_embed)
-            except AttributeError:
-                await creation_message.delete()
-                return await ctx.send(f"Criação de time cancelada. Chat inválido ({chat_presence_message.content}).")
-            except discord.errors.HTTPException:
-                await creation_message.delete()
-                return await ctx.send(
-                    f"Criação de time cancelada. "
-                    f"Não foi possível enviar uma mensagem para o canal '<#{chat_presence_id}>'"
-                )
-            created_team = {
-                'team_id': team_id,
-                'title': team_title,
-                'size': team_size,
-                'role': role_id,
-                'role_secondary': role_id2,
-                'author_id': ctx.author.id,
-                'invite_channel_id': invite_channel.id,
-                'invite_message_id': invite_embed_message.id,
-                'team_channel_id': ctx.channel.id,
-                'team_message_id': team_embed_message.id,
-                'secondary_limit': secondary_limit
+        fields = [
+            {
+                'name': 'title',
+                'pt_name': 'Título',
+                'check': author_check,
+                'value': None,
+                'message': f"{ctx.author.mention}, digite o nome do time. (e.g.: Solak 20:00)"
+            },
+            {
+                'name': 'size',
+                'pt_name': 'Tamanho',
+                'check': size_check,
+                'value': None,
+                'message': f"{ctx.author.mention}, digite o tamanho do time. (apenas números maiores que 0)"
+            },
+            {
+                'name': 'chat',
+                'pt_name': 'Chat',
+                'check': chat_check,
+                'value': None,
+                'message': f"{ctx.author.mention}, digite o chat onde o bot deve aceitar presenças para esse time."
+            },
+            {
+                'name': 'role',
+                'pt_name': 'Requisito',
+                'check': role_check,
+                'value': None,
+                'message': f"{ctx.author.mention}, mencione o Role de requisito para o time. (ou 'nenhum')"
+            },
+            {
+                'name': 'role_secondary',
+                'pt_name': 'Requisito Secundário',
+                'check': role_check,
+                'value': None,
+                'message': f"{ctx.author.mention}, mencione o Role secundário de requisito para o time. (ou 'nenhum')"
+            },
+            {
+                'name': 'secondary_limit',
+                'pt_name': 'Limite Secundário',
+                'check': limit_check,
+                'value': None,
+                'message': (f"{ctx.author.mention}, qual o limite para o número de pessoas no Time que tenham apenas"
+                            f" o cargo secundário? (0 para sem limite)")
             }
-            self.save_team(team=created_team)
-            await creation_message.delete()
-        except discord.errors.NotFound:
-            return await ctx.send(f"Criação de time cancelada. A mensagem do Bot não foi encontrada.")
-        except asyncio.TimeoutError:
-            await creation_message.delete()
-            return await ctx.send("Criação de time cancelada. Tempo Esgotado.")
+        ]
+
+        has_requirement = False
+        has_secondary_requirement = False
+
+        for field in fields:
+            if field['name'] == 'role_secondary' and not has_requirement:
+                continue
+            if field['name'] == 'secondary_limit' and not has_secondary_requirement:
+                continue
+
+            sent_message = await ctx.send(field['message'])
+            try:
+                answer: discord.Message = await self.bot.wait_for('message', timeout=60.0, check=field['check'])
+            except asyncio.TimeoutError:
+                await sent_message.delete()
+                return await ctx.send("Criação de Time Cancelada. Tempo Esgotado.")
+
+            await answer.delete()
+            await sent_message.delete()
+
+            if answer.content.lower() == cancel_command:
+                await team_message.delete()
+                return await ctx.send("Criação de Time Cancelada.")
+
+            if field['name'] == 'chat':
+                chat_id = re.search(r'\d+', answer.content).group()
+                field['value'] = self.bot.get_channel(int(chat_id))
+            else:
+                field['value'] = answer.content
+
+            if type(field['value']) == str and field['value'].lower() == 'nenhum':
+                field['value'] = None
+            elif field['name'] == 'role' or field['name'] == 'role_secondary':
+                field['value'] = re.search(r'\d+', answer.content).group()
+            elif field['name'] == 'secondary_limit':
+                if field['value']:
+                    field['value'] = int(field['value'])
+
+            embed.add_field(name=field['pt_name'], value=answer.content)
+            await team_message.edit(embed=embed)
+
+            if field['name'] == 'role' and field['value']:
+                has_requirement = True
+            if field['name'] == 'role_secondary' and field['value']:
+                has_secondary_requirement = True
+
+        team_title = fields[0]['value']
+        team_size = fields[1]['value']
+        team_chat = fields[2]['value']
+        team_role = fields[3]['value']
+        team_secondary = fields[4]['value']
+        team_secondary_limit = fields[5]['value']
+
+        description = f'Marque presença no {team_chat.mention}\nCriador: <@{ctx.author.id}>'
+
+        requisito = ""
+        requisito2 = ""
+
+        if has_requirement:
+            requisito = f"Requisito: <@&{team_role}>\n"
+
+        if has_secondary_requirement:
+            limit = "" if not team_secondary_limit else f"(Limite: {team_secondary_limit})"
+            requisito2 = f"Requisito Secundário: <@&{team_secondary}> {limit}\n\n"
+
+        description = f"{requisito}{requisito2}{description}"
+
+        team_id = str(self.current_id() + 1)
+        invite_embed = discord.Embed(
+            title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
+            description=f"{separator}\n\n"
+            f"{requisito}"
+            f"{requisito2}"
+            f"Time: {ctx.channel.mention}\n"
+            f"Criador: <@{ctx.author.id}>\n\n"
+            f"`in {team_id}`: Marcar presença\n"
+            f"`out {team_id}`: Retirar presença"
+        )
+        team_embed = discord.Embed(
+            title=f"__{team_title}__ - 0/{team_size}",
+            description=description,
+            color=discord.Color.purple()
+        )
+        footer = (f"Digite '{self.bot.setting.prefix}del {team_id}' "
+                  f"para excluir o time. (Criador do time ou Admin e acima)")
+        team_embed.set_footer(text=footer)
+
+        try:
+            invite_embed_message = await team_chat.send(embed=invite_embed)
+            team_embed_message = await ctx.channel.send(embed=team_embed)
+        except discord.errors.HTTPException:
+            return await ctx.send(
+                f"Criação de time cancelada. "
+                f"Não foi possível enviar uma mensagem para o canal '{team_chat}'"
+            )
+
+        created_team = {
+            'team_id': team_id,
+            'title': team_title,
+            'size': team_size,
+            'role': team_role,
+            'role_secondary': team_secondary,
+            'author_id': ctx.author.id,
+            'invite_channel_id': team_chat.id,
+            'invite_message_id': invite_embed_message.id,
+            'team_channel_id': ctx.channel.id,
+            'team_message_id': team_embed_message.id,
+            'secondary_limit': team_secondary_limit
+        }
+
+        await team_message.delete()
+
+        self.save_team(team=created_team)
+
+    @commands.is_owner()
+    @commands.command()
+    async def potato(self, ctx: commands.Context):
+        """Test Command"""
+
+        # RuntimeWarning: coroutine 'check' was never awaited
+        # if potato_check is a coroutine
+        def potato_check(message: discord.Message):
+            if message.content != 'potato':
+                # await ctx.send(f"Hey, you need to say potato, not {message.content}", delete_after=3)
+                return False
+            return True
+
+        await ctx.send("Send potato")
+        answer: discord.Message = await self.bot.wait_for('message', timeout=60.0, check=potato_check)
+        await ctx.send(answer.content)
 
     def save_team(self, team: dict):
         with self.bot.db_session() as session:

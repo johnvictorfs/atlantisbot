@@ -11,7 +11,7 @@ class Clan(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @commands.cooldown(1, 5)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['clan'])
     async def clan_detail_info(self, ctx: commands.Context, *, clan_name: str):
@@ -39,7 +39,7 @@ class Clan(commands.Cog):
         clan_embed.add_field(name="Exp Média por Membro", value=f'{clan.avg_exp:,.0f}')
         return await ctx.send(embed=clan_embed)
 
-    @commands.cooldown(1, 5)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
     async def clan_user_info(self, ctx: commands.Context, *, username: str):
@@ -115,7 +115,7 @@ class Clan(commands.Cog):
             )
         return await ctx.send(content=None, embed=clan_info_embed)
 
-    @commands.cooldown(1, 5)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
     async def ranks(self, ctx: commands.Context):

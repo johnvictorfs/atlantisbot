@@ -20,7 +20,8 @@ class Merchant(commands.Cog):
             self.update_merchant_task = self.bot.loop.create_task(self.update_merchant_stock())
 
     def cog_unload(self):
-        self.update_merchant_task.cancel()
+        if self.bot.setting.mode == 'prod':
+            self.update_merchant_task.cancel()
 
     @staticmethod
     def today_str() -> str:

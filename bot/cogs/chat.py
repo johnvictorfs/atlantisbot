@@ -15,14 +15,14 @@ class Chat(commands.Cog):
         self.bot = bot
 
     @commands.guild_only()
-    @commands.cooldown(1, 30)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
         if ctx.author.id == 403632514800943104:
             messages = [
                 "Are u havin' a laugh mate?",
                 "Umbasa",
-                "⬆ ⬆ ⬇ ⬇ ⬅ ➡ ⬅ ➡ 🅱 🅰 start",
+                "⬆ ⬆ ⬇ ⬇ ⬅ ➡ ⬅ ➡ 🅱 🅰 `start`",
                 "Keep Trying",
                 "Shout, “Jesus is alive!”",
                 "But Our Princess is in Another Castle!",
@@ -67,7 +67,7 @@ class Chat(commands.Cog):
         )
 
     @commands.guild_only()
-    @commands.cooldown(1, 60)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command(aliases=['aplicar', 'raids'])
     async def aplicar_raids(self, ctx: commands.Context):
         print(f"> {ctx.author} issued command 'aplicar_raids'.")
