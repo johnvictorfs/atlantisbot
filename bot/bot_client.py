@@ -32,8 +32,6 @@ class Bot(commands.Bot):
         self.remove_command('help')
         self.start_time = None
         self.app_info = None
-        self.raids_channel = None
-        self.raids_channel_public = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
 

@@ -3,7 +3,6 @@ import json
 from discord.ext import commands
 import discord
 
-
 from bot.bot_client import Bot
 
 

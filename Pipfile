@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 "discord.py" = "==1.0.1"
-"rs3clans" = "==1.1.1"
+"rs3clans" = "==1.1.2"
 "beautifulsoup4" = "*"
 colorama = "*"
 sqlalchemy = "*"
