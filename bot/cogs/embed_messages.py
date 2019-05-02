@@ -91,6 +91,7 @@ class EmbedMessages(commands.Cog):
             description=file['roles'][name]['description'],
             color=color
         )
+        nb_space = '\u200B'
         for role in file['roles'][name]['roles']:
             # Use the role mention as the name if possible, else the raw name in the json file
             # Use all roles if there is a key 'names' instead of 'name'
@@ -103,7 +104,7 @@ class EmbedMessages(commands.Cog):
                     role_name = ''
                     for sub_role in role.get('names'):
                         role_name += f"<@&{self.bot.setting.role.get(sub_role)}> | "
-            embed.add_field(name='-', value=f"{role_name}\n{role['text']}", inline=False)
+            embed.add_field(name=nb_space, value=f"{role_name}\n{role['text']}\n{nb_space}", inline=False)
         return embed
 
 

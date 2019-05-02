@@ -86,8 +86,8 @@ class Merchant(commands.Cog):
 
         for item in stock:
             embed.add_field(
-                name=f"{item['emoji']} {item['name']} ({item['quantity']}) - {coins} {item['cost']:,}",
-                value=f"{item['description']}{nb_space}",
+                name=f"{item['emoji']} {item['name']} ({item['quantity']}) {coins} {item['cost']:,}",
+                value=f"{item['description']}\n{nb_space}",
                 inline=False
             )
         return embed
@@ -108,6 +108,11 @@ class Merchant(commands.Cog):
                 print(e, tb)
                 await self.bot.send_logs(e, tb)
                 await asyncio.sleep(60 * 15)
+
+    @commands.command()
+    async def send_merch(self, ctx: commands.Context):
+        embed = await self.merchant_embed()
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

@@ -3,7 +3,7 @@
     "Uncharted island map": {
       "emoji":  "<:Mapa:562323282863325196>",
       "name": "Mapa de ilha inexplorada",
-      "description": "Permite viajar para uma [ilha inexplorada](https://runescape.wiki/w/Uncharted_island) no Arco com a chance de 3-6 recursos especiais, sem custo de suprimentos. Em adição, jogadores podém também raramente receber um [mapa de ilha inexplorada vermelho](https://runescape.wiki/w/Uncharted_island_map_(red)).",
+      "description": "Permite viajar para uma [ilha inexplorada](https://rs.wiki/w/Uncharted_island) no Arco com a chance de 3-6 recursos especiais, sem custo de suprimentos. Em adição, jogadores podém também raramente receber um [mapa de ilha inexplorada vermelho](https://rs.wiki/w/Uncharted_island_map_(red)).",
       "cost": 800000,
       "quantity": "1"
     },
@@ -17,7 +17,7 @@
     "Message in a bottle": {
       "emoji": "<:garrafa:562323241264349238>",
       "name": "Mensagem engarrafada",
-      "description": "Uma escolha entre os três Boosts de [Pesca em Alto Mar](https://runescape.wiki/w/Deep_Sea_Fishing).",
+      "description": "Uma escolha entre os três boosts de [Pesca em Alto Mar](https://rs.wiki/w/Deep_Sea_Fishing).",
       "cost": 200000,
       "quantity": "1"
     },
@@ -38,14 +38,14 @@
     "Small goebie burial charm": {
       "emoji": "<:goebiepequeno:562323259383873578>",
       "name": "Talismã pequeno funerario goebie",
-      "description": "50 [reputação goebi](https://runescape.wiki/w/Reputation_(Mazcab)) ou 50 [teci](https://runescape.wiki/w/Teci).",
+      "description": "50 [reputação goebi](https://rs.wiki/w/Reputation_(Mazcab)) ou 50 [teci](https://rs.wiki/w/Teci).",
       "cost": 50000,
       "quantity": "1"
     },
     "Goebie burial charm": {
       "emoji": "<:goebie:562323271081525259>",
       "name": "Talismã funerario gobie",
-      "description": "100 [reputação goebi](https://runescape.wiki/w/Reputation_(Mazcab)) ou 100 [teci](https://runescape.wiki/w/Teci).",
+      "description": "100 [reputação goebi](https://rs.wiki/w/Reputation_(Mazcab)) ou 100 [teci](https://rs.wiki/w/Teci).",
       "cost": 100000,
       "quantity": "1"
     },
@@ -73,42 +73,42 @@
     "Anima crystal": {
       "emoji": "<:cristal:562323217205690401>",
       "name": "Cristal de anima",
-      "description": "500 de [reputação em uma facção na masmorra da guerra dos deuses 2](https://runescape.wiki/w/Reputation_(Heart_of_Gielinor)).",
+      "description": "500 de [reputação em uma facção na masmorra da guerra dos deuses 2](https://rs.wiki/w/Reputation_(Heart_of_Gielinor)).",
       "cost": 150000,
       "quantity": "1"
     },
     "Slayer VIP Coupon": {
       "emoji": "<:VIP:562323395514073119>",
       "name": "Cupom de ficha de extermínio ",
-      "description": "Resgate de 1-7 [fichas vip de extermínio](https://runescape.wiki/w/Slayer_VIP_ticket).",
+      "description": "Resgate de 1-7 [fichas vip de extermínio](https://rs.wiki/w/Slayer_VIP_ticket).",
       "cost": 200000,
       "quantity": "1"
     },
     "D&D token (daily)": {
       "emoji": "<:cartadiaria:562323193965182996>",
       "name": "Ficha de D&D (diária) ",
-      "description": "Único uso para reiniciar um [d&d](https://runescape.wiki/w/D%26D) diário.",
+      "description": "Único uso para reiniciar um [d&d](https://rs.wiki/w/D%26D) diário.",
       "cost": 250000,
       "quantity": "1"
     },
     "Unfocused damage enhancer": {
       "emoji": "<:aprimoradordedano:562323150314930206>",
-      "name": "melhorador de dano não sintoniz.",
-      "description": "permite escolher qualquer melhorador de dano com carga diminuída.",
+      "name": "Melhorador de dano não sintoniz.",
+      "description": "Permite escolher qualquer [melhorador de dano](https://rs.wiki/w/Motherlode_Maw_enhancer) com carga diminuída.",
       "cost": 500000,
       "quantity": "1"
     },
     "Sacred clay": {
       "emoji": "<:Argila:562323177364127745>",
       "name": "Argila sagrada",
-      "description": "50-100 [pontos em criações profanas](https://runescape.wiki/w/Stealing_Creation/Rewards#Reward_shop).",
+      "description": "50-100 [pontos em criações profanas](https://rs.wiki/w/Stealing_Creation/Rewards#Reward_shop).",
       "cost": 600000,
       "quantity": "1"
     },
     "Shattered anima": {
       "emoji": "<:anima:562323140659904532>",
       "name": "Anima fragmentada",
-      "description": "500k-2m de anima em [mundos fragmentados](https://runescape.wiki/w/Shattered_Worlds/Rewards).",
+      "description": "500k-2m de anima em [mundos fragmentados](https://rs.wiki/w/Shattered_Worlds/Rewards).",
       "cost": 750000,
       "quantity": "500,000-2,000,000"
     },
@@ -122,42 +122,42 @@
     "Livid plant": {
       "emoji": "<:planta:562323316346716170>",
       "name": "Planta Vil",
-      "description": "10.000-40.000 de [pontos na fazenda vil](https://runescape.wiki/w/Produce_points)",
+      "description": "10.000-40.000 de [pontos na fazenda vil](https://rs.wiki/w/Produce_points)",
       "cost": 1000000,
       "quantity": "1"
     },
     "Gift for the Reaper": {
       "emoji": "<:ceifador:562323210381819914>",
       "name": "Presente para o ceifador",
-      "description": "20 [pontos do ceifador](https://runescape.wiki/w/Reaper_points).",
+      "description": "20 [pontos do ceifador](https://rs.wiki/w/Reaper_points).",
       "cost": 1250000,
       "quantity": "1"
     },
     "Silverhawk down": {
       "emoji": "<:prata:562323338202972173>",
       "name": "Plumas de falcão de prata",
-      "description": "50-100 [plumas de falcão](https://runescape.wiki/w/Silverhawk_down), uso para Exp em agilidade.",
+      "description": "50-100 [plumas de falcão](https://rs.wiki/w/Silverhawk_down), uso para Exp em agilidade.",
       "cost": 1500000,
       "quantity": "50-100"
     },
     "Large goebie burial charm": {
       "emoji": "<:goebiegrande:562323249581654027>",
       "name": "Talismã funerario goebie grande",
-      "description": "150 [reputação goebie](https://runescape.wiki/w/Reputation_(Mazcab)) ou 150 [teci](https://runescape.wiki/w/Teci).",
+      "description": "150 [reputação goebie](https://rs.wiki/w/Reputation_(Mazcab)) ou 150 [teci](https://rs.wiki/w/Teci).",
       "cost": 150000,
       "quantity": "1"
     },
     "Dragonkin lamp": {
       "emoji": "<:drag_lamp:562799082587029515>",
       "name": "Lampada dragonkin",
-      "description": "Garante uma quantidade de experiencia e uma chande de 1/100 de obter o [bicho de estimação effy](https://runescape.wiki/w/Effy).",
+      "description": "Garante uma quantidade de experiencia e uma chande de 1/100 de obter o [bicho de estimação effy](https://rs.wiki/w/Effy).",
       "cost": 250000,
       "quantity": "1"
     },
     "Dungeoneering Wildcard": {
       "emoji": "<:cartadg:562323186574688266>",
       "name": "Dungeoneering Wildcard",
-      "description": "Consumindo a carta dentro de [Kalaboss](https://runescape.wiki/w/Daemonheim) recompensa 50% experiência e [tokens](https://runescape.wiki/w/Dungeoneering_token) Extra.",
+      "description": "Consumindo a carta dentro de [Kalaboss](https://rs.wiki/w/Daemonheim) recompensa 50% experiência e [tokens](https://rs.wiki/w/Dungeoneering_token) Extra.",
       "cost": 400000,
       "quantity": "1-3"
     },
@@ -171,21 +171,21 @@
     "Taijitu": {
       "emoji": "<:taijuit:562323369043689484>",
       "name": "Taijitu",
-      "description": "3-5 taijitu, moeda secundária usada na [loja de recompensas do Waiko](https://runescape.wiki/w/Waiko_Reward_Shop).",
+      "description": "3-5 taijitu, moeda secundária usada na [loja de recompensas do Waiko](https://rs.wiki/w/Waiko_Reward_Shop).",
       "cost": 800000,
       "quantity": "3-5"
     },
     "D&D token (weekly)": {
       "emoji": "<:fichasemanal:562323233320337408>",
       "name": "Ficha de D&D (semanal) ",
-      "description": "Único uso para reiniciar um [d&d](https://runescape.wiki/w/D%26D) semanal.",
+      "description": "Único uso para reiniciar um [d&d](https://rs.wiki/w/D%26D) semanal.",
       "cost": 400000,
       "quantity": "1"
     },
     "D&D token (monthly)": {
       "emoji": "<:cartamensal:562323201422524417>",
       "name": "Ficha de D&D (mensal) ",
-      "description": "Único uso para reiniciar um [d&d](https://runescape.wiki/w/D%26D) mensal.",
+      "description": "Único uso para reiniciar um [d&d](https://rs.wiki/w/D%26D) mensal.",
       "cost": 1000000,
       "quantity": "1"
     },
@@ -199,14 +199,14 @@
     "Harmonic dust": {
       "emoji": "<:poeira:562323329776746506>",
       "name": "Poeira harmônica",
-      "description": "500-1000 de poeira hamonica, usada para criação de [ferramentas de cristal](https://runescape.wiki/w/Crystal_tool).",
+      "description": "500-1000 de poeira hamonica, usada para criação de [ferramentas de cristal](https://rs.wiki/w/Crystal_tool).",
       "cost": 2000000,
       "quantity": "500-1000"
     },
     "Crystal triskelion": {
       "emoji": "<:triscele:562323378619285546>",
       "name": "Triscéle de cristal",
-      "description": "Depositado em um moro ao sul de [Relleka](https://runescape.wiki/w/Rellekka) para obter um [pergaminho de dicas (elite)](https://runescape.wiki/w/Clue_scroll_(elite)) e uma variedade de outras recompensas",
+      "description": "Depositado em um moro ao sul de [Relleka](https://rs.wiki/w/Rellekka) para obter um [pergaminho de dicas (elite)](https://rs.wiki/w/Clue_scroll_(elite)) e uma variedade de outras recompensas",
       "cost": 2000000,
       "quantity": "1"
     },
