@@ -81,10 +81,13 @@ class Merchant(commands.Cog):
             url=f"https://runescape.wiki/w/Travelling_Merchant's_Shop"
         )
         stock = await self.daily_stock()
+        coins = '<:coins:573305319661240340>'
+        nb_space = '\u200B'
+
         for item in stock:
             embed.add_field(
-                name=f"{item['emoji']} {item['name']} ({item['quantity']})\n- {item['cost']:,}",
-                value=f"{item['description']}\n",
+                name=f"{item['emoji']} {item['name']} ({item['quantity']}) - {coins} {item['cost']:,}",
+                value=f"{item['description']}{nb_space}",
                 inline=False
             )
         return embed
