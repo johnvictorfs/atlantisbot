@@ -125,6 +125,7 @@ class Clan(commands.Cog):
         exp_seargent = 50_000_000
 
         rank_emoji = {
+            'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
             'Corporal': self.bot.setting.clan_settings['Corporal']['Emoji'],
             'Sergeant': self.bot.setting.clan_settings['Sergeant']['Emoji'],
             'Lieutenant': self.bot.setting.clan_settings['Lieutenant']['Emoji'],
@@ -138,7 +139,14 @@ class Clan(commands.Cog):
         found = False
         clan = rs3clans.Clan(self.bot.setting.clan_name, set_exp=False)
         for member in clan:
-            if member.exp >= exp_general and member.rank == 'Captain':
+            if member.rank == 'Recruit':
+                ranks_embed.add_field(
+                    name=member.name,
+                    value=f"Recruta {rank_emoji['Recruit']} > Cabo {rank_emoji['Corporal']}\n"
+                    f"**__Exp:__** {member.exp:,}\n{separator}",
+                    inline=False)
+                found = True
+            elif member.exp >= exp_general and member.rank == 'Captain':
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n"
