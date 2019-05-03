@@ -3,7 +3,7 @@
     "Uncharted island map": {
       "emoji":  "<:Mapa:562323282863325196>",
       "name": "Mapa de ilha inexplorada",
-      "description": "Permite viajar para uma [ilha inexplorada](https://rs.wiki/w/Uncharted_island) no Arco com a chance de 3-6 recursos especiais, sem custo de suprimentos. Em adição, jogadores podém também raramente receber um [mapa de ilha inexplorada vermelho](https://rs.wiki/w/Uncharted_island_map_(red)).",
+      "description": "Permite viajar para uma [ilha inexplorada](https://rs.wiki/w/Uncharted_island) no Arco com a chance de 3-6 recursos especiais, sem custo de suprimentos. Em adição, jogadores podém também raramente receber um [mapa de ilha inexplorada vermelho](https://rs.wiki/w/Uncharted_island_map_%28red%29).",
       "cost": 800000,
       "quantity": "1"
     },
