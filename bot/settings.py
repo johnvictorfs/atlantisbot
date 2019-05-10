@@ -155,6 +155,7 @@ default_settings = {
         "pvm_roles_id": 488180630803316756,
         "react_roles_id": 488180632057544704,
         "chat_id": {
+            "vos": 576414572206882847,
             "geral": 321012292160454657,
             "anuncios": 467069985270005760,
             "tags_do_server": 382691780996497416,

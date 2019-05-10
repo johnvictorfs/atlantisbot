@@ -90,3 +90,10 @@ class AmigoSecretoState(Base):
     __tablename__ = 'amigosecretostate'
     id = Column(Integer, primary_key=True)
     activated = Column(Boolean, default=False)
+
+
+class SongOfSerenState(Base):
+    __tablename__ = 'sos_state'
+    id = Column(Integer, primary_key=True)
+    activated = Column(Boolean, default=False)
+    message_id = Column(String, nullable=True)
