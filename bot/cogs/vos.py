@@ -157,13 +157,13 @@ class Vos(commands.Cog):
                         content = None
                         if current_type not in message.content:
                             if current_type == 'Combate':
-                                content = '<@&576415564105515011>'
+                                content = 'Combate - <@&576415564105515011>'
                             elif current_type == 'Subsistência':
-                                content = '<@&576415463865843712>'
+                                content = 'Subsistência - <@&576415463865843712>'
                             elif current_type == 'Apoio':
-                                content = '<@&576415360908001310>'
+                                content = 'Apoio - <@&576415360908001310>'
                             elif current_type == 'Manuais':
-                                content = '<@&576415565997015040>'
+                                content = 'Manuais - <@&576415565997015040>'
                         if current_type == 'Subsistência':
                             color = discord.Color.from_rgb(139, 69, 19)
                         elif current_type == 'Manuais':
