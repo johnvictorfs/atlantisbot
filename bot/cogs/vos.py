@@ -155,6 +155,8 @@ class Vos(commands.Cog):
 
                         message: discord.Message = await channel.fetch_message(int(message_id))
                         content = None
+                        if current_type in message.content:
+                            continue
                         if current_type not in message.content:
                             if current_type == 'Combate':
                                 content = 'Combate - <@&576415564105515011>'
