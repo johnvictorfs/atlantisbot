@@ -154,7 +154,16 @@ class Vos(commands.Cog):
                             session.commit()
 
                         message: discord.Message = await channel.fetch_message(int(message_id))
-
+                        content = None
+                        if current_type not in message.content:
+                            if current_type == 'Combate':
+                                content = '<@&576415564105515011>'
+                            elif current_type == 'Subsistência':
+                                content = '<@&576415463865843712>'
+                            elif current_type == 'Apoio':
+                                content = '<@&576415360908001310>'
+                            elif current_type == 'Manuais':
+                                content = '<@&576415565997015040>'
                         if current_type == 'Subsistência':
                             color = discord.Color.from_rgb(139, 69, 19)
                         elif current_type == 'Manuais':
@@ -170,7 +179,7 @@ class Vos(commands.Cog):
                         for skill in skill_types.get(current_type):
                             embed.add_field(name=f"{emoji.get(skill)} {skill}", value=nb, inline=True)
                         embed.set_footer(text="Bõnus marcados com * não funcionam para jogadores do Modo independente")
-                        await message.edit(content=None, embed=embed)
+                        await message.edit(content=content, embed=embed)
             await asyncio.sleep(5)
 
 
