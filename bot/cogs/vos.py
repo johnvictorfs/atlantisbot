@@ -177,7 +177,9 @@ class Vos(commands.Cog):
                         proxima = current_schedule.get(now.hour + 1)
                         if proxima == current_type:
                             proxima = current_schedule.get(now.hour + 2)
-                        description = f"**Tipo:** {current_type}\n**Próxima:**{proxima}\n\n**Bônus:**\n{type_bonus.get(current_type)}\n"
+                        if not proxima:
+                            proxima = current_schedule.get(now.hour + 3)
+                        description = f"**Tipo:** {current_type}\n**Próxima:** {proxima}\n\n**Bônus:**\n{type_bonus.get(current_type)}\n"
                         embed = discord.Embed(title="Canção de Seren Atual", description=description, color=color)
                         nb = '\u200B'
                         embed.add_field(name="1.5x Exp nas Habilidades Abaixo: ", value=nb, inline=False)
