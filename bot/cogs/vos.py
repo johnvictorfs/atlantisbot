@@ -135,7 +135,7 @@ class Vos(commands.Cog):
             if now.month == 5 and current_schedule:
                 current_type = current_schedule.get(now.hour)
                 if not current_type:
-                    current_type = current_schedule.get(now.hour + 1)
+                    current_type = current_schedule.get(now.hour - 1)
                 if current_type:
                     channel_id = self.bot.setting.chat.get('vos')
                     channel: discord.TextChannel = self.bot.get_channel(channel_id)
