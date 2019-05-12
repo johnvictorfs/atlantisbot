@@ -1,6 +1,5 @@
-import asyncio
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 import datetime
 
@@ -8,47 +7,48 @@ from bot.bot_client import Bot
 from bot.orm.models import SongOfSerenState
 
 
-emoji = {
-    'Ataque': '<:attack:499707565949583391>',
-    'Defesa': '<:defence:499707566033600513>',
-    'Força': '<:strength:499707566406762496>',
-    'Constituição': '<:constitution:499707566335459358>',
-    'Combate á Distância': '<:ranged:499707566331527168>',
-    'Oração': '<:prayer:499707566012497921>',
-    'Magia': '<:magic:499707566205566976>',
-    'Culinária': '<:cookingskill:499707566167687169>',
-    'Corte de Lenha': '<:woodcutting:499707566410956800>',
-    'Arco e Flecha': '<:fletching:499707566280933376>',
-    'Pesca': '<:fishing:499707566067286018>',
-    'Arte do Fogo': '<:firemaking:499707566260224001>',
-    'Artesanato': '<:crafting:499707566184726539>',
-    'Metalurgia': '<:smithing:499707566335459328>',
-    'Mineração': '<:mining:499707566201503768>',
-    'Herbologia': '<:herblore:499707566272544778>',
-    'Agilidade': '<:agility:499707566192984094>',
-    'Roubo': '<:thieving:499707566096646167>',
-    'Extermínio': '<:slayer:499707566360625152>',
-    'Agricultura': '<:farming:499707566197047306>',
-    'Criação de Runas': '<:runecrafting:499707566226669568>',
-    'Caça': '<:hunter:499707566197047316>',
-    'Construção': '<:constructionskill:499707565949583361>',
-    'Evocação': '<:summoning:499707566335459368>',
-    'Dungeon': '<:dungeoneering:499707566268612619>',
-    'Divinação': '<:divination:499707566348304404>',
-    'Invenção': '<:invention:499707566419607552>'
-}
-
-
 class Vos(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
-        self.song_of_seren_task = self.bot.loop.create_task(self.song_of_seren())
+        self.song_of_seren.start()
 
     def cog_unload(self):
-        self.song_of_seren_task.cancel()
+        self.song_of_seren.cancel()
 
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=5)
     async def song_of_seren(self):
+        emoji = {
+            'Ataque': '<:attack:499707565949583391>',
+            'Defesa': '<:defence:499707566033600513>',
+            'Força': '<:strength:499707566406762496>',
+            'Constituição': '<:constitution:499707566335459358>',
+            'Combate á Distância': '<:ranged:499707566331527168>',
+            'Oração': '<:prayer:499707566012497921>',
+            'Magia': '<:magic:499707566205566976>',
+            'Culinária': '<:cookingskill:499707566167687169>',
+            'Corte de Lenha': '<:woodcutting:499707566410956800>',
+            'Arco e Flecha': '<:fletching:499707566280933376>',
+            'Pesca': '<:fishing:499707566067286018>',
+            'Arte do Fogo': '<:firemaking:499707566260224001>',
+            'Artesanato': '<:crafting:499707566184726539>',
+            'Metalurgia': '<:smithing:499707566335459328>',
+            'Mineração': '<:mining:499707566201503768>',
+            'Herbologia': '<:herblore:499707566272544778>',
+            'Agilidade': '<:agility:499707566192984094>',
+            'Roubo': '<:thieving:499707566096646167>',
+            'Extermínio': '<:slayer:499707566360625152>',
+            'Agricultura': '<:farming:499707566197047306>',
+            'Criação de Runas': '<:runecrafting:499707566226669568>',
+            'Caça': '<:hunter:499707566197047316>',
+            'Construção': '<:constructionskill:499707565949583361>',
+            'Evocação': '<:summoning:499707566335459368>',
+            'Dungeon': '<:dungeoneering:499707566268612619>',
+            'Divinação': '<:divination:499707566348304404>',
+            'Invenção': '<:invention:499707566419607552>'
+        }
+
         skill_types = {
             'Combate': [
                 'Ataque', 'Força', 'Defesa', 'Combate á Distância',
@@ -128,20 +128,17 @@ class Vos(commands.Cog):
             },
         }
 
-        while True:
-            now = datetime.datetime.utcnow()
-            current_schedule = days.get(now.day)
+        now = datetime.datetime.utcnow()
+        current_schedule = days.get(now.day)
 
-            if now.month == 5 and current_schedule:
-                current_type = current_schedule.get(now.hour)
-                if not current_type:
-                    current_type = current_schedule.get(now.hour - 1)
-                if current_type:
-                    channel_id = self.bot.setting.chat.get('vos')
-                    channel: discord.TextChannel = self.bot.get_channel(channel_id)
-                    if not channel:
-                        continue
-
+        if now.month == 5 and current_schedule:
+            current_type = current_schedule.get(now.hour)
+            if not current_type:
+                current_type = current_schedule.get(now.hour - 1)
+            if current_type:
+                channel_id = self.bot.setting.chat.get('vos')
+                channel: discord.TextChannel = self.bot.get_channel(channel_id)
+                if channel:
                     with self.bot.db_session() as session:
                         state: SongOfSerenState = session.query(SongOfSerenState).first()
                         if state:
@@ -155,8 +152,6 @@ class Vos(commands.Cog):
 
                         message: discord.Message = await channel.fetch_message(int(message_id))
                         content = None
-                        if current_type in message.content:
-                            continue
                         if current_type not in message.content:
                             if current_type == 'Combate':
                                 content = 'Combate - <@&576415564105515011>'
@@ -166,28 +161,35 @@ class Vos(commands.Cog):
                                 content = 'Apoio - <@&576415360908001310>'
                             elif current_type == 'Manuais':
                                 content = 'Manuais - <@&576415565997015040>'
-                        if current_type == 'Subsistência':
-                            color = discord.Color.from_rgb(139, 69, 19)
-                        elif current_type == 'Manuais':
-                            color = discord.Color.orange()
-                        elif current_type == 'Combate':
-                            color = discord.Color.red()
-                        else:
-                            color = discord.Color.blue()  # Apoio
-                        proxima = current_schedule.get(now.hour + 1)
-                        if proxima == current_type:
-                            proxima = current_schedule.get(now.hour + 2)
-                        if not proxima:
-                            proxima = current_schedule.get(now.hour + 3)
-                        description = f"**Tipo:** {current_type}\n**Próxima:** {proxima}\n\n**Bônus:**\n{type_bonus.get(current_type)}\n"
-                        embed = discord.Embed(title="Canção de Seren Atual", description=description, color=color)
-                        nb = '\u200B'
-                        embed.add_field(name="1.5x Exp nas Habilidades Abaixo: ", value=nb, inline=False)
-                        for skill in skill_types.get(current_type):
-                            embed.add_field(name=f"{emoji.get(skill)} {skill}", value=nb, inline=True)
-                        embed.set_footer(text="Bõnus marcados com * não funcionam para jogadores do Modo independente")
-                        await message.edit(content=content, embed=embed)
-            await asyncio.sleep(5)
+                            if current_type == 'Subsistência':
+                                color = discord.Color.from_rgb(139, 69, 19)
+                            elif current_type == 'Manuais':
+                                color = discord.Color.orange()
+                            elif current_type == 'Combate':
+                                color = discord.Color.red()
+                            else:
+                                color = discord.Color.blue()  # Apoio
+                            proxima = current_schedule.get(now.hour + 1)
+                            if proxima == current_type:
+                                proxima = current_schedule.get(now.hour + 2)
+                            if not proxima:
+                                proxima = current_schedule.get(now.hour + 3)
+
+                            description = (f"**Tipo:** {current_type}\n"
+                                           f"**Próxima:** {proxima}\n\n**Bônus:**\n"
+                                           f"{type_bonus.get(current_type)}\n")
+
+                            embed = discord.Embed(title="Canção de Seren Atual", description=description, color=color)
+
+                            nb = '\u200B'
+                            embed.add_field(name="1.5x Exp nas Habilidades Abaixo: ", value=nb, inline=False)
+                            for skill in skill_types.get(current_type):
+                                embed.add_field(name=f"{emoji.get(skill)} {skill}", value=nb, inline=True)
+
+                            text = "Bõnus marcados com * não funcionam para jogadores do Modo independente"
+                            embed.set_footer(text=text)
+
+                            await message.edit(content=content, embed=embed)
 
 
 def setup(bot):

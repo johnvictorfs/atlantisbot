@@ -6,7 +6,7 @@ import feedparser
 import urllib.parse as urlparse
 from io import StringIO
 
-from discord.ext import commands
+from discord.ext import tasks, commands
 import aiohttp
 import discord
 
@@ -19,10 +19,10 @@ class AdvLog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.advlog_task = self.bot.loop.create_task(self.adv_log())
+        self.adv_log.start()
 
     def cog_unload(self):
-        self.advlog_task.cancel()
+        self.adv_log.cancel()
 
     def is_advlog_active(self):
         with self.bot.db_session() as session:
@@ -33,13 +33,10 @@ class AdvLog(commands.Cog):
                 session.commit()
             return state.messages
 
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=15)
     async def adv_log(self):
-        await self.bot.wait_until_ready()
-
-        while True:
-            if not self.is_advlog_active():
-                await asyncio.sleep(60)
-                continue
+        if self.is_advlog_active():
             async with aiohttp.ClientSession() as cs:
                 try:
                     for get_clan in self.bot.setting.advlog_clans:
@@ -91,8 +88,10 @@ class AdvLog(commands.Cog):
                                 await asyncio.sleep(5)
                 except Exception as e:
                     await self.bot.send_logs(e, traceback.format_exc())
-                    await asyncio.sleep(60 * 3)
-                await asyncio.sleep(15)
+
+    @adv_log.before_loop
+    async def before_adv_log(self):
+        await self.bot.wait_until_ready()
 
     @staticmethod
     async def retrieve_activities(cs: aiohttp.ClientSession, player: str) -> list:

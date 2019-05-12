@@ -2,7 +2,7 @@ import traceback
 import datetime
 import json
 
-from discord.ext import commands
+from discord.ext import tasks, commands
 from bs4 import BeautifulSoup
 import discord
 import asyncio
@@ -17,11 +17,11 @@ class Merchant(commands.Cog):
         self.bot = bot
 
         if self.bot.setting.mode == 'prod':
-            self.update_merchant_task = self.bot.loop.create_task(self.update_merchant_stock())
+            self.update_merchant_stock.start()
 
     def cog_unload(self):
         if self.bot.setting.mode == 'prod':
-            self.update_merchant_task.cancel()
+            self.update_merchant_stock.cancel()
 
     @staticmethod
     def today_str() -> str:
@@ -92,22 +92,26 @@ class Merchant(commands.Cog):
             )
         return embed
 
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=10)
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
+        try:
+            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
+            message: discord.Message = await channel.fetch_message(562120346979794944)
+            embed = await self.merchant_embed()
+            await message.edit(content=None, embed=embed)
+            await asyncio.sleep(self.time_till_midnight() + 30)
+            await channel.send('<@&560997610954162198>', delete_after=600)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(e, tb)
+            await self.bot.send_logs(e, tb)
+            await asyncio.sleep(60 * 15)
 
-        while True:
-            try:
-                channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
-                message: discord.Message = await channel.fetch_message(562120346979794944)
-                embed = await self.merchant_embed()
-                await message.edit(content=None, embed=embed)
-                await asyncio.sleep(self.time_till_midnight() + 30)
-                await channel.send('<@&560997610954162198>', delete_after=600)
-            except Exception as e:
-                tb = traceback.format_exc()
-                print(e, tb)
-                await self.bot.send_logs(e, tb)
-                await asyncio.sleep(60 * 15)
+    @update_merchant_stock.before_loop
+    async def before_update_merchant_stock(self):
+        await self.bot.wait_until_ready()
 
     @commands.command()
     async def send_merch(self, ctx: commands.Context):

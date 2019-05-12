@@ -2,7 +2,7 @@ import datetime
 import traceback
 import sys
 
-from discord.ext import commands
+from discord.ext import tasks, commands
 import discord
 import asyncio
 
@@ -16,46 +16,46 @@ class RaidsTasks(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
-
-        self.raids_task = self.bot.loop.create_task(self.raids_teams())
-        self.raids_notifications_task = self.bot.loop.create_task(self.update_next_raids())
+        self.update_next_raids.start()
+        self.raids_teams.start()
 
     def cog_unload(self):
-        self.raids_task.cancel()
-        self.raids_notifications_task.cancel()
+        self.update_next_raids.cancel()
+        self.raids_teams.cancel()
 
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=15)
     async def raids_teams(self) -> None:
         """Starts a Raids Team every 2 days 1 hour before midnight UTC (RuneScape's Reset Time)"""
 
+        if 'testraid' in sys.argv:
+            try:
+                await self.start_raids_team()
+                await asyncio.sleep(60 * 10)
+            except Exception as e:
+                tb = traceback.format_exc()
+                await self.bot.send_logs(e, tb)
+        else:
+            seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
+            raids_diff = datetime.timedelta(seconds=seconds_till_raids)
+            print(f'Next Raids in: {raids_diff.days} '
+                  f'Days, {raids_diff.seconds // 3600} '
+                  f'Hours, {(raids_diff.seconds // 60) % 60} '
+                  f'Minutes')
+            await asyncio.sleep(seconds_till_raids)
+            if self.raids_notifications():
+                try:
+                    await self.start_raids_team()
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    await self.bot.send_logs(e, tb)
+
+    @raids_teams.before_loop
+    async def before_raids_teams(self):
         await self.bot.wait_until_ready()
 
-        while True:
-            if 'testraid' in sys.argv:
-                try:
-                    await self.start_raids_team()
-                    await asyncio.sleep(60 * 10)
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    await self.bot.send_logs(e, tb)
-            else:
-                seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
-                raids_diff = datetime.timedelta(seconds=seconds_till_raids)
-                print(f'Next Raids in: {raids_diff.days} '
-                      f'Days, {raids_diff.seconds // 3600} '
-                      f'Hours, {(raids_diff.seconds // 60) % 60} '
-                      f'Minutes')
-                await asyncio.sleep(seconds_till_raids)
-                if not self.raids_notifications():
-                    await asyncio.sleep(60)
-                    continue
-                try:
-                    await self.start_raids_team()
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    await self.bot.send_logs(e, tb)
-                finally:
-                    await asyncio.sleep(60)
-
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=30)
     async def update_next_raids(self) -> None:
         """Updates the message with the time until the next raids in the #raids channel"""
 
@@ -63,50 +63,52 @@ class RaidsTasks(commands.Cog):
 
         if self.bot.setting.mode == 'dev':
             return
-        while True:
-            try:
-                seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
-                raids_diff = datetime.timedelta(seconds=seconds_till_raids)
-                days = raids_diff.days
-                hours = raids_diff.seconds // 3600
-                minutes = (raids_diff.seconds // 60) % 60
 
-                msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/393106804709523457'
-                text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
-                        f"{hours} Hora{'s' if hours > 1 else ''} e "
-                        f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
-                        f"• [Clique aqui para saber como participar]({msg_url})")
+        try:
+            seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
+            raids_diff = datetime.timedelta(seconds=seconds_till_raids)
+            days = raids_diff.days
+            hours = raids_diff.seconds // 3600
+            minutes = (raids_diff.seconds // 60) % 60
 
-                embed = discord.Embed(title='', description=text, color=discord.Color.blue())
+            msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/393106804709523457'
+            text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
+                    f"{hours} Hora{'s' if hours > 1 else ''} e "
+                    f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
+                    f"• [Clique aqui para saber como participar]({msg_url})")
 
-                channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
+            embed = discord.Embed(title='', description=text, color=discord.Color.blue())
 
-                with self.bot.db_session() as session:
-                    state = session.query(RaidsState).first()
-                    if state:
-                        if state.time_to_next_message:
-                            message_id = int(state.time_to_next_message)
-                        else:
-                            sent = await channel.send(content=None, embed=embed)
-                            state.time_to_next_message = str(sent.id)
-                            message_id = sent.id
+            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
+
+            with self.bot.db_session() as session:
+                state = session.query(RaidsState).first()
+                if state:
+                    if state.time_to_next_message:
+                        message_id = int(state.time_to_next_message)
                     else:
-                        sent = await channel.send("Próxima notificação de Raids em:")
-                        session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
-                        state = session.query(RaidsState).first()
-                        message_id = sent.id
-                    try:
-                        message: discord.Message = await channel.fetch_message(message_id)
-                        await message.edit(content=None, embed=embed)
-                    except discord.errors.NotFound:
                         sent = await channel.send(content=None, embed=embed)
                         state.time_to_next_message = str(sent.id)
-                    await asyncio.sleep(1)
-            except Exception as e:
-                tb = traceback.format_exc()
-                await self.bot.send_logs(e, tb)
-            finally:
-                await asyncio.sleep(30)
+                        message_id = sent.id
+                else:
+                    sent = await channel.send("Próxima notificação de Raids em:")
+                    session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
+                    state = session.query(RaidsState).first()
+                    message_id = sent.id
+                try:
+                    message: discord.Message = await channel.fetch_message(message_id)
+                    await message.edit(content=None, embed=embed)
+                except discord.errors.NotFound:
+                    sent = await channel.send(content=None, embed=embed)
+                    state.time_to_next_message = str(sent.id)
+                await asyncio.sleep(1)
+        except Exception as e:
+            tb = traceback.format_exc()
+            await self.bot.send_logs(e, tb)
+
+    @update_next_raids.before_loop
+    async def before_update_next_raids(self):
+        await self.bot.wait_until_ready()
 
     def raids_notifications(self) -> bool:
         """Checks if raids notifications are turned on or off in the bot settings"""
