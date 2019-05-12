@@ -57,7 +57,7 @@ Using the Ranks command                |
 
 Using the Team command (gif)          |
 :------------------------------------:|
-![](/images/commands/team_example.gif)|
+![](/images/commands/team_creation_example.gif)|
 
 - `!amigosecreto` - Join the Yearly Atlantis Secret Santa event, automatically pairs people and notifies them when the the pairing is done
 
