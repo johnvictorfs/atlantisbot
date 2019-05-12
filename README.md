@@ -20,9 +20,9 @@ Made specifically for the discord server of the RuneScape 3 Clan Atlantis
     - Gets information from the Bot's database for teams created with the `!team` command, such as which roles to allow to join a Team, listens for join (or leave) messages in the chat set with `!team` and automatically builds the Team with them
         - Also saves every message the Bot sent for join/leave messages so it can clear them all when a team is deleted by using the `!del <team ID>` command (Requires manage channels permission or be the Team creator)
 
-Joining a Team                              |  Team List                                  | Being rejected from a Team                   |
-:------------------------------------------:|:-------------------------------------------:|:---------------------------------------------|
-![](/images/tasks/joining_team_example.png) | ![](/images/tasks/created_team_example.png) | ![](/images/tasks/rejected_team_example.png) |
+Joining a Team       |  Team List                                  |
+:-------------------:|:-------------------------------------------:|
+!  [](/images/tasks/joining_team_example.png)  | ![](/images/tasks/created_team_example.png)                              |
 
 - **Automated Raids (Game Event) Team Maker** 
     - Notifications for Raids one hour before reset every 2 days, bot picks up people who ask for invites to the Team and gathers them into a list (works the same as the team making command explained above)
