@@ -19,10 +19,11 @@ Made specifically for the discord server of the RuneScape 3 Clan Atlantis
 - **Automated Team Maker** 
     - Gets information from the Bot's database for teams created with the `!team` command, such as which roles to allow to join a Team, listens for join (or leave) messages in the chat set with `!team` and automatically builds the Team with them
         - Also saves every message the Bot sent for join/leave messages so it can clear them all when a team is deleted by using the `!del <team ID>` command (Requires manage channels permission or be the Team creator)
+        - Mark players as substitutes when they join over the Team limit number, automatically moving and notifying them when a slot opens up
 
-Joining a Team       |  Team List                                  |
-:-------------------:|:-------------------------------------------:|
-!  [](/images/tasks/joining_team_example.png)  | ![](/images/tasks/created_team_example.png)                              |
+ Joining a Team                              |  Team List                                  |
+:-------------------------------------------:|:-------------------------------------------:|
+![](/images/tasks/joining_team_example.png)  | ![](/images/tasks/created_team_example.png)                              |
 
 - **Automated Raids (Game Event) Team Maker** 
     - Notifications for Raids one hour before reset every 2 days, bot picks up people who ask for invites to the Team and gathers them into a list (works the same as the team making command explained above)
@@ -57,6 +58,12 @@ Using the Ranks command                |
 Using the Team command (gif)          |
 :------------------------------------:|
 ![](/images/commands/team_example.gif)|
+
+- `!amigosecreto` - Join the Yearly Atlantis Secret Santa event, automatically pairs people and notifies them when the the pairing is done
+
+Joining Secret Santa Successfully              |     Can't join if you aren't in the clan     |
+:---------------------------------------------:|:---------------------------------------------|
+![](/images/commands/amigo_secreto_success.png)| ![](/images/commands/amigo_secreto_fail.png) |
 
 - `!comp (competition number|1) (number of players to list|10 (max=50))` - Gets information from a RuneClan Exp competition (or lists them if you've passed no arguments and there's more than one running)
 
