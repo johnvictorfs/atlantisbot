@@ -35,11 +35,21 @@ Adventurer's Log messages example    |
 :-----------------------------------:|
 ![](/images/tasks/advlog_example.png)|
 
+- **Updated Merchant Stock**
+    - Edits a message with the current [Travelling Merchant](https://runescape.wiki/w/Travelling_Merchant's_Shop) stock everytime it updates
+    ![](/images/tasks/merchant.png)
+
 ***
 
 #### Notable Commands
 
 *Arguments format:* \<required\> (optional|default value)
+
+- `!team` - Saves information about a Team that gets saved in the Bot's database, this information is used to automate team creation and joining of other people, explained in the automated team making task above
+
+Using the Team command (gif)          |
+:------------------------------------:|
+![](/images/commands/team_creation_example.gif)|
 
 - `!claninfo <player>` - Gets clan information from a RuneScape 3 player and returns it in a formatted embed (makes use of [RuneScape 3's](https://rs.wiki/API) API by Jagex)
 
@@ -52,12 +62,6 @@ Using the Claninfo command                |
 Using the Ranks command                |
 :-------------------------------------:|
 ![](/images/commands/ranks_example.png)|
-
-- `!team` - Saves information about a Team that gets saved in the Bot's database, this information is used to automate team creation and joining of other people, explained in the automated team making task above
-
-Using the Team command (gif)          |
-:------------------------------------:|
-![](/images/commands/team_creation_example.gif)|
 
 - `!amigosecreto` - Join the Yearly Atlantis Secret Santa event, automatically pairs people and notifies them when the the pairing is done
 
