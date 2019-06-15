@@ -392,7 +392,7 @@ class Teams(commands.Cog):
                 current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
                     Team.team_id.desc()).first().team_id)
                 while True:
-                    if session.query(Team).filter(Team.team_id == str(current_id)):
+                    if session.query(Team).filter(Team.team_id == str(current_id)).all():
                         current_id += 1
                     else:
                         break
