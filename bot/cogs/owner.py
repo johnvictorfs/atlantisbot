@@ -20,6 +20,7 @@ from bot.utils.tools import separator, plot_table
 class Owner(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
+        self._last_result = None
 
     @commands.is_owner()
     @commands.command()
