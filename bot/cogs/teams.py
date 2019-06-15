@@ -391,6 +391,11 @@ class Teams(commands.Cog):
             try:
                 current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
                     Team.team_id.desc()).first().team_id)
+                while True:
+                    if session.query(Team).filter(Team.team_id == str(current_id)):
+                        current_id += 1
+                    else:
+                        break
             except (AttributeError, ValueError):
                 return 0
         return current_id
