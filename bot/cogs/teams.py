@@ -3,6 +3,7 @@ import asyncio
 
 import discord
 from discord.ext import commands
+from sqlalchemy import cast, Integer
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
@@ -391,7 +392,7 @@ class Teams(commands.Cog):
             try:
                 # Achar a team_id mais alta e retornar ela
                 current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
-                    Team.team_id.asc()).first().team_id)
+                    cast(Team.team_id.asc(), Integer)).first().team_id)
             except (AttributeError, ValueError):
                 return 0
         return current_id
