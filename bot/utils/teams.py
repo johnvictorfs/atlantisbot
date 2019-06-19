@@ -103,6 +103,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 raise WrongChannelError
             await message.delete()
             current_players = session.query(Player).filter_by(team=team.id)
+            substitutes = session.query(Player).filter_by(team=team.id, substitute=True)
             invite_channel: discord.TextChannel = client.get_channel(int(team.invite_channel_id))
             team_channel: discord.TextChannel = client.get_channel(int(team.team_channel_id))
             if not invite_channel or not team_channel:
@@ -140,7 +141,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                     if team.role_secondary:
                         description = f"{description} ou o cargo <@&{team.role_secondary}>"
                     description = (f"{description} para entrar no Time '{team.title}' "
-                                   f"({current_players.count()}/{team.size})\n"
+                                   f"({current_players.count() - substitutes.count()}/{team.size})\n"
                                    f"(*`{message.content}`*)")
                     no_perm_embed = discord.Embed(
                         title=f"__Permissões insuficientes__",
@@ -165,7 +166,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                             session.commit()
                             _text = (f"<@{substitute.player_id}> não é mais um substituto do time "
                                      f"**[{team.title}]({team_message.jump_url})** "
-                                     f"({current_players.count() - 1}/{team.size})")
+                                     f"({current_players.count() - substitutes.count() - 1}/{team.size})")
                             embed = discord.Embed(title='', description=_text, color=discord.Color.green())
                             msg = await invite_channel.send(content=f"<@{substitute.player_id}>", embed=embed)
                             session.add(BotMessage(message_id=msg.id, team=team.id))
@@ -176,7 +177,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 sent_message = await invite_channel.send(embed=no_perm_embed)
             else:
                 _text = (f"{message.author.mention} {text} **[{team.title}]({team_message.jump_url})** "
-                         f"({current_players.count()}/{team.size})\n\n *`({message.content})`*")
+                         f"({current_players.count() - substitutes.count()}/{team.size})\n\n *`({message.content})`*")
                 if mode == 'leave':
                     embed_color = discord.Color.red()
                 else:
