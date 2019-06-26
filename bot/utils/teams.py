@@ -183,6 +183,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 else:
                     embed_color = discord.Color.green()
                 embed = discord.Embed(title='', description=_text, color=embed_color)
+                embed.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
                 sent_message = await invite_channel.send(embed=embed)
 
             session.add(BotMessage(message_id=sent_message.id, team=team.id))

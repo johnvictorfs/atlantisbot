@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 import datetime
 import logging
@@ -68,8 +69,15 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send("Esse comando está desabilitado.")
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
+        elif isinstance(error, commands.PrivateMessageOnly):
+            await ctx.send(
+                f"Esse comando só pode ser usado eTimeoutivadas.\n"
+                f"Fale comigo aqui: {self.bot.user.mention}"
+            )
         elif isinstance(error, commands.NotOwner):
             await ctx.send("Você não pode usar isso.")
+        elif isinstance(error, commands.CommandInvokeError):
+            await ctx.send("Comando cancelado. Tempo esgotado.")
         elif isinstance(error, commands.MissingPermissions):
             permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
             await ctx.send(f"Você precisa das seguintes permissões para fazer isso: {', '.join(permissions)}")
