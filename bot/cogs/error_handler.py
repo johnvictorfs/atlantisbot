@@ -34,6 +34,7 @@ class CommandErrorHandler(commands.Cog):
             commands.BadArgument,
             commands.TooManyArguments,
         ]
+        print(type(error))
         if any([isinstance(error, arg_error) for arg_error in arguments_error]):
             embed = discord.Embed(
                 title=f"Argumentos do comando '{ctx.command}':",
@@ -76,8 +77,6 @@ class CommandErrorHandler(commands.Cog):
             )
         elif isinstance(error, commands.NotOwner):
             await ctx.send("Você não pode usar isso.")
-        elif isinstance(error, commands.CommandInvokeError):
-            await ctx.send("Comando cancelado. Tempo esgotado.")
         elif isinstance(error, commands.MissingPermissions):
             permissions = [f"***{perm.title().replace('_', ' ')}***" for perm in error.missing_perms]
             await ctx.send(f"Você precisa das seguintes permissões para fazer isso: {', '.join(permissions)}")

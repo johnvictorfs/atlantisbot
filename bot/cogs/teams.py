@@ -74,12 +74,12 @@ class Teams(commands.Cog):
 
     @commands.guild_only()
     @commands.check(is_in_team)
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.command(aliases=['tagall'])
     async def tag_all(self, ctx: commands.Context, team_id: str, *, message: str = None):
         with self.bot.db_session() as session:
-            team: Team = session.query(Team).filter_by(team_id=team_id, substitute=False).first()
-            players = session.query(Player).filter_by(team=team.id)
+            team: Team = session.query(Team).filter_by(team_id=team_id).first()
+            players = session.query(Player).filter_by(team=team.id, substitute=False)
             if not players:
                 return await ctx.send(f"O time '{team.title}' está vazio.")
             text = ""
