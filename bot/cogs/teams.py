@@ -82,11 +82,12 @@ class Teams(commands.Cog):
             players = session.query(Player).filter_by(team=team.id, substitute=False)
             if not players:
                 return await ctx.send(f"O time '{team.title}' está vazio.")
-            text = ""
+            text = f"Menção enviada por: {ctx.author.mention}\n"
             for player in players:
                 text = f"{text} <@{player.player_id}>"
             if message:
                 text = f"{text}\n{message}"
+            await ctx.message.delete()
             return await ctx.send(text)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
