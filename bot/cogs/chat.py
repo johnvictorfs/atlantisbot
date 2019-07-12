@@ -16,32 +16,6 @@ class Chat(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
-        # F
-        # if ctx.author.id == 403632514800943104:
-        #     messages = [
-        #         "Are u havin' a laugh mate?",
-        #         "Umbasa",
-        #         "⬆ ⬆ ⬇ ⬇ ⬅ ➡ ⬅ ➡ 🅱 🅰 `start`",
-        #         "Keep Trying",
-        #         "Shout, “Jesus is alive!”",
-        #         "But Our Princess is in Another Castle!",
-        #         "01110111 01110010 01101001 01101111 01100001 01111001 "
-        #         "01110010 01100110 01101001 01101111 01100001 01110111 "
-        #         "01100100 01101111 01101001 01110111 01100001 01101000 "
-        #         "01101111 01101001 01100100 01101000 01110111 01100001 "
-        #         "01101111 01101001 01111001 01110010 01101111 01101001 "
-        #         "01100001 01110111 01101000 01100100 01101111 01101001 "
-        #         "01100001 01101000 01110111 01101111 01101001 01100100"
-        #         "Reality can be whatever I want",
-        #         "I'm like TT, just like TT!",
-        #         "1. e4 e5 2. Ke2 Ke7 3. Qe1 Qe8 4. Kd1 Kd8",
-        #         "apt-get moo",
-        #         "Hello World",
-        #         "Kono Dio Da!",
-        #         "lero lero lero lero lero",
-        #         "Wryyyyyyyyyy"
-        #     ]
-        #     return await ctx.send(random.choice(messages))
         if not has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
             return await ctx.send("Fool! Você não é um Convidado!")
 
@@ -53,7 +27,7 @@ class Chat(commands.Cog):
         try:
             ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
         except asyncio.TimeoutError:
-            return await ctx.send("Tempo Esgotado. Por favor tente novamente mais tarde.")
+            return await ctx.send(f"{ctx.author.mention}, autenticação Cancelada. Tempo Esgotado.")
         await ctx.trigger_typing()
         player = rs3clans.Player(ingame_name.content)
         if not player.exists:
@@ -65,20 +39,20 @@ class Chat(commands.Cog):
             f"<@&{self.bot.setting.role.get('admin')}> irá dar seu cargo em breve :)"
         )
 
-    @commands.dm_only()
+    @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(aliases=['aplicar', 'raids'])
+    @commands.command(aliases=['raids'])
     async def aplicar_raids(self, ctx: commands.Context):
-        print(f"> {ctx.author} issued command 'aplicar_raids'.")
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
-        aplicar_message = f"""
-Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.
+        aplicar_message = (
+            f"Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.\n"
+            f"Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_channel}\n"
+            f"Use a imagem a seguir como base: < https: // i.imgur.com/M4sU24s.png >"
+        )
 
-Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_channel}
-Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>
 
-**Inclua na screenshot:**
+**Inclua na screenshot: **
  {right_arrow} Aba de `Equipamento` que irá usar
  {right_arrow} Aba de `Inventário` que irá usar
  {right_arrow} **`Perks de todas as suas Armas e Armaduras que pretende usar`**
@@ -86,9 +60,9 @@ Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>
  {right_arrow} `Barra de Habilidades` no modo de combate que utiliza
  {right_arrow} `Nome de usuário in-game`
 
-Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>.
+Aguarde uma resposta de um < @ & {self.bot.setting.role.get('raids_teacher')} > .
 
-***Exemplo:*** https://i.imgur.com/CMNzquL.png"""
+***Exemplo: *** https: // i.imgur.com/CMNzquL.png
 
         denied_message = "Fool! Você já tem permissão para ir Raids!"
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
@@ -117,7 +91,7 @@ Inclua na screenshot:
 
 Aguarde uma resposta de um {aod_teacher}.
 
-***Exemplo (Aplicação para Raids):*** https://i.imgur.com/CMNzquL.png"""
+***Exemplo(Aplicação para Raids): *** https: // i.imgur.com/CMNzquL.png"""
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
