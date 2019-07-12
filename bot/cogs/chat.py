@@ -48,22 +48,17 @@ class Chat(commands.Cog):
         aplicar_message = (
             f"Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.\n"
             f"Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_channel}\n"
-            f"Use a imagem a seguir como base: < https: // i.imgur.com/M4sU24s.png >"
+            f"Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>\n"
+            f"**Inclua na screenshot: **\n"
+            f" {right_arrow} Aba de `Equipamento` que irá usar\n"
+            f" {right_arrow} Aba de `Inventário` que irá usar\n"
+            f" {right_arrow} **`Perks de todas as suas Armas e Armaduras que pretende usar`**\n"
+            f" {right_arrow} `Stats`\n"
+            f" {right_arrow} `Barra de Habilidades` no modo de combate que utiliza\n"
+            f" {right_arrow} `Nome de usuário in-game`\n\n"
+            f"Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>\n\n"
+            f"***Exemplo de aplicação:*** https://i.imgur.com/CMNzquL.png"
         )
-
-
-**Inclua na screenshot: **
- {right_arrow} Aba de `Equipamento` que irá usar
- {right_arrow} Aba de `Inventário` que irá usar
- {right_arrow} **`Perks de todas as suas Armas e Armaduras que pretende usar`**
- {right_arrow} `Stats`
- {right_arrow} `Barra de Habilidades` no modo de combate que utiliza
- {right_arrow} `Nome de usuário in-game`
-
-Aguarde uma resposta de um < @ & {self.bot.setting.role.get('raids_teacher')} > .
-
-***Exemplo: *** https: // i.imgur.com/CMNzquL.png
-
         denied_message = "Fool! Você já tem permissão para ir Raids!"
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
