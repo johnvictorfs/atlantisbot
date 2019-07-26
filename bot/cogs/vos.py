@@ -3,6 +3,7 @@ from typing import List
 from discord.ext import tasks, commands
 from PIL import Image
 
+import traceback
 import datetime
 import re
 import os
@@ -262,20 +263,42 @@ class Vos(commands.Cog):
     # noinspection PyCallingNonCallable
     @tasks.loop(seconds=5)
     async def update_vos(self):
-        with self.bot.db_session() as session:
-            state: VoiceOfSeren = session.query(VoiceOfSeren).first()
-            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
+        try:
+            with self.bot.db_session() as session:
+                state: VoiceOfSeren = session.query(VoiceOfSeren).first()
+                channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
 
-            if state:
-                now = datetime.datetime.utcnow()
+                if state:
+                    now = datetime.datetime.utcnow()
 
-                if state.updated.hour != now.hour or state.updated.day != now.day:
-                    message: discord.Message = await channel.fetch_message(int(state.message_id))
+                    if state.updated.hour != now.hour or state.updated.day != now.day:
+                        message: discord.Message = await channel.fetch_message(int(state.message_id))
 
+                        vos_1, vos_2 = self.get_voices()
+                        embed, file = self.vos_embed(vos_1, vos_2)
+
+                        print(f"Updating VoS to: {vos_1}, {vos_2}")
+
+                        role_1 = self.bot.setting.role.get(vos_1.lower())
+                        role_2 = self.bot.setting.role.get(vos_2.lower())
+
+                        mentions = ''
+                        if role_1:
+                            mentions += f"<@&{role_1}> "
+                        if role_2:
+                            mentions += f"<@&{role_2.mention}>"
+
+                        await message.edit(embed=embed)
+                        await channel.send(content=mentions, delete_after=5 * 60)
+
+                        state.current_voice_one = vos_1
+                        state.current_voice_two = vos_2
+                        state.updated = now
+                        session.commit()
+                else:
                     vos_1, vos_2 = self.get_voices()
-                    embed, file = self.vos_embed(vos_1, vos_2)
 
-                    print(f"Updating VoS to: {vos_1}, {vos_2}")
+                    print(f"Set VoS to: {vos_1}, {vos_2}")
 
                     role_1 = self.bot.setting.role.get(vos_1.lower())
                     role_2 = self.bot.setting.role.get(vos_2.lower())
@@ -286,33 +309,15 @@ class Vos(commands.Cog):
                     if role_2:
                         mentions += f"<@&{role_2.mention}>"
 
-                    await message.edit(embed=embed, content="")
+                    embed, file = self.vos_embed(vos_1, vos_2)
+                    message: discord.Message = await channel.send(file=file, embed=embed, content="")
                     await channel.send(content=mentions, delete_after=5 * 60)
-
-                    state.current_voice_one = vos_1
-                    state.current_voice_two = vos_2
-                    state.updated = now
+                    state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(message.id))
+                    session.add(state)
                     session.commit()
-            else:
-                vos_1, vos_2 = self.get_voices()
-
-                print(f"Set VoS to: {vos_1}, {vos_2}")
-
-                role_1 = self.bot.setting.role.get(vos_1.lower())
-                role_2 = self.bot.setting.role.get(vos_2.lower())
-
-                mentions = ''
-                if role_1:
-                    mentions += f"<@&{role_1}> "
-                if role_2:
-                    mentions += f"<@&{role_2.mention}>"
-
-                embed, file = self.vos_embed(vos_1, vos_2)
-                message: discord.Message = await channel.send(file=file, embed=embed, content="")
-                await channel.send(content=mentions, delete_after=5 * 60)
-                state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(message.id))
-                session.add(state)
-                session.commit()
+        except Exception as e:
+            tb = traceback.format_exc()
+            await self.bot.send_logs(e, tb)
 
     @commands.command(aliases=['vos'])
     async def voice_of_seren(self, ctx: commands.Context):
