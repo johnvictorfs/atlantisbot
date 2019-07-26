@@ -299,6 +299,7 @@ class Vos(commands.Cog):
     async def change_vos(self, vos_1: str, vos_2: str, message: discord.Message, channel: discord.TextChannel, state: VoiceOfSeren):
         with self.bot.db_session() as session:
             embed, file = self.vos_embed(vos_1, vos_2)
+            now = datetime.datetime.utcnow()
 
             print(f"Updating VoS to: {vos_1}, {vos_2}")
 
