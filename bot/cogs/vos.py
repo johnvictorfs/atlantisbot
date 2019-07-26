@@ -271,7 +271,10 @@ class Vos(commands.Cog):
 
                 vos_1, vos_2 = self.get_voices()
                 if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
-                    message: discord.Message = await channel.fetch_message(int(state.message_id))
+                    try:
+                        message: discord.Message = await channel.fetch_message(int(state.message_id))
+                    except discord.errors.NotFound:
+                        message = None
                     await ctx.send(f"Updated VoS to: {vos_1}, {vos_2}")
                     await self.change_vos(vos_1, vos_2, message, channel, state)
             else:
@@ -340,8 +343,10 @@ class Vos(commands.Cog):
                     if state.updated.hour != now.hour or state.updated.day != now.day:
                         vos_1, vos_2 = self.get_voices()
                         if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
-                            message: discord.Message = await channel.fetch_message(int(state.message_id))
-
+                            try:
+                                message: discord.Message = await channel.fetch_message(int(state.message_id))
+                            except discord.errors.NotFound:
+                                message = None
                             await self.change_vos(vos_1, vos_2, message, channel, state)
                 else:
                     vos_1, vos_2 = self.get_voices()
