@@ -289,12 +289,18 @@ class Vos(commands.Cog):
                         if role_2:
                             mentions += f"<@&{role_2}>"
 
-                        await message.edit(embed=embed)
-                        await channel.send(content=mentions, delete_after=5 * 60)
+                        if message:
+                            try:
+                                await message.delete()
+                            except Exception:
+                                pass
+
+                        new_message: discord.Message = await channel.send(embed=embed, file=file, content=mentions)
 
                         state.current_voice_one = vos_1
                         state.current_voice_two = vos_2
                         state.updated = now
+                        state.message_id = str(new_message.id)
                         session.commit()
                 else:
                     vos_1, vos_2 = self.get_voices()
