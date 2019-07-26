@@ -255,7 +255,7 @@ class Vos(commands.Cog):
         image_file = discord.File(image_path, filename=image_name)
 
         url = "https://rs.wiki/vos#Known_effects"
-        text = f'A [Voz de Seren]{url} está ativa nos distritos de **{vos_1}** e **{vos_2}**'
+        text = f'A [Voz de Seren]({url}) está ativa nos distritos de **{vos_1}** e **{vos_2}**'
         embed = discord.Embed(title="Voz de Seren", description=text, color=discord.Color.blue())
         embed.set_thumbnail(url=f"attachment://{image_name}")
 
@@ -289,7 +289,7 @@ class Vos(commands.Cog):
                         if role_2:
                             mentions += f"<@&{role_2}>"
 
-                        await message.edit(embed=embed)
+                        await message.edit(file=file, embed=embed)
                         await channel.send(content=mentions, delete_after=5 * 60)
 
                         state.current_voice_one = vos_1
