@@ -273,35 +273,36 @@ class Vos(commands.Cog):
                     now = datetime.datetime.utcnow()
 
                     if state.updated.hour != now.hour or state.updated.day != now.day:
-                        message: discord.Message = await channel.fetch_message(int(state.message_id))
-
                         vos_1, vos_2 = self.get_voices()
-                        embed, file = self.vos_embed(vos_1, vos_2)
+                        if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
+                            message: discord.Message = await channel.fetch_message(int(state.message_id))
 
-                        print(f"Updating VoS to: {vos_1}, {vos_2}")
+                            embed, file = self.vos_embed(vos_1, vos_2)
 
-                        role_1 = self.bot.setting.role.get(vos_1.lower())
-                        role_2 = self.bot.setting.role.get(vos_2.lower())
+                            print(f"Updating VoS to: {vos_1}, {vos_2}")
 
-                        mentions = ''
-                        if role_1:
-                            mentions += f"<@&{role_1}> "
-                        if role_2:
-                            mentions += f"<@&{role_2}>"
+                            role_1 = self.bot.setting.role.get(vos_1.lower())
+                            role_2 = self.bot.setting.role.get(vos_2.lower())
 
-                        if message:
-                            try:
-                                await message.delete()
-                            except Exception:
-                                pass
+                            mentions = ''
+                            if role_1:
+                                mentions += f"<@&{role_1}> "
+                            if role_2:
+                                mentions += f"<@&{role_2}>"
 
-                        new_message: discord.Message = await channel.send(embed=embed, file=file, content=mentions)
+                            if message:
+                                try:
+                                    await message.delete()
+                                except Exception:
+                                    pass
 
-                        state.current_voice_one = vos_1
-                        state.current_voice_two = vos_2
-                        state.updated = now
-                        state.message_id = str(new_message.id)
-                        session.commit()
+                            new_message: discord.Message = await channel.send(embed=embed, file=file, content=mentions)
+
+                            state.current_voice_one = vos_1
+                            state.current_voice_two = vos_2
+                            state.updated = now
+                            state.message_id = str(new_message.id)
+                            session.commit()
                 else:
                     vos_1, vos_2 = self.get_voices()
 
