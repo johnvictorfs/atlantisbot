@@ -273,7 +273,7 @@ class Vos(commands.Cog):
                 if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
                     message: discord.Message = await channel.fetch_message(int(state.message_id))
                     await ctx.send(f"Updated VoS to: {vos_1}, {vos_2}")
-                    await change_vos(vos_1, vos_2, message, channel, state)
+                    await self.change_vos(vos_1, vos_2, message, channel, state)
             else:
                 vos_1, vos_2 = self.get_voices()
 
@@ -341,7 +341,7 @@ class Vos(commands.Cog):
                         if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
                             message: discord.Message = await channel.fetch_message(int(state.message_id))
 
-                            await change_vos(vos_1, vos_2, message, channel, state)
+                            await self.change_vos(vos_1, vos_2, message, channel, state)
                 else:
                     vos_1, vos_2 = self.get_voices()
 
