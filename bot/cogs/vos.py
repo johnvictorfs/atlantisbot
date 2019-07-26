@@ -11,6 +11,18 @@ from bot.bot_client import Bot
 from bot.orm.models import SongOfSerenState, VoiceOfSeren
 
 
+# TODO: Acabar essas descrições https://rs.wiki/vos#Known_effects
+vos_description = {
+    "Amlodd": "• +20% Exp Base de Evocação ao fazer Algibeiras e Pergaminhos\n"
+              "• Trocar uma algibeira por pergaminhos agora retorna 12 ao invés de 10\n"
+              "• +20% Exp Base de Divinação ao converter [Núcleos de Sombra](https://rs.wiki/Shadow_cores)\n"
+              "• Chance de [Crônicas](https://rs.wiki/Chronicle_fragment) aparecerem ao matar Sombras em Amlodd",
+    "Cadarn": "• Ao derrotar um [Arqueiro](https://rs.wiki/Cadarn_ranger) ou [Mago](https://rs.wiki/w/Cadarn_magus) "
+              "Cadarn, 200 Exp em Combate á Distância ou Magia é ganho, respectivamente\n",
+    "Crwys": "• +20% Exp Base em Corte de Lenha ao cortar "
+}
+
+
 class Vos(commands.Cog):
 
     def __init__(self, bot: Bot):
@@ -240,7 +252,8 @@ class Vos(commands.Cog):
 
         image_file = discord.File(image_path, filename=image_name)
 
-        text = f'A voz de Seren está ativa nos distritos de **{vos_1}** e **{vos_2}**'
+        url = "https://rs.wiki/vos#Known_effects"
+        text = f'A [Voz de Seren]{url} está ativa nos distritos de **{vos_1}** e **{vos_2}**'
         embed = discord.Embed(title="Voz de Seren", description=text, color=discord.Color.blue())
         embed.set_thumbnail(url=f"attachment://{image_name}")
 
