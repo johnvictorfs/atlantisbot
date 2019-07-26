@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from typing import List
 from discord.ext import tasks, commands
@@ -286,7 +287,7 @@ class Vos(commands.Cog):
                         if role_1:
                             mentions += f"<@&{role_1}> "
                         if role_2:
-                            mentions += f"<@&{role_2.mention}>"
+                            mentions += f"<@&{role_2}>"
 
                         await message.edit(embed=embed)
                         await channel.send(content=mentions, delete_after=5 * 60)
@@ -318,6 +319,7 @@ class Vos(commands.Cog):
         except Exception as e:
             tb = traceback.format_exc()
             await self.bot.send_logs(e, tb)
+            await asyncio.sleep(40)
 
     @commands.command(aliases=['vos'])
     async def voice_of_seren(self, ctx: commands.Context):
