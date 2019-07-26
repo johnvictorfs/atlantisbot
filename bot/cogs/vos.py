@@ -289,7 +289,7 @@ class Vos(commands.Cog):
                         if role_2:
                             mentions += f"<@&{role_2}>"
 
-                        await message.edit(file=file, embed=embed)
+                        await message.edit(embed=embed)
                         await channel.send(content=mentions, delete_after=5 * 60)
 
                         state.current_voice_one = vos_1
