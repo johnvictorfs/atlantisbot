@@ -273,12 +273,13 @@ class Vos(commands.Cog):
                     vos_1, vos_2 = self.get_voices()
                     if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
                         message: discord.Message = await channel.fetch_message(int(state.message_id))
-
+                        await ctx.send(f"Updated VoS to: {vos_1}, {vos_2}")
                         await change_vos(vos_1, vos_2, message, channel, state)
             else:
                 vos_1, vos_2 = self.get_voices()
 
                 print(f"Set VoS to: {vos_1}, {vos_2}")
+                await ctx.send(f"Set VoS to: {vos_1}, {vos_2}")
 
                 role_1 = self.bot.setting.role.get(vos_1.lower())
                 role_2 = self.bot.setting.role.get(vos_2.lower())
