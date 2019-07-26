@@ -261,6 +261,70 @@ class Vos(commands.Cog):
 
         return embed, image_file
 
+    @commands.command()
+    async def vos_update(self, ctx: commands.Context):
+        with self.bot.db_session() as session:
+            state: VoiceOfSeren = session.query(VoiceOfSeren).first()
+            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
+            if state:
+                now = datetime.datetime.utcnow()
+
+                if state.updated.hour != now.hour or state.updated.day != now.day:
+                    vos_1, vos_2 = self.get_voices()
+                    if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
+                        message: discord.Message = await channel.fetch_message(int(state.message_id))
+
+                        await change_vos(vos_1, vos_2, message, channel, state)
+            else:
+                vos_1, vos_2 = self.get_voices()
+
+                print(f"Set VoS to: {vos_1}, {vos_2}")
+
+                role_1 = self.bot.setting.role.get(vos_1.lower())
+                role_2 = self.bot.setting.role.get(vos_2.lower())
+
+                mentions = ''
+                if role_1:
+                    mentions += f"<@&{role_1}> "
+                if role_2:
+                    mentions += f"<@&{role_2.mention}>"
+
+                embed, file = self.vos_embed(vos_1, vos_2)
+                message: discord.Message = await channel.send(file=file, embed=embed, content="")
+                await channel.send(content=mentions, delete_after=5 * 60)
+                state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(message.id))
+                session.add(state)
+                session.commit()
+
+    async def change_vos(self, vos_1: str, vos_2: str, message: discord.Message, channel: discord.TextChannel, state: VoiceOfSeren):
+        with self.bot.db_session() as session:
+            embed, file = self.vos_embed(vos_1, vos_2)
+
+            print(f"Updating VoS to: {vos_1}, {vos_2}")
+
+            role_1 = self.bot.setting.role.get(vos_1.lower())
+            role_2 = self.bot.setting.role.get(vos_2.lower())
+
+            mentions = ''
+            if role_1:
+                mentions += f"<@&{role_1}> "
+            if role_2:
+                mentions += f"<@&{role_2}>"
+
+            if message:
+                try:
+                    await message.delete()
+                except Exception:
+                    pass
+
+            new_message: discord.Message = await channel.send(embed=embed, file=file, content=mentions)
+
+            state.current_voice_one = vos_1
+            state.current_voice_two = vos_2
+            state.updated = now
+            state.message_id = str(new_message.id)
+            session.commit()
+
     # noinspection PyCallingNonCallable
     @tasks.loop(seconds=5)
     async def update_vos(self):
@@ -277,32 +341,7 @@ class Vos(commands.Cog):
                         if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
                             message: discord.Message = await channel.fetch_message(int(state.message_id))
 
-                            embed, file = self.vos_embed(vos_1, vos_2)
-
-                            print(f"Updating VoS to: {vos_1}, {vos_2}")
-
-                            role_1 = self.bot.setting.role.get(vos_1.lower())
-                            role_2 = self.bot.setting.role.get(vos_2.lower())
-
-                            mentions = ''
-                            if role_1:
-                                mentions += f"<@&{role_1}> "
-                            if role_2:
-                                mentions += f"<@&{role_2}>"
-
-                            if message:
-                                try:
-                                    await message.delete()
-                                except Exception:
-                                    pass
-
-                            new_message: discord.Message = await channel.send(embed=embed, file=file, content=mentions)
-
-                            state.current_voice_one = vos_1
-                            state.current_voice_two = vos_2
-                            state.updated = now
-                            state.message_id = str(new_message.id)
-                            session.commit()
+                            await change_vos(vos_1, vos_2, message, channel, state)
                 else:
                     vos_1, vos_2 = self.get_voices()
 
