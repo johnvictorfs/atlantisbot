@@ -1,20 +1,29 @@
 import discord
+from typing import List
 from discord.ext import tasks, commands
+from PIL import Image
 
 import datetime
+import re
+import os
 
 from bot.bot_client import Bot
-from bot.orm.models import SongOfSerenState
+from bot.orm.models import SongOfSerenState, VoiceOfSeren
 
 
 class Vos(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
-        self.song_of_seren.start()
+
+        if self.bot.setting.mode == 'prod':
+            self.song_of_seren.start()
+            self.update_vos.start()
 
     def cog_unload(self):
-        self.song_of_seren.cancel()
+        if self.bot.setting.mode == 'prod':
+            self.song_of_seren.cancel()
+            self.update_vos.cancel()
 
     # noinspection PyCallingNonCallable
     @tasks.loop(seconds=5)
@@ -190,6 +199,114 @@ class Vos(commands.Cog):
                             embed.set_footer(text=text)
 
                             await message.edit(content=content, embed=embed)
+
+    @staticmethod
+    def save_combined(image_names: List[str]) -> (str, str):
+        """
+        Saves two images combined horizontally and then returns the path for said image
+
+        https://stackoverflow.com/a/30228308
+        """
+        images = [Image.open(f'images/vos/{image}.png') for image in image_names]
+        widths, heights = zip(*(i.size for i in images))
+
+        separation = 15
+
+        new_image = Image.new('RGBA', (sum(widths) + separation, max(heights)))
+
+        x_offset = 0
+        for image in images:
+            new_image.paste(image, (x_offset, 0))
+            x_offset += image.size[0] + separation
+
+        file_name = '-'.join(image_names).replace('.png', '') + '.png'
+
+        path = os.path.join('/tmp', file_name)
+
+        new_image.save(path, 'PNG')
+
+        return path, file_name
+
+    def get_voices(self) -> (str, str):
+        time_line = self.bot.twitter_api.GetUserTimeline(screen_name='jagexclock')
+        for tweet in time_line:
+            pattern = r'The Voice of Seren is now active in the (.+?) and (.+?) districts at .+? UTC.'
+            match = re.match(pattern, tweet.text)
+            if match:
+                return match.groups()
+
+    def vos_embed(self, vos_1: str, vos_2: str) -> (discord.Embed, discord.File):
+        image_path, image_name = self.save_combined([vos_1, vos_2])
+
+        image_file = discord.File(image_path, filename=image_name)
+
+        text = f'A voz de Seren está ativa nos distritos de **{vos_1}** e **{vos_2}**'
+        embed = discord.Embed(title="Voz de Seren", description=text, color=discord.Color.blue())
+        embed.set_thumbnail(url=f"attachment://{image_name}")
+
+        return embed, image_file
+
+    # noinspection PyCallingNonCallable
+    @tasks.loop(seconds=5)
+    async def update_vos(self):
+        with self.bot.db_session() as session:
+            state: VoiceOfSeren = session.query(VoiceOfSeren).first()
+            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
+
+            if state:
+                now = datetime.datetime.utcnow()
+
+                if state.updated.hour != now.hour or state.updated.day != now.day:
+                    message: discord.Message = await channel.fetch_message(int(state.message_id))
+
+                    vos_1, vos_2 = self.get_voices()
+                    embed, file = self.vos_embed(vos_1, vos_2)
+
+                    print(f"Updating VoS to: {vos_1}, {vos_2}")
+
+                    role_1 = self.bot.setting.role.get(vos_1.lower())
+                    role_2 = self.bot.setting.role.get(vos_2.lower())
+
+                    mentions = ''
+                    if role_1:
+                        mentions += f"<@&{role_1}> "
+                    if role_2:
+                        mentions += f"<@&{role_2.mention}>"
+
+                    await message.edit(embed=embed, content="")
+                    await channel.send(content=mentions, delete_after=5 * 60)
+
+                    state.current_voice_one = vos_1
+                    state.current_voice_two = vos_2
+                    state.updated = now
+                    session.commit()
+            else:
+                vos_1, vos_2 = self.get_voices()
+
+                print(f"Set VoS to: {vos_1}, {vos_2}")
+
+                role_1 = self.bot.setting.role.get(vos_1.lower())
+                role_2 = self.bot.setting.role.get(vos_2.lower())
+
+                mentions = ''
+                if role_1:
+                    mentions += f"<@&{role_1}> "
+                if role_2:
+                    mentions += f"<@&{role_2.mention}>"
+
+                embed, file = self.vos_embed(vos_1, vos_2)
+                message: discord.Message = await channel.send(file=file, embed=embed, content="")
+                await channel.send(content=mentions, delete_after=5 * 60)
+                state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(message.id))
+                session.add(state)
+                session.commit()
+
+    @commands.command(aliases=['vos'])
+    async def voice_of_seren(self, ctx: commands.Context):
+        vos_1, vos_2 = self.get_voices()
+        embed, file = self.vos_embed(vos_1, vos_2)
+
+        await ctx.send(file=file, embed=embed)
 
 
 def setup(bot):

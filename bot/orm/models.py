@@ -97,3 +97,12 @@ class SongOfSerenState(Base):
     id = Column(Integer, primary_key=True)
     activated = Column(Boolean, default=False)
     message_id = Column(String, nullable=True)
+
+
+class VoiceOfSeren(Base):
+    __tablename__ = 'voice_of_seren'
+    id = Column(Integer, primary_key=True)
+    current_voice_one = Column(String)
+    current_voice_two = Column(String)
+    message_id = Column(String)
+    updated = Column(DateTime, default=datetime.datetime.utcnow())

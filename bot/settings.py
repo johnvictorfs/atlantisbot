@@ -5,9 +5,9 @@ import os
 
 class Settings:
     @staticmethod
-    def read_data():
+    def read_data(section: str):
         with open('bot/bot_settings.json', 'r') as f:
-            return json.load(f)
+            return json.load(f)[section]
 
     @property
     def clan_settings(self):
@@ -16,102 +16,106 @@ class Settings:
 
     @property
     def mode(self):
-        return self.read_data()['BOT']['mode']
+        return self.read_data('BOT')['mode']
 
     @property
     def developer_id(self):
-        return self.read_data()['BOT']['developer_id']
+        return self.read_data('BOT')['developer_id']
 
     @property
     def guild_id(self):
-        return self.read_data()['BOT']['guild_id']
+        return self.read_data('BOT')['guild_id']
 
     @property
     def token(self):
-        token_ = self.read_data()['BOT']['bot_token']
+        token_ = self.read_data('BOT')['bot_token']
         if token_ == 'BOT_TOKEN_HERE':
             return os.environ.get('ATLBOT_TOKEN')
         return token_
 
     @property
     def description(self):
-        return self.read_data()['BOT']['description']
+        return self.read_data('BOT')['description']
 
     @property
     def dev_guild(self):
-        return self.read_data()['BOT']['dev_guild']
+        return self.read_data('BOT')['dev_guild']
 
     @property
     def playing_message(self):
-        return self.read_data()['BOT']['playing_message']
+        return self.read_data('BOT')['playing_message']
 
     @property
     def prefix(self):
-        return self.read_data()['BOT']['commands_prefix']
+        return self.read_data('BOT')['commands_prefix']
 
     @property
     def disabled_extensions(self):
-        return self.read_data()['BOT']['disabled_extensions']
+        return self.read_data('BOT')['disabled_extensions']
 
     @property
     def clan_name(self):
-        return self.read_data()['RUNESCAPE']['clan_name']
+        return self.read_data('RUNESCAPE')['clan_name']
 
     @property
     def show_titles(self):
-        return self.read_data()['RUNESCAPE']['show_titles']
+        return self.read_data('RUNESCAPE')['show_titles']
 
     @property
     def advlog_clans(self):
-        return self.read_data()['RUNESCAPE']['advlog_clans']
+        return self.read_data('RUNESCAPE')['advlog_clans']
 
     @property
     def banner_image(self):
-        return self.read_data()['OTHER']['banner_image']
+        return self.read_data('OTHER')['banner_image']
 
     @property
     def raids_start_date(self):
-        return datetime.datetime.strptime(self.read_data()['OTHER']['raids_start_date'], '%H:%M:%S %Y/%m/%d')
+        return datetime.datetime.strptime(self.read_data('OTHER')['raids_start_date'], '%H:%M:%S %Y/%m/%d')
 
     @property
     def not_allowed_in_name(self):
-        return self.read_data()['OTHER']['not_allowed_in_name']
+        return self.read_data('OTHER')['not_allowed_in_name']
 
     @property
     def server_id(self):
-        return self.read_data()['SERVER']['server_id']
+        return self.read_data('SERVER')['server_id']
 
     @property
     def welcome_channel_id(self):
-        return self.read_data()['SERVER']['welcome_channel_id']
+        return self.read_data('SERVER')['welcome_channel_id']
 
     @property
     def welcome_message_id(self):
-        return self.read_data()['SERVER']['welcome_message_id']
+        return self.read_data('SERVER')['welcome_message_id']
 
     @property
     def chat(self):
-        return self.read_data()['SERVER']['chat_id']
+        return self.read_data('SERVER')['chat_id']
 
     @property
     def role(self):
-        return self.read_data()['SERVER']['role_id']
+        return self.read_data('SERVER')['role_id']
 
     @property
     def roles_channel_id(self):
-        return self.read_data()['SERVER']['roles_channel_id']
+        return self.read_data('SERVER')['roles_channel_id']
 
     @property
     def general_roles_id(self):
-        return self.read_data()['SERVER']['general_roles_id']
+        return self.read_data('SERVER')['general_roles_id']
 
     @property
     def pvm_roles_id(self):
-        return self.read_data()['SERVER']['pvm_roles_id']
+        return self.read_data('SERVER')['pvm_roles_id']
 
     @property
     def react_roles_id(self):
-        return self.read_data()['SERVER']['react_roles_id']
+        return self.read_data('SERVER')['react_roles_id']
+
+    @property
+    def twitter(self):
+        return self.read_data('TWITTER')
 
 
 default_settings = {
@@ -124,16 +128,19 @@ default_settings = {
         "dev_guild": 268897682066505738,
         "playing_message": "!atlbot",
         "commands_prefix": "!",
-        "disabled_extensions": []
+        "disabled_extensions": [],
+        "database_url": "postgres://<user>:<password>@localhost:5432/<database>"
+    },
+    "TWITTER": {
+        "consumer_key": "",
+        "consumer_secret": "",
+        "access_token_key": "",
+        "access_token_secret": ""
     },
     "RUNESCAPE": {
         "clan_name": "Atlantis",
         "show_titles": False,
         "advlog_clans": [
-            {
-                "name": "Iron Atlantis",
-                "chat": 521499765696102420
-            },
             {
                 "name": "Atlantis",
                 "chat": 570985364290797590
@@ -155,7 +162,8 @@ default_settings = {
         "pvm_roles_id": 488180630803316756,
         "react_roles_id": 488180632057544704,
         "chat_id": {
-            "vos": 576414572206882847,
+            "vos": 603994903751426083,
+            "sos": 576414572206882847,
             "geral": 321012292160454657,
             "anuncios": 467069985270005760,
             "tags_do_server": 382691780996497416,
@@ -186,6 +194,9 @@ default_settings = {
             "merchant_call": 560980279360094208
         },
         "role_id": {
+            "hefin": 603992659677151242,
+            "amlodd": 603992737641005079,
+            "meylir": 603992941509476383,
             "admin": 321015469341540352,
             "mod+": 480520619163779085,
             "mod": 321015489583251467,

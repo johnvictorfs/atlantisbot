@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from typing import ContextManager
 
 import colorama
+import twitter
 import discord
 from discord.ext import commands
 from sqlalchemy.orm.session import Session
@@ -34,6 +35,7 @@ class Bot(commands.Bot):
         self.app_info = None
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
+        self.twitter_api = twitter.Api(**self.setting.twitter)
 
     async def send_logs(self, e, tb, ctx: commands.Context = None):
         dev = self.get_user(self.setting.developer_id)
