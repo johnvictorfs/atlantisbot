@@ -208,7 +208,7 @@ class RaidsTasks(commands.Cog):
         )
         return raids_notif_embed
 
-    @commands.is_owner()
+    @commands.has_permissions(manage_messages=True)
     @commands.command(aliases=['startraids'])
     async def start_raids(self, ctx: commands.Context) -> None:
         await ctx.send(f'Iniciando time de Raids... (mode={self.bot.setting.mode})')
