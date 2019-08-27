@@ -1,16 +1,123 @@
 from discord.ext import commands
 import discord
 import asyncio
+import aiohttp
 import rs3clans
 
+import datetime
+import json
+
 from bot.bot_client import Bot
-from bot.utils.tools import right_arrow, has_any_role
+from bot.cogs.raids import time_till_raids
+from bot.utils.tools import right_arrow, has_any_role, separator
+from bot.cogs.rsworld import grab_world, p2p_worlds, f2p_worlds, get_world, random_world, filtered_worlds
+
+
+def settings_embed(settings: dict):
+    """
+    Accepts a dict in the following format and returns a discord Embed accordingly:
+
+    settings = {
+        "f2p_worlds": bool,
+        "legacy_worlds": bool,
+        "language": "pt" | "en" | "fr" | "de"
+    }
+    """
+    nb_space = '\u200B'
+    embed = discord.Embed(title="Configurações de Mundos", description=nb_space, color=discord.Color.blue())
+
+    yes = "✅"
+    no = "❌"
+    language = {"pt": "Português-br", "en": "Inglês", "fr": "Francês", "de": "Alemão"}
+
+    embed.add_field(name=f"Mundos Grátis {yes}", value=separator, inline=False)
+    embed.add_field(name=f"Mundos Legado {no}", value=separator, inline=False)
+    embed.add_field(name="Linguagem", value=language[settings['language']], inline=False)
+    return embed
 
 
 class Chat(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
+
+    # @commands.guild_only()
+    # @commands.cooldown(1, 30, commands.BucketType.user)
+    # @commands.command(aliases=['role', 'membro'])
+    # async def aplicar_role(self, ctx: commands.Context):
+    #     # if not has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
+    #     #     return await ctx.send("Fool! Você não é um Convidado! Não é necessário se autenticar.")
+    #
+    #     def check(mes: discord.Message):
+    #         return mes.author == ctx.author
+    #
+    #     await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
+    #
+    #     try:
+    #         ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+    #
+    #     await ctx.trigger_typing()
+    #     with open('bot/worlds.json') as f:
+    #         worlds = json.load(f)
+    #     try:
+    #         player = rs3clans.Player(ingame_name.content)
+    #     except ConnectionError:
+    #         return await ctx.send("Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde.")
+    #     if not player.exists:
+    #         return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
+    #     elif player.clan != self.bot.setting.clan_name:
+    #         return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
+    #
+    #     player_world = grab_world(player)
+    #
+    #     if player_world == 'Offline':
+    #         return await ctx.send(f"{ctx.author.mention}, autenticação Cancelada. Você precisa estar Online.")
+    #
+    #     player_world = get_world(worlds, player_world)
+    #
+    #     settings = {
+    #         "f2p_worlds": player_world['f2p'],
+    #         "legacy_worlds": player_world['legacy'],
+    #         "language": player_world['language']
+    #     }
+    #     await ctx.send(embed=settings_embed(settings))
+    #
+    #     await ctx.send("O seu próximo mundo será enviado em 3...", delete_after=1)
+    #     await asyncio.sleep(1)
+    #     await ctx.send("O seu próximo mundo será enviado em 2...", delete_after=1)
+    #     await asyncio.sleep(1)
+    #     await ctx.send("O seu próximo mundo será enviado em 1...", delete_after=1)
+    #     await asyncio.sleep(1)
+    #
+    #     def confirm_check(reaction, user):
+    #         return user == ctx.author and str(reaction.emoji) == '✅'
+    #
+    #     world_list = filtered_worlds(worlds, **settings)
+    #     world = random_world(world_list)
+    #     message: discord.Message = await ctx.send(
+    #         f"Troque para o mundo {world}. Reaja na mensagem quando estiver nele."
+    #     )
+    #     await message.add_reaction('✅')
+    #     try:
+    #         await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
+    #     except asyncio.TimeoutError:
+    #         return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+    #     player_world = grab_world(player)
+    #     await ctx.send(player_world)
+
+    @staticmethod
+    async def get_price(item_id: int):
+        """
+        Gets the current price for an item in the GE based on its Item ID
+        """
+        url = f"http://services.runescape.com/m=itemdb_rs/api/catalogue/detail.json?item={item_id}"
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get(url) as r:
+                data = await r.text()
+                data = json.loads(data)
+                return int(data['item']['current']['price'].replace(',', ''))
 
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -43,26 +150,137 @@ class Chat(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command(aliases=['raids'])
     async def aplicar_raids(self, ctx: commands.Context):
-        raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
-
-        aplicar_message = (
-            f"Olá! Você aplicou para receber a tag de Raids e participar dos Raids do Clã.\n"
-            f"Favor postar uma screenshot que siga ao máximo possível as normas que estão escritas no topo do canal {raids_channel}\n"
-            f"Use a imagem a seguir como base: <https://i.imgur.com/M4sU24s.png>\n"
-            f"**Inclua na screenshot: **\n"
-            f" {right_arrow} Aba de `Equipamento` que irá usar\n"
-            f" {right_arrow} Aba de `Inventário` que irá usar\n"
-            f" {right_arrow} **`Perks de todas as suas Armas e Armaduras que pretende usar`**\n"
-            f" {right_arrow} `Stats`\n"
-            f" {right_arrow} `Barra de Habilidades` no modo de combate que utiliza\n"
-            f" {right_arrow} `Nome de usuário in-game`\n\n"
-            f"Aguarde uma resposta de um <@&{self.bot.setting.role.get('raids_teacher')}>\n\n"
-            f"***Exemplo de aplicação:*** https://i.imgur.com/CMNzquL.png"
-        )
         denied_message = "Fool! Você já tem permissão para ir Raids!"
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
-        return await ctx.send(aplicar_message)
+
+        await ctx.send(f"Olá {ctx.author.mention}, por favor me diga o seu nome no Jogo.")
+
+        raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
+
+        def check(message):
+            return message.author == ctx.author
+
+        try:
+            ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
+        except asyncio.TimeoutError:
+            return await ctx.send(f"{ctx.author.mention}, aplicação Cancelada. Tempo Esgotado.")
+
+        await ctx.trigger_typing()
+
+        player = rs3clans.Player(ingame_name.content)
+
+        if not player.exists:
+            return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
+        elif player.clan != self.bot.setting.clan_name:
+            pass
+            # return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
+        elif player.private_profile:
+            return await ctx.send(
+                f"{ctx.author.mention}, seu perfil no Runemetrics está privado, por favor o deixe público "
+                f"e tente aplicar novamente."
+            )
+
+        emojis = {
+            'prayer': '<:prayer:499707566012497921>',
+            'herblore': '<:herblore:499707566272544778>',
+            'attack': '<:attack:499707565949583391>',
+            'invention': '<:invention:499707566419607552>',
+            'inventory': '<:inventory:615747024775675925>',
+            'full_manual': '<:full_manual:615751745049722880>'
+        }
+
+        herb_level = player.skill('herblore').level
+        if herb_level < 90 and False:
+            await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
+                           f"Herbologia é apenas "
+                           f"**{herb_level}**. Isso é um pouco baixo!\n"
+                           f"**Irei continuar com o processo de aplicação, mas não será possível te dar permissão para "
+                           f"participar no momento, aplique novamente quando obter um nível de {emojis['herblore']} "
+                           f"Herbologia superior a "
+                           f"90**, falta apenas **{5_346_332 - player.skill('herblore').exp:,.0f}** de Exp!")
+        elif (96 > herb_level >= 90) or True:
+            await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
+                           f"Herbologia é **{herb_level}**. "
+                           f"Isso é suficiente para fazer Poções de sobrecarregamento (Overloads), mas "
+                           f"apenas usando Boosts, caso já não tenha, faça alguns usando o seguinte "
+                           f"boost (ou outro se possível/preferir) <https://rs.wiki/Spicy_stew>")
+
+        prayer_level = player.skill('prayer').level
+        left_to_95 = 8_771_558 - player.skill('prayer').exp
+
+        if prayer_level < 95:
+            d_bones_price = await self.get_price(536)
+            d_bones_exp = 252
+            d_bones_till_99 = left_to_95 / d_bones_exp
+
+            f_bones_price = await self.get_price(18832)
+            frost_bones_exp = 630
+            f_bones_till_99 = left_to_95 / frost_bones_exp
+
+            gp_emoji = "<:coins:573305319661240340>"
+
+            await ctx.send(
+                f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['prayer']} Oração é "
+                f"apenas **{prayer_level}**. Isso é um pouco baixo!\n"
+                f"Mas tudo bem, falta apenas **{left_to_95:,.0f}** de Exp para o nível 95. Com esse nível você "
+                f"irá poder usar as segundas melhores Maldições de aumento de dano. Há diversas formas de você "
+                f"alcançar o nível 95. Veja algumas abaixo:\n"
+                f"⯈ {left_to_95 / d_bones_exp:,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
+                f"({gp_emoji} {d_bones_till_99 * d_bones_price:,.0f})\n"
+                f"⯈ {left_to_95 / frost_bones_exp:,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
+                f"({gp_emoji} {f_bones_till_99 * f_bones_price:,.0f})\n"
+            )
+
+        embed = discord.Embed(
+            title="Aplicação para Raids",
+            description=f"Olá! Você aplicou para receber o cargo <@&{self.bot.setting.role.get('raids')}> para "
+                        f"participar dos Raids do Clã.",
+            color=discord.Color.blue()
+        )
+
+        nb_space = '\u200B'
+
+        embed.set_thumbnail(url="https://i.imgur.com/CMNzquL.png")
+
+        embed.add_field(
+            name=f"{nb_space}\nPor favor postar uma ou mais screenshots com os itens abaixo. "
+                 f"(pode enviar uma de cada vez)",
+            value=f"⯈ {emojis['attack']} Equipamento (Arma/Armadura/Acessórios/Switches etc.)\n"
+                  f"⯈ {emojis['inventory']} Inventário\n"
+                  f"⯈ {emojis['invention']} Perks de Arma, Armadura, Escudo e Switches que irá usar\n\n",
+            inline=False
+        )
+
+        perks_pocketbook = 'https://rspocketbook.com/rs_pocketbook.pdf#page=6'
+        embed.add_field(
+            name=f"{nb_space}\nLinks Úteis",
+            value=f"⯈ {emojis['full_manual']} [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)\n"
+                  f"⯈ {emojis['invention']} [Melhores Perks e como os obter]({perks_pocketbook})\n"
+                  f"⯈ [Exemplo de Aplicação](https://i.imgur.com/CMNzquL.png)\n"
+                  f"⯈ Guia de Yakamaru: <#{self.bot.setting.chat.get('guia_yaka')}>\n\n",
+            inline=False
+        )
+
+        seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
+        raids_diff = datetime.timedelta(seconds=seconds_till_raids)
+
+        days = raids_diff.days
+        hours = raids_diff.seconds // 3600
+        minutes = (raids_diff.seconds // 60) % 60
+
+        embed.add_field(
+            name=f"{nb_space}\nInformações sobre os Times",
+            value=f"Os times de Raids acontecem a cada 2 Dias.\n**A próxima "
+                  f"notificação de Raids será em {days} Dia(s), {hours} Hora(s) e "
+                  f"{minutes} Minuto(s)**.\n\nPara participar basta digitar **`in raids`** no canal "
+                  f"<#{self.bot.setting.chat.get('raids_chat')}> após a notificação do Bot, e ele irá o colocar "
+                  f"no time automaticamente, caso o time já esteja cheio, ele te colocará como substituto até que "
+                  f"abra alguma vaga. Caso aconteça, ele irá te notificar.\n\n1 hora após o Bot ter iniciado o time "
+                  f"irá começar o Raids no jogo, não chegue atrasado. Mais informações no canal {raids_channel}.",
+            inline=False
+        )
+        await ctx.send(embed=embed, content=f"<@&{self.bot.setting.role.get('raids_teacher')}>")
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
     async def aplicar_aod(self, ctx: commands.Context):

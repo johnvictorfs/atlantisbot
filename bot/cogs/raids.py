@@ -12,6 +12,16 @@ from bot.utils.tools import separator
 from bot.orm.models import RaidsState, Team
 
 
+def time_till_raids(start_date) -> int:
+    """Calculates the time between now and the next raids in seconds, assuming raids occur every 2 days"""
+    now = datetime.datetime.utcnow()
+    difference = start_date - now
+    if (now - start_date).days % 2 == 0:
+        # Add a day to the difference in case it has been an even number of days between start_date and now
+        return difference.seconds + (24 * 60 * 60)
+    return difference.seconds
+
+
 class RaidsTasks(commands.Cog):
 
     def __init__(self, bot: Bot):
@@ -36,7 +46,7 @@ class RaidsTasks(commands.Cog):
                 tb = traceback.format_exc()
                 await self.bot.send_logs(e, tb)
         else:
-            seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
+            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
             print(f'Next Raids in: {raids_diff.days} '
                   f'Days, {raids_diff.seconds // 3600} '
@@ -119,16 +129,6 @@ class RaidsTasks(commands.Cog):
                 session.add(state)
                 session.commit()
             return state.notifications
-
-    @staticmethod
-    def time_till_raids(start_date) -> int:
-        """Calculates the time between now and the next raids in seconds, assuming raids occur every 2 days"""
-        now = datetime.datetime.utcnow()
-        difference = start_date - now
-        if (now - start_date).days % 2 == 0:
-            # Add a day to the difference in case it has been an even number of days between start_date and now
-            return difference.seconds + (24 * 60 * 60)
-        return difference.seconds
 
     async def start_raids_team(self) -> None:
         """Starts a Raids Team, the owner of the team is the Bot itself"""

@@ -1,0 +1,969 @@
+[
+  {
+    "world": 1,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement":0
+  },
+  {
+    "world": 2,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 3,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 4,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 5,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 6,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 7,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 8,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 9,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 10,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 11,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 12,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 14,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 15,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 16,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 17,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 18,
+    "f2p": false,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 19,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 20,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 21,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 22,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 23,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 24,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 25,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 26,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 27,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 28,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 29,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 30,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 2000
+  },
+  {
+    "world": 31,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 32,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 33,
+    "f2p": true,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 34,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 35,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 36,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 37,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 38,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 39,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 40,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 41,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 42,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 43,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 44,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 45,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 46,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 47,
+    "f2p": false,
+    "language": "pt",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 48,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 2600
+  },
+  {
+    "world": 49,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 50,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 51,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 52,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": true
+  },
+  {
+    "world": 53,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 54,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 55,
+    "f2p": true,
+    "language": "fr",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 56,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 57,
+    "f2p": true,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 58,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 59,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 60,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 61,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 62,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 63,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 64,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 65,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 66,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 67,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 68,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 69,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 70,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 71,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 72,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 73,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 74,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 75,
+    "f2p": false,
+    "language": "pt",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 76,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 77,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 78,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 79,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 80,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 81,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 82,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 83,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 84,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 85,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 86,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 1500
+  },
+  {
+    "world": 87,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 88,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 89,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 91,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 92,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 94,
+    "f2p": true,
+    "language": "pt",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 96,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 97,
+    "f2p": false,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 98,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 99,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 100,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 101,
+    "f2p": false,
+    "language": "pt",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 102,
+    "f2p": false,
+    "language": "de",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 103,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 104,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 105,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 106,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 108,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 114,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 1500
+  },
+  {
+    "world": 115,
+    "f2p": false,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 116,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 117,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 118,
+    "f2p": false,
+    "language": "fr",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 119,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 120,
+    "f2p": true,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 121,
+    "f2p": false,
+    "language": "de",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 122,
+    "f2p": true,
+    "language": "de",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 123,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 124,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 134,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 135,
+    "f2p": true,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 136,
+    "f2p": true,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 137,
+    "f2p": false,
+    "language": "en",
+    "legacy": true,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 138,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 139,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  },
+  {
+    "world": 140,
+    "f2p": false,
+    "language": "en",
+    "legacy": false,
+    "vip": false,
+    "requirement": 0
+  }
+]
