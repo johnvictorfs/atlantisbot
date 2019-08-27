@@ -75,7 +75,7 @@ class RaidsTasks(commands.Cog):
             return
 
         try:
-            seconds_till_raids = self.time_till_raids(self.bot.setting.raids_start_date)
+            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
             days = raids_diff.days
             hours = raids_diff.seconds // 3600
