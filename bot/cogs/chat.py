@@ -190,7 +190,7 @@ class Chat(commands.Cog):
         }
 
         herb_level = player.skill('herblore').level
-        if herb_level < 90 and False:
+        if herb_level < 90:
             await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
                            f"Herbologia é apenas "
                            f"**{herb_level}**. Isso é um pouco baixo!\n"
@@ -198,7 +198,7 @@ class Chat(commands.Cog):
                            f"participar no momento, aplique novamente quando obter um nível de {emojis['herblore']} "
                            f"Herbologia superior a "
                            f"90**, falta apenas **{5_346_332 - player.skill('herblore').exp:,.0f}** de Exp!")
-        elif (96 > herb_level >= 90) or True:
+        elif 96 > herb_level >= 90:
             await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
                            f"Herbologia é **{herb_level}**. "
                            f"Isso é suficiente para fazer Poções de sobrecarregamento (Overloads), mas "
