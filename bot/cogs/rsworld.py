@@ -26,7 +26,6 @@ async def grab_world(player_name: str, player_clan: str):
     clan_id = 184644  # Atlantis Clan ID
 
     player_search = player_name.replace(' ', '+')
-    print(player_search)
 
     base_url = "http://services.runescape.com/m=clan-hiscores/l=3/a=254/members.ws"
     search_url = f"{base_url}?expandPlayerName={player_search}&clanId={clan_id}&ranking=-1&pageSize=1&submit=submit"
@@ -66,12 +65,13 @@ def p2p_worlds(worlds: list):
 def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, language='pt', worlds_left=None) -> list:
     world_list = []
     for world in worlds:
-        if not world['vip']:
-            if world['requirement'] == 0:
-                if world['f2p'] == f2p_worlds:
-                    if world['legacy'] == legacy_worlds:
-                        if world['language'] == language:
-                            world_list.append(world)
+        if not world['vip'] and world['requirement'] == 0:
+            if world['legacy'] and not legacy_worlds:
+                continue
+            if world['f2p'] and not f2p_worlds:
+                continue
+            if world['language'] == language:
+                world_list.append(world)
     return world_list
 
 

@@ -120,5 +120,6 @@ class User(Base):
     def __str__(self):
         return (
             f"User(ingame_name={self.ingame_name}, "
-            f"discord_id={self.discord_id}, warning_date={self.warning_date}, updated={self.updated}, name={self.discord_name})"
+            f"discord_id={self.discord_id}, warning_date={self.warning_date}, updated={self.updated}, "
+            f"name={self.discord_name})"
         )
