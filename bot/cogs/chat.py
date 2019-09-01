@@ -215,8 +215,8 @@ class Chat(commands.Cog):
 
         await ctx.send(
             f"Autenticação finalizada {ctx.author.mention}, você agora é é um Membro no Discord do Atlantis!\n\n"
-            f"***Nota:*** Caso saia do Clã ou troque de nome, irei o notificar para refazer esse "
-            f"processo de Autenticação, caso não o faça em até 7 dias, irei remover o seu cargo "
+            f"***Nota:*** Caso saia do Clã ou troque de nome, iremos notificar a necessidade de refazer o "
+            f"processo de Autenticação, caso não o faça em até 7 dias, removeremos o seu cargo "
             f"de Membro."
         )
 
