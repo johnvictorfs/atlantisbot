@@ -3,6 +3,7 @@ import re
 
 from discord.ext import commands
 from bs4 import BeautifulSoup
+import aiohttp
 import discord
 import rs3clans
 import requests
@@ -20,26 +21,32 @@ def grab_clan_id(clan_name: str):
         return clan_id.get('value')
 
 
-def grab_world(player: rs3clans.Player):
-    clan_id = grab_clan_id(player.clan)
+async def grab_world(player_name: str, player_clan: str):
+    # clan_id = grab_clan_id(player_name)
+    clan_id = 184644  # Atlantis Clan ID
 
-    player_search = player.name.replace(' ', '+')
+    player_search = player_name.replace(' ', '+')
+    print(player_search)
 
     base_url = "http://services.runescape.com/m=clan-hiscores/l=3/a=254/members.ws"
     search_url = f"{base_url}?expandPlayerName={player_search}&clanId={clan_id}&ranking=-1&pageSize=1&submit=submit"
 
-    source = requests.get(search_url).content
-    soup = BeautifulSoup(source.decode('utf-8', 'ignore'), 'lxml')
-    list_members = soup.findAll('div', {'class': 'membersListRow'})
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get(search_url) as r:
+            source = await r.text()
 
-    for member in list_members:
-        row_name = member.find('span', attrs={'class': 'name'})
-        if row_name.text.lower() == player.name.replace(' ', '').lower():
-            world = member.find('span', attrs={'class': 'world'}).text
-            world = re.search(r'\d+', world)
-            if not world:
-                return "Offline"
-            return int(world.group())
+            source = requests.get(search_url).content
+            soup = BeautifulSoup(source.decode('utf-8', 'ignore'), 'lxml')
+            list_members = soup.findAll('div', {'class': 'membersListRow'})
+
+            for member in list_members:
+                row_name = member.find('span', attrs={'class': 'name'})
+                if row_name.text.lower() == player_name.replace(' ', '').lower():
+                    world = member.find('span', attrs={'class': 'world'}).text
+                    world = re.search(r'\d+', world)
+                    if not world:
+                        return "Offline"
+                    return int(world.group())
 
 
 def f2p_worlds(worlds: list):
@@ -56,15 +63,15 @@ def p2p_worlds(worlds: list):
     return [world for world in worlds if not world['f2p'] and not world['vip']]
 
 
-def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, language='pt') -> list:
+def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, language='pt', worlds_left=None) -> list:
     world_list = []
-    print(len(worlds), f2p_worlds, legacy_worlds, language)
     for world in worlds:
         if not world['vip']:
-            if world['f2p'] == f2p_worlds:
-                if world['legacy'] == legacy_worlds:
-                    if world['language'] == language:
-                        world_list.append(world)
+            if world['requirement'] == 0:
+                if world['f2p'] == f2p_worlds:
+                    if world['legacy'] == legacy_worlds:
+                        if world['language'] == language:
+                            world_list.append(world)
     return world_list
 
 
@@ -98,7 +105,7 @@ class RsWorld(commands.Cog):
         if not player.clan:
             return await ctx.send(f"Jogador {player_name} não está em um clã.")
 
-        world = grab_world(player)
+        world = await grab_world(player.name, player.clan)
         world_display = "Offline" if world == "Offline" else f"**Mundo:** {world}"
         nb = '\u200B'
         color = discord.Colour.green()

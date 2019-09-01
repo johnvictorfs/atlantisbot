@@ -1,4 +1,3 @@
-import asyncio
 import traceback
 import datetime
 import logging
@@ -71,7 +70,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
         elif isinstance(error, commands.PrivateMessageOnly):
             await ctx.send(
-                f"Esse comando só pode ser usado eTimeoutivadas.\n"
+                f"Esse comando só pode ser usado em Mensagens Privadas.\n"
                 f"Fale comigo aqui: {self.bot.user.mention}"
             )
         elif isinstance(error, commands.NotOwner):

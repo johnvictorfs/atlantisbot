@@ -101,8 +101,9 @@ class Merchant(commands.Cog):
             message: discord.Message = await channel.fetch_message(562120346979794944)
             embed = await self.merchant_embed()
             await message.edit(content=None, embed=embed)
-            await asyncio.sleep(self.time_till_midnight() + 30)
+            await asyncio.sleep(self.time_till_midnight() + 15)
             await channel.send('<@&560997610954162198>', delete_after=600)
+            await asyncio.sleep(5)
         except Exception as e:
             tb = traceback.format_exc()
             print(e, tb)

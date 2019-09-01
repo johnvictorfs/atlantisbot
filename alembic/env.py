@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+from bot.orm import models
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -13,7 +14,6 @@ import os
 
 sys.path.insert(0, os.getcwd())
 
-from bot.orm import models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -106,3 +106,19 @@ class VoiceOfSeren(Base):
     current_voice_two = Column(String)
     message_id = Column(String)
     updated = Column(DateTime, default=datetime.datetime.utcnow())
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    updated = Column(DateTime, default=datetime.datetime.utcnow())
+    warning_date = Column(DateTime, nullable=True)
+    ingame_name = Column(String)
+    discord_id = Column(String)
+    discord_name = Column(String)
+
+    def __str__(self):
+        return (
+            f"User(ingame_name={self.ingame_name}, "
+            f"discord_id={self.discord_id}, warning_date={self.warning_date}, updated={self.updated}, name={self.discord_name})"
+        )

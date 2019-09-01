@@ -1,7 +1,10 @@
 from discord.ext import commands
 import discord
+import aiohttp
 
 from bot.bot_client import Bot
+from bot.cogs.authentication import get_user_data
+from bot.orm.models import User
 
 
 class WelcomeMessage(commands.Cog):
@@ -29,6 +32,18 @@ class WelcomeMessage(commands.Cog):
         if self.bot.setting.mode == 'dev':
             print("Development mode is on. Not sending welcome message.")
             return
+        membro: discord.Role = member.guild.get_role(self.bot.setting.role.get('membro'))
+        convidado: discord.Role = member.guild.get_role(self.bot.setting.role.get('convidado'))
+
+        with self.bot.db_session() as session:
+            user = session.query(User).filter_by(discord_id=str(member.id)).first()
+            if user:
+                async with aiohttp.ClientSession() as cs:
+                    user_data = await get_user_data(user.ingame_name, cs)
+                if user_data.get('clan') == self.bot.setting.clan_name:
+                    await member.add_roles(membro)
+                    await member.remove_roles(convidado)
+
         for name in self.bot.setting.not_allowed_in_name:
             if name in member.name.lower():
                 print(f"Kicked {member} for having a not allowed string '{name}' in username.")
