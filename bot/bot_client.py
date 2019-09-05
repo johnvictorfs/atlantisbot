@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from contextlib import contextmanager
 from typing import ContextManager
+from pprint import pformat
 
 import colorama
 import twitter
@@ -37,7 +38,7 @@ class Bot(commands.Bot):
         self.loop.create_task(self.load_all_extensions())
         self.twitter_api = twitter.Api(**self.setting.twitter)
 
-    async def send_logs(self, e, tb, ctx: commands.Context = None):
+    async def send_logs(self, e, tb, ctx: commands.Context = None, more_info: object = None):
         dev = self.get_user(self.setting.developer_id)
         if ctx:
             info_embed = discord.Embed(title="__Error Info__", color=discord.Color.dark_red())
@@ -46,6 +47,10 @@ class Bot(commands.Bot):
             info_embed.add_field(name="In Guild", value=ctx.guild, inline=False)
             info_embed.add_field(name="In Channel", value=ctx.channel, inline=False)
             await dev.send(embed=info_embed)
+        if more_info:
+            extra_embed = discord.Embed(title="__Extra Info__", color=discord.Color.dark_red())
+            extra_embed.add_field(name="Info", value=pformat(more_info))
+            await dev.send(extra_embed)
         try:
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
@@ -251,8 +256,7 @@ class Bot(commands.Bot):
             team_id = ''.join(team_id).lower()
             mode = 'join' if 'in' in team_join.lower() else 'leave'
             try:
-                await manage_team(team_id=team_id, client=self, message=message, mode=mode)
-                return
+                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
             except TeamNotFoundError:
                 return await message.channel.send(f"Time com ID '{team_id}' não existe.")
             except WrongChannelError:
@@ -283,8 +287,8 @@ class Bot(commands.Bot):
         try:
             yield session
             session.commit()
-        except Exception:
+        except Exception as e:
             session.rollback()
-            raise
+            raise e
         finally:
             session.close()

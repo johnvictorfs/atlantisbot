@@ -1,6 +1,5 @@
 import traceback
 import datetime
-import logging
 import json
 
 from discord.ext import commands, tasks
@@ -11,9 +10,10 @@ import re
 
 from bot.bot_client import Bot
 from bot.orm.models import User
+from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 
 
-async def get_user_data(username: str, cs: aiohttp.ClientSession):
+async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
     url = "http://services.runescape.com/m=website-data/"
     player_url = url + "playerDetails.ws?names=%5B%22{}%22%5D&callback=jQuery000000000000000_0000000000&_=0"
 
@@ -33,6 +33,37 @@ def parse_user(content: str) -> dict or None:
     info_dict['is_suffix'] = info_dict.pop('isSuffix')
 
     return info_dict
+
+
+def settings_embed(settings: dict):
+    """
+    Accepts a dict in the following format and returns a discord Embed accordingly:
+
+    settings = {
+        "f2p_worlds": bool,
+        "legacy_worlds": bool,
+        "language": "pt" | "en" | "fr" | "de"
+    }
+    """
+
+    embed = discord.Embed(
+        title="Configurações de Mundos",
+        description=("Olá, para eu poder saber que você é mesmo o jogador que diz ser, "
+                     "eu vou precisar que você troque para os Mundos do jogo que irei o mostrar, "
+                     "siga as instruções abaixo para poder ser autenticado e receber o cargo de `Membro` "
+                     "no Servidor do Atlantis."),
+        color=discord.Color.blue()
+    )
+
+    # yes = "✅"
+    # no = "❌"
+    language = {"pt": "Português-br", "en": "Inglês", "fr": "Francês", "de": "Alemão"}
+
+    # embed.add_field(name=f"Mundos Grátis {yes if settings['f2p_worlds'] else no}", value=separator, inline=False)
+    # embed.add_field(name=f"Mundos Legado {yes if settings['legacy_worlds'] else no}", value=separator, inline=False)
+    embed.add_field(name="Linguagem", value=language[settings['language']], inline=False)
+    embed.add_field(name="Mundos Restantes", value=settings['worlds_left'], inline=False)
+    return embed
 
 
 class UserAuthentication(commands.Cog):
@@ -56,13 +87,15 @@ class UserAuthentication(commands.Cog):
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         membro = atlantis.get_role(self.bot.setting.role.get('membro'))
         convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
+        auth_chat = self.bot.setting.chat.get('auth')
+        auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
         try:
             async with aiohttp.ClientSession() as cs:
                 with self.bot.db_session() as session:
                     users = session.query(User).all()
                     for user in users:
-                        user: User
+                        await asyncio.sleep(2)
                         user_data = await get_user_data(user.ingame_name, cs)
                         if not user_data:
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
@@ -92,6 +125,10 @@ class UserAuthentication(commands.Cog):
                                     f"nas atividades do Atlantis.\n\n"
                                     f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!\n\n"
                                 )
+                                await auth_chat.send(
+                                    f"Usuário {member} (id: {member.id}) teve a Tag de Membro removida, já que o prazo "
+                                    f"de 7 dias para re-autenticação expirou."
+                                )
                         else:
                             await member.send(
                                 f"Olá {member.mention}!\n"
@@ -108,11 +145,189 @@ class UserAuthentication(commands.Cog):
                                 f"reingresso no clã.\n\n"
                                 f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!"
                             )
+                            await auth_chat.send(
+                                f"Warning de 7 dias para reautenticação enviada para Usuário "
+                                f"`{member}` (id: {member.id}) "
+                            )
                             user.warning_date = now
                             session.commit()
         except Exception as e:
             await asyncio.sleep(30)
-            logging.error(f'{e}: {traceback.format_exc()}')
+            await self.bot.send_logs(e, traceback, more_info={user: str(user), member: str(member)})
+
+    @staticmethod
+    async def send_cooldown(ctx):
+        await ctx.send("O seu próximo mundo será enviado em 3...", delete_after=1)
+        await asyncio.sleep(1)
+        await ctx.send("O seu próximo mundo será enviado em 2...", delete_after=1)
+        await asyncio.sleep(1)
+        await ctx.send("O seu próximo mundo será enviado em 1...", delete_after=1)
+        await asyncio.sleep(1)
+
+    @commands.dm_only()
+    @commands.cooldown(1, 0, commands.BucketType.user)
+    @commands.command(aliases=['role', 'membro'])
+    async def aplicar_role(self, ctx: commands.Context):
+        atlantis = self.bot.get_guild(self.bot.setting.server_id)
+        member: discord.Member = atlantis.get_member(ctx.author.id)
+        if not member:
+            invite = "<https://discord.me/atlantis>"
+            return await ctx.send(f"Você precisa estar no Discord do Atlantis para se autenticar {invite}")
+        membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
+        convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
+
+        with self.bot.db_session() as session:
+            user = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
+            if user:
+                for role in member.roles:
+                    role: discord.Role
+                    if role.id == membro.id:
+                        return await ctx.send("Fool! Você não é um Convidado! Não é necessário se autenticar.")
+                async with aiohttp.ClientSession() as cs:
+                    user_data = await get_user_data(user.ingame_name, cs)
+                if not user_data:
+                    return await ctx.send(
+                        "Houve um erro ao tentar acessar a API do RuneScape. "
+                        "Tente novamente mais tarde."
+                    )
+                if user_data['clan'] == self.bot.setting.clan_name:
+                    await member.add_roles(membro)
+                    await member.remove_roles(convidado)
+                    return await ctx.send(
+                        "Você já está autenticado! Seus dados foram corrigidos. "
+                        "Você agora é um Membro do clã autenticado no Discord."
+                    )
+
+        def check(mes: discord.Message):
+            return mes.author == ctx.author
+
+        await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
+
+        try:
+            ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
+        except asyncio.TimeoutError:
+            return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+
+        await ctx.trigger_typing()
+
+        with open('bot/worlds.json') as f:
+            worlds = json.load(f)
+        async with aiohttp.ClientSession() as cs:
+            user_data = await get_user_data(ingame_name.content, cs)
+        if not user_data:
+            return await ctx.send("Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde.")
+        if user_data['clan'] != self.bot.setting.clan_name:
+            return await ctx.send(
+                f"{ctx.author.mention}, o jogador '{user_data['name']}' "
+                f"não existe ou não é um membro do Clã Atlantis."
+            )
+
+        player_world = await grab_world(user_data['name'], user_data['clan'])
+
+        if player_world == 'Offline' or not player_world:
+            return await ctx.send(
+                f"{ctx.author.mention}, autenticação Cancelada. Você precisa estar Online.\n"
+                f"Verifique suas configurações de privacidade no jogo."
+            )
+
+        player_world = get_world(worlds, player_world)
+        if not player_world:
+            raise Exception(f"Player world is None.")
+
+        settings = {
+            "f2p_worlds": player_world['f2p'],
+            "legacy_worlds": player_world['legacy'],
+            "language": player_world['language'],
+            "worlds_left": 4
+        }
+
+        def confirm_check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) == '✅'
+
+        settings_message = await ctx.send(embed=settings_embed(settings))
+        confirm_message = await ctx.send("Reaja nessa mensagem quando estiver pronto.")
+        await confirm_message.add_reaction('✅')
+        try:
+            await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
+        except asyncio.TimeoutError:
+            return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+        await confirm_message.delete()
+        await self.send_cooldown(ctx)
+
+        # Filter worlds based on user settings
+        world_list = filtered_worlds(worlds, **settings)
+
+        failed_tries = 0
+        last_world = 0
+        while settings['worlds_left'] > 0:
+            # Update settings message
+            await settings_message.edit(embed=settings_embed(settings))
+
+            while True:
+                # Don't allow same world 2 times in a row
+                world = random_world(world_list)
+                if world == last_world:
+                    continue
+                break
+            last_world = world
+
+            message: discord.Message = await ctx.send(
+                f"{ctx.author.mention}, troque para o **Mundo {world['world']}**. "
+                f"Reaja na mensagem quando estiver nele."
+            )
+            await message.add_reaction('✅')
+            try:
+                await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
+                await ctx.trigger_typing()
+            except asyncio.TimeoutError:
+                return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+            wait_message = await ctx.send("Aguarde um momento...")
+            await asyncio.sleep(1)
+            player_world = await grab_world(user_data['name'], user_data['clan'])
+            if player_world == 'Offline':
+                # Check again in 3 seconds in case player was offline
+                # He might have a slow connection, or the clan's webpage
+                # is taking a while to update
+                await asyncio.sleep(3)
+                player_world = await grab_world(user_data['name'], user_data['clan'])
+            await wait_message.delete()
+
+            if world['world'] == player_world:
+                settings['worlds_left'] -= 1
+                wl = settings['worlds_left']
+                plural_1 = 'm' if wl > 1 else ''
+                plural_2 = 's' if wl > 1 else ''
+                second_part = f"Falta{plural_1} {settings['worlds_left']} mundo{plural_2}." if wl != 0 else ''
+
+                await ctx.send(f"**Mundo {world['world']}** verificado com sucesso. {second_part}")
+            else:
+                failed_tries += 1
+                await ctx.send(f"Mundo incorreto ({player_world}). Tente novamente.")
+                if failed_tries == 5:
+                    return await ctx.send("Autenticação cancelada. Muitas tentativas incorretas.")
+            await message.delete()
+            if settings['worlds_left'] == 0:
+                break
+        await settings_message.delete()
+
+        await member.add_roles(membro)
+        await member.remove_roles(convidado)
+
+        with self.bot.db_session() as session:
+            user = User(ingame_name=user_data['name'], discord_id=str(ctx.author.id), discord_name=str(ctx.author))
+            session.add(user)
+        auth_chat = self.bot.setting.chat.get('auth')
+        auth_chat: discord.TextChannel = ctx.guild.get_channel(auth_chat)
+
+        await auth_chat.send(
+            f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']})"
+        )
+        await ctx.send(
+            f"Autenticação finalizada {ctx.author.mention}, você agora é é um Membro no Discord do Atlantis!\n\n"
+            f"***Nota:*** Caso saia do Clã ou troque de nome, iremos notificar a necessidade de refazer o "
+            f"processo de Autenticação, caso não o faça em até 7 dias, removeremos o seu cargo "
+            f"de Membro."
+        )
 
 
 def setup(bot):
