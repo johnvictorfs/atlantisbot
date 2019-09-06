@@ -164,8 +164,28 @@ class UserAuthentication(commands.Cog):
         await ctx.send("O seu próximo mundo será enviado em 1...", delete_after=1)
         await asyncio.sleep(1)
 
+    @commands.has_permissions(manage_channels=True)
+    @commands.command(aliases=['membros'])
+    async def authenticated_users(self, ctx: commands.Context):
+        nb_space = '\u200B'
+        embed = discord.Embed(
+            title="Membros Autenticados",
+            description="Nome in-game | Nome Discord | ID Discord",
+            color=discord.Color.green()
+        )
+        with self.bot.db_session() as session:
+            text = ""
+            found = False
+            for user in session.query(User).all():
+                found = True
+                text += f"{user.ingame_name} | {user.discord_name} | {user.discord_id}\n"
+            if not found:
+                text = "Não há nenhum Membro Autenticado no momento"
+            embed.add_field(name=nb_space, value=text)
+        await ctx.author.send(embed=embed)
+
     @commands.dm_only()
-    @commands.cooldown(1, 0, commands.BucketType.user)
+    @commands.cooldown(60, 0, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
@@ -259,6 +279,7 @@ class UserAuthentication(commands.Cog):
 
         failed_tries = 0
         last_world = 0
+        worlds_done = []
         while settings['worlds_left'] > 0:
             # Update settings message
             await settings_message.edit(embed=settings_embed(settings))
@@ -294,6 +315,7 @@ class UserAuthentication(commands.Cog):
 
             if world['world'] == player_world:
                 settings['worlds_left'] -= 1
+                worlds_done.append(player_world)
                 wl = settings['worlds_left']
                 plural_1 = 'm' if wl > 1 else ''
                 plural_2 = 's' if wl > 1 else ''
@@ -320,7 +342,8 @@ class UserAuthentication(commands.Cog):
         auth_chat: discord.TextChannel = ctx.guild.get_channel(auth_chat)
 
         await auth_chat.send(
-            f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']})"
+            f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
+            f"com os mundos: {', '.join(worlds_done)}"
         )
         await ctx.send(
             f"Autenticação finalizada {ctx.author.mention}, você agora é é um Membro no Discord do Atlantis!\n\n"

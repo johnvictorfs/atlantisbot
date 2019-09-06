@@ -106,7 +106,6 @@ class Merchant(commands.Cog):
             await asyncio.sleep(5)
         except Exception as e:
             tb = traceback.format_exc()
-            print(e, tb)
             await self.bot.send_logs(e, tb)
             await asyncio.sleep(60 * 15)
 
