@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 
 from bot.bot_client import Bot
+from bot.utils.tools import separator
 
 
 class EmbedMessages(commands.Cog):
@@ -106,6 +107,48 @@ class EmbedMessages(commands.Cog):
                         role_name += f"<@&{self.bot.setting.role.get(sub_role)}> | "
             embed.add_field(name=nb_space, value=f"{role_name}\n{role['text']}\n{nb_space}", inline=False)
         return embed
+
+    @commands.command()
+    async def raids_channel_embed(self, ctx: commands.Context):
+        text = f"""*Utilize os canais#raids_chat para conversar e o canal #raids_apply para aplicar*
+
+        ⯈ Para participar dos Raids do CC, __**leia tudo**__ escrito aqui e em seguida use o comando `!raids` no canal #raids_apply  - siga as instruções informadas pelo Bot com atencão.
+            • ***Ninguém será julgado por experiência/kc baixo, mas é necessário avaliar tudo por disponibilidade e chances de sucesso das kills.***
+
+        ⯈ Os aprovados irão receber o cargo @Raids
+        ⯈ Esse cargo é utilizado para notificar sempre que irá ser montado um time de Raids do Clã, e é um requisito para entrar neles
+
+        {separator}
+        """
+
+        text_2 = f"""
+        • **Arma** :Attack: `T87+ Aprimorada com pelo menos [Acerto 5](https://rs.wiki/precise) e [Equilíbrio 3](https://rs.wiki/equilibrium) (Preferível [Abalo 3](https://rs.wiki/aftershock) no lugar de Equilíbrio)`
+        • **Armadura** :Defence: `T70+ Aprimorada` / *Nada abaixo é tolerado (incluindo Void)*
+        • **Evocação** :Summoning: `Nível 84+` (Porco BoB) - Titãs são bem-vindos, mas não obrigatórios
+        • **Herbologia :Herblore:** `[(Supreme) Overloads](https://rs.wiki/supreme_overload)` e `Poções de [Adrenalina](https://rs.wiki/adrenaline_potion)/[Restabelecimento](https://rs.wiki/replenishment_potion)`
+        • **Oração** :Prayer:  `Acesso a curses`
+        • __**Ver guias de Yakamaru E Durzag!!!!!**__ #guia_yaka
+        {separator}
+        """
+
+        text_3 = """
+            • Alguma experiência PvM, mesmo que solo
+            • Aura Maníaca/Incauta (Mage/Ranged)
+            • Marfim dos Elementos/Crueldade (Mage/Ranged)
+            • Perk `Planted feet` em uma arma primária extra
+            • Acessórios adequados: <http://guide.rspocketbook.com/>
+
+        """
+
+        embed = discord.Embed(
+            title="Aplicação Raids",
+            description="Bem vindo ao canal de Raids do Clã\n__**Leia o Texto Abaixo para saber como Aplicar para Participar**__",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="\u200b", value=text, inline=False)
+        embed.add_field(name="__**REQUISITOS OBRIGATÓRIOS**__", value=text_2, inline=False)
+        embed.add_field(name="__**ULTRA RECOMENDADOS**__", value=text_3, inline=False)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

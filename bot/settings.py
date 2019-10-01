@@ -5,7 +5,7 @@ import os
 
 class Settings:
     @staticmethod
-    def read_data(section: str):
+    def read_data(section: str) -> dict:
         with open('bot/bot_settings.json', 'r') as f:
             return json.load(f)[section]
 
