@@ -79,7 +79,10 @@ class UserAuthentication(commands.Cog):
         self.logger.setLevel(logging.INFO)
         handler = logging.FileHandler(filename='authentication.log', encoding='utf-8')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        self.logger.addHandler(handler)
+
+        if not self.logger.handlers:
+            # Prevent multiple handlers sending duplicate messages
+            self.logger.addHandler(handler)
 
         if self.bot.setting.mode == 'prod' or self.debugging:
             self.check_users.start()
