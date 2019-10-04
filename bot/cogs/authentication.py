@@ -361,12 +361,13 @@ class UserAuthentication(commands.Cog):
                 await ctx.send(f"Mundo incorreto ({player_world}). Tente novamente.")
                 if failed_tries == 5:
                     self.logger.info(
-                        f'Autenticação cancelada. Muitas tentativas: {ctx.author} ({user_data}) {settings}')
+                        f'[{ctx.author}] Autenticação cancelada. Muitas tentativas. ({user_data}) {settings}'
+                    )
                     return await ctx.send("Autenticação cancelada. Muitas tentativas incorretas.")
             await message.delete()
             if settings['worlds_left'] == 0:
                 break
-        self.logger.info(f'Autenticação feita com sucesso, {ctx.author} ({user_data}) {settings}')
+        self.logger.info(f'[{ctx.author}] Autenticação feita com sucesso. ({user_data}) {settings}')
         await settings_message.delete()
 
         await member.add_roles(membro)
@@ -389,7 +390,7 @@ class UserAuthentication(commands.Cog):
             f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
             f"com os mundos: {', '.join([str(world) for world in worlds_done])}"
         )
-        self.logger.info(f'Autenticação finalizada: {ctx.author} ({user_data}) {settings}')
+        self.logger.info(f'[{ctx.author}] Autenticação finalizada. ({user_data}) {settings}')
 
 
 def setup(bot):
