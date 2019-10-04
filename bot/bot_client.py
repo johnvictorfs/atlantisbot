@@ -184,7 +184,7 @@ class Bot(commands.Bot):
             if self.setting.mode == 'prod':
                 if message.content == 'HECK YES!':
                     return await message.channel.send('HECK NO!')
-                if self.user.mention in message.content:
+                if self.user.mention in message.content and message.author != self.user:
                     return await message.channel.send('What did you say about me you little *****?!')
             return
 

@@ -345,15 +345,15 @@ class UserAuthentication(commands.Cog):
         auth_chat = self.bot.setting.chat.get('auth')
         auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
-        await auth_chat.send(
-            f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
-            f"com os mundos: {', '.join(worlds_done)}"
-        )
         await ctx.send(
             f"Autenticação finalizada {ctx.author.mention}, você agora é é um Membro no Discord do Atlantis!\n\n"
             f"***Nota:*** Caso saia do Clã ou troque de nome, iremos notificar a necessidade de refazer o "
             f"processo de Autenticação, caso não o faça em até 7 dias, removeremos o seu cargo "
             f"de Membro."
+        )
+        await auth_chat.send(
+            f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
+            f"com os mundos: {', '.join([str(world) for world in worlds_done])}"
         )
 
 
