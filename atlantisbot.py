@@ -25,9 +25,19 @@ async def run():
 if __name__ == '__main__':
     colorama.init()
     logger = logging.getLogger('discord')
+    logger_atl = logging.getLogger('atlantis')
+
     logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    logger_atl.setLevel(logging.INFO)
+
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8')
+    handler_atl = logging.FileHandler(filename='atlantis.log', encoding='utf-8')
+
     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    handler_atl.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+
     logger.addHandler(handler)
+    logger_atl.addHandler(handler_atl)
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())

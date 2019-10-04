@@ -1,5 +1,7 @@
+from typing import Union, Dict
 import traceback
 import datetime
+import logging
 import json
 
 from discord.ext import commands, tasks
@@ -12,6 +14,8 @@ from bot.bot_client import Bot
 from bot.orm.models import User
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 
+logger_atl = logging.getLogger('atlantis')
+
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
     url = "http://services.runescape.com/m=website-data/"
@@ -23,9 +27,10 @@ async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
         return parse_user(content)
 
 
-def parse_user(content: str) -> dict or None:
+def parse_user(content: str) -> Union[Dict[str, Union[str, int]], None]:
     parsed = re.search(r'{"isSuffix":.*,"name":.*,"title":.*}', content)
     if not parsed:
+        logger_atl.error(f'Unparsed result returned for user, content: {content}')
         print(content)
         return None
     parsed = parsed.group()
@@ -48,10 +53,12 @@ def settings_embed(settings: dict):
 
     embed = discord.Embed(
         title="Configurações de Mundos",
-        description=("Olá, para eu poder saber que você é mesmo o jogador que diz ser, "
-                     "eu vou precisar que você troque para os Mundos do jogo que irei o mostrar, "
-                     "siga as instruções abaixo para poder ser autenticado e receber o cargo de `Membro` "
-                     "no Servidor do Atlantis."),
+        description=(
+            "Olá, para eu poder saber que você é mesmo o jogador que diz ser, "
+            "eu vou precisar que você troque para os Mundos do jogo que irei o mostrar, "
+            "siga as instruções abaixo para poder ser autenticado e receber o cargo de `Membro` "
+            "no Servidor do Atlantis."
+        ),
         color=discord.Color.blue()
     )
 
@@ -188,9 +195,12 @@ class UserAuthentication(commands.Cog):
     @commands.cooldown(60, 0, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
+        logger_atl.info(f'Autenticação iniciada: {ctx.author}')
+
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         member: discord.Member = atlantis.get_member(ctx.author.id)
         if not member:
+            logger_atl.info(f'Não está no servidor: {ctx.author}')
             invite = "<https://discord.me/atlantis>"
             return await ctx.send(f"Você precisa estar no Discord do Atlantis para se autenticar {invite}")
         membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
@@ -202,30 +212,34 @@ class UserAuthentication(commands.Cog):
                 for role in member.roles:
                     role: discord.Role
                     if role.id == membro.id:
+                        logger_atl.info(f'Não é um convidado: {ctx.author}')
                         return await ctx.send("Fool! Você não é um Convidado! Não é necessário se autenticar.")
                 async with aiohttp.ClientSession() as cs:
                     user_data = await get_user_data(user.ingame_name, cs)
                 if not user_data:
+                    logger_atl.info(f'Erro acessando API do RuneScape: {ctx.author}')
                     return await ctx.send(
                         "Houve um erro ao tentar acessar a API do RuneScape. "
                         "Tente novamente mais tarde."
                     )
-                if user_data['clan'] == self.bot.setting.clan_name:
+                if user_data.get('clan') == self.bot.setting.clan_name:
                     await member.add_roles(membro)
                     await member.remove_roles(convidado)
+                    logger_atl.info(f'Já está autenticado, corrigindo dados: {ctx.author}')
                     return await ctx.send(
                         "Você já está autenticado! Seus dados foram corrigidos. "
                         "Você agora é um Membro do clã autenticado no Discord."
                     )
 
-        def check(mes: discord.Message):
-            return mes.author == ctx.author
+        def check(message: discord.Message):
+            return message.author == ctx.author
 
         await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
 
         try:
             ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
         except asyncio.TimeoutError:
+            logger_atl.info(f'Autenticação cancelada por Timeout: {ctx.author}')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
 
         await ctx.trigger_typing()
@@ -235,19 +249,20 @@ class UserAuthentication(commands.Cog):
         async with aiohttp.ClientSession() as cs:
             user_data = await get_user_data(ingame_name.content, cs)
         if not user_data:
+            logger_atl.info(f'Erro ao acessar API do RuneScape: {ctx.author} ({user_data})')
             return await ctx.send("Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde.")
-        does_not_exist_msg = (
-            f"{ctx.author.mention}, o jogador '{user_data['name']}' "
-            f"não existe ou não é um membro do Clã Atlantis."
-        )
-        if not user_data.get('clan'):
-            return await ctx.send(does_not_exist_msg)
-        if user_data['clan'] != self.bot.setting.clan_name:
-            return await ctx.send(does_not_exist_msg)
+
+        if user_data.get('clan') != self.bot.setting.clan_name:
+            logger_atl.info(f'Jogador não existe ou não é Membro: {ctx.author} ({user_data})')
+            return await ctx.send(
+                f"{ctx.author.mention}, o jogador '{user_data.get('name')}' "
+                f"não existe ou não é um membro do Clã Atlantis."
+            )
 
         player_world = await grab_world(user_data['name'], user_data['clan'])
 
         if player_world == 'Offline' or not player_world:
+            logger_atl.info(f'Jogador offline: {ctx.author} ({user_data})')
             return await ctx.send(
                 f"{ctx.author.mention}, autenticação Cancelada. Você precisa estar Online.\n"
                 f"Verifique suas configurações de privacidade no jogo."
@@ -255,6 +270,7 @@ class UserAuthentication(commands.Cog):
 
         player_world = get_world(worlds, player_world)
         if not player_world:
+            logger_atl.error(f'Player world is None: {ctx.author} ({user_data})')
             raise Exception(f"Player world is None.")
 
         settings = {
@@ -273,6 +289,7 @@ class UserAuthentication(commands.Cog):
         try:
             await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
         except asyncio.TimeoutError:
+            logger_atl.info(f'Autenticação cancelada por Timeout: {ctx.author} ({user_data})')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
         await confirm_message.delete()
         await self.send_cooldown(ctx)
@@ -329,10 +346,12 @@ class UserAuthentication(commands.Cog):
                 failed_tries += 1
                 await ctx.send(f"Mundo incorreto ({player_world}). Tente novamente.")
                 if failed_tries == 5:
+                    logger_atl.info(f'Autenticação cancelada. Muitas tentativas: {ctx.author} ({user_data}) {settings}')
                     return await ctx.send("Autenticação cancelada. Muitas tentativas incorretas.")
             await message.delete()
             if settings['worlds_left'] == 0:
                 break
+        logger_atl.info(f'Autenticação feita com sucesso, {ctx.author} ({user_data}) {settings}')
         await settings_message.delete()
 
         await member.add_roles(membro)
@@ -355,6 +374,7 @@ class UserAuthentication(commands.Cog):
             f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
             f"com os mundos: {', '.join([str(world) for world in worlds_done])}"
         )
+        logger_atl.info(f'Autenticação finalizada: {ctx.author} ({user_data}) {settings}')
 
 
 def setup(bot):

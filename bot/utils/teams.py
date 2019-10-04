@@ -1,3 +1,4 @@
+from typing import Union, Tuple
 import traceback
 
 import discord
@@ -14,7 +15,7 @@ class WrongChannelError(Exception):
     pass
 
 
-def secondary_full(team: Team, session) -> (int, bool):
+def secondary_full(team: Team, session) -> Tuple[int, bool]:
     """Checks if a team has hit its limit for number of players that only have its secondary role requirement"""
     secondary_count = session.query(Player).filter_by(team=team.id, secondary=True).count()
     if not team.secondary_limit:
@@ -30,7 +31,7 @@ def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary:
     session.commit()
 
 
-def first_substitute(team: Team, session, exclude: int) -> Player or None:
+def first_substitute(team: Team, session, exclude: int) -> Union[Player, None]:
     return session.query(Player).filter(
         Player.substitute == True,  # noqa: E712
         Player.player_id != str(exclude),
@@ -209,13 +210,13 @@ def is_full(team: Team, session) -> bool:
     return count >= team.size
 
 
-def in_team(author_id: int, team: Team, session):
+def in_team(author_id: int, team: Team, session) -> bool:
     """Checks if a player is in a team"""
     current_players = session.query(Player).filter_by(team=team.id)
     return author_id in [int(player.player_id) for player in current_players]
 
 
-async def delete_team(session, team: Team, client):
+async def delete_team(session, team: Team, client) -> None:
     try:
         team_channel = client.get_channel(int(team.team_channel_id))
         invite_channel = client.get_channel(int(team.invite_channel_id))
