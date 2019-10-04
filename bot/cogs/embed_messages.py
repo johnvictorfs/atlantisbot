@@ -16,10 +16,9 @@ class EmbedMessages(commands.Cog):
         return await self.bot.is_owner(ctx.author)
 
     def welcome_embed(self) -> discord.Embed:
-        visitantes = f"<#{self.bot.setting.chat.get('visitantes')}>"
         welcome_embed = discord.Embed(
             title=f"Bem vindo ao Discord do Atlantis!",
-            description=f"Caso seja um membro do Atlantis, use `{self.bot.setting.prefix}membro` no canal {visitantes}",
+            description=f"Caso seja um membro do Atlantis, use `{self.bot.setting.prefix}membro` para mim no privado!",
             color=discord.Color.blue()
         )
 
