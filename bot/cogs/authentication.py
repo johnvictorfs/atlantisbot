@@ -341,8 +341,9 @@ class UserAuthentication(commands.Cog):
         with self.bot.db_session() as session:
             user = User(ingame_name=user_data['name'], discord_id=str(ctx.author.id), discord_name=str(ctx.author))
             session.add(user)
+
         auth_chat = self.bot.setting.chat.get('auth')
-        auth_chat: discord.TextChannel = ctx.guild.get_channel(auth_chat)
+        auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
         await auth_chat.send(
             f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
