@@ -236,11 +236,14 @@ class UserAuthentication(commands.Cog):
             user_data = await get_user_data(ingame_name.content, cs)
         if not user_data:
             return await ctx.send("Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde.")
+        does_not_exist_msg = (
+            f"{ctx.author.mention}, o jogador '{user_data['name']}' "
+            f"não existe ou não é um membro do Clã Atlantis."
+        )
+        if not user_data.get('clan'):
+            return await ctx.send(does_not_exist_msg)
         if user_data['clan'] != self.bot.setting.clan_name:
-            return await ctx.send(
-                f"{ctx.author.mention}, o jogador '{user_data['name']}' "
-                f"não existe ou não é um membro do Clã Atlantis."
-            )
+            return await ctx.send(does_not_exist_msg)
 
         player_world = await grab_world(user_data['name'], user_data['clan'])
 
