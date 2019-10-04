@@ -184,11 +184,13 @@ class Bot(commands.Bot):
             if self.setting.mode == 'prod':
                 if message.content == 'HECK YES!':
                     return await message.channel.send('HECK NO!')
+                if message.content == ':(((((':
+                    return await message.channel.send('>:))))')
                 if self.user.mention in message.content and message.author != self.user:
                     return await message.channel.send('What did you say about me you little *****?!')
             return
 
-        # If in development environment only accept answers in dev server and channel
+        # If in development environment only deal with messages in dev server and channel
         if self.setting.mode == 'dev':
             if not message.guild:
                 if message.author.id != self.setting.developer_id:
@@ -198,9 +200,14 @@ class Bot(commands.Bot):
 
         membro = self.setting.role.get('membro')
         convidado = self.setting.role.get('convidado')
+        admin = self.setting.role.get('mod')
+        leader = self.setting.role.get('admin')
+        admin_trial = self.setting.role.get('mod_trial')
+
         unauthorized_mentions = ['@everyone', '@here', f"<@&{membro}>", f"<@&{convidado}>"]
+
         if any(mention in message.content for mention in unauthorized_mentions):
-            if has_any_role(message.author, membro, convidado):
+            if not has_any_role(message.author, admin, leader, admin_trial):
                 embed = discord.Embed(
                     title="__Ei__",
                     description=separator,
@@ -247,9 +254,12 @@ class Bot(commands.Bot):
                 f'\n\n'
                 f'A wiki antiga não é mais suportada e está muito desatualizada. '
                 f'Ao invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
-                f'{formatted_urls_string}')
+                f'{formatted_urls_string}'
+            )
+
         # Checks for 'in {number}' or 'out {number}' in message, for team join/leave commands (case-insensitive)
         team_join = re.search(r'(^in |^out )\d+|(^in raids)|(^out raids)', message.content, flags=re.IGNORECASE)
+
         if team_join:
             team_join = team_join.group()
             team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
