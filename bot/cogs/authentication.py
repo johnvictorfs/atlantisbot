@@ -14,8 +14,6 @@ from bot.bot_client import Bot
 from bot.orm.models import User
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 
-logger_atl = logging.getLogger('atlantis')
-
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
     url = "http://services.runescape.com/m=website-data/"
@@ -30,7 +28,6 @@ async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
 def parse_user(content: str) -> Union[Dict[str, Union[str, int]], None]:
     parsed = re.search(r'{"isSuffix":.*,"name":.*,"title":.*}', content)
     if not parsed:
-        logger_atl.error(f'Unparsed result returned for user, content: {content}')
         print(content)
         return None
     parsed = parsed.group()
@@ -78,6 +75,10 @@ class UserAuthentication(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.debugging = False
+        self.logger = logging.getLogger('authentication')
+        handler = logging.FileHandler(filename='authentication.log', encoding='utf-8')
+        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+        self.logger.addHandler(handler)
 
         if self.bot.setting.mode == 'prod' or self.debugging:
             self.check_users.start()
@@ -195,41 +196,48 @@ class UserAuthentication(commands.Cog):
     @commands.cooldown(60, 0, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
     async def aplicar_role(self, ctx: commands.Context):
-        logger_atl.info(f'Autenticação iniciada: {ctx.author}')
+        self.logger.info(f'[{ctx.author}] Autenticação iniciada.')
 
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         member: discord.Member = atlantis.get_member(ctx.author.id)
+
         if not member:
-            logger_atl.info(f'Não está no servidor: {ctx.author}')
+            self.logger.info(f'[{ctx.author}] Autenticação finalizada. Não está no servidor.')
             invite = "<https://discord.me/atlantis>"
+
             return await ctx.send(f"Você precisa estar no Discord do Atlantis para se autenticar {invite}")
+
         membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
         convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
 
         with self.bot.db_session() as session:
             user = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
+
             if user:
                 for role in member.roles:
                     role: discord.Role
                     if role.id == membro.id:
-                        logger_atl.info(f'Não é um convidado: {ctx.author}')
+                        self.logger.info(f'[{ctx.author}] Não é um convidado.')
                         return await ctx.send("Fool! Você não é um Convidado! Não é necessário se autenticar.")
+
                 async with aiohttp.ClientSession() as cs:
                     user_data = await get_user_data(user.ingame_name, cs)
-                if not user_data:
-                    logger_atl.info(f'Erro acessando API do RuneScape: {ctx.author}')
-                    return await ctx.send(
-                        "Houve um erro ao tentar acessar a API do RuneScape. "
-                        "Tente novamente mais tarde."
-                    )
-                if user_data.get('clan') == self.bot.setting.clan_name:
-                    await member.add_roles(membro)
-                    await member.remove_roles(convidado)
-                    logger_atl.info(f'Já está autenticado, corrigindo dados: {ctx.author}')
-                    return await ctx.send(
-                        "Você já está autenticado! Seus dados foram corrigidos. "
-                        "Você agora é um Membro do clã autenticado no Discord."
-                    )
+
+                    if not user_data:
+                        self.logger.info(f'[{ctx.author}] Erro acessando API do RuneScape. ({user})')
+                        return await ctx.send(
+                            "Houve um erro ao tentar acessar a API do RuneScape. "
+                            "Tente novamente mais tarde."
+                        )
+
+                    if user_data.get('clan') == self.bot.setting.clan_name:
+                        await member.add_roles(membro)
+                        await member.remove_roles(convidado)
+                        self.logger.info(f'[{ctx.author}] Já está autenticado, corrigindo dados. ({user})')
+                        return await ctx.send(
+                            "Você já está autenticado! Seus dados foram corrigidos. "
+                            "Você agora é um Membro do clã autenticado no Discord."
+                        )
 
         def check(message: discord.Message):
             return message.author == ctx.author
@@ -239,7 +247,7 @@ class UserAuthentication(commands.Cog):
         try:
             ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
         except asyncio.TimeoutError:
-            logger_atl.info(f'Autenticação cancelada por Timeout: {ctx.author}')
+            self.logger.info(f'[{ctx.author}] Autenticação cancelada por Timeout (ingame_name).')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
 
         await ctx.trigger_typing()
@@ -249,11 +257,11 @@ class UserAuthentication(commands.Cog):
         async with aiohttp.ClientSession() as cs:
             user_data = await get_user_data(ingame_name.content, cs)
         if not user_data:
-            logger_atl.info(f'Erro ao acessar API do RuneScape: {ctx.author} ({user_data})')
+            self.logger.info(f'[{ctx.author}] Erro acessando API do RuneScape. ({ingame_name.content})')
             return await ctx.send("Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde.")
 
         if user_data.get('clan') != self.bot.setting.clan_name:
-            logger_atl.info(f'Jogador não existe ou não é Membro: {ctx.author} ({user_data})')
+            self.logger.info(f'[{ctx.author}] Jogador não existe ou não é Membro. ({user_data})')
             return await ctx.send(
                 f"{ctx.author.mention}, o jogador '{user_data.get('name')}' "
                 f"não existe ou não é um membro do Clã Atlantis."
@@ -262,15 +270,18 @@ class UserAuthentication(commands.Cog):
         player_world = await grab_world(user_data['name'], user_data['clan'])
 
         if player_world == 'Offline' or not player_world:
-            logger_atl.info(f'Jogador offline: {ctx.author} ({user_data})')
+            self.logger.info(f'[{ctx.author}] Jogador offline. ({user_data})')
+            image_file = discord.File(f'images/privacy_rs.png', filename='privacy_rs.png')
+
             return await ctx.send(
                 f"{ctx.author.mention}, autenticação Cancelada. Você precisa estar Online.\n"
-                f"Verifique suas configurações de privacidade no jogo."
+                f"Verifique suas configurações de privacidade no jogo.",
+                file=image_file
             )
 
         player_world = get_world(worlds, player_world)
         if not player_world:
-            logger_atl.error(f'Player world is None: {ctx.author} ({user_data})')
+            self.logger.error(f'[{ctx.author}] Player world is None. ({user_data})')
             raise Exception(f"Player world is None.")
 
         settings = {
@@ -287,9 +298,9 @@ class UserAuthentication(commands.Cog):
         confirm_message = await ctx.send("Reaja nessa mensagem quando estiver pronto.")
         await confirm_message.add_reaction('✅')
         try:
-            await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
+            await self.bot.wait_for('reaction_add', timeout=45, check=confirm_check)
         except asyncio.TimeoutError:
-            logger_atl.info(f'Autenticação cancelada por Timeout: {ctx.author} ({user_data})')
+            self.logger.info(f'[{ctx.author}] Autenticação cancelada por Timeout. ({user_data})')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
         await confirm_message.delete()
         await self.send_cooldown(ctx)
@@ -321,6 +332,9 @@ class UserAuthentication(commands.Cog):
                 await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
                 await ctx.trigger_typing()
             except asyncio.TimeoutError:
+                self.logger.info(
+                    f'[{ctx.author}] Autenticação cancelada por Timeout. (mundo) ({settings}) ({user_data})'
+                )
                 return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
             wait_message = await ctx.send("Aguarde um momento...")
             await asyncio.sleep(1)
@@ -346,12 +360,13 @@ class UserAuthentication(commands.Cog):
                 failed_tries += 1
                 await ctx.send(f"Mundo incorreto ({player_world}). Tente novamente.")
                 if failed_tries == 5:
-                    logger_atl.info(f'Autenticação cancelada. Muitas tentativas: {ctx.author} ({user_data}) {settings}')
+                    self.logger.info(
+                        f'Autenticação cancelada. Muitas tentativas: {ctx.author} ({user_data}) {settings}')
                     return await ctx.send("Autenticação cancelada. Muitas tentativas incorretas.")
             await message.delete()
             if settings['worlds_left'] == 0:
                 break
-        logger_atl.info(f'Autenticação feita com sucesso, {ctx.author} ({user_data}) {settings}')
+        self.logger.info(f'Autenticação feita com sucesso, {ctx.author} ({user_data}) {settings}')
         await settings_message.delete()
 
         await member.add_roles(membro)
@@ -374,7 +389,7 @@ class UserAuthentication(commands.Cog):
             f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
             f"com os mundos: {', '.join([str(world) for world in worlds_done])}"
         )
-        logger_atl.info(f'Autenticação finalizada: {ctx.author} ({user_data}) {settings}')
+        self.logger.info(f'Autenticação finalizada: {ctx.author} ({user_data}) {settings}')
 
 
 def setup(bot):

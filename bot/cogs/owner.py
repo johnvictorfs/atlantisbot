@@ -29,7 +29,6 @@ class Owner(commands.Cog):
     async def restart(self, ctx: commands.Context):
         await ctx.send("Restarting bot...")
         if self.bot.setting.mode == 'dev':
-            # Heroku will make sure the bot logs back in after getting logged out without needing to do it manually
             os.execv(sys.executable, ['python3'] + sys.argv)
         await self.bot.logout()
 
@@ -85,7 +84,7 @@ class Owner(commands.Cog):
         return await ctx.send(f"Comando {command_name} habilitado com sucesso.")
 
     @staticmethod
-    def cleanup_code(content):
+    def cleanup_code(content: str) -> str:
         """Automatically removes code blocks from the code."""
         # remove ```py\n```
         if content.startswith('```') and content.endswith('```'):
@@ -174,8 +173,8 @@ class Owner(commands.Cog):
 
         def check(m):
             return m.author.id == ctx.author.id and \
-                   m.channel.id == ctx.channel.id and \
-                   m.content.startswith('`')
+                m.channel.id == ctx.channel.id and \
+                m.content.startswith('`')
 
         while True:
             try:
