@@ -57,7 +57,6 @@ class WelcomeMessage(commands.Cog):
 
     def welcome_embed(self, member):
         tags_do_server = self.bot.setting.chat.get('tags_do_server')
-        visitantes = self.bot.setting.chat.get('visitantes')
         geral = self.bot.setting.chat.get('geral')
         discord_bots = self.bot.setting.chat.get('discord_bots')
         links_uteis = self.bot.setting.chat.get('links_uteis')
@@ -80,7 +79,7 @@ class WelcomeMessage(commands.Cog):
 
         welcome_embed.add_field(
             name="Você recebeu o cargo de `convidado`",
-            value=f"Caso seja um **membro do Clã**, digite **`{prefix}membro`** no canal <#{visitantes}>",
+            value=f"Caso seja um **membro do Clã**, digite **`{prefix}membro`** aqui",
             inline=False
         )
 

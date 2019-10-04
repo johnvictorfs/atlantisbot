@@ -138,7 +138,7 @@
         },
         {
           "name": "membro",
-          "text": "Dado para membros do Clã. Caso seja um digite `!membro` no chat <#321012324997529602>"
+          "text": "Dado para membros do Clã. Caso envia a mensagem `!membro` para mim!"
         },
         {
           "name": "convidado",
@@ -221,7 +221,7 @@
             "vorago_teacher",
             "solak_teacher"
           ],
-          "text": "Dado pra proeficientes em seus respectivos bosses, tague eles para perguntas sobre pvm! :)"
+          "text": "Dado pra Organizadores de seus respectivos bosses, sinta-se a vontade para os notificar para perguntas sobre PvM.\nTem interesse em se tornar um Organizador? Envie uma mensagem para <@148175892596785152> (não restrito para os Bosses mencionados aqui)"
         },
         {
           "names": [
