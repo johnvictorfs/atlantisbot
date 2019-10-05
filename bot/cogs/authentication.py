@@ -302,7 +302,7 @@ class UserAuthentication(commands.Cog):
         confirm_message = await ctx.send("Reaja nessa mensagem quando estiver pronto.")
         await confirm_message.add_reaction('✅')
         try:
-            await self.bot.wait_for('reaction_add', timeout=45, check=confirm_check)
+            await self.bot.wait_for('reaction_add', timeout=80, check=confirm_check)
         except asyncio.TimeoutError:
             self.logger.info(f'[{ctx.author}] Autenticação cancelada por Timeout. ({user_data})')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
