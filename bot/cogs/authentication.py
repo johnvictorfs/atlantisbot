@@ -254,6 +254,16 @@ class UserAuthentication(commands.Cog):
             self.logger.info(f'[{ctx.author}] Autenticação cancelada por Timeout (ingame_name).')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
 
+        with self.bot.db_session() as session:
+            user_ingame = session.query(User).filter(User.ingame_name.lower() == ingame_name.content.lower()).first()
+            if user_ingame:
+                self.logger.info(f'[{ctx.author}] já existe usuário in-game autenticado com esse nome. ({user_ingame})')
+                return await ctx.send(
+                    "Já existe um Usuário do Discord autenticado com esse nome do jogo.\n"
+                    "Caso seja mesmo o Dono dessa conta e acredite que outra pessoa tenha se cadastrado "
+                    "com o seu nome por favor me contate aqui: <@148175892596785152>."
+                )
+
         await ctx.trigger_typing()
 
         with open('bot/worlds.json') as f:
