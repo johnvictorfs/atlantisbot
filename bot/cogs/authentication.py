@@ -4,6 +4,7 @@ import datetime
 import logging
 import json
 
+from sqlalchemy import func
 from discord.ext import commands, tasks
 import asyncio
 import discord
@@ -254,8 +255,14 @@ class UserAuthentication(commands.Cog):
             self.logger.info(f'[{ctx.author}] Autenticação cancelada por Timeout (ingame_name).')
             return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
 
+        await ctx.trigger_typing()
+
         with self.bot.db_session() as session:
-            user_ingame = session.query(User).filter(User.ingame_name.lower() == ingame_name.content.lower()).first()
+            # Já existe outro usuário cadastrado com esse username in-game
+            user_ingame = session.query(User).filter(
+                func.lower(User.ingame_name) == func.lower(ingame_name.content)
+            ).first()
+
             if user_ingame:
                 self.logger.info(f'[{ctx.author}] já existe usuário in-game autenticado com esse nome. ({user_ingame})')
                 return await ctx.send(
@@ -263,8 +270,6 @@ class UserAuthentication(commands.Cog):
                     "Caso seja mesmo o Dono dessa conta e acredite que outra pessoa tenha se cadastrado "
                     "com o seu nome por favor me contate aqui: <@148175892596785152>."
                 )
-
-        await ctx.trigger_typing()
 
         with open('bot/worlds.json') as f:
             worlds = json.load(f)
