@@ -97,6 +97,7 @@ class UserAuthentication(commands.Cog):
         """
         Check users that have changed names or left the clan since last authentication
         """
+        self.logger.info('[check_users] Checando autenticação de usuários...')
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         membro = atlantis.get_role(self.bot.setting.role.get('membro'))
         convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
@@ -111,6 +112,7 @@ class UserAuthentication(commands.Cog):
                         await asyncio.sleep(2)
                         user_data = await get_user_data(user.ingame_name, cs)
                         if not user_data:
+                            self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
                             continue
                         if not self.debugging and user_data['clan'] == self.bot.setting.clan_name:
@@ -409,7 +411,7 @@ class UserAuthentication(commands.Cog):
             f"{ctx.author} se autenticou como Membro. (id: {ctx.author.id}, username: {user_data['name']}) "
             f"com os mundos: {', '.join([str(world) for world in worlds_done])}"
         )
-        self.logger.info(f'[{ctx.author}] Autenticação finalizada. ({user_data}) {settings}')
+        self.logger.info(f'[{ctx.author}] Autenticação finalizada.')
 
 
 def setup(bot):

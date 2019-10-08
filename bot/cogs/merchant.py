@@ -92,10 +92,10 @@ class Merchant(commands.Cog):
             )
         return embed
 
-    # noinspection PyCallingNonCallable
-    @tasks.loop(seconds=10)
+    @tasks.loop(seconds=20)
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
+
         try:
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
             message: discord.Message = await channel.fetch_message(562120346979794944)
