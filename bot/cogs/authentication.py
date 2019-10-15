@@ -199,12 +199,10 @@ class UserAuthentication(commands.Cog):
                     color=discord.Color.green()
                 )
 
-                text = ""
-
                 for user in member_list:
-                    text += f"{user.ingame_name} | {user.discord_name} | {user.discord_id}\n"
+                    embed.add_field(
+                        name=nb_space, value=f"{user.ingame_name} | {user.discord_name} | {user.discord_id}")
 
-                embed.add_field(name=nb_space, value=text)
                 await ctx.author.send(embed=embed)
 
     @commands.dm_only()
