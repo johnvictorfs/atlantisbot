@@ -183,11 +183,13 @@ class UserAuthentication(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['user'])
     async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
+        lower_name = user_name.lower()
+
         with self.bot.db_session() as session:
-            member: User = session.query(User).filter(func.lower(User.ingame_name) == user_name.lower()).first()
+            member: User = session.query(User).filter(func.lower(User.ingame_name) == lower_name).first()
 
             if not member:
-                member: User = session.query(User).filter(func.lower(User.ingame_name).contains(user_name.lower()))
+                member: User = session.query(User).filter(func.lower(User.ingame_name).contains(lower_name)).first()
 
             if not member:
                 return await ctx.send(
