@@ -181,6 +181,37 @@ class UserAuthentication(commands.Cog):
         await asyncio.sleep(1)
 
     @commands.has_permissions(manage_channels=True)
+    @commands.command(aliases=['user'])
+    async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
+        with self.bot.db_session() as session:
+            member: User = session.query(User).filter(func.lower(User.ingame_name) == user_name.lower()).first()
+
+            if not member:
+                member: User = session.query(User).filter(func.lower(User.ingame_name).contains(user_name.lower()))
+
+            if not member:
+                return await ctx.send(
+                    f'Não existe um usuário autenticado com o usuário in-game ou do Discord \'{user_name}\'.'
+                )
+
+            nb_space = '\u200B'
+
+            embed = discord.Embed(
+                title=f"Usuário Autenticado",
+                description=nb_space,
+                color=discord.Color.green()
+            )
+
+            embed.add_field(name='Nome In-game', value=member.ingame_name)
+            embed.add_field(name='Nome Discord', value=member.discord_name)
+            embed.add_field(name='ID Discord', value=member.discord_id)
+            embed.add_field(name='ID Database', value=member.id)
+            embed.add_field(name='Último update', value=member.updated)
+            embed.add_field(name='Data de Warning', value=member.warning_date)
+
+            await ctx.author.send(embed=embed)
+
+    @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['membros'])
     async def authenticated_users(self, ctx: commands.Context):
         nb_space = '\u200B'
