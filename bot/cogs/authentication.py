@@ -105,9 +105,9 @@ class UserAuthentication(commands.Cog):
         auth_chat = self.bot.setting.chat.get('auth')
         auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
-        try:
-            async with aiohttp.ClientSession() as cs:
-                with self.bot.db_session() as session:
+        with self.bot.db_session() as session:
+            try:
+                async with aiohttp.ClientSession() as cs:
                     users = session.query(User).all()
                     for user in users:
                         await asyncio.sleep(2)
@@ -116,7 +116,7 @@ class UserAuthentication(commands.Cog):
                             self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
                             continue
-                        if not self.debugging and user_data['clan'] == self.bot.setting.clan_name:
+                        if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
                             # Don't do anything if player in in clan
                             continue
                         now = datetime.datetime.utcnow()
@@ -167,9 +167,9 @@ class UserAuthentication(commands.Cog):
                             )
                             user.warning_date = now
                             session.commit()
-        except Exception as e:
-            await asyncio.sleep(30)
-            await self.bot.send_logs(e, traceback, more_info={user: str(user), member: str(member)})
+            except Exception as e:
+                await asyncio.sleep(30)
+                await self.bot.send_logs(e, traceback, more_info={user: str(user), member: str(member)})
 
     @staticmethod
     async def send_cooldown(ctx):
