@@ -35,3 +35,23 @@ def plot_table(table_name: str, image_name: str, safe: bool = True):
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
     plt.savefig(f"{image_name}.tmp.png", bbox_inches='tight', pad_inches=0, transparent=True)
+
+
+def divide_list(items: list, every: int = 5):
+    """
+    Divide a list into different lists every n items
+    """
+    lista_de_listas = []
+    contador_de_indice = 0
+
+    for a, i in zip(items, range(len(items))):
+        if i % every == 0:
+            lista_de_listas.append([x for x in items[contador_de_indice: contador_de_indice + every]])
+            contador_de_indice += every
+
+    lista_de_listas.append(items[contador_de_indice:])
+
+    if lista_de_listas[-1] == []:
+        lista_de_listas.pop(-1)
+
+    return lista_de_listas

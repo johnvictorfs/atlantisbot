@@ -14,6 +14,7 @@ import re
 from bot.bot_client import Bot
 from bot.orm.models import User
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
+from bot.utils.tools import divide_list
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
@@ -183,21 +184,28 @@ class UserAuthentication(commands.Cog):
     @commands.command(aliases=['membros'])
     async def authenticated_users(self, ctx: commands.Context):
         nb_space = '\u200B'
-        embed = discord.Embed(
-            title="Membros Autenticados",
-            description="Nome in-game | Nome Discord | ID Discord",
-            color=discord.Color.green()
-        )
         with self.bot.db_session() as session:
-            text = ""
-            found = False
-            for user in session.query(User).all():
-                found = True
-                text += f"{user.ingame_name} | {user.discord_name} | {user.discord_id}\n"
-            if not found:
-                text = "Não há nenhum Membro Autenticado no momento"
-            embed.add_field(name=nb_space, value=text)
-        await ctx.author.send(embed=embed)
+            members = list(session.query(User).all())
+
+            if not members:
+                return await ctx.send("Não há nenhum Membro Autenticado no momento")
+
+            members = divide_list(members, 30)
+
+            for member_list in members:
+                embed = discord.Embed(
+                    title="Membros Autenticados",
+                    description="Nome in-game | Nome Discord | ID Discord",
+                    color=discord.Color.green()
+                )
+
+                text = ""
+
+                for user in member_list:
+                    text += f"{user.ingame_name} | {user.discord_name} | {user.discord_id}\n"
+
+                embed.add_field(name=nb_space, value=text)
+                await ctx.author.send(embed=embed)
 
     @commands.dm_only()
     @commands.cooldown(60, 0, commands.BucketType.user)
