@@ -190,11 +190,13 @@ class UserAuthentication(commands.Cog):
             if not members:
                 return await ctx.send("Não há nenhum Membro Autenticado no momento")
 
+            total_members = len(members)
+
             members = divide_list(members, 30)
 
             for member_list in members:
                 embed = discord.Embed(
-                    title="Membros Autenticados",
+                    title=f"Membros Autenticados (Total: {total_members})",
                     description="Nome in-game | Nome Discord | ID Discord",
                     color=discord.Color.green()
                 )
