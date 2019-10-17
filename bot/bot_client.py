@@ -279,11 +279,14 @@ class Bot(commands.Bot):
         await self.process_commands(message)
 
     async def on_member_remove(self, member: discord.Member):
-        log_channel: discord.TextChannel = self.get_channel(593568562438864899)
+        if self.setting.mode == 'dev':
+            return
+
+        log_channel: discord.TextChannel = self.get_channel(633465042033180701)
         embed = discord.Embed(title='Saiu do Servidor', description="\u200B", color=discord.Color.red())
         embed.set_author(name=member)
         roles = ', '.join([role.name for role in member.roles])
-        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', ''))
+        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '', '\u200B', ''))
         embed.set_footer(text=datetime.datetime.now())
         await log_channel.send(embed=embed)
 
