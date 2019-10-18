@@ -447,7 +447,8 @@ class UserAuthentication(commands.Cog):
                 user.discord_name = str(ctx.author)
 
                 await ctx.send(
-                    f"Re-Autenticação finalizada {ctx.author.mention}, você é novamente um Membro no Discord do Atlantis!\n\n"
+                    f"Re-Autenticação finalizada {ctx.author.mention}, você é novamente um Membro no "
+                    f"Discord do Atlantis!\n\n"
                     f"***Nota:*** Caso saia do Clã ou troque de nome, iremos notificar a necessidade de refazer o "
                     f"processo de Autenticação, caso não o faça em até 7 dias, removeremos o seu cargo "
                     f"de Membro."

@@ -286,7 +286,7 @@ class Bot(commands.Bot):
         embed = discord.Embed(title='Saiu do Servidor', description="\u200B", color=discord.Color.red())
         embed.set_author(name=member)
         roles = ', '.join([role.name for role in member.roles])
-        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '', '\u200B', ''))
+        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '').replace('\u200B', ''))
         embed.set_footer(text=datetime.datetime.now())
         await log_channel.send(embed=embed)
 
