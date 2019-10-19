@@ -180,6 +180,43 @@ class UserAuthentication(commands.Cog):
         await ctx.send("O seu próximo mundo será enviado em 1...", delete_after=1)
         await asyncio.sleep(1)
 
+    @commands.command(aliases=['desmembro', 'unmembro'])
+    async def un_membro(self, ctx: commands.Context):
+        """
+        Command to remove a user's authentication
+        """
+        with self.bot.db_session() as session:
+            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id))
+            if not user:
+                return await ctx.send('Você precisa estar autenticado para poder se desautenticar!!')
+            await ctx.send('Tem certeza que deseja remover sua Autenticação do Discord do Atlantis? (Sim/Não)')
+
+            try:
+                message = await self.bot.wait_for(
+                    'message',
+                    check=lambda message: message.author == ctx.author,
+                    timeout=20
+                )
+            except asyncio.TimeoutError:
+                return await ctx.send('Comando cancelado. Tempo esgotado.')
+
+            if message.content.lower() == 'sim':
+                session.delete(user)
+                atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
+                member = atlantis.get_member(ctx.author.id)
+
+                if not member:
+                    invite = '<https://discord.me/atlantis>'
+                    return await ctx.send(f'Você precisa estar no Discord do Atlantis para fazer isso. {invite}')
+
+                membro = atlantis.get_role(self.bot.setting.role.get('membro'))
+                convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
+                await member.remove_roles(membro)
+                await member.add_roles(convidado)
+                return await ctx.send('Sua autenticação foi removida com sucesso.')
+            else:
+                return await ctx.send('Remoção de autenticação cancelada.')
+
     @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['user'])
     async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
