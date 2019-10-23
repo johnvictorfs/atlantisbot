@@ -138,13 +138,13 @@ class Chat(commands.Cog):
             await ctx.send(
                 f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['prayer']} Oração é "
                 f"apenas **{prayer_level}**. Isso é um pouco baixo!\n"
-                f"Mas tudo bem, falta apenas **{(left_to_95):,.0f}** de Exp para o nível 95. Com esse nível você "
+                f"Mas tudo bem, falta apenas **{int(left_to_95):,.0f}** de Exp para o nível 95. Com esse nível você "
                 f"irá poder usar as segundas melhores Maldições de aumento de dano. Há diversas formas de você "
                 f"alcançar o nível 95. Veja algumas abaixo:\n"
-                f"⯈ {(left_to_95 / d_bones_exp):,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
-                f"({gp_emoji} {(d_bones_till_99 * d_bones_price):,.0f})\n"
-                f"⯈ {left_to_95 / frost_bones_exp:,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
-                f"({gp_emoji} {(f_bones_till_99 * f_bones_price):,.0f})\n"
+                f"⯈ {int(left_to_95 / d_bones_exp):,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
+                f"({gp_emoji} {int(d_bones_till_99 * d_bones_price):,.0f})\n"
+                f"⯈ {int(left_to_95 / frost_bones_exp):,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
+                f"({gp_emoji} {int(f_bones_till_99 * f_bones_price):,.0f})\n"
             )
 
         embed = discord.Embed(
