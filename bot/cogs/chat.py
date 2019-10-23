@@ -81,7 +81,10 @@ class Chat(commands.Cog):
 
         await ctx.trigger_typing()
 
-        player = rs3clans.Player(ingame_name.content)
+        try:
+            player = rs3clans.Player(ingame_name.content)
+        except ConnectionError:
+            return await ctx.send('Não foi possível acessar a API do Runemetrics no momento, tente novamente mais tarde.')
 
         if not player.exists:
             return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
