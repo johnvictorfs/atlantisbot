@@ -127,11 +127,11 @@ class Chat(commands.Cog):
         if prayer_level < 95:
             d_bones_price = await self.get_price(536)
             d_bones_exp = 252
-            d_bones_till_99 = left_to_95 / d_bones_exp
+            d_bones_till_99 = int(left_to_95 / d_bones_exp)
 
             f_bones_price = await self.get_price(18832)
             frost_bones_exp = 630
-            f_bones_till_99 = left_to_95 / frost_bones_exp
+            f_bones_till_99 = int(left_to_95 / frost_bones_exp)
 
             gp_emoji = "<:coins:573305319661240340>"
 
@@ -142,9 +142,9 @@ class Chat(commands.Cog):
                 f"irá poder usar as segundas melhores Maldições de aumento de dano. Há diversas formas de você "
                 f"alcançar o nível 95. Veja algumas abaixo:\n"
                 f"⯈ {left_to_95 / d_bones_exp:,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
-                f"({gp_emoji} {d_bones_till_99 * d_bones_price:,.0f})\n"
+                f"({gp_emoji} {(d_bones_till_99 * d_bones_price):,.0f})\n"
                 f"⯈ {left_to_95 / frost_bones_exp:,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
-                f"({gp_emoji} {f_bones_till_99 * f_bones_price:,.0f})\n"
+                f"({gp_emoji} {(f_bones_till_99 * f_bones_price):,.0f})\n"
             )
 
         embed = discord.Embed(
