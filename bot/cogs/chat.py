@@ -27,10 +27,8 @@ class Chat(commands.Cog):
             async with cs.get(url) as r:
                 data = await r.text()
                 data = json.loads(data)
-                try:
-                    return int(data['item']['current']['price'].replace(',', ''))
-                except ValueError:
-                    return data['item']['current']['price']
+
+                return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
 
     # @commands.guild_only()
     # @commands.cooldown(1, 30, commands.BucketType.user)
