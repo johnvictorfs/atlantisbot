@@ -19,10 +19,12 @@ class AdvLog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.adv_log.start()
+        if self.bot.setting.mode == 'prod':
+            self.adv_log.start()
 
     def cog_unload(self):
-        self.adv_log.cancel()
+        if self.bot.setting.mode == 'prod':
+            self.adv_log.cancel()
 
     def is_advlog_active(self):
         with self.bot.db_session() as session:

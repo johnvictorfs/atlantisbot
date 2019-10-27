@@ -98,6 +98,9 @@ class UserAuthentication(commands.Cog):
         """
         Check users that have changed names or left the clan since last authentication
         """
+        if self.bot.setting.mode == 'dev':
+            return
+
         self.logger.info('[check_users] Checando autenticação de usuários...')
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         membro = atlantis.get_role(self.bot.setting.role.get('membro'))
@@ -287,7 +290,25 @@ class UserAuthentication(commands.Cog):
     @commands.is_owner()
     @commands.command()
     async def nuke_members(self, ctx: commands.Context):
-        pass
+        """
+        Remover a Tag de Membro de todo Usuário não-autenticado do Servidor
+        """
+        atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
+        membro = atlantis.get_role(self.bot.setting.role.get('membro'))
+        convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
+
+        with self.bot.db_session() as session:
+            for member in atlantis.members:
+                member: discord.Member
+                discord_user: discord.User = member._user
+
+                user: User = session.query(User).filter_by(discord_id=str(discord_user.id)).first()
+
+                if not user:
+                    for role in member.roles:
+                        role: discord.Role
+                        if role.id == membro.id:
+                            embed = discord.Embed(title='')
 
     @commands.dm_only()
     @commands.cooldown(60, 0, commands.BucketType.user)
@@ -309,10 +330,7 @@ class UserAuthentication(commands.Cog):
 
         with self.bot.db_session() as session:
             user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
-            print(1)
-            print(user)
             if user and not user.warning_date:
-                print(2)
                 for role in member.roles:
                     role: discord.Role
                     if role.id == membro.id:

@@ -57,7 +57,7 @@ class Teams(commands.Cog):
             return
 
         # If in development environment only deal with messages in dev server and channel
-        if self.setting.mode == 'dev':
+        if self.bot.setting.mode == 'dev':
             if not message.guild:
                 if message.author.id != self.setting.developer_id:
                     return
