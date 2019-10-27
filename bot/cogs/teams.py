@@ -59,9 +59,9 @@ class Teams(commands.Cog):
         # If in development environment only deal with messages in dev server and channel
         if self.bot.setting.mode == 'dev':
             if not message.guild:
-                if message.author.id != self.setting.developer_id:
+                if message.author.id != self.bot.setting.developer_id:
                     return
-            elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
+            elif message.guild.id != self.bot.setting.dev_guild and message.channel.id != 488106800655106058:
                 return
 
         # Checks for 'in {number}' or 'out {number}' in message, for team join/leave commands (case-insensitive)
@@ -73,7 +73,7 @@ class Teams(commands.Cog):
             team_id = ''.join(team_id).lower()
             mode = 'join' if 'in' in team_join.lower() else 'leave'
             try:
-                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
+                return await manage_team(team_id=team_id, client=self.bot, message=message, mode=mode)
             except TeamNotFoundError:
                 return await message.channel.send(f"Time com ID '{team_id}' não existe.")
             except WrongChannelError:
