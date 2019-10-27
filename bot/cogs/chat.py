@@ -30,33 +30,6 @@ class Chat(commands.Cog):
 
                 return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
 
-    # @commands.guild_only()
-    # @commands.cooldown(1, 30, commands.BucketType.user)
-    # @commands.command(aliases=['role', 'membro'])
-    # async def aplicar_role(self, ctx: commands.Context):
-    #     if not has_any_role(ctx.author, self.bot.setting.role.get('convidado')):
-    #         return await ctx.send("Fool! Você não é um Convidado!")
-    #
-    #     def check(message):
-    #         return message.author == ctx.author
-    #
-    #     await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
-    #
-    #     try:
-    #         ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
-    #     except asyncio.TimeoutError:
-    #         return await ctx.send(f"{ctx.author.mention}, autenticação Cancelada. Tempo Esgotado.")
-    #     await ctx.trigger_typing()
-    #     player = rs3clans.Player(ingame_name.content)
-    #     if not player.exists:
-    #         return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
-    #     elif player.clan != self.bot.setting.clan_name:
-    #         return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
-    #     return await ctx.send(
-    #         f"{ctx.author.mention} um <@&{self.bot.setting.role.get('mod')}> ou "
-    #         f"<@&{self.bot.setting.role.get('admin')}> irá dar seu cargo em breve :)"
-    #     )
-
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command(aliases=['raids'])

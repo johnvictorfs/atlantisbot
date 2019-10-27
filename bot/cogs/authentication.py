@@ -220,13 +220,19 @@ class UserAuthentication(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['user'])
     async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
+        """
+        Searches Authenticated User, first by Ingame Name, then by Discord Name, then by Discord Id
+        """
         lower_name = user_name.lower()
 
         with self.bot.db_session() as session:
-            member: User = session.query(User).filter(func.lower(User.ingame_name) == lower_name).first()
+            member: User = session.query(User).filter(func.lower(User.ingame_name).contains(lower_name)).first()
 
             if not member:
-                member: User = session.query(User).filter(func.lower(User.ingame_name).contains(lower_name)).first()
+                member: User = session.query(User).filter(func.lower(User.discord_name).contains(lower_name)).first()
+
+            if not member:
+                member: User = session.query(User).filter(func.lower(User.discord_id).contains(lower_name)).first()
 
             if not member:
                 return await ctx.send(
@@ -246,7 +252,7 @@ class UserAuthentication(commands.Cog):
             embed.add_field(name='ID Discord', value=member.discord_id)
             embed.add_field(name='ID Database', value=member.id)
             embed.add_field(name='Último update', value=member.updated)
-            embed.add_field(name='Data de Warning', value=member.warning_date)
+            embed.add_field(name='Data de Warning', value=member.warning_date.strftime('%d/%m/%y - %H:%M'))
 
             await ctx.author.send(embed=embed)
 
@@ -273,9 +279,15 @@ class UserAuthentication(commands.Cog):
 
                 for user in member_list:
                     embed.add_field(
-                        name=nb_space, value=f"{user.ingame_name} | {user.discord_name} | {user.discord_id}")
+                        name=nb_space, value=f"{user.ingame_name} | {user.discord_name} | {user.discord_id}"
+                    )
 
                 await ctx.author.send(embed=embed)
+
+    @commands.is_owner()
+    @commands.command()
+    async def nuke_members(self, ctx: commands.Context):
+        pass
 
     @commands.dm_only()
     @commands.cooldown(60, 0, commands.BucketType.user)
@@ -431,11 +443,17 @@ class UserAuthentication(commands.Cog):
                 )
                 await message.add_reaction('✅')
                 try:
-                    await self.bot.wait_for('reaction_add', timeout=30, check=confirm_check)
+                    await self.bot.wait_for('reaction_add', timeout=160, check=confirm_check)
                     await ctx.trigger_typing()
                 except asyncio.TimeoutError:
                     self.logger.info(
                         f'[{ctx.author}] Autenticação cancelada por Timeout. (mundo) ({settings}) ({user_data})'
+                    )
+                    dev = self.get_user(self.setting.developer_id)
+                    await dev.send(
+                        f'{ctx.author} não conseguiu se autenticar por Timeout.\n\n'
+                        f'```python\n{settings}\n```\n'
+                        f'```python\n{user_data}\n```'
                     )
                     return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
                 wait_message = await ctx.send("Aguarde um momento...")
@@ -512,6 +530,35 @@ class UserAuthentication(commands.Cog):
                 )
 
             self.logger.info(f'[{ctx.author}] Autenticação finalizada.')
+
+            await ctx.send(
+                'O que achou do nosso processo de Autenticação para Membro do Servidor? Teve algum Problema? '
+                'Tem alguma sugestão?\n\n'
+                'Fale conosco aqui (em uma mensagem)!\n\nSeu Feedback é importante para nós!'
+            )
+
+            try:
+                feedback_message: discord.Message = await self.bot.wait_for(
+                    'message',
+                    check=lambda message: message.author == ctx.author,
+                    timeout=60 * 20
+                )
+
+                if feedback_message.content:
+                    auth_feedback: discord.TextChannel = self.get_channel(self.bot.setting.chat.get('auth_feedback'))
+
+                    feedback_embed = discord.Embed(
+                        title="Feedback de Autenticação",
+                        description=feedback_message.content,
+                        color=discord.Color.blue()
+                    )
+                    feedback_embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+
+                    await auth_feedback.send(embed=feedback_embed)
+
+                    await ctx.send('Seu Feedback foi recebido com sucesso, muito obrigado!')
+            except asyncio.TimeoutError:
+                pass
 
 
 def setup(bot):

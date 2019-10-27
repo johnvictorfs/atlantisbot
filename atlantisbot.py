@@ -12,6 +12,7 @@ from bot.bot_client import Bot
 
 async def run():
     bot = Bot()
+
     try:
         await bot.start(bot.setting.token)
     except KeyboardInterrupt:

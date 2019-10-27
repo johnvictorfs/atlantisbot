@@ -31,21 +31,21 @@
     "Broken fishing rod": {
       "emoji": "<:vara:562323387473592339>",
       "name": "Vara de pesca quebrada",
-      "description": "Bônus de 5-10% de pescar durante 3-30 minutos.",
+      "description": "Bônus de 5-10% em Pesca durante 3-30 minutos.",
       "cost": 50000,
       "quantity": "1"
     },
     "Small goebie burial charm": {
       "emoji": "<:goebiepequeno:562323259383873578>",
       "name": "Talismã pequeno funerario goebie",
-      "description": "50 [reputação goebi](https://rs.wiki/w/Reputation_(Mazcab)) ou 50 [teci](https://rs.wiki/w/Teci).",
+      "description": "50 [Reputação de Mazcab](https://rs.wiki/w/Reputation_(Mazcab)) ou 50 [teci](https://rs.wiki/w/Teci).",
       "cost": 50000,
       "quantity": "1"
     },
     "Goebie burial charm": {
       "emoji": "<:goebie:562323271081525259>",
       "name": "Talismã funerario gobie",
-      "description": "100 [reputação goebi](https://rs.wiki/w/Reputation_(Mazcab)) ou 100 [teci](https://rs.wiki/w/Teci).",
+      "description": "100 [Reputação de Mazcab](https://rs.wiki/w/Reputation_(Mazcab)) ou 100 [teci](https://rs.wiki/w/Teci).",
       "cost": 100000,
       "quantity": "1"
     },
@@ -143,7 +143,7 @@
     "Large goebie burial charm": {
       "emoji": "<:goebiegrande:562323249581654027>",
       "name": "Talismã funerario goebie grande",
-      "description": "150 [reputação goebie](https://rs.wiki/w/Reputation_(Mazcab)) ou 150 [teci](https://rs.wiki/w/Teci).",
+      "description": "150 [Reputação de Mazcab](https://rs.wiki/w/Reputation_(Mazcab)) ou 150 [Teci](https://rs.wiki/w/Teci).",
       "cost": 150000,
       "quantity": "1"
     },

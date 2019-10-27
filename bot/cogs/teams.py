@@ -1,13 +1,14 @@
+import traceback
 import re
-import asyncio
 
+import asyncio
 import discord
 from discord.ext import commands
 from sqlalchemy import cast, Integer
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
-from bot.utils.teams import delete_team, update_team_message
+from bot.utils.teams import delete_team, update_team_message, manage_team, TeamNotFoundError, WrongChannelError
 from bot.orm.models import Team, Player
 
 
@@ -49,6 +50,39 @@ async def is_in_team(ctx: commands.Context):
 class Teams(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
+
+    @commands.Cog.listener(name='on_message')
+    async def team_entries_or_leaves(self, message: discord.Message):
+        if message.author.bot:
+            return
+
+        # If in development environment only deal with messages in dev server and channel
+        if self.setting.mode == 'dev':
+            if not message.guild:
+                if message.author.id != self.setting.developer_id:
+                    return
+            elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
+                return
+
+        # Checks for 'in {number}' or 'out {number}' in message, for team join/leave commands (case-insensitive)
+        team_join = re.search(r'(^in |^out )\d+|(^in raids)|(^out raids)', message.content, flags=re.IGNORECASE)
+
+        if team_join:
+            team_join = team_join.group()
+            team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
+            team_id = ''.join(team_id).lower()
+            mode = 'join' if 'in' in team_join.lower() else 'leave'
+            try:
+                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
+            except TeamNotFoundError:
+                return await message.channel.send(f"Time com ID '{team_id}' não existe.")
+            except WrongChannelError:
+                return await message.channel.send(f"Você não pode entrar nesse time por esse canal.")
+            except Exception as e:
+                await message.channel.send(
+                    f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado."
+                )
+                return await self.bot.send_logs(e, traceback.format_exc(), more_info=message)
 
     @commands.guild_only()
     @commands.command(aliases=['teamrole', 'tr', 'setrole', 'sr'])

@@ -41,7 +41,7 @@ class Clan(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
+    @commands.command(name='claninfo', aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
     async def clan_user_info(self, ctx: commands.Context, *, username: str):
         try:
             player = rs3clans.Player(name=username, runemetrics=True)

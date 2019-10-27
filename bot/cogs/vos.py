@@ -267,8 +267,6 @@ class Vos(commands.Cog):
             state: VoiceOfSeren = session.query(VoiceOfSeren).first()
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
             if state:
-                now = datetime.datetime.utcnow()
-
                 vos_1, vos_2 = self.get_voices()
                 if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
                     try:
@@ -299,7 +297,9 @@ class Vos(commands.Cog):
                 session.add(state)
                 session.commit()
 
-    async def change_vos(self, vos_1: str, vos_2: str, message: discord.Message, channel: discord.TextChannel, state: VoiceOfSeren):
+    async def change_vos(
+        self, vos_1: str, vos_2: str, message: discord.Message, channel: discord.TextChannel, state: VoiceOfSeren
+    ):
         with self.bot.db_session() as session:
             embed, file = self.vos_embed(vos_1, vos_2)
             now = datetime.datetime.utcnow()

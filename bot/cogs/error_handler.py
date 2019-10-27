@@ -12,14 +12,18 @@ class CommandErrorHandler(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
+        self.logger = logging.getLogger('commands')
+        self.logger.setLevel(logging.INFO)
+        handler = logging.FileHandler(filename='commands.log', encoding='utf-8')
+        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
     async def bot_check(self, ctx: commands.Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()
         time = datetime.datetime.utcnow()
+        time = time.strftime('%d/%m/%y - %H:%M')
         msg = f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'"
-        logging.info(msg)
-        print(msg)
+        self.logger.info(msg)
         return True
 
     @commands.Cog.listener()
@@ -28,11 +32,13 @@ class CommandErrorHandler(commands.Cog):
         ctx.command: commands.Command
         if hasattr(ctx.command, 'on_error'):
             return
+
         arguments_error = [
             commands.MissingRequiredArgument,
             commands.BadArgument,
             commands.TooManyArguments,
         ]
+
         if any([isinstance(error, arg_error) for arg_error in arguments_error]):
             embed = discord.Embed(
                 title=f"Argumentos do comando '{ctx.command}':",

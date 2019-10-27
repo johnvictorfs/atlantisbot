@@ -20,7 +20,6 @@ from bot import settings
 from bot.orm import db
 from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator, has_any_role
-from bot.utils.teams import manage_team, TeamNotFoundError, WrongChannelError
 
 
 class Bot(commands.Bot):
@@ -257,25 +256,6 @@ class Bot(commands.Bot):
                 f'{formatted_urls_string}'
             )
 
-        # Checks for 'in {number}' or 'out {number}' in message, for team join/leave commands (case-insensitive)
-        team_join = re.search(r'(^in |^out )\d+|(^in raids)|(^out raids)', message.content, flags=re.IGNORECASE)
-
-        if team_join:
-            team_join = team_join.group()
-            team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
-            team_id = ''.join(team_id).lower()
-            mode = 'join' if 'in' in team_join.lower() else 'leave'
-            try:
-                return await manage_team(team_id=team_id, client=self, message=message, mode=mode)
-            except TeamNotFoundError:
-                return await message.channel.send(f"Time com ID '{team_id}' não existe.")
-            except WrongChannelError:
-                return await message.channel.send(f"Você não pode entrar nesse time por esse canal.")
-            except Exception as e:
-                msg = 'entrar em' if mode == 'join' else 'sair de'
-                return await message.channel.send(
-                    f"Erro inesperado ao tentar {msg} time. Favor reportar o erro para @NRiver#2263: {e}"
-                )
         await self.process_commands(message)
 
     async def on_member_remove(self, member: discord.Member):
@@ -285,9 +265,9 @@ class Bot(commands.Bot):
         log_channel: discord.TextChannel = self.get_channel(633465042033180701)
         embed = discord.Embed(title='Saiu do Servidor', description="\u200B", color=discord.Color.red())
         embed.set_author(name=member)
-        roles = ', '.join([role.name for role in member.roles])
-        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '').replace('\u200B', ''))
-        embed.set_footer(text=datetime.datetime.now())
+        roles = ', '.join([role.name for role in member.roles]) + '\n'
+        embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '').replace('ﾠ', ''))
+        embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
         await log_channel.send(embed=embed)
 
     @contextmanager

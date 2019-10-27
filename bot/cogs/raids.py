@@ -82,10 +82,24 @@ class RaidsTasks(commands.Cog):
             minutes = (raids_diff.seconds // 60) % 60
 
             msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/393106804709523457'
+
+            with self.bot.db_session() as session:
+                # Check if Raids notifications are currently active or not
+                state = session.query(RaidsState).first()
+
+                if not state:
+                    state = RaidsState(notifications=True)
+                    session.add(state)
+
+                raids_active = state.notifications
+
             text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
                     f"{hours} Hora{'s' if hours > 1 else ''} e "
                     f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
                     f"• [Clique aqui para saber como participar]({msg_url})")
+
+            if not raids_active:
+                text += f"\n\n• **Notificações de Raids estão atualmente desabilitadas.**"
 
             embed = discord.Embed(title='', description=text, color=discord.Color.blue())
 

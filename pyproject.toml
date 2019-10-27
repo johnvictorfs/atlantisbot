@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-"discord.py" = "^1.2.3"
+"discord.py" = "^1.2.4"
 rs3clans = "^1.1"
 beautifulsoup4 = "^4.7"
 colorama = "^0.4.1"
@@ -20,7 +20,6 @@ psycopg2-binary = "^2.8"
 requests = "^2.21"
 feedparser = "^5.2"
 python-twitter = "^3.5"
-discord = "^1.0"
 Pillow = "^6.1"
 
 [tool.poetry.dev-dependencies]
