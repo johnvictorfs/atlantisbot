@@ -306,7 +306,7 @@ class UserAuthentication(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def nuke_members(self, ctx: commands.Context):
+    async def snap(self, ctx: commands.Context):
         """
         Remover a Tag de Membro de todo Usuário não-autenticado do Servidor
         """
