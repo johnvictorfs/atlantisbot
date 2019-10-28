@@ -310,6 +310,8 @@ class UserAuthentication(commands.Cog):
         membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
         # convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
 
+        membro_list = []
+
         with self.bot.db_session() as session:
             for member in atlantis.members:
                 member: discord.Member
@@ -321,25 +323,29 @@ class UserAuthentication(commands.Cog):
                     for role in member.roles:
                         role: discord.Role
                         if role.id == membro.id:
-                            text = (
-                                f"Olá {member.mention}! O Atlantis está em processo de automação, a que "
-                                f"possibilitará uma série de "
-                                f"melhorias na estrutura do clã, a incluir nosso super novo sistema de ranks "
-                                f"(Em elaboração, aguarde por mais detalhes)\n\n"
-                                f"Como você não se autenticou como **Membro** no novo sistema, sua tag foi retirada,"
-                                f" visto que o prazo de 30 dias para autenticação chegou ao fim. "
-                                f"Mas não se preocupe! Obter a tag novamente é super rápido, automático e possibilitará"
-                                f" que você acesse cada vez mais os benefícios vigentes e futuros de nossa comunidade."
-                                f"\n\nPara se autenticar, basta enviar a mensagem **`!membro`** para mim! O processo "
-                                f"todo dura menos de 2 minutos, e só deve ser refeito caso você altere seu nome ou saia"
-                                f" do clã."
-                            )
-                            embed = discord.Embed(
-                                title='Fim do Prazo de Graça para Reautenticação',
-                                description=text,
-                                color=discord.Color.red()
-                            )
-                            await ctx.send(embed=embed)
+                            # text = (
+                            #     f"Olá {member.mention}! O Atlantis está em processo de automação, a que "
+                            #     f"possibilitará uma série de "
+                            #     f"melhorias na estrutura do clã, a incluir nosso super novo sistema de ranks "
+                            #     f"(Em elaboração, aguarde por mais detalhes)\n\n"
+                            #     f"Como você não se autenticou como **Membro** no novo sistema, sua tag foi retirada,"
+                            #     f" visto que o prazo de 30 dias para autenticação chegou ao fim. "
+                            #     f"Mas não se preocupe! Obter a tag novamente é super rápido, automático e possibilitará"
+                            #     f" que você acesse cada vez mais os benefícios vigentes e futuros de nossa comunidade."
+                            #     f"\n\nPara se autenticar, basta enviar a mensagem **`!membro`** para mim! O processo "
+                            #     f"todo dura menos de 2 minutos, e só deve ser refeito caso você altere seu nome ou saia"
+                            #     f" do clã."
+                            # )
+                            # embed = discord.Embed(
+                            #     title='Fim do Prazo de Graça para Reautenticação',
+                            #     description=text,
+                            #     color=discord.Color.red()
+                            # )
+                            membro_list.append(str(member))
+                            # await ctx.send(embed=embed)
+        membros_list = divide_list(membro_list, 100)
+        for membro in membros_list:
+            await ctx.send(str(membro))
 
     def feedback_embed(self) -> discord.Embed:
         return discord.Embed(
