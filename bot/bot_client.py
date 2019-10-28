@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import datetime
+import traceback
 import os
 import re
 import sys
@@ -123,6 +124,7 @@ class Bot(commands.Bot):
                 except Exception as e:
                     error = f'{extension}:\n {type(e).__name__} : {e}'
                     print(f'Failed to load extension {error}')
+                    print(traceback.format_exc())
                     errored = True
         print('-' * 10)
         self.disabled_commands()
