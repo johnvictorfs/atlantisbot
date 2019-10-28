@@ -263,12 +263,16 @@ class UserAuthentication(commands.Cog):
                 color=discord.Color.green()
             )
 
+            warning_date = 'N/A'
+            if member.warning_date:
+                warning_date = member.warning_date.strftime('%d/%m/%y - %H:%M')
+
             embed.add_field(name='Nome In-game', value=member.ingame_name)
             embed.add_field(name='Nome Discord', value=member.discord_name)
             embed.add_field(name='ID Discord', value=member.discord_id)
             embed.add_field(name='ID Database', value=member.id)
             embed.add_field(name='Último update', value=member.updated)
-            embed.add_field(name='Data de Warning', value=member.warning_date.strftime('%d/%m/%y - %H:%M'))
+            embed.add_field(name='Data de Warning', value=warning_date)
 
             await ctx.author.send(embed=embed)
 
