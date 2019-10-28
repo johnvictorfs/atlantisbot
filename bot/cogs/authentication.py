@@ -312,9 +312,9 @@ class UserAuthentication(commands.Cog):
         """
         atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
         membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
-        # convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
+        convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
 
-        membro_list = []
+        removed_count = 0
 
         with self.bot.db_session() as session:
             for member in atlantis.members:
@@ -327,29 +327,47 @@ class UserAuthentication(commands.Cog):
                     for role in member.roles:
                         role: discord.Role
                         if role.id == membro.id:
-                            # text = (
-                            #     f"Olá {member.mention}! O Atlantis está em processo de automação, a que "
-                            #     f"possibilitará uma série de "
-                            #     f"melhorias na estrutura do clã, a incluir nosso super novo sistema de ranks "
-                            #     f"(Em elaboração, aguarde por mais detalhes)\n\n"
-                            #     f"Como você não se autenticou como **Membro** no novo sistema, sua tag foi retirada,"
-                            #     f" visto que o prazo de 30 dias para autenticação chegou ao fim. "
-                            #     f"Mas não se preocupe! Obter a tag novamente é super rápido, automático e possibilitará"
-                            #     f" que você acesse cada vez mais os benefícios vigentes e futuros de nossa comunidade."
-                            #     f"\n\nPara se autenticar, basta enviar a mensagem **`!membro`** para mim! O processo "
-                            #     f"todo dura menos de 2 minutos, e só deve ser refeito caso você altere seu nome ou saia"
-                            #     f" do clã."
-                            # )
-                            # embed = discord.Embed(
-                            #     title='Fim do Prazo de Graça para Reautenticação',
-                            #     description=text,
-                            #     color=discord.Color.red()
-                            # )
-                            membro_list.append(str(member))
-                            # await ctx.send(embed=embed)
-        membros_list = divide_list(membro_list, 100)
-        for membro in membros_list:
-            await ctx.send(str(membro))
+                            text = (
+                                f"Olá {member.mention}! O Atlantis está em processo de automação, a que "
+                                f"possibilitará uma série de "
+                                f"melhorias na estrutura do clã, a incluir nosso super novo sistema de ranks "
+                                f"(Em elaboração, aguarde por mais detalhes)\n\n"
+                                f"Como você não se autenticou como **Membro** no novo sistema, sua tag foi retirada,"
+                                f" visto que o prazo de 30 dias para autenticação chegou ao fim. "
+                                f"Mas não se preocupe! Obter a tag novamente é super rápido, automático e possibilitará"
+                                f" que você acesse cada vez mais os benefícios vigentes e futuros de nossa comunidade."
+                                f"\n\nPara se autenticar, basta enviar a mensagem **`!membro`** para mim! O processo "
+                                f"todo dura menos de 2 minutos, e só deve ser refeito caso você altere seu nome ou saia"
+                                f" do clã."
+                            )
+                            embed = discord.Embed(
+                                title='Fim do Prazo de Graça para Reautenticação',
+                                description=text,
+                                color=discord.Color.red()
+                            )
+                            embed.set_thumbnail(
+                                url=f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{user_url_clan}/clanmotif.png"
+                            )
+
+                            dev = self.bot.get_user(self.bot.setting.developer_id)
+
+                            try:
+                                removed_count += 1
+                                await member.add_roles(convidado)
+                                await member.remove_roles(membro)
+                                await member.send(embed=embed)
+                                await dev.send(f'Mensagem enviada para {member}.')
+                            except Exception as e:
+                                await dev.send(f'Erro ao enviar mensagem para {member}. {e}')
+
+        embed = discord.Embed(
+            color=discord.Color.red(),
+            title=f"{removed_count} membros removidos... Balanced, as all things should be."
+        )
+        embed.set_image(
+            url="https://cdn3.movieweb.com/i/article/lBzyCahFfuBqwD8hG4i72GO5PaeJ9i/798:50/Infinity-War-Decimation-Thanos-Scientific-Real-Life-Effects.jpg"
+        )
+        await ctx.send(embed=embed)
 
     def feedback_embed(self) -> discord.Embed:
         return discord.Embed(
@@ -613,7 +631,7 @@ class UserAuthentication(commands.Cog):
                     title="Se autenticou como Membro",
                     description=(
                         f"**Username:** {user_data['name']}\n"
-                        f"**ID: {ctx.author.id}\n"
+                        f"**ID**: {ctx.author.id}\n"
                         f"**Mundos:** {', '.join([str(world) for world in worlds_done])}"
                     ),
                     color=discord.Color.green()
