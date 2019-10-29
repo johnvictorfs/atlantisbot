@@ -12,12 +12,18 @@ from bot.utils.teams import delete_team, update_team_message, manage_team, TeamN
 from bot.orm.models import Team, Player
 
 
+def get_team_id(content: str):
+    return re.findall(r"(?:\S+\s+)(\S+)", content)
+
+
 async def is_team_owner(ctx: commands.Context):
     """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
-        team_id = re.findall(r"(?:\S+\s+)(\S+)", ctx.message.content)
+        team_id = get_team_id(ctx.message.content)
+
         if not team_id:
             raise commands.MissingRequiredArgument(ctx.command)
+
         team_id = team_id[0]
         team: Team = session.query(Team).filter_by(team_id=team_id).first()
         if not team:
@@ -32,9 +38,11 @@ async def is_team_owner(ctx: commands.Context):
 async def is_in_team(ctx: commands.Context):
     """Checks if the command caller is in the team or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
-        team_id = re.findall(r"(?:\S+\s+)(\S+)", ctx.message.content)
+        team_id = get_team_id(ctx.message.content)
+
         if not team_id:
             raise commands.MissingRequiredArgument(ctx.command)
+
         team_id = team_id[0]
         team: Team = session.query(Team).filter_by(team_id=team_id).first()
         if not team:
@@ -336,12 +344,12 @@ class Teams(commands.Cog):
         invite_embed = discord.Embed(
             title=f"Marque presença para '{team_title}' ({team_size} pessoas)",
             description=f"{separator}\n\n"
-            f"{requisito}"
-            f"{requisito2}"
-            f"Time: {ctx.channel.mention}\n"
-            f"Criador: <@{ctx.author.id}>\n\n"
-            f"`in {team_id}`: Marcar presença\n"
-            f"`out {team_id}`: Retirar presença"
+                        f"{requisito}"
+                        f"{requisito2}"
+                        f"Time: {ctx.channel.mention}\n"
+                        f"Criador: <@{ctx.author.id}>\n\n"
+                        f"`in {team_id}`: Marcar presença\n"
+                        f"`out {team_id}`: Retirar presença"
         )
         team_embed = discord.Embed(
             title=f"__{team_title}__ - 0/{team_size}",

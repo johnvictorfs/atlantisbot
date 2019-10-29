@@ -3,18 +3,18 @@ import traceback
 import datetime
 import logging
 import json
+import re
 
 from sqlalchemy import func
 from discord.ext import commands, tasks
 import asyncio
 import discord
 import aiohttp
-import re
 
 from bot.bot_client import Bot
-from bot.orm.models import User
+from bot.orm.models import User, IngameName
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
-from bot.utils.tools import divide_list
+from bot.utils.tools import divide_list, has_any_role
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
@@ -31,7 +31,7 @@ def parse_user(content: str) -> Union[Dict[str, Union[str, int]], None]:
     parsed = re.search(r'{"isSuffix":.*,"name":.*,"title":.*}', content)
     if not parsed:
         print(content)
-        return None
+        return
     parsed = parsed.group()
     info_dict = json.loads(parsed)
     info_dict['is_suffix'] = info_dict.pop('isSuffix')
@@ -59,6 +59,10 @@ def settings_embed(settings: dict):
             "no Servidor do Atlantis."
         ),
         color=discord.Color.blue()
+    )
+
+    embed.set_thumbnail(
+        url=f"http://services.runescape.com/m=avatar-rs/l=3/a=869/atlantis/clanmotif.png"
     )
 
     # yes = "✅"
@@ -112,28 +116,39 @@ class UserAuthentication(commands.Cog):
             try:
                 async with aiohttp.ClientSession() as cs:
                     users = session.query(User).all()
+
                     for user in users:
                         user: User
+                        if not user.ingame_names:
+                            # Add curent player's ingame name as a IngameName model if none exist
+                            session.add(IngameName(name=user.ingame_name, user=user.id))
+
                         await asyncio.sleep(2)
+
                         user_data = await get_user_data(user.ingame_name, cs)
                         if not user_data:
                             self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
                             continue
+
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
                             # Don't do anything if player in in clan
                             continue
+
                         now = datetime.datetime.utcnow()
                         member: discord.Member = atlantis.get_member(int(user.discord_id))
+
                         if not member:
-                            # Exclude from DB if user left the discord
-                            session.delete(user)
+                            # Disable user if he left the discord
+                            user.disabled = True
+                            session.commit()
                             continue
 
                         if user.warning_date:
                             # Only remove role if warning message was send 7 days before this check
                             if (now - user.warning_date).days >= 7:
-                                session.delete(user)
+                                user.disabled = True
+                                session.commit()
                                 await member.remove_roles(membro)
                                 await member.add_roles(convidado)
                                 await member.send(
@@ -146,9 +161,12 @@ class UserAuthentication(commands.Cog):
                                     f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!\n\n"
                                 )
 
+                                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                                ingame_names = ', '.join(ingame_names)
+
                                 tag_removida_embed = discord.Embed(
                                     title="Teve Tag de Membro Removida",
-                                    description=f"**ID:** {member.id}",
+                                    description=f"**ID:** {member.id}\n**Nomes Anteriores:** {ingame_names}",
                                     color=discord.Color.dark_red()
                                 )
 
@@ -172,9 +190,12 @@ class UserAuthentication(commands.Cog):
                                 f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!"
                             )
 
+                            ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                            ingame_names = ', '.join(ingame_names)
+
                             warning_embed = discord.Embed(
                                 title="Recebeu Warning de 7 dias para re-autenticação",
-                                description=f"**ID:** {member.id}\n**Username Antigo:**{user.ingame_name}",
+                                description=f"**ID:** {member.id}\n**Nomes Anteriores:** {ingame_names}",
                                 color=discord.Color.red()
                             )
 
@@ -203,21 +224,22 @@ class UserAuthentication(commands.Cog):
         """
         with self.bot.db_session() as session:
             user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
-            if not user:
+            if not user or user.disabled:
                 return await ctx.send('Você precisa estar autenticado para poder se desautenticar!!')
             await ctx.send('Tem certeza que deseja remover sua Autenticação do Discord do Atlantis? (Sim/Não)')
 
             try:
                 message = await self.bot.wait_for(
                     'message',
-                    check=lambda message: message.author == ctx.author,
+                    check=lambda msg: msg.author == ctx.author,
                     timeout=20
                 )
             except asyncio.TimeoutError:
                 return await ctx.send('Comando cancelado. Tempo esgotado.')
 
             if message.content.lower() == 'sim':
-                session.delete(user)
+                user.disabled = True
+                session.commit()
                 atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
                 member = atlantis.get_member(ctx.author.id)
 
@@ -233,12 +255,24 @@ class UserAuthentication(commands.Cog):
             else:
                 return await ctx.send('Remoção de autenticação cancelada.')
 
-    @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['user'])
     async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
         """
         Searches Authenticated User, first by Ingame Name, then by Discord Name, then by Discord Id
         """
+        atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
+        member: discord.Member = atlantis.get_member(ctx.author.id)
+
+        if not member:
+            return
+
+        admin = self.bot.setting.role.get('mod')
+        leader = self.bot.setting.role.get('admin')
+        admin_trial = self.bot.setting.role.get('mod_trial')
+
+        if not has_any_role(member, admin, leader, admin_trial):
+            raise commands.MissingPermissions(missing_perms=['Administrador'])
+
         lower_name = user_name.lower()
 
         with self.bot.db_session() as session:
@@ -263,25 +297,48 @@ class UserAuthentication(commands.Cog):
                 color=discord.Color.green()
             )
 
+            last_update = member.updated.strftime('%d/%m/%y - %H:%M')
+
             warning_date = 'N/A'
             if member.warning_date:
                 warning_date = member.warning_date.strftime('%d/%m/%y - %H:%M')
 
+            disabled = 'Sim' if member.disabled else 'Não'
+
+            ingame_names = [ingame_name.name for ingame_name in member.ingame_names]
+            ingame_names = ', '.join(ingame_names)
+
             embed.add_field(name='Nome In-game', value=member.ingame_name)
+            embed.add_field(name='Desabilitado?', value=disabled)
             embed.add_field(name='Nome Discord', value=member.discord_name)
             embed.add_field(name='ID Discord', value=member.discord_id)
             embed.add_field(name='ID Database', value=member.id)
-            embed.add_field(name='Último update', value=member.updated)
+            embed.add_field(name='Último update', value=last_update)
             embed.add_field(name='Data de Warning', value=warning_date)
+            embed.add_field(name='Nomes In-Game Anteriores', value=ingame_names, inline=False)
 
             await ctx.author.send(embed=embed)
 
-    @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['membros'])
     async def authenticated_users(self, ctx: commands.Context):
-        nb_space = '\u200B'
+        atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
+        member: discord.Member = atlantis.get_member(ctx.author.id)
+
+        if not member:
+            return
+
+        admin = self.bot.setting.role.get('mod')
+        leader = self.bot.setting.role.get('admin')
+        admin_trial = self.bot.setting.role.get('mod_trial')
+
+        if not has_any_role(member, admin, leader, admin_trial):
+            raise commands.MissingPermissions(missing_perms=['Administrador'])
+
         with self.bot.db_session() as session:
-            members = list(session.query(User).all())
+            not_disabled_count = session.query(User).filter_by(disabled=False).count()
+            disabled_count = session.query(User).filter_by(disabled=True).count()
+
+            members = list(session.query(User).filter_by().all())
 
             if not members:
                 return await ctx.send("Não há nenhum Membro Autenticado no momento")
@@ -292,14 +349,20 @@ class UserAuthentication(commands.Cog):
 
             for member_list in members:
                 embed = discord.Embed(
-                    title=f"Membros Autenticados (Total: {total_members})",
-                    description="Nome in-game | Nome Discord | ID Discord",
+                    title=f"Membros Autenticados\nHabilitados: {not_disabled_count}\nDesabilitados: {disabled_count}",
+                    description="-",
                     color=discord.Color.green()
                 )
 
                 for user in member_list:
+                    disabled = 'Sim' if user.disabled else 'Não'
+
                     embed.add_field(
-                        name=nb_space, value=f"{user.ingame_name} | {user.discord_name} | {user.discord_id}"
+                        name='\u200B',
+                        value=(
+                            f"**In-game:** {user.ingame_name}\n**Discord:** {user.discord_name}\n"
+                            f"**Desabilitado:** {disabled}"
+                        )
                     )
 
                 await ctx.author.send(embed=embed)
@@ -323,7 +386,7 @@ class UserAuthentication(commands.Cog):
 
                 user: User = session.query(User).filter_by(discord_id=str(discord_user.id)).first()
 
-                if not user:
+                if not user or user.disabled:
                     for role in member.roles:
                         role: discord.Role
                         if role.id == membro.id:
@@ -346,7 +409,7 @@ class UserAuthentication(commands.Cog):
                                 color=discord.Color.red()
                             )
                             embed.set_thumbnail(
-                                url=f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{user_url_clan}/clanmotif.png"
+                                url=f"http://services.runescape.com/m=avatar-rs/l=3/a=869/atlantis/clanmotif.png"
                             )
 
                             dev = self.bot.get_user(self.bot.setting.developer_id)
@@ -365,16 +428,33 @@ class UserAuthentication(commands.Cog):
             title=f"{removed_count} membros removidos... Balanced, as all things should be."
         )
         embed.set_image(
-            url="https://cdn3.movieweb.com/i/article/lBzyCahFfuBqwD8hG4i72GO5PaeJ9i/798:50/Infinity-War-Decimation-Thanos-Scientific-Real-Life-Effects.jpg"
+            url=(
+                "https://cdn3.movieweb.com/i/article/lBzyCahFfuBqwD8hG4i72GO5PaeJ9i/"
+                "798:50/Infinity-War-Decimation-Thanos-Scientific-Real-Life-Effects.jpg"
+            )
         )
         await ctx.send(embed=embed)
 
-    def feedback_embed(self) -> discord.Embed:
+    @staticmethod
+    def feedback_embed() -> discord.Embed:
         return discord.Embed(
             title="Feedback",
             description=(
                 "O que achou do nosso processo de Autenticação para Membro do Servidor? "
                 "Teve algum Problema? Tem alguma sugestão?\n\n"
+                "Responda enviando uma mensagem aqui, "
+                "seu Feedback é importante para nós!"
+            ),
+            color=discord.Color.blue()
+        )
+
+    @staticmethod
+    def timeout_feedback_embed() -> discord.Embed:
+        return discord.Embed(
+            title="Feedback",
+            description=(
+                "Olá, parece que você não conseguiu alterar de Mundo no período "
+                "necessário, você teve algum Problema?\n\n"
                 "Responda enviando uma mensagem aqui, "
                 "seu Feedback é importante para nós!"
             ),
@@ -401,7 +481,8 @@ class UserAuthentication(commands.Cog):
 
         with self.bot.db_session() as session:
             user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
-            if user and not user.warning_date:
+
+            if user and not user.warning_date and not user.disabled:
                 for role in member.roles:
                     role: discord.Role
                     if role.id == membro.id:
@@ -443,6 +524,8 @@ class UserAuthentication(commands.Cog):
             # Já existe outro usuário cadastrado com esse username in-game
             user_ingame = session.query(User).filter(
                 func.lower(User.ingame_name) == func.lower(ingame_name.content)
+            ).filter(
+                User.discord_id != str(ctx.author.id)
             ).first()
 
             if user_ingame:
@@ -549,7 +632,35 @@ class UserAuthentication(commands.Cog):
                             f'```python\n{settings}\n```\n'
                             f'```python\n{user_data}\n```'
                         )
-                        return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+                        await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
+
+                        await ctx.send(embed=self.timeout_feedback_embed())
+
+                        try:
+                            feedback_message: discord.Message = await self.bot.wait_for(
+                                'message',
+                                check=lambda msg: msg.author == ctx.author,
+                                timeout=60 * 20
+                            )
+
+                            if feedback_message.content:
+                                auth_feedback: discord.TextChannel = self.bot.get_channel(
+                                    self.bot.setting.chat.get('auth_feedback')
+                                )
+
+                                feedback_embed = discord.Embed(
+                                    title="Feedback de Autenticação",
+                                    description=feedback_message.content,
+                                    color=discord.Color.blue()
+                                )
+                                feedback_embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+
+                                await auth_feedback.send(embed=feedback_embed)
+
+                                await ctx.send('Seu Feedback foi recebido com sucesso, muito obrigado!')
+                        except asyncio.TimeoutError:
+                            pass
+
                     wait_message = await ctx.send("Aguarde um momento...")
                     await asyncio.sleep(1)
                     player_world = await grab_world(user_data['name'], user_data['clan'])
@@ -592,19 +703,39 @@ class UserAuthentication(commands.Cog):
             auth_chat = self.bot.setting.chat.get('auth')
             auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
-            if user and self.bot.setting.mode == 'prod':
+            if user:
                 user.warning_date = None
+                user.disabled = False
                 user.ingame_name = user_data['name']
                 user.discord_name = str(ctx.author)
+                session.add(IngameName(name=user_data['name'], user=user.id))
+                session.commit()
+
+                auth_embed = discord.Embed(
+                    title="Autenticação Finalizada",
+                    description=(
+                        f"{ctx.author.mention}, você é novamente um Membro no Discord do Atlantis!\n\n"
+                        f"***Nota:*** Caso saia do Clã ou troque de nome, iremos o notificar da necessidade de refazer "
+                        f"o  processo de Autenticação, e caso não o faça em até 7 dias, removeremos o seu cargo "
+                        f"de Membro."
+                    ),
+                    color=discord.Color.green()
+                )
+
+                await ctx.send(embed=auth_embed)
+
+                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                ingame_names = ', '.join(ingame_names)
 
                 confirm_embed = discord.Embed(
                     title="Se re-autenticou como Membro",
                     description=(
                         f"**Username:** {user_data['name']}\n"
                         f"**ID:** {ctx.author.id}\n"
-                        f"**Mundos:** {', '.join([str(world) for world in worlds_done])}"
+                        f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
+                        f"**Nomes Anteriores:** {ingame_names}"
                     ),
-                    color=discord.Color.green()
+                    color=discord.Color.blue()
                 )
 
                 confirm_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
@@ -613,6 +744,8 @@ class UserAuthentication(commands.Cog):
             else:
                 user = User(ingame_name=user_data['name'], discord_id=str(ctx.author.id), discord_name=str(ctx.author))
                 session.add(user)
+                session.add(IngameName(name=user_data['name'], user=user.id))
+                session.commit()
 
                 auth_embed = discord.Embed(
                     title="Autenticação Finalizada",
@@ -627,12 +760,16 @@ class UserAuthentication(commands.Cog):
 
                 await ctx.send(embed=auth_embed)
 
+                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                ingame_names = ', '.join(ingame_names)
+
                 confirm_embed = discord.Embed(
                     title="Se autenticou como Membro",
                     description=(
                         f"**Username:** {user_data['name']}\n"
                         f"**ID**: {ctx.author.id}\n"
-                        f"**Mundos:** {', '.join([str(world) for world in worlds_done])}"
+                        f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
+                        f"**Nomes Anteriores:** {ingame_names}"
                     ),
                     color=discord.Color.green()
                 )
@@ -648,7 +785,7 @@ class UserAuthentication(commands.Cog):
             try:
                 feedback_message: discord.Message = await self.bot.wait_for(
                     'message',
-                    check=lambda message: message.author == ctx.author,
+                    check=lambda msg: msg.author == ctx.author,
                     timeout=60 * 20
                 )
 
