@@ -131,6 +131,7 @@ class UserAuthentication(commands.Cog):
                         if not user_data:
                             self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
+                            await asyncio.sleep(15)
                             continue
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
