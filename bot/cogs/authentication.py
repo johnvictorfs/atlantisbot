@@ -125,7 +125,11 @@ class UserAuthentication(commands.Cog):
 
                         await asyncio.sleep(2)
 
-                        member: discord.Member = atlantis.get_member(int(user.discord_id))
+                        member: discord.Member = atlantis.get_member(int(user.discord_id)) 
+
+                        # Fix member roles if necessary
+                        await member.add_roles(membro)
+                        await member.remove_roles(convidado)
 
                         user_data = await get_user_data(user.ingame_name, cs)
                         if not user_data:
@@ -136,8 +140,6 @@ class UserAuthentication(commands.Cog):
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
                             # Don't do anything if player in clan
-                            await member.add_roles(membro)
-                            await member.remove_roles(convidado)
                             continue
 
                         now = datetime.datetime.utcnow()
