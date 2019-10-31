@@ -50,7 +50,7 @@ class Bot(commands.Bot):
         if more_info:
             extra_embed = discord.Embed(title="__Extra Info__", color=discord.Color.dark_red())
             extra_embed.add_field(name="Info", value=pformat(more_info))
-            await dev.send(extra_embed)
+            await dev.send(embed=extra_embed)
         try:
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
         except discord.errors.HTTPException:
