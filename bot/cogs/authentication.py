@@ -125,6 +125,8 @@ class UserAuthentication(commands.Cog):
 
                         await asyncio.sleep(2)
 
+                        member: discord.Member = atlantis.get_member(int(user.discord_id))
+
                         user_data = await get_user_data(user.ingame_name, cs)
                         if not user_data:
                             self.logger.error(f'[check_users] sem user_data para {user}.')
@@ -132,11 +134,12 @@ class UserAuthentication(commands.Cog):
                             continue
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
-                            # Don't do anything if player in in clan
+                            # Don't do anything if player in clan
+                            await member.add_roles(membro)
+                            await member.remove_roles(convidado)
                             continue
 
                         now = datetime.datetime.utcnow()
-                        member: discord.Member = atlantis.get_member(int(user.discord_id))
 
                         if not member:
                             # Disable user if he left the discord
