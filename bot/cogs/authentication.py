@@ -309,7 +309,7 @@ class UserAuthentication(commands.Cog):
             disabled = 'Sim' if member.disabled else 'Não'
 
             ingame_names = [ingame_name.name for ingame_name in member.ingame_names]
-            ingame_names = ', '.join(ingame_names)
+            ingame_names = ', '.join(ingame_names) if ingame_names else 'Nenhum'
 
             embed.add_field(name='Nome In-game', value=member.ingame_name)
             embed.add_field(name='Desabilitado?', value=disabled)
