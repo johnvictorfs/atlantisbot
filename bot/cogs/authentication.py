@@ -125,7 +125,7 @@ class UserAuthentication(commands.Cog):
 
                         await asyncio.sleep(2)
 
-                        member: discord.Member = atlantis.get_member(int(user.discord_id)) 
+                        member: discord.Member = atlantis.get_member(int(user.discord_id))
 
                         # Fix member roles if necessary
                         await member.add_roles(membro)
@@ -348,8 +348,6 @@ class UserAuthentication(commands.Cog):
 
             if not members:
                 return await ctx.send("Não há nenhum Membro Autenticado no momento")
-
-            total_members = len(members)
 
             members = divide_list(members, 30)
 
@@ -632,7 +630,7 @@ class UserAuthentication(commands.Cog):
                         self.logger.info(
                             f'[{ctx.author}] Autenticação cancelada por Timeout. (mundo) ({settings}) ({user_data})'
                         )
-                        dev = self.get_user(self.setting.developer_id)
+                        dev = self.bot.get_user(self.bot.setting.developer_id)
                         await dev.send(
                             f'{ctx.author} não conseguiu se autenticar por Timeout.\n\n'
                             f'```python\n{settings}\n```\n'
@@ -655,11 +653,11 @@ class UserAuthentication(commands.Cog):
                                 )
 
                                 feedback_embed = discord.Embed(
-                                    title="Feedback de Autenticação",
+                                    title="Feedback de Autenticação (Timeout em troca de Mundo)",
                                     description=feedback_message.content,
-                                    color=discord.Color.blue()
+                                    color=discord.Color.red()
                                 )
-                                feedback_embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+                                feedback_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
 
                                 await auth_feedback.send(embed=feedback_embed)
 
@@ -805,7 +803,7 @@ class UserAuthentication(commands.Cog):
                         description=feedback_message.content,
                         color=discord.Color.blue()
                     )
-                    feedback_embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+                    feedback_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
 
                     await auth_feedback.send(embed=feedback_embed)
 
