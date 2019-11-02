@@ -291,6 +291,12 @@ class UserAuthentication(commands.Cog):
                 member: User = session.query(User).filter(func.lower(User.discord_id).contains(lower_name)).first()
 
             if not member:
+                # Search User using one of his old names
+                ingame_name: IngameName = session.query(IngameName).filter(func.lower(IngameName.name).contains(lower_name)).first()
+                if ingame_name:
+                    member: User = session.query(User).filter_by(id=ingame_name.user)
+
+            if not member:
                 return await ctx.send(
                     f'Não existe um usuário autenticado com o usuário in-game ou do Discord \'{user_name}\'.'
                 )
@@ -803,6 +809,7 @@ class UserAuthentication(commands.Cog):
                         description=feedback_message.content,
                         color=discord.Color.blue()
                     )
+
                     feedback_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
 
                     await auth_feedback.send(embed=feedback_embed)

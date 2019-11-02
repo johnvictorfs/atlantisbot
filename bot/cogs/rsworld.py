@@ -106,7 +106,7 @@ class RsWorld(commands.Cog):
             return await ctx.send(f"Jogador {player_name} não está em um clã.")
 
         world = await grab_world(player.name, player.clan)
-        world_display = "Offline" if world == "Offline" else f"**Mundo:** {world}"
+        world_display = "Offline" if (world == "Offline" or not world) else f"**Mundo:** {world}"
         nb = '\u200B'
         color = discord.Colour.green()
         if world == "Offline":

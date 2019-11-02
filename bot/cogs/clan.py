@@ -65,7 +65,7 @@ class Clan(commands.Cog):
         user_url_name = player.name.replace(" ", "%20")
         user_url_clan = player.clan.replace(" ", "%20")
         icon_url = f"https://secure.runescape.com/m=avatar-rs/{user_url_name}/chat.png"
-        runeclan_url = f"https://runeclan.com/player/{user_url_name}"
+        runeclan_url = f"https://runeclan.com/user/{user_url_name}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{user_url_clan}/clanmotif.png"
 
         embed_title = "RuneClan"
