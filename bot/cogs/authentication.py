@@ -7,6 +7,7 @@ import re
 
 from sqlalchemy import func
 from discord.ext import commands, tasks
+import rs3clans
 import asyncio
 import discord
 import aiohttp
@@ -292,7 +293,8 @@ class UserAuthentication(commands.Cog):
 
             if not member:
                 # Search User using one of his old names
-                ingame_name: IngameName = session.query(IngameName).filter(func.lower(IngameName.name).contains(lower_name)).first()
+                ingame_name: IngameName = session.query(IngameName).filter(
+                    func.lower(IngameName.name).contains(lower_name)).first()
                 if ingame_name:
                     member: User = session.query(User).filter_by(id=ingame_name.user)
 
@@ -320,13 +322,28 @@ class UserAuthentication(commands.Cog):
             ingame_names = [ingame_name.name for ingame_name in member.ingame_names]
             ingame_names = ', '.join(ingame_names) if ingame_names else 'Nenhum'
 
+            clan = rs3clans.Clan('Atlantis')
+            player: rs3clans.ClanMember = clan.get_member(member.ingame_name)
+
+            rank_emoji = {
+                'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
+                'Corporal': self.bot.setting.clan_settings['Corporal']['Emoji'],
+                'Sergeant': self.bot.setting.clan_settings['Sergeant']['Emoji'],
+                'Lieutenant': self.bot.setting.clan_settings['Lieutenant']['Emoji'],
+                'Captain': self.bot.setting.clan_settings['Captain']['Emoji'],
+                'General': self.bot.setting.clan_settings['General']['Emoji'],
+            }
+
             embed.add_field(name='Nome In-game', value=member.ingame_name)
             embed.add_field(name='Desabilitado?', value=disabled)
             embed.add_field(name='Nome Discord', value=member.discord_name)
+            embed.add_field(name='RuneClan', value=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}")
             embed.add_field(name='ID Discord', value=member.discord_id)
             embed.add_field(name='ID Database', value=member.id)
             embed.add_field(name='Último update', value=last_update)
             embed.add_field(name='Data de Warning', value=warning_date)
+            embed.add_field(name='Exp no Clã', value=f'{player.exp:,}')
+            embed.add_field(name='Rank no Clã', value=f'{player.rank} {rank_emoji[player.rank]}')
             embed.add_field(name='Nomes In-Game Anteriores', value=ingame_names, inline=False)
 
             await ctx.author.send(embed=embed)
