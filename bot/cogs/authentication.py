@@ -220,8 +220,8 @@ class UserAuthentication(commands.Cog):
                             user.warning_date = now
                             session.commit()
             except Exception as e:
+                await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
                 await asyncio.sleep(30)
-                await self.bot.send_logs(e, traceback, more_info={user: str(user), member: str(member)})
 
     @staticmethod
     async def send_cooldown(ctx):
