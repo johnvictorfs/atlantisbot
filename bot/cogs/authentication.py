@@ -120,11 +120,14 @@ class UserAuthentication(commands.Cog):
 
                     for user in users:
                         user: User
+
+                        if user.disabled:
+                            # Não fazer nada com Usuários desabilitados
+                            continue
+
                         if not user.ingame_names:
                             # Add curent player's ingame name as a IngameName model if none exist
                             session.add(IngameName(name=user.ingame_name, user=user.id))
-
-                        await asyncio.sleep(5)
 
                         member: discord.Member = atlantis.get_member(int(user.discord_id))
 
@@ -132,7 +135,9 @@ class UserAuthentication(commands.Cog):
                         await member.add_roles(membro)
                         await member.remove_roles(convidado)
 
+                        await asyncio.sleep(6)
                         user_data = await get_user_data(user.ingame_name, cs)
+
                         if not user_data:
                             self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
@@ -252,6 +257,9 @@ class UserAuthentication(commands.Cog):
                 user.warning_date = None
                 session.commit()
                 atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
+                auth_chat = self.bot.setting.chat.get('auth')
+                auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
+
                 member = atlantis.get_member(ctx.author.id)
 
                 if not member:
@@ -262,6 +270,24 @@ class UserAuthentication(commands.Cog):
                 convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
                 await member.remove_roles(membro)
                 await member.add_roles(convidado)
+
+                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                ingame_names = ', '.join(ingame_names)
+
+                removed_embed = discord.Embed(
+                    title="Removeu sua autenticação como Membro",
+                    description=(
+                        f"**Username:** {user.ingame_name}\n"
+                        f"**ID:** {ctx.author.id}\n"
+                        f"**Nomes Anteriores:** {ingame_names}"
+                    ),
+                    color=discord.Color.red()
+                )
+
+                removed_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
+
+                await auth_chat.send(embed=removed_embed)
+
                 return await ctx.send('Sua autenticação foi removida com sucesso.')
             else:
                 return await ctx.send('Remoção de autenticação cancelada.')
