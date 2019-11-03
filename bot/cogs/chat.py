@@ -1,6 +1,5 @@
 from discord.ext import commands
 import discord
-import asyncio
 import aiohttp
 import rs3clans
 
@@ -10,6 +9,8 @@ import json
 from bot.bot_client import Bot
 from bot.cogs.raids import time_till_raids
 from bot.utils.tools import right_arrow, has_any_role
+from bot.utils.checks import is_authenticated
+from bot.orm.models import User
 
 
 class Chat(commands.Cog):
@@ -30,6 +31,7 @@ class Chat(commands.Cog):
 
                 return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
 
+    @is_authenticated
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command(aliases=['raids'])
@@ -38,24 +40,18 @@ class Chat(commands.Cog):
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
 
-        await ctx.send(f"Olá {ctx.author.mention}, por favor me diga o seu nome no Jogo.")
+        with self.bot.db_session() as session:
+            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id))
+            ingame_name = user.ingame_name
 
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
-        def check(message):
-            return message.author == ctx.author
-
         try:
-            ingame_name = await self.bot.wait_for('message', timeout=180.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send(f"{ctx.author.mention}, aplicação Cancelada. Tempo Esgotado.")
-
-        await ctx.trigger_typing()
-
-        try:
-            player = rs3clans.Player(ingame_name.content)
+            player = rs3clans.Player(ingame_name)
         except ConnectionError:
-            return await ctx.send('Não foi possível acessar a API do Runemetrics no momento, tente novamente mais tarde.')
+            return await ctx.send(
+                'Não foi possível acessar a API do Runemetrics no momento, tente novamente mais tarde.'
+            )
 
         if not player.exists:
             return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
@@ -112,9 +108,9 @@ class Chat(commands.Cog):
                 f"Mas tudo bem, falta apenas **{int(left_to_95):,.0f}** de Exp para o nível 95. Com esse nível você "
                 f"irá poder usar as segundas melhores Maldições de aumento de dano. Há diversas formas de você "
                 f"alcançar o nível 95. Veja algumas abaixo:\n"
-                f"⯈ {int(left_to_95 / d_bones_exp):,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
+                f"• {int(left_to_95 / d_bones_exp):,.0f} Ossos de Dragão no Altar de Casa sem nenhum Boost "
                 f"({gp_emoji} {int(d_bones_till_99 * d_bones_price):,.0f})\n"
-                f"⯈ {int(left_to_95 / frost_bones_exp):,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
+                f"• {int(left_to_95 / frost_bones_exp):,.0f} Ossos de Dragão Gelado no Altar de Casa sem nenhum Boost "
                 f"({gp_emoji} {int(f_bones_till_99 * f_bones_price):,.0f})\n"
             )
 
@@ -132,19 +128,19 @@ class Chat(commands.Cog):
         embed.add_field(
             name=f"{nb_space}\nPor favor postar uma ou mais screenshots com os itens abaixo. "
                  f"(pode enviar uma de cada vez)",
-            value=f"⯈ {emojis['attack']} Equipamento (Arma/Armadura/Acessórios/Switches etc.)\n"
-                  f"⯈ {emojis['inventory']} Inventário\n"
-                  f"⯈ {emojis['invention']} Perks de Arma, Armadura, Escudo e Switches que irá usar\n\n",
+            value=f"• {emojis['attack']} Equipamento (Arma/Armadura/Acessórios/Switches etc.)\n"
+                  f"• {emojis['inventory']} Inventário\n"
+                  f"• {emojis['invention']} Perks de Arma, Armadura, Escudo e Switches que irá usar\n\n",
             inline=False
         )
 
         perks_pocketbook = 'https://rspocketbook.com/rs_pocketbook.pdf#page=6'
         embed.add_field(
             name=f"{nb_space}\nLinks Úteis",
-            value=f"⯈ {emojis['full_manual']} [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)\n"
-                  f"⯈ {emojis['invention']} [Melhores Perks e como os obter]({perks_pocketbook})\n"
-                  f"⯈ [Exemplo de Aplicação](https://i.imgur.com/CMNzquL.png)\n"
-                  f"⯈ Guia de Yakamaru: <#{self.bot.setting.chat.get('guia_yaka')}>\n\n",
+            value=f"• {emojis['full_manual']} [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)\n"
+                  f"• {emojis['invention']} [Melhores Perks e como os obter]({perks_pocketbook})\n"
+                  f"• [Exemplo de Aplicação](https://i.imgur.com/CMNzquL.png)\n"
+                  f"• Guia de Yakamaru: <#{self.bot.setting.chat.get('guia_yaka')}>\n\n",
             inline=False
         )
 

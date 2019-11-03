@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.event import listens_for
 
 Base = declarative_base()
 
@@ -127,7 +128,7 @@ class User(Base):
     updated = Column(DateTime, default=datetime.datetime.utcnow())
     warning_date = Column(DateTime, nullable=True)
     disabled = Column(Boolean, default=False)
-    ingame_name = Column(String)
+    ingame_name = Column(String, unique=True, nullable=False)
     discord_id = Column(String)
     discord_name = Column(String)
     ingame_names = relationship(IngameName, backref='parent', cascade='all,delete,delete-orphan')
@@ -138,3 +139,8 @@ class User(Base):
             f"discord_id={self.discord_id}, warning_date={self.warning_date}, updated={self.updated}, "
             f"name={self.discord_name}, disabled={self.disabled})"
         )
+
+
+@listens_for(User, 'before_insert')
+def add_ingame_name(mapper, connect, target: User):
+    pass

@@ -85,17 +85,17 @@ class WelcomeMessage(commands.Cog):
 
         welcome_embed.add_field(
             name=f"**Conheça alguns chats do Servidor:**",
-            value=f"⯈ <#{tags_do_server}> para info sobre os Roles do servidor\n"
-                  f"⯈ <#{links_uteis}> para links úteis gerais (principalmente PvM)\n"
+            value=f"• <#{tags_do_server}> para info sobre os Roles do servidor\n"
+                  f"• <#{links_uteis}> para links úteis gerais (principalmente PvM)\n"
                   f"\n"
-                  f"⯈ <#{geral}> para conversas gerais (Membros)"
+                  f"• <#{geral}> para conversas gerais (Membros)"
                   f"\n"
-                  f"⯈ <#{pvmemes}> para conversas assuntos de PvM\n"
-                  f"⯈ <#{raids}> para aplicar para os Raids do Clã (Membros)\n"
-                  f"⯈ <#{aod}> para aplicar para os times de AoD do Clã (Membros)\n"
-                  f"⯈ <#{solak}> para aplicar para os times de Solak do Clã (Membros)\n"
+                  f"• <#{pvmemes}> para conversas assuntos de PvM\n"
+                  f"• <#{raids}> para aplicar para os Raids do Clã (Membros)\n"
+                  f"• <#{aod}> para aplicar para os times de AoD do Clã (Membros)\n"
+                  f"• <#{solak}> para aplicar para os times de Solak do Clã (Membros)\n"
                   f"\n"
-                  f"⯈ <#{discord_bots}> para comandos de Bots\n",
+                  f"• <#{discord_bots}> para comandos de Bots\n",
             inline=False
         )
 

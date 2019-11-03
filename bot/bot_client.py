@@ -7,18 +7,15 @@ import re
 import sys
 import json
 from pathlib import Path
-from contextlib import contextmanager
-from typing import ContextManager
 from pprint import pformat
 
 import colorama
 import twitter
 import discord
 from discord.ext import commands
-from sqlalchemy.orm.session import Session
 
 from bot import settings
-from bot.orm import db
+from bot.orm.db import db_session
 from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator, has_any_role
 
@@ -37,6 +34,7 @@ class Bot(commands.Bot):
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
         self.twitter_api = twitter.Api(**self.setting.twitter)
+        self.db_session = db_session
 
     async def send_logs(self, e, tb, ctx: commands.Context = None, more_info: object = None):
         dev = self.get_user(self.setting.developer_id)
@@ -271,19 +269,3 @@ class Bot(commands.Bot):
         embed.add_field(name="Cargos", value=roles.replace('@everyone, ', '').replace('ﾠ', ''))
         embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
         await log_channel.send(embed=embed)
-
-    @contextmanager
-    def db_session(self) -> ContextManager[Session]:
-        """
-        http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
-        Provide a transactional scope around a series of operations.
-        """
-        session: Session = db.Session()
-        try:
-            yield session
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()

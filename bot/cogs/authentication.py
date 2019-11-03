@@ -148,6 +148,7 @@ class UserAuthentication(commands.Cog):
                         if not member:
                             # Disable user if he left the discord
                             user.disabled = True
+                            user.warning_date = None
                             session.commit()
                             continue
 
@@ -155,6 +156,7 @@ class UserAuthentication(commands.Cog):
                             # Only remove role if warning message was send 7 days before this check
                             if (now - user.warning_date).days >= 7:
                                 user.disabled = True
+                                user.warning_date = None
                                 session.commit()
                                 await member.remove_roles(membro)
                                 await member.add_roles(convidado)
@@ -166,6 +168,7 @@ class UserAuthentication(commands.Cog):
                                     f"já!** O cargo de `Membro` é essencial para uma ampla participação "
                                     f"nas atividades do Atlantis.\n\n"
                                     f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!\n\n"
+                                    f"Caso queira desabilitar sua autenticação, utiliza o comando **`!unmembro`**"
                                 )
 
                                 ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
@@ -246,6 +249,7 @@ class UserAuthentication(commands.Cog):
 
             if message.content.lower() == 'sim':
                 user.disabled = True
+                user.warning_date = None
                 session.commit()
                 atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
                 member = atlantis.get_member(ctx.author.id)
@@ -295,8 +299,9 @@ class UserAuthentication(commands.Cog):
                 # Search User using one of his old names
                 ingame_name: IngameName = session.query(IngameName).filter(
                     func.lower(IngameName.name).contains(lower_name)).first()
+
                 if ingame_name:
-                    member: User = session.query(User).filter_by(id=ingame_name.user)
+                    member: User = session.query(User).filter_by(id=ingame_name.user).first()
 
             if not member:
                 return await ctx.send(
@@ -325,26 +330,23 @@ class UserAuthentication(commands.Cog):
             clan = rs3clans.Clan('Atlantis')
             player: rs3clans.ClanMember = clan.get_member(member.ingame_name)
 
-            rank_emoji = {
-                'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
-                'Corporal': self.bot.setting.clan_settings['Corporal']['Emoji'],
-                'Sergeant': self.bot.setting.clan_settings['Sergeant']['Emoji'],
-                'Lieutenant': self.bot.setting.clan_settings['Lieutenant']['Emoji'],
-                'Captain': self.bot.setting.clan_settings['Captain']['Emoji'],
-                'General': self.bot.setting.clan_settings['General']['Emoji'],
-            }
+            player_rank = (
+                f'{self.bot.setting.clan_settings[player.rank]["Translation"]} '
+                f'{self.bot.setting.clan_settings[player.rank]["Emoji"]}'
+            )
 
             embed.add_field(name='Nome In-game', value=member.ingame_name)
             embed.add_field(name='Desabilitado?', value=disabled)
             embed.add_field(name='Nome Discord', value=member.discord_name)
-            embed.add_field(name='RuneClan', value=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}")
             embed.add_field(name='ID Discord', value=member.discord_id)
             embed.add_field(name='ID Database', value=member.id)
             embed.add_field(name='Último update', value=last_update)
             embed.add_field(name='Data de Warning', value=warning_date)
             embed.add_field(name='Exp no Clã', value=f'{player.exp:,}')
-            embed.add_field(name='Rank no Clã', value=f'{player.rank} {rank_emoji[player.rank]}')
+            embed.add_field(name='Rank no Clã', value=player_rank)
             embed.add_field(name='Nomes In-Game Anteriores', value=ingame_names, inline=False)
+
+            embed.set_author(name="RuneClan", url=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}")
 
             await ctx.author.send(embed=embed)
 
