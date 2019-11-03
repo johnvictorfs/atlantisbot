@@ -719,6 +719,7 @@ class UserAuthentication(commands.Cog):
                                 await ctx.send('Seu Feedback foi recebido com sucesso, muito obrigado!')
                         except asyncio.TimeoutError:
                             pass
+                        return
 
                     wait_message = await ctx.send("Aguarde um momento...")
                     await asyncio.sleep(1)
