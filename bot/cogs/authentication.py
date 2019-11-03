@@ -330,11 +330,6 @@ class UserAuthentication(commands.Cog):
             clan = rs3clans.Clan('Atlantis')
             player: rs3clans.ClanMember = clan.get_member(member.ingame_name)
 
-            player_rank = (
-                f'{self.bot.setting.clan_settings[player.rank]["Translation"]} '
-                f'{self.bot.setting.clan_settings[player.rank]["Emoji"]}'
-            )
-
             embed.add_field(name='Nome In-game', value=member.ingame_name)
             embed.add_field(name='Desabilitado?', value=disabled)
             embed.add_field(name='Nome Discord', value=member.discord_name)
@@ -342,8 +337,17 @@ class UserAuthentication(commands.Cog):
             embed.add_field(name='ID Database', value=member.id)
             embed.add_field(name='Último update', value=last_update)
             embed.add_field(name='Data de Warning', value=warning_date)
-            embed.add_field(name='Exp no Clã', value=f'{player.exp:,}')
-            embed.add_field(name='Rank no Clã', value=player_rank)
+
+            if player:
+                player_rank = (
+                    f'{self.bot.setting.clan_settings[player.rank]["Translation"]} '
+                    f'{self.bot.setting.clan_settings[player.rank]["Emoji"]}'
+                )
+                embed.add_field(name='Exp no Clã', value=f'{player.exp:,}')
+                embed.add_field(name='Rank no Clã', value=player_rank)
+            else:
+                embed.add_field(name='No Clã?', value='Não')
+
             embed.add_field(name='Nomes In-Game Anteriores', value=ingame_names, inline=False)
 
             embed.set_author(name="RuneClan", url=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}")
