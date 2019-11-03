@@ -126,9 +126,9 @@ class EmbedMessages(commands.Cog):
     def raids_embed(self) -> discord.Embed:
         raids_role = f"<@&{self.bot.setting.role.get('raids')}>"
 
-        text = f"""*Utilize os canais #raids_chat para conversar e o canal #raids_apply para aplicar para o Raids*
+        text = f"""Utilize os canais <#393696030505435136> para conversas sobre Raids
 
-• Para aplicar vá para o canal #raids_apply e utilize o comando `!raids`. Tenha em mente todas as informações abaixo ao aplicar
+• Para aplicar vá para o canal <#615960733800202252> e utilize o comando `!raids`. Tenha em mente todas as informações abaixo ao aplicar
     • ***Ninguém será julgado por experiência/kc baixo, mas é necessário avaliar todos os participantes, até para que possamos os ajudar com quaisquer dúvidas/dificuldades.***
 
 • Os aprovados irão receber o cargo {raids_role}
@@ -153,7 +153,7 @@ class EmbedMessages(commands.Cog):
 • <:prayer:499707566012497921> [Acesso a Maldições](https://runescape.wiki/w/Curse_spells)
 
 • {emojis['full_manual']} **Usar habilidades adequadas** [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)
-• __**Ver guias de Yakamaru E Durzag!!!**__ #guia_yaka"""
+• __**Ver guias de Yakamaru E Durzag!!!**__ <#425844417862041610>"""
 
         text_3 = f"""
             • 95 + Oração <:prayer:499707566012497921>
