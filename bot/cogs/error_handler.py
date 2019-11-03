@@ -17,6 +17,10 @@ class CommandErrorHandler(commands.Cog):
         handler = logging.FileHandler(filename='commands.log', encoding='utf-8')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
+        if not self.logger.handlers:
+            # Prevent multiple handlers sending duplicate messages
+            self.logger.addHandler(handler)
+
     async def bot_check(self, ctx: commands.Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()

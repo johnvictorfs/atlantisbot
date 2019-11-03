@@ -124,7 +124,7 @@ class UserAuthentication(commands.Cog):
                             # Add curent player's ingame name as a IngameName model if none exist
                             session.add(IngameName(name=user.ingame_name, user=user.id))
 
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(5)
 
                         member: discord.Member = atlantis.get_member(int(user.discord_id))
 
@@ -136,7 +136,7 @@ class UserAuthentication(commands.Cog):
                         if not user_data:
                             self.logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
-                            await asyncio.sleep(15)
+                            await asyncio.sleep(60)
                             continue
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
@@ -741,7 +741,6 @@ class UserAuthentication(commands.Cog):
                 user.disabled = False
                 user.ingame_name = user_data['name']
                 user.discord_name = str(ctx.author)
-                session.add(IngameName(name=user_data['name'], user=user.id))
                 session.commit()
 
                 auth_embed = discord.Embed(
@@ -777,7 +776,6 @@ class UserAuthentication(commands.Cog):
             else:
                 user = User(ingame_name=user_data['name'], discord_id=str(ctx.author.id), discord_name=str(ctx.author))
                 session.add(user)
-                session.add(IngameName(name=user_data['name'], user=user.id))
                 session.commit()
 
                 auth_embed = discord.Embed(

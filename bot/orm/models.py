@@ -3,7 +3,6 @@ import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy.event import listens_for
 
 Base = declarative_base()
 
@@ -135,12 +134,7 @@ class User(Base):
 
     def __str__(self):
         return (
-            f"User(ingame_name={self.ingame_name}, "
-            f"discord_id={self.discord_id}, warning_date={self.warning_date}, updated={self.updated}, "
-            f"name={self.discord_name}, disabled={self.disabled})"
+            f"User(ingame_name='{self.ingame_name}', id={self.id}, "
+            f"discord_id='{self.discord_id}', warning_date='{self.warning_date}', updated='{self.updated}', "
+            f"name='{self.discord_name}', disabled={self.disabled})"
         )
-
-
-@listens_for(User, 'before_insert')
-def add_ingame_name(mapper, connect, target: User):
-    pass

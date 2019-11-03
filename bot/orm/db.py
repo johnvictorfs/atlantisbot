@@ -6,10 +6,14 @@ import sys
 import os
 
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, object_session
+from sqlalchemy.event import listens_for
+from sqlalchemy.orm.attributes import Event
 from sqlalchemy.orm.session import Session as SqlASession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine.base import Connection
+from sqlalchemy.orm.mapper import Mapper
 
-from bot.orm.models import Base
+from bot.orm.models import Base, User, IngameName
 
 
 database_url = os.environ.get('DATABASE_URL')
@@ -34,6 +38,24 @@ Session = sessionmaker(bind=engine, autoflush=False)
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
 logging.getLogger('sqlalchemy.engine').addHandler(logging.FileHandler('db.log'))
+
+
+@listens_for(User.ingame_name, 'set')
+def add_ingame_name_update(target: User, value: str, oldvalue: str, initiator: Event):
+    """
+    Create new IngameName instance everytime the ingame_name of a User gets updated
+    """
+    if target.id:
+        object_session(target).add(IngameName(name=value, user=target.id))
+
+
+@listens_for(User, 'after_insert')
+def add_ingame_name_creation(mapper: Mapper, connection: Connection, target: User):
+    """
+    Create new IngameName instance once the User is first created with its ingame_name
+    """
+    if target.id:
+        object_session(target).add(IngameName(name=target.ingame_name, user=target.id))
 
 
 @contextmanager
