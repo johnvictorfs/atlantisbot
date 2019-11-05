@@ -87,6 +87,14 @@ class UserAuthentication(commands.Cog):
         handler = logging.FileHandler(filename='authentication.log', encoding='utf-8')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
+        self.error_logger = logging.getLogger('check_users_errors')
+        self.logger.setLevel(logging.INFO)
+        error_logger_handler = logging.FileHandler(filename='check_users_errors.log', encoding='utf-8')
+        error_logger_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+
+        if not self.error_logger.handlers:
+            self.error_logger.addHandler(error_logger_handler)
+
         if not self.logger.handlers:
             # Prevent multiple handlers sending duplicate messages
             self.logger.addHandler(handler)
@@ -139,7 +147,7 @@ class UserAuthentication(commands.Cog):
                         user_data = await get_user_data(user.ingame_name, cs)
 
                         if not user_data:
-                            self.logger.error(f'[check_users] sem user_data para {user}.')
+                            self.error_logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
                             await asyncio.sleep(60)
                             continue
