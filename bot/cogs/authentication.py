@@ -140,8 +140,9 @@ class UserAuthentication(commands.Cog):
                         member: discord.Member = atlantis.get_member(int(user.discord_id))
 
                         # Fix member roles if necessary
-                        await member.add_roles(membro)
-                        await member.remove_roles(convidado)
+                        if member:
+                            await member.add_roles(membro)
+                            await member.remove_roles(convidado)
 
                         await asyncio.sleep(6)
                         user_data = await get_user_data(user.ingame_name, cs)
