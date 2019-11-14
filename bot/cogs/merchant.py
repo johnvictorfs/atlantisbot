@@ -98,7 +98,7 @@ class Merchant(commands.Cog):
 
         try:
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
-            message: discord.Message = await channel.fetch_message(562120346979794944)
+            message: discord.Message = await channel.fetch_message(644013123354755113)
             embed = await self.merchant_embed()
             await message.edit(content=None, embed=embed)
             await asyncio.sleep(self.time_till_midnight() + 15)
