@@ -388,6 +388,7 @@ class UserAuthentication(commands.Cog):
             embed.set_author(name="RuneClan", url=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}")
 
             await ctx.author.send(embed=embed)
+            await ctx.message.add_reaction('✅')
 
     @commands.command(aliases=['membros'])
     async def authenticated_users(self, ctx: commands.Context):
@@ -434,6 +435,7 @@ class UserAuthentication(commands.Cog):
                     )
 
                 await ctx.author.send(embed=embed)
+            await ctx.message.add_reaction('✅')
 
     @commands.is_owner()
     @commands.command()

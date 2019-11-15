@@ -98,11 +98,11 @@ class Merchant(commands.Cog):
 
         try:
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
-            message: discord.Message = await channel.fetch_message(644013123354755113)
+            message: discord.Message = await channel.fetch_message(self.bot.setting.merchant_message)
             embed = await self.merchant_embed()
             await message.edit(content=None, embed=embed)
             await asyncio.sleep(self.time_till_midnight() + 15)
-            await channel.send('<@&560997610954162198>', delete_after=600)
+            await channel.send(f"<@&{self.bot.setting.role.get('merchant')}>", delete_after=600)
             await asyncio.sleep(5)
         except Exception as e:
             tb = traceback.format_exc()

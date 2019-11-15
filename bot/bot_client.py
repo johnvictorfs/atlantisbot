@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import json
+import aiohttp
 from pathlib import Path
 from pprint import pformat
 
@@ -35,6 +36,14 @@ class Bot(commands.Bot):
         self.loop.create_task(self.load_all_extensions())
         self.twitter_api = twitter.Api(**self.setting.twitter)
         self.db_session = db_session
+        self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
+
+    async def close(self):
+        """
+        Close aiohttp Client Session and the Bot
+        """
+        await self.client_session.close()
+        await super().close()
 
     async def send_logs(self, e, tb, ctx: commands.Context = None, more_info: object = None):
         dev = self.get_user(self.setting.developer_id)

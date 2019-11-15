@@ -114,6 +114,10 @@ class Settings:
         return self.read_data('SERVER')['react_roles_id']
 
     @property
+    def merchant_message(self):
+        return self.read_data('SERVER')['merchant_message_id']
+
+    @property
     def twitter(self):
         return self.read_data('TWITTER')
 
@@ -161,6 +165,7 @@ default_settings = {
         "general_roles_id": 488180629775843328,
         "pvm_roles_id": 488180630803316756,
         "react_roles_id": 488180632057544704,
+        "merchant_message_id": 644013123354755113,
         "chat_id": {
             "auth_feedback": 638134883050586125,
             "auth": 589229053790388289,
