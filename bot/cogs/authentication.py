@@ -153,7 +153,7 @@ class UserAuthentication(commands.Cog):
                             await asyncio.sleep(600)
                             continue
 
-                        if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name:
+                        if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name and not user.warning_date:
                             # Don't do anything if player in clan
                             continue
 
