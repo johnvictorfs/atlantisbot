@@ -9,6 +9,10 @@
   - Considerar verificar mensagens criadas de giveaway a cada alguns minutos, pro caso do bot perder algum evento de reação em período offline, para tentar entrar ele na giveaway novamente
   - Notificar administração, e atualizar mensagem com o ganhador após a giveaway finalizar 
 
+---
+
+## **Autenticação**
+
 - Adicionar comando `!auth <user do discord>` para adicionar uma outra conta (ex. De mic/fone) e sincronizar as duas
 
 ---
