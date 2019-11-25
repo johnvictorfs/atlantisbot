@@ -62,8 +62,12 @@ def p2p_worlds(worlds: list):
     return [world for world in worlds if not world['f2p'] and not world['vip']]
 
 
-def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, language='pt', worlds_left=None) -> list:
+def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, language='pt', worlds_left=None, **kwargs) -> list:
+    """
+    Filter list worlds based on arguments passed
+    """
     world_list = []
+
     for world in worlds:
         if not world['vip'] and world['requirement'] == 0:
             if world['legacy'] and not legacy_worlds:
@@ -72,6 +76,7 @@ def filtered_worlds(worlds: list, f2p_worlds=False, legacy_worlds=False, languag
                 continue
             if world['language'] == language:
                 world_list.append(world)
+
     return world_list
 
 

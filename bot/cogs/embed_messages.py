@@ -22,7 +22,7 @@ class EmbedMessages(commands.Cog):
             color=discord.Color.blue()
         )
 
-        with open('bot/embeds.json') as f:
+        with open('bot/data/embeds.json') as f:
             embeds_file = json.load(f)
 
         message = ''
@@ -59,7 +59,7 @@ class EmbedMessages(commands.Cog):
 
     @commands.command()
     async def update_roles(self, ctx: commands.Context, test: bool = True):
-        with open('bot/embeds.json') as f:
+        with open('bot/data/embeds.json') as f:
             embeds_file = json.load(f)
         channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.roles_channel_id)
 

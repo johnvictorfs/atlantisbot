@@ -1,4 +1,4 @@
-from typing import Union, Dict, Optional, List
+from typing import Union, Dict, Optional, List, Any
 import traceback
 import datetime
 import logging
@@ -308,16 +308,16 @@ class UserAuthentication(commands.Cog):
         Searches Authenticated User, first by Ingame Name, then by Discord Name, then by Discord Id
         """
         atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
-        member: discord.Member = atlantis.get_member(ctx.author.id)
+        discord_member: discord.Member = atlantis.get_member(ctx.author.id)
 
-        if not member:
+        if not discord_member:
             return
 
         admin = self.bot.setting.role.get('mod')
         leader = self.bot.setting.role.get('admin')
         admin_trial = self.bot.setting.role.get('mod_trial')
 
-        if not has_any_role(member, admin, leader, admin_trial):
+        if not has_any_role(discord_member, admin, leader, admin_trial):
             raise commands.MissingPermissions(missing_perms=['Administrador'])
 
         lower_name = user_name.lower()
@@ -326,10 +326,10 @@ class UserAuthentication(commands.Cog):
             member: User = session.query(User).filter(func.lower(User.ingame_name).contains(lower_name)).first()
 
             if not member:
-                member: User = session.query(User).filter(func.lower(User.discord_name).contains(lower_name)).first()
+                member = session.query(User).filter(func.lower(User.discord_name).contains(lower_name)).first()
 
             if not member:
-                member: User = session.query(User).filter(func.lower(User.discord_id).contains(lower_name)).first()
+                member = session.query(User).filter(func.lower(User.discord_id).contains(lower_name)).first()
 
             if not member:
                 # Search User using one of his old names
@@ -337,7 +337,7 @@ class UserAuthentication(commands.Cog):
                     func.lower(IngameName.name).contains(lower_name)).first()
 
                 if ingame_name:
-                    member: User = session.query(User).filter_by(id=ingame_name.user).first()
+                    member = session.query(User).filter_by(id=ingame_name.user).first()
 
             if not member:
                 return await ctx.send(
@@ -451,15 +451,15 @@ class UserAuthentication(commands.Cog):
         removed_count = 0
 
         with self.bot.db_session() as session:
+            member: discord.Member
             for member in atlantis.members:
-                member: discord.Member
                 discord_user: discord.User = member._user
 
                 user: User = session.query(User).filter_by(discord_id=str(discord_user.id)).first()
 
                 if not user or user.disabled:
+                    role: discord.Role
                     for role in member.roles:
-                        role: discord.Role
                         if role.id == membro.id:
                             text = (
                                 f"Olá {member.mention}! O Atlantis está em processo de automação, a que "
@@ -554,8 +554,8 @@ class UserAuthentication(commands.Cog):
             user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
 
             if user and not user.warning_date and not user.disabled:
+                role: discord.Role
                 for role in member.roles:
-                    role: discord.Role
                     if role.id == membro.id:
                         self.logger.info(f'[{ctx.author}] Não é um convidado.')
                         return await ctx.send("Fool! Você não é um Convidado! Não é necessário se autenticar.")
@@ -616,12 +616,10 @@ class UserAuthentication(commands.Cog):
                         "Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde."
                     )
 
-            settings = {}
-            failed_tries = 0
-            last_world = 0
+            settings: Dict[str, Any] = {}
             worlds_done = []
 
-            if self.bot.setting.mode == 'prod':
+            if self.bot.setting.mode == 'prod' or True:
                 with open('bot/data/worlds.json') as f:
                     worlds = json.load(f)
 
@@ -653,7 +651,8 @@ class UserAuthentication(commands.Cog):
                     "f2p_worlds": player_world['f2p'],
                     "legacy_worlds": player_world['legacy'],
                     "language": player_world['language'],
-                    "worlds_left": 4
+                    "worlds_left": 4,
+                    "failed_tries": 0
                 }
 
                 def confirm_check(reaction, user):
@@ -680,16 +679,19 @@ class UserAuthentication(commands.Cog):
                     while True:
                         # Don't allow same world 2 times in a row
                         world = random_world(world_list)
-                        if world == last_world:
+                        if world == player_world:
                             continue
                         break
-                    last_world = world
+
+                    # last_world = world
 
                     message: discord.Message = await ctx.send(
                         f"{ctx.author.mention}, troque para o **Mundo {world['world']}**. "
                         f"Reaja na mensagem quando estiver nele."
                     )
+
                     await message.add_reaction('✅')
+
                     try:
                         await self.bot.wait_for('reaction_add', timeout=160, check=confirm_check)
                         await ctx.trigger_typing()
@@ -744,7 +746,7 @@ class UserAuthentication(commands.Cog):
                         player_world = await grab_world(user_data['name'], user_data['clan'])
                     await wait_message.delete()
 
-                    if world['world'] == player_world or ctx.author.id == self.bot.setting.developer_id:
+                    if world['world'] == player_world:  # or ctx.author.id == self.bot.setting.developer_id
                         settings['worlds_left'] -= 1
                         worlds_done.append(player_world)
                         wl = settings['worlds_left']
@@ -754,14 +756,18 @@ class UserAuthentication(commands.Cog):
 
                         await ctx.send(f"**Mundo {world['world']}** verificado com sucesso. {second_part}")
                     else:
-                        failed_tries += 1
+                        settings['failed_tries'] += 1
+
                         await ctx.send(f"Mundo incorreto ({player_world}). Tente novamente.")
-                        if failed_tries == 5:
+
+                        if settings['failed_tries'] == 3:
                             self.logger.info(
                                 f'[{ctx.author}] Autenticação cancelada. Muitas tentativas. ({user_data}) {settings}'
                             )
                             return await ctx.send("Autenticação cancelada. Muitas tentativas incorretas.")
+
                     await message.delete()
+
                     if settings['worlds_left'] == 0:
                         break
 
@@ -772,8 +778,7 @@ class UserAuthentication(commands.Cog):
             await member.add_roles(membro)
             await member.remove_roles(convidado)
 
-            auth_chat = self.bot.setting.chat.get('auth')
-            auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
+            auth_chat: discord.TextChannel = atlantis.get_channel(self.bot.setting.chat.get('auth'))
 
             if user:
                 user.warning_date = None
@@ -796,7 +801,7 @@ class UserAuthentication(commands.Cog):
                 await ctx.send(embed=auth_embed)
 
                 ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
-                ingame_names = ', '.join(ingame_names)
+                nomes_anteriores = ', '.join(ingame_names)
 
                 confirm_embed = discord.Embed(
                     title="Se re-autenticou como Membro",
@@ -804,7 +809,7 @@ class UserAuthentication(commands.Cog):
                         f"**Username:** {user_data['name']}\n"
                         f"**ID:** {ctx.author.id}\n"
                         f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
-                        f"**Nomes Anteriores:** {ingame_names}"
+                        f"**Nomes Anteriores:** {nomes_anteriores}"
                     ),
                     color=discord.Color.blue()
                 )
@@ -831,7 +836,7 @@ class UserAuthentication(commands.Cog):
                 await ctx.send(embed=auth_embed)
 
                 ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
-                ingame_names = ', '.join(ingame_names)
+                nomes_anteriores = ', '.join(ingame_names)
 
                 confirm_embed = discord.Embed(
                     title="Se autenticou como Membro",
@@ -839,7 +844,7 @@ class UserAuthentication(commands.Cog):
                         f"**Username:** {user_data['name']}\n"
                         f"**ID**: {ctx.author.id}\n"
                         f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
-                        f"**Nomes Anteriores:** {ingame_names}"
+                        f"**Nomes Anteriores:** {nomes_anteriores}"
                     ),
                     color=discord.Color.green()
                 )
