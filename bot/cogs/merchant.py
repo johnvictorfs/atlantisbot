@@ -39,7 +39,7 @@ class Merchant(commands.Cog):
 
     @staticmethod
     def get_item(name: str):
-        with open('bot/merchant.json') as f:
+        with open('bot/data/merchant.json') as f:
             merchant_file = json.load(f)
         return merchant_file['stock'][name.replace(u'\xa0', u'')]
 
