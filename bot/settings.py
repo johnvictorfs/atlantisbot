@@ -11,7 +11,7 @@ class Settings:
 
     @property
     def clan_settings(self):
-        with open('bot/clan_settings.json', 'r') as f:
+        with open('bot/data/clan_settings.json', 'r') as f:
             return json.load(f)
 
     @property

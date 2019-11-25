@@ -9,6 +9,7 @@ import json
 import aiohttp
 from pathlib import Path
 from pprint import pformat
+from typing import Optional, Dict, Any
 
 import colorama
 import twitter
@@ -37,6 +38,13 @@ class Bot(commands.Bot):
         self.twitter_api = twitter.Api(**self.setting.twitter)
         self.db_session = db_session
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
+
+    async def post_data(self, url: str, payload: Optional[Dict[str, Any]] = None) -> aiohttp.ClientResponse:
+        """
+        Posts Data to an URL and returns its response
+        """
+        request = await self.client_session.post(url, data=payload)
+        return request
 
     async def close(self):
         """
@@ -71,19 +79,17 @@ class Bot(commands.Bot):
     @property
     def setting(self):
         try:
-            with open('bot/bot_settings.json', 'r'):
+            with open('bot/bot_settings.json'):
                 return settings.Settings()
         except FileNotFoundError:
-            with open('bot/bot_settings.json', 'w') as f:
+            with open('bot/bot_settings.json', 'w+') as f:
                 json.dump(settings.default_settings, f, indent=4)
-                if not os.environ.get('ATLBOT_TOKEN'):
-                    print(f"{colorama.Fore.YELLOW}Settings not found. Default settings file created. "
-                          "Edit '/bot/bot_settings.json' to change settings, then reload the bot.")
-                    sys.exit(1)
-                else:
-                    with open('bot/bot_settings.json', 'w') as heroku_settings:
-                        json.dump(settings.default_settings, heroku_settings, indent=4)
-                        return settings.Settings()
+
+                print(
+                    f"{colorama.Fore.YELLOW}Settings not found. Default settings file created. "
+                    "Edit '/bot/bot_settings.json' to change settings, then reload the bot."
+                )
+                sys.exit(1)
 
     async def track_start(self):
         """

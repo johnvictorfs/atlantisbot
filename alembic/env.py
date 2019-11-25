@@ -9,6 +9,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # https://stackoverflow.com/a/32218546
+import json
 import sys
 import os
 
@@ -19,7 +20,9 @@ sys.path.insert(0, os.getcwd())
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option('sqlalchemy.url', os.environ.get('DATABASE_URL'))
+with open('bot/bot_settings.json') as f:
+    settings = json.load(f)
+    config.set_main_option('sqlalchemy.url', settings['database_url'])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

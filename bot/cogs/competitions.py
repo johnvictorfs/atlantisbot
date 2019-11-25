@@ -71,7 +71,7 @@ emoji = {
     'dungeoneering': '<:dungeoneering:499707566268612619>',
     'divination': '<:divination:499707566348304404>',
     'invention': '<:invention:499707566419607552>',
-    'overall': '<:skills_icon:499707566310293504>'
+    'overall': '<:overall_skill:647655515266088986>'
 }
 
 
@@ -97,7 +97,8 @@ def competition_details(name: str, comp_id: int):
     soup = BeautifulSoup(source, 'lxml')
     competition_table = soup.find(
         'table',
-        attrs={'class': 'regular', 'width': '100%', 'cellpadding': '0', 'cellspacing': '0'})
+        attrs={'class': 'regular', 'width': '100%', 'cellpadding': '0', 'cellspacing': '0'}
+    )
 
     players = []
     for comp in competition_table:
@@ -175,7 +176,7 @@ class Competitions(commands.Cog):
         competitions = get_competitions(self.bot.setting.clan_name)
         if not competitions['running_competitions']:
             return await ctx.send("Nenhuma competição ativa no momento :(")
-        if len(competitions['running_competitions']) > 1 and index is 0:
+        if len(competitions['running_competitions']) > 1 and index == 0:
             competitions_embed = discord.Embed(
                 title="Competições Ativas",
                 description=f"" + separator,
@@ -209,7 +210,7 @@ class Competitions(commands.Cog):
                 embed=competitions_embed
             )
         else:
-            if len(competitions['running_competitions']) is 1:
+            if len(competitions['running_competitions']) == 1:
                 index = 1
             try:
                 competition = competitions['running_competitions'][index - 1]

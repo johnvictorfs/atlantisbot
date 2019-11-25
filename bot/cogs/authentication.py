@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, Optional, List
 import traceback
 import datetime
 import logging
@@ -18,7 +18,7 @@ from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_world
 from bot.utils.tools import divide_list, has_any_role
 
 
-async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
+async def get_user_data(username: str, cs: aiohttp.ClientSession):
     url = "http://services.runescape.com/m=website-data/"
     player_url = url + "playerDetails.ws?names=%5B%22{}%22%5D&callback=jQuery000000000000000_0000000000&_=0"
 
@@ -28,12 +28,14 @@ async def get_user_data(username: str, cs: aiohttp.ClientSession) -> dict:
         return parse_user(content)
 
 
-def parse_user(content: str) -> Union[Dict[str, Union[str, int]], None]:
-    parsed = re.search(r'{"isSuffix":.*,"name":.*,"title":.*}', content)
-    if not parsed:
+def parse_user(content: str) -> Optional[Dict[str, Union[str, int]]]:
+    match = re.search(r'{"isSuffix":.*,"name":.*,"title":.*}', content)
+    if not match:
         print(content)
-        return
-    parsed = parsed.group()
+        return None
+
+    parsed = match.group()
+
     info_dict = json.loads(parsed)
     info_dict['is_suffix'] = info_dict.pop('isSuffix')
 
@@ -266,8 +268,7 @@ class UserAuthentication(commands.Cog):
                 user.warning_date = None
                 session.commit()
                 atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
-                auth_chat = self.bot.setting.chat.get('auth')
-                auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
+                auth_chat: discord.TextChannel = atlantis.get_channel(self.bot.setting.chat.get('auth'))
 
                 member = atlantis.get_member(ctx.author.id)
 
@@ -280,8 +281,8 @@ class UserAuthentication(commands.Cog):
                 await member.remove_roles(membro)
                 await member.add_roles(convidado)
 
-                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
-                ingame_names = ', '.join(ingame_names)
+                name_list: List[str] = [ingame_name.name for ingame_name in user.ingame_names]
+                ingame_names = ', '.join(name_list)
 
                 removed_embed = discord.Embed(
                     title="Removeu sua autenticação como Membro",
@@ -359,8 +360,8 @@ class UserAuthentication(commands.Cog):
 
             disabled = 'Sim' if member.disabled else 'Não'
 
-            ingame_names = [ingame_name.name for ingame_name in member.ingame_names]
-            ingame_names = ', '.join(ingame_names) if ingame_names else 'Nenhum'
+            name_list = [ingame_name.name for ingame_name in member.ingame_names]
+            ingame_names = ', '.join(name_list) if name_list else 'Nenhum'
 
             clan = rs3clans.Clan('Atlantis')
             player: rs3clans.ClanMember = clan.get_member(member.ingame_name)
@@ -621,7 +622,7 @@ class UserAuthentication(commands.Cog):
             worlds_done = []
 
             if self.bot.setting.mode == 'prod':
-                with open('bot/worlds.json') as f:
+                with open('bot/data/worlds.json') as f:
                     worlds = json.load(f)
 
                 if user_data.get('clan') != self.bot.setting.clan_name:
