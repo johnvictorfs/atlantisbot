@@ -131,15 +131,17 @@ class UserAuthentication(commands.Cog):
                     for user in users:
                         user: User
 
+                        member: discord.Member = atlantis.get_member(int(user.discord_id))
+
                         if user.disabled:
-                            # Não fazer nada com Usuários desabilitados
+                            # Fix disabled member roles, if necessary
+                            await member.add_roles(convidado)
+                            await member.remove_roles(membro)
                             continue
 
                         if not user.ingame_names:
                             # Add curent player's ingame name as a IngameName model if none exist
                             session.add(IngameName(name=user.ingame_name, user=user.id))
-
-                        member: discord.Member = atlantis.get_member(int(user.discord_id))
 
                         # Fix member roles if necessary
                         if member:
