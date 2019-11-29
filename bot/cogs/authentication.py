@@ -135,8 +135,9 @@ class UserAuthentication(commands.Cog):
 
                         if user.disabled:
                             # Fix disabled member roles, if necessary
-                            await member.add_roles(convidado)
-                            await member.remove_roles(membro)
+                            if member:
+                                await member.add_roles(convidado)
+                                await member.remove_roles(membro)
                             continue
 
                         if not user.ingame_names:
