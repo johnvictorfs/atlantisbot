@@ -136,9 +136,16 @@ class Clan(commands.Cog):
         ranks_embed = discord.Embed(
             title="__Ranks a Atualizar__",
             description=" ", )
+
         found = False
+
         clan = rs3clans.Clan(self.bot.setting.clan_name, set_exp=False)
+
         for member in clan:
+            if ranks_embed.fields >= 20:
+                break
+                await ctx.send('Muitos ranks a serem atualizados, enviando apenas os 20 primeiros.')
+
             if member.rank == 'Recruit':
                 ranks_embed.add_field(
                     name=member.name,
@@ -174,11 +181,13 @@ class Clan(commands.Cog):
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
+
         if not found:
             ranks_embed.add_field(
                 name="Nenhum Rank a ser atualizado no momento :)",
                 value=separator,
                 inline=False)
+
         return await ctx.send(embed=ranks_embed)
 
 
