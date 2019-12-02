@@ -1,6 +1,7 @@
 import traceback
 import datetime
 import logging
+import concurrent
 
 import discord
 from discord.ext import commands
@@ -24,17 +25,15 @@ class CommandErrorHandler(commands.Cog):
     async def bot_check(self, ctx: commands.Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()
-        time = datetime.datetime.utcnow()
-        time = time.strftime('%d/%m/%y - %H:%M')
+        time = datetime.datetime.utcnow().strftime('%d/%m/%y - %H:%M')
         msg = f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'"
         self.logger.info(msg)
         return True
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: Exception):
-        # Don't try to handle the error if the command has a local handler
-        ctx.command: commands.Command
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if hasattr(ctx.command, 'on_error'):
+            # Don't try to handle the error if the command has a local handler
             return
 
         arguments_error = [
@@ -75,7 +74,8 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.CommandNotFound):
             pass
         elif isinstance(error, commands.DisabledCommand):
-            await ctx.send("Esse comando está desabilitado.")
+            pass
+            # await ctx.send("Esse comando está desabilitado.")
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send("Esse comando não pode ser usado em mensagens privadas.")
         elif isinstance(error, commands.PrivateMessageOnly):
@@ -98,6 +98,9 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
         elif isinstance(error, commands.errors.CheckFailure):
             pass
+        elif isinstance(error, commands.errors.CommandInvokeError):
+            if isinstance(error.original, concurrent.futures._base.TimeoutError):
+                await ctx.send(f'Ação cancelada. Tempo esgotado.')
         else:
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))

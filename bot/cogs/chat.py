@@ -41,7 +41,7 @@ class Chat(commands.Cog):
             return await ctx.send(denied_message)
 
         with self.bot.db_session() as session:
-            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id))
+            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
             ingame_name = user.ingame_name
 
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"

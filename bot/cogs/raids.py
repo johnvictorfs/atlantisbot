@@ -99,7 +99,10 @@ class RaidsTasks(commands.Cog):
                     f"• [Clique aqui para saber como participar]({msg_url})")
 
             if not raids_active:
-                text += f"\n\n• **Notificações de Raids estão atualmente desabilitadas.**"
+                text = (
+                    f"• **Notificações de Raids estão atualmente desabilitadas.**"
+                    f"\n\n• [Clique aqui para saber como participar]({msg_url})"
+                )
 
             embed = discord.Embed(title='', description=text, color=discord.Color.blue())
 
