@@ -143,41 +143,41 @@ class Clan(commands.Cog):
 
         for member in clan:
             if len(ranks_embed.fields) >= 20:
-                break
                 await ctx.send('Muitos ranks a serem atualizados, enviando apenas os 20 primeiros.')
+                break
 
             if member.rank == 'Recruit':
                 ranks_embed.add_field(
                     name=member.name,
-                    value=f"Recruta {rank_emoji['Recruit']} > Cabo {rank_emoji['Corporal']}\n"
+                    value=f"Recruta {rank_emoji['Recruit']} ❯ Cabo {rank_emoji['Corporal']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
             elif member.exp >= exp_general and member.rank == 'Captain':
                 ranks_embed.add_field(
                     name=member.name,
-                    value=f"Capitão {rank_emoji['Captain']} > General {rank_emoji['General']}\n"
+                    value=f"Capitão {rank_emoji['Captain']} ❯ General {rank_emoji['General']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
             elif member.exp >= exp_captain and member.rank == 'Lieutenant':
                 ranks_embed.add_field(
                     name=member.name,
-                    value=f"Tenente {rank_emoji['Lieutenant']} > Capitão {rank_emoji['Captain']}\n"
+                    value=f"Tenente {rank_emoji['Lieutenant']} ❯ Capitão {rank_emoji['Captain']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
             elif member.exp >= exp_lieutenant and member.rank == 'Sergeant':
                 ranks_embed.add_field(
                     name=member.name,
-                    value=f"Sargento {rank_emoji['Sergeant']} > Tenente {rank_emoji['Lieutenant']}\n"
+                    value=f"Sargento {rank_emoji['Sergeant']} ❯ Tenente {rank_emoji['Lieutenant']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
             elif member.exp >= exp_seargent and member.rank == 'Corporal':
                 ranks_embed.add_field(
                     name=member.name,
-                    value=f"Cabo {rank_emoji['Corporal']} > Sargento {rank_emoji['Sergeant']}\n"
+                    value=f"Cabo {rank_emoji['Corporal']} ❯ Sargento {rank_emoji['Sergeant']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
                     inline=False)
                 found = True
