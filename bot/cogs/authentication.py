@@ -298,6 +298,7 @@ class UserAuthentication(commands.Cog):
                 )
 
                 removed_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
+                removed_embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
 
                 await auth_chat.send(embed=removed_embed)
 
@@ -818,6 +819,7 @@ class UserAuthentication(commands.Cog):
                 )
 
                 confirm_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
+                confirm_embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
 
                 await auth_chat.send(embed=confirm_embed)
             else:
@@ -853,6 +855,7 @@ class UserAuthentication(commands.Cog):
                 )
 
                 confirm_embed.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
+                confirm_embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
 
                 await auth_chat.send(embed=confirm_embed)
 
@@ -861,20 +864,20 @@ class UserAuthentication(commands.Cog):
             await ctx.send(embed=self.feedback_embed())
 
             try:
-                feedback_message: discord.Message = await self.bot.wait_for(
+                auth_feedback_message: discord.Message = await self.bot.wait_for(
                     'message',
                     check=lambda msg: msg.author == ctx.author,
                     timeout=60 * 20
                 )
 
-                if feedback_message.content:
+                if auth_feedback_message.content:
                     auth_feedback: discord.TextChannel = self.bot.get_channel(
                         self.bot.setting.chat.get('auth_feedback')
                     )
 
                     feedback_embed = discord.Embed(
                         title="Feedback de Autenticação",
-                        description=feedback_message.content,
+                        description=auth_feedback_message.content,
                         color=discord.Color.blue()
                     )
 

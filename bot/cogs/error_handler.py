@@ -98,9 +98,8 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
         elif isinstance(error, commands.errors.CheckFailure):
             pass
-        elif isinstance(error, commands.errors.CommandInvokeError):
-            if isinstance(error.original, concurrent.futures._base.TimeoutError):
-                await ctx.send(f'Ação cancelada. Tempo esgotado.')
+        elif isinstance(error, commands.errors.CommandInvokeError) and isinstance(error.original, concurrent.futures._base.TimeoutError):
+            await ctx.send(f'Ação cancelada. Tempo esgotado.')
         else:
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
             tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))

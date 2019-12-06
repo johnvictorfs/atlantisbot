@@ -31,10 +31,10 @@ class Chat(commands.Cog):
 
                 return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
 
-    @is_authenticated
+    @commands.check(is_authenticated)
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command(aliases=['raids'])
+    @commands.command('raids', aliases=['aplicar_raids'])
     async def aplicar_raids(self, ctx: commands.Context):
         denied_message = "Fool! Você já tem permissão para ir Raids!"
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
@@ -123,7 +123,7 @@ class Chat(commands.Cog):
 
         nb_space = '\u200B'
 
-        embed.set_thumbnail(url="https://i.imgur.com/CMNzquL.png")
+        embed.set_thumbnail(url="https://i.imgur.com/2HPEdiz.png")
 
         embed.add_field(
             name=f"{nb_space}\nPor favor postar uma ou mais screenshots com os itens abaixo. "

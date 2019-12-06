@@ -1,12 +1,16 @@
 import asyncio
 import os
 import io
+import re
 import sys
 import datetime
 import inspect
 import sqlite3
 import traceback
 import textwrap
+import importlib
+import subprocess
+from typing import Set
 from contextlib import redirect_stdout
 
 from discord.ext import commands
@@ -15,34 +19,135 @@ import discord
 from bot.bot_client import Bot
 from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson, \
     DisabledCommand
-from bot.utils.tools import separator, plot_table
+from bot.utils.tools import separator, plot_table, has_any_role
 
 
-class Owner(commands.Cog):
+class Admin(commands.Cog):
+    _GIT_PULL_REGEX = re.compile(r'\s*(?P<filename>.+?)\s*\|\s*[0-9]+\s*[+-]+')
+
     def __init__(self, bot: Bot):
         self.bot = bot
         self._last_result = None
-        self.sessions = set()
+        self.sessions: Set[int] = set()
+
+    async def cog_check(self, ctx: commands.Context):
+        """
+        Checks if the User running the command is either an Admin or the Bot's Owner
+        """
+        roles = ['admin', 'mod', 'mod+']
+        roles_ = [self.bot.setting.role.get(role) for role in roles]
+        is_owner = await self.bot.is_owner(ctx.author)
+        return is_owner or has_any_role(ctx.author, *roles_)
+
+    @commands.group(name='reload', hidden=True, invoke_without_command=True)
+    async def _reload(self, ctx, *, module: str):
+        """Reloads a module."""
+        try:
+            self.bot.reload_extension(f'bot.cogs.{module}')
+            return await ctx.send(f'Extensão {module} reiniciada com sucesso.')
+        except ModuleNotFoundError:
+            return await ctx.send(f"Extensão {module} não existe.")
+        except Exception as e:
+            return await ctx.send(f'Erro ao reiniciar extensão {module}:\n {type(e).__name__} : {e}')
+
+    @commands.is_owner()
+    @_reload.command(name='all', hidden=True)
+    async def _reload_all(self, ctx):
+        """Reloads all modules, while pulling from git."""
+        try:
+            async with ctx.typing():
+                stdout, stderr = await self.run_process('git pull')
+
+            # progress and stuff is redirected to stderr in git pull
+            # however, things like "fast forward" and files
+            # along with the text "already up-to-date" are in stdout
+
+            if stdout.startswith('Already up-to-date.'):
+                return await ctx.send('Não há mudanças para serem atualizadas da origin.')
+
+            modules = self.find_modules_from_git(stdout)
+
+            if not modules:
+                return await ctx.send('Não há nenhuma cog a ser atualizada.')
+
+            mods_text = '\n'.join(f'{index}. `{module}`' for index, (_, module) in enumerate(modules, start=1))
+            prompt_text = f'Isso vai atualizar as seguinte cogs, tem certeza?\n{mods_text}'
+
+            confirm = await ctx.prompt(prompt_text)
+            if not confirm:
+                return await ctx.send('Abortando.')
+
+            statuses = []
+            for is_submodule, module in modules:
+                if is_submodule:
+                    try:
+                        actual_module = sys.modules[module]
+                    except KeyError:
+                        statuses.append((ctx.tick(None), module))
+                    else:
+                        try:
+                            importlib.reload(actual_module)
+                        except Exception:
+                            statuses.append((ctx.tick(False), module))
+                        else:
+                            statuses.append((ctx.tick(True), module))
+                else:
+                    try:
+                        self.reload_or_load_extension(module)
+                    except commands.ExtensionError:
+                        statuses.append((ctx.tick(False), module))
+                    else:
+                        statuses.append((ctx.tick(True), module))
+
+            await ctx.send('-' + '\n'.join(f'{status}: `{module}`' for status, module in statuses))
+        except Exception as e:
+            print(e)
+
+    def reload_or_load_extension(self, module):
+        try:
+            self.bot.reload_extension(module)
+        except commands.ExtensionNotLoaded:
+            self.bot.load_extension(module)
+
+    def find_modules_from_git(self, output):
+        files = self._GIT_PULL_REGEX.findall(output)
+        ret = []
+        for file in files:
+            root, ext = os.path.splitext(file)
+            if ext != '.py':
+                continue
+
+            if root.startswith('cogs/'):
+                # A submodule is a directory inside the main cog directory for
+                # my purposes
+                ret.append((root.count('/') - 1, root.replace('/', '.')))
+
+        # For reload order, the submodules should be reloaded first
+        ret.sort(reverse=True)
+        return ret
+
+    async def run_process(self, command):
+        try:
+            process = await asyncio.create_subprocess_shell(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = await process.communicate()
+        except NotImplementedError:
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = await self.bot.loop.run_in_executor(None, process.communicate)
+
+        return [output.decode() for output in result]
 
     @commands.is_owner()
     @commands.command()
     async def restart(self, ctx: commands.Context):
-        await ctx.send("Restarting bot...")
+        await ctx.author.send("Reiniciando bot...")
         if self.bot.setting.mode == 'dev':
             os.execv(sys.executable, ['python3'] + sys.argv)
-        await self.bot.logout()
 
-    @commands.is_owner()
-    @commands.command(aliases=['reload'])
-    async def reload_cog(self, ctx: commands.Context, cog: str):
-        """Reloads a cog"""
-        try:
-            self.bot.reload_extension(f'bot.cogs.{cog}')
-            return await ctx.send(f'Extensão {cog} reiniciada com sucesso.')
-        except ModuleNotFoundError:
-            return await ctx.send(f"Extensão {cog} não existe.")
-        except Exception as e:
-            return await ctx.send(f'Erro ao reiniciar extensão {cog}:\n {type(e).__name__} : {e}')
+        with open('restart_atl_bot.log', 'w+') as f:
+            f.write('1')
+
+        await self.bot.logout()
+        sys.exit(0)
 
     @commands.is_owner()
     @commands.command(aliases=['reloadall'])
@@ -422,4 +527,4 @@ class Owner(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Owner(bot))
+    bot.add_cog(Admin(bot))

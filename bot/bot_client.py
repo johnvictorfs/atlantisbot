@@ -2,7 +2,6 @@ import asyncio
 import logging
 import datetime
 import traceback
-import os
 import re
 import sys
 import json
@@ -20,6 +19,7 @@ from bot import settings
 from bot.orm.db import db_session
 from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator, has_any_role
+from bot.utils import context
 
 
 class Bot(commands.Bot):
@@ -45,6 +45,34 @@ class Bot(commands.Bot):
         """
         request = await self.client_session.post(url, data=payload)
         return request
+
+    async def process_commands(self, message: discord.Message):
+        """
+        Source: https://github.com/Rapptz/RoboDanny/blob/0c9216245b035fa4655f740c3ce602a5e15bff90/bot.py#L164
+        """
+        ctx = await self.get_context(message, cls=context.Context)
+
+        if not ctx.command:
+            return
+
+        # bucket = self.spam_control.get_bucket(message)
+        # current = message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()
+
+        # retry_after = bucket.update_rate_limit(current)
+        # author_id = message.author.id
+        # if retry_after and author_id != self.owner_id:
+        #     self._auto_spam_count[author_id] += 1
+        #     if self._auto_spam_count[author_id] >= 5:
+        #         await self.add_to_blacklist(author_id)
+        #         del self._auto_spam_count[author_id]
+        #         await self.log_spammer(ctx, message, retry_after, autoblock=True)
+        #     else:
+        #         self.log_spammer(ctx, message, retry_after)
+        #     return
+        # else:
+        #     self._auto_spam_count.pop(author_id, None)
+
+        await self.invoke(ctx)
 
     async def close(self):
         """
@@ -177,6 +205,15 @@ class Bot(commands.Bot):
         print('-' * 10)
         self.app_info = await self.application_info()
         await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
+
+        with open('restart_atl_bot.log', 'w+') as f:
+            # If there is an '1' in the file, that means the bot was closed with the
+            # !restart command
+            text = f.read()
+            if text.startswith('1'):
+                await self.app_info.owner.send('Bot reiniciado com sucesso.')
+            f.write('0')
+
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Mode: {self.setting.mode}\n"
               f"Argvs: {sys.argv}\n"

@@ -156,9 +156,9 @@ class EmbedMessages(commands.Cog):
 • __**Ver guias de Yakamaru E Durzag!!!**__ <#425844417862041610>"""
 
         text_3 = f"""
-            • 95 + Oração <:prayer:499707566012497921>
+            • <:prayer:499707566012497921> 95+ 
             • Alguma experiência PvM, mesmo que solo
-            • Marfim dos [Elementos](https://rs.wiki/w/Scrimshaw_of_the_elements)/[Crueldade](https://rs.wiki/Scrimshaw_of_cruelty) (Mage/Ranged)
+            • Marfim dos [Elementos](https://rs.wiki/w/Scrimshaw_of_the_elements) (Mage) / [Crueldade](https://rs.wiki/Scrimshaw_of_cruelty) (Ranged)
             • Perk [Planted feet](https://rs.wiki/w/Planted_Feet) em uma arma primária extra
             • [Acessórios adequados](https://guide.rspocketbook.com)
             • [Exemplo de Inventário e Equipamento](https://i.imgur.com/M4sU24s.png)

@@ -9,7 +9,7 @@ async def is_authenticated(ctx: commands.Context):
     Checks if the user running the command is authenticated or not
     """
     with db_session() as session:
-        user: User = session.query(User).filter_by(discord_id=str(ctx.author.id))
+        user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
         if not user:
             await ctx.send(
                 f'Você precisa estar autenticado para usar esse comando. Autentique-se enviando o comando'
