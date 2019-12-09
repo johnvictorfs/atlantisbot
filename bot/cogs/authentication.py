@@ -171,7 +171,7 @@ class UserAuthentication(commands.Cog):
                             continue
 
                         if user.warning_date:
-                            now = datetime.datetime.utcnow(user.warning_date.tzinfo)
+                            now = datetime.datetime.now(user.warning_date.tzinfo)
 
                             # Only remove role if warning message was send 7 days before this check
                             if (now - user.warning_date).days >= 7:
