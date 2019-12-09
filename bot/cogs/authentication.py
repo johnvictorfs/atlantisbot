@@ -163,8 +163,6 @@ class UserAuthentication(commands.Cog):
                             # Don't do anything if player in clan
                             continue
 
-                        now = datetime.datetime.utcnow()
-
                         if not member:
                             # Disable user if he left the discord
                             user.disabled = True
@@ -173,6 +171,8 @@ class UserAuthentication(commands.Cog):
                             continue
 
                         if user.warning_date:
+                            now = datetime.datetime.utcnow(user.warning_date.tzinfo)
+
                             # Only remove role if warning message was send 7 days before this check
                             if (now - user.warning_date).days >= 7:
                                 user.disabled = True
@@ -232,7 +232,7 @@ class UserAuthentication(commands.Cog):
                             warning_embed.set_author(name=str(member), icon_url=member.avatar_url)
 
                             await auth_chat.send(embed=warning_embed)
-                            user.warning_date = now
+                            user.warning_date = datetime.datetime.utcnow()
                             session.commit()
             except Exception as e:
                 await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
