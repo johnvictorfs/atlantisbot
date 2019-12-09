@@ -5,6 +5,7 @@ import aiohttp
 from bot.bot_client import Bot
 from bot.cogs.authentication import get_user_data
 from bot.orm.models import User
+from bot.utils.context import Context
 
 
 class WelcomeMessage(commands.Cog):
@@ -12,7 +13,7 @@ class WelcomeMessage(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: Context):
         if ctx.author.id == self.bot.setting.developer_id:
             return True
         if self.bot.setting.mode == 'dev':
@@ -20,7 +21,7 @@ class WelcomeMessage(commands.Cog):
         return True
 
     @commands.command(aliases=['testwelcome'])
-    async def test_welcome_message(self, ctx: commands.Context):
+    async def test_welcome_message(self, ctx: Context):
         await ctx.author.send(embed=self.welcome_embed(ctx.author))
 
     @commands.Cog.listener()

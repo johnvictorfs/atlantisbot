@@ -22,7 +22,7 @@ config = context.config
 
 with open('bot/bot_settings.json') as f:
     settings = json.load(f)
-    config.set_main_option('sqlalchemy.url', settings['database_url'])
+    config.set_main_option('sqlalchemy.url', settings['BOT']['database_url'])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

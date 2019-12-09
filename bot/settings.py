@@ -1,3 +1,4 @@
+from typing import Dict, Optional
 import datetime
 import json
 import os
@@ -15,19 +16,19 @@ class Settings:
             return json.load(f)
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         return self.read_data('BOT')['mode']
 
     @property
-    def developer_id(self):
+    def developer_id(self) -> int:
         return self.read_data('BOT')['developer_id']
 
     @property
-    def guild_id(self):
+    def guild_id(self) -> int:
         return self.read_data('BOT')['guild_id']
 
     @property
-    def token(self):
+    def token(self) -> Optional[str]:
         token_ = self.read_data('BOT')['bot_token']
         if token_ == 'BOT_TOKEN_HERE':
             return os.environ.get('ATLBOT_TOKEN')
@@ -90,11 +91,11 @@ class Settings:
         return self.read_data('SERVER')['welcome_message_id']
 
     @property
-    def chat(self):
+    def chat(self) -> Dict[str, int]:
         return self.read_data('SERVER')['chat_id']
 
     @property
-    def role(self):
+    def role(self) -> Dict[str, int]:
         return self.read_data('SERVER')['role_id']
 
     @property

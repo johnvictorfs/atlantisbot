@@ -6,19 +6,25 @@ from bs4 import BeautifulSoup
 import aiohttp
 import discord
 import rs3clans
-import requests
 
 from bot.bot_client import Bot
+from bot.utils.context import Context
 
 
-def grab_clan_id(clan_name: str):
+async def grab_clan_id(clan_name: str):
+    """
+    Gets the ID of a RuneScape 3 Clan
+    """
     url = f"http://services.runescape.com/m=clan-hiscores/l=3/members.ws?clanName={clan_name}"
-    source = requests.get(url).content
-    soup = BeautifulSoup(source.decode('utf-8', 'ignore'), 'lxml')
 
-    clan_id = soup.find('input', {'name': 'clanId'})
-    if clan_id:
-        return clan_id.get('value')
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get(url) as r:
+            source = await r.text()
+            soup = BeautifulSoup(source, 'lxml')
+
+            clan_id = soup.find('input', {'name': 'clanId'})
+            if clan_id:
+                return clan_id.get('value')
 
 
 async def grab_world(player_name: str, player_clan: str):
@@ -34,8 +40,7 @@ async def grab_world(player_name: str, player_clan: str):
         async with cs.get(search_url) as r:
             source = await r.text()
 
-            source = requests.get(search_url).content
-            soup = BeautifulSoup(source.decode('utf-8', 'ignore'), 'lxml')
+            soup = BeautifulSoup(source, 'lxml')
             list_members = soup.findAll('div', {'class': 'membersListRow'})
 
             for member in list_members:
@@ -102,7 +107,7 @@ class RsWorld(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['world'])
-    async def rsworld(self, ctx: commands.Context, *, player_name: str):
+    async def rsworld(self, ctx: Context, *, player_name: str):
         player = rs3clans.Player(player_name)
 
         if not player.exists:

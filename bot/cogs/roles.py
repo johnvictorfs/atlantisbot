@@ -3,7 +3,7 @@ from typing import Dict, List, Union
 import discord
 
 from bot.bot_client import Bot
-
+from bot.utils.context import Context
 
 Categories = Dict[str, Dict[str, Union[discord.Role, List[discord.Role]]]]
 
@@ -79,7 +79,7 @@ class RolesManager(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def update_all_categories(self, ctx: commands.Context):
+    async def update_all_categories(self, ctx: Context):
         """
         Updates the Categories Roles for everyone in the Atlantis Server
 
@@ -100,8 +100,8 @@ class RolesManager(commands.Cog):
         await ctx.send('Atualizando Cargos de Categorias de todos os Membros...')
         categories = self.get_role_categories()
 
+        member: discord.Member
         for member in ctx.guild.members:
-            member: discord.Member
             await self.update_category(member, categories)
 
         await ctx.send('Cargos de Categorias atualizados com sucesso!')

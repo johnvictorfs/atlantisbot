@@ -1,12 +1,13 @@
 import traceback
 import datetime
 import logging
-import concurrent
+from concurrent.futures._base import TimeoutError
 
 import discord
 from discord.ext import commands
 
 from bot.bot_client import Bot
+from bot.utils.context import Context
 
 
 class CommandErrorHandler(commands.Cog):
@@ -22,7 +23,7 @@ class CommandErrorHandler(commands.Cog):
             # Prevent multiple handlers sending duplicate messages
             self.logger.addHandler(handler)
 
-    async def bot_check(self, ctx: commands.Context):
+    async def bot_check(self, ctx: Context):
         """This runs at the start of every command"""
         await ctx.trigger_typing()
         time = datetime.datetime.utcnow().strftime('%d/%m/%y - %H:%M')
@@ -31,7 +32,7 @@ class CommandErrorHandler(commands.Cog):
         return True
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+    async def on_command_error(self, ctx: Context, error: commands.CommandError):
         if hasattr(ctx.command, 'on_error'):
             # Don't try to handle the error if the command has a local handler
             return
@@ -98,7 +99,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f"Eu preciso das seguintes permissões para fazer isso: {', '.join(permissions)}")
         elif isinstance(error, commands.errors.CheckFailure):
             pass
-        elif isinstance(error, commands.errors.CommandInvokeError) and isinstance(error.original, concurrent.futures._base.TimeoutError):
+        elif isinstance(error, commands.errors.CommandInvokeError) and isinstance(error.original, TimeoutError):
             await ctx.send(f'Ação cancelada. Tempo esgotado.')
         else:
             await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")

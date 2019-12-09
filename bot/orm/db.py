@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import ContextManager
+from typing import Iterator
 import logging
 import json
 import sys
@@ -59,7 +59,7 @@ def add_ingame_name_creation(mapper: Mapper, connection: Connection, target: Use
 
 
 @contextmanager
-def db_session() -> ContextManager[SqlASession]:
+def db_session() -> Iterator[SqlASession]:
     """
     http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
     Provide a transactional scope around a series of operations.

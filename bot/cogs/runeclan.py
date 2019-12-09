@@ -7,6 +7,7 @@ import bs4
 import discord
 
 from bot.bot_client import Bot
+from bot.utils.context import Context
 
 
 @dataclass
@@ -60,7 +61,7 @@ class RuneclanTracker(commands.Cog):
         return ExpTracker(total_exp, players)
 
     @commands.command('tracker', aliases=['exptracker', 'hiscores'])
-    async def exp_tracker(self, ctx: commands.Context, inicio: str, fim: str, habilidade: str = 'geral', quantidade: int = 10):
+    async def exp_tracker(self, ctx: Context, inicio: str, fim: str, habilidade: str = 'geral', quantidade: int = 10):
         skills = {
             'geral': {
                 'id': 2,

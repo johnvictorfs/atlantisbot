@@ -10,13 +10,14 @@ from bot.bot_client import Bot
 from bot.utils.tools import separator
 from bot.utils.teams import delete_team, update_team_message, manage_team, TeamNotFoundError, WrongChannelError
 from bot.orm.models import Team, Player
+from bot.utils.context import Context
 
 
 def get_team_id(content: str):
     return re.findall(r"(?:\S+\s+)(\S+)", content)
 
 
-async def is_team_owner(ctx: commands.Context):
+async def is_team_owner(ctx: Context):
     """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
         team_id = get_team_id(ctx.message.content)
@@ -35,7 +36,7 @@ async def is_team_owner(ctx: commands.Context):
         return True
 
 
-async def is_in_team(ctx: commands.Context):
+async def is_in_team(ctx: Context):
     """Checks if the command caller is in the team or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
         team_id = get_team_id(ctx.message.content)
@@ -79,6 +80,7 @@ class Teams(commands.Cog):
             team_join = team_join.group()
             team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
             team_id = ''.join(team_id).lower()
+
             mode = 'join' if 'in' in team_join.lower() else 'leave'
             try:
                 return await manage_team(team_id=team_id, client=self.bot, message=message, mode=mode)
@@ -94,7 +96,7 @@ class Teams(commands.Cog):
 
     @commands.guild_only()
     @commands.command(aliases=['teamrole', 'tr', 'setrole', 'sr'])
-    async def team_role(self, ctx: commands.Context, team_id: str, to_add: discord.Member, *, role: str):
+    async def team_role(self, ctx: Context, team_id: str, to_add: discord.Member, *, role: str):
         with self.bot.db_session() as session:
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             if not team:
@@ -118,17 +120,22 @@ class Teams(commands.Cog):
     @commands.check(is_in_team)
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.command(aliases=['tagall'])
-    async def tag_all(self, ctx: commands.Context, team_id: str, *, message: str = None):
+    async def tag_all(self, ctx: Context, team_id: str, *, message: str = None):
         with self.bot.db_session() as session:
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             players = session.query(Player).filter_by(team=team.id, substitute=False)
+
             if not players:
                 return await ctx.send(f"O time '{team.title}' está vazio.")
+
             text = f"Menção enviada por: {ctx.author.mention}\n"
+
             for player in players:
                 text = f"{text} <@{player.player_id}>"
+
             if message:
                 text = f"{text}\n{message}"
+
             await ctx.message.delete()
             return await ctx.send(text)
 
@@ -136,7 +143,7 @@ class Teams(commands.Cog):
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
-    async def delteam(self, ctx: commands.Context, team_id: str):
+    async def delteam(self, ctx: Context, team_id: str):
         with self.bot.db_session() as session:
             try:
                 await ctx.message.delete()
@@ -145,11 +152,14 @@ class Teams(commands.Cog):
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             if not team:
                 return await ctx.send(f"ID inválida: {team_id}")
+
             if int(team.author_id) != ctx.author.id:
                 if not ctx.author.permissions_in(ctx.channel).manage_roles:
                     raise commands.MissingPermissions(['manage_roles'])
+
             if int(team.team_channel_id) != ctx.channel.id:
                 return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
+
             await delete_team(session, team, self.bot)
             await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
@@ -157,7 +167,7 @@ class Teams(commands.Cog):
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
     @commands.guild_only()
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
-    async def team(self, ctx: commands.Context):
+    async def team(self, ctx: Context):
         await ctx.message.delete()
 
         cancel_command = f'{self.bot.setting.prefix}cancelar'
@@ -389,7 +399,7 @@ class Teams(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def potato(self, ctx: commands.Context):
+    async def potato(self, ctx: Context):
         """Test Command"""
 
         # RuntimeWarning: coroutine 'check' was never awaited

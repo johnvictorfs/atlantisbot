@@ -9,6 +9,7 @@ import requests
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
+from bot.utils.context import Context
 
 # TODO: The code from this whole freaking cog needs to be refactored
 
@@ -172,7 +173,7 @@ class Competitions(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['comps', 'competitions', 'competicoes', 'running_comps', 'competicoes_ativas', 'comp'])
-    async def running_competitions(self, ctx: commands.Context, index=0, players=10):
+    async def running_competitions(self, ctx: Context, index=0, players=10):
         competitions = get_competitions(self.bot.setting.clan_name)
         if not competitions['running_competitions']:
             return await ctx.send("Nenhuma competição ativa no momento :(")
@@ -254,7 +255,7 @@ class Competitions(commands.Cog):
     @commands.command(
         aliases=['pontos', 'comppontos', 'compontos', 'pcomp', 'comptab', 'comptable', 'compranks', 'comp_points',
                  'compp', 'compps'])
-    async def comp_pontos(self, ctx: commands.Context, number=10):
+    async def comp_pontos(self, ctx: Context, number=10):
         url = 'https://docs.google.com/spreadsheets/d/{key}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         url = url.format(key='1iHPQovW4NXFicJd6ot83QnrN9NyLlxcX3UraJHv9uPg', sheet_name='min')
         with closing(requests.get(url, stream=True)) as r:

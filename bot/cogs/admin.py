@@ -20,6 +20,7 @@ from bot.bot_client import Bot
 from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson, \
     DisabledCommand
 from bot.utils.tools import separator, plot_table, has_any_role
+from bot.utils.context import Context
 
 
 class Admin(commands.Cog):
@@ -30,7 +31,7 @@ class Admin(commands.Cog):
         self._last_result = None
         self.sessions: Set[int] = set()
 
-    async def cog_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: Context):
         """
         Checks if the User running the command is either an Admin or the Bot's Owner
         """
@@ -138,7 +139,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def restart(self, ctx: commands.Context):
+    async def restart(self, ctx: Context):
         await ctx.author.send("Reiniciando bot...")
         if self.bot.setting.mode == 'dev':
             os.execv(sys.executable, ['python3'] + sys.argv)
@@ -151,7 +152,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @commands.command(aliases=['reloadall'])
-    async def reload_all_cogs(self, ctx: commands.Context):
+    async def reload_all_cogs(self, ctx: Context):
         """Reloads all cogs"""
         err = await self.bot.reload_all_extensions()
         if err:
@@ -160,7 +161,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def disable(self, ctx: commands.Context, command_name: str):
+    async def disable(self, ctx: Context, command_name: str):
         """Disables a command"""
         command = self.bot.get_command(command_name)
         if not command:
@@ -174,7 +175,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def enable(self, ctx: commands.Context, command_name: str):
+    async def enable(self, ctx: Context, command_name: str):
         """Enables a command"""
         command = self.bot.get_command(command_name)
         if not command:
@@ -347,7 +348,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @commands.command(aliases=['sendtable'])
-    async def send_table(self, ctx: commands.Context, table: str, safe: bool = True):
+    async def send_table(self, ctx: Context, table: str, safe: bool = True):
         if not safe:
             await ctx.send(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'? (y/N)")
 
@@ -369,7 +370,7 @@ class Admin(commands.Cog):
         return await ctx.send(file=discord.File(f'{table}.tmp.png'))
 
     @commands.command(aliases=['admin'])
-    async def admin_commands(self, ctx: commands.Context):
+    async def admin_commands(self, ctx: Context):
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
 
         embed = discord.Embed(title="__Comandos Admin__", description="", color=discord.Color.blue())
@@ -410,7 +411,7 @@ class Admin(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['timesativos', 'times_ativos'])
-    async def running_teams(self, ctx: commands.Context):
+    async def running_teams(self, ctx: Context):
         running_teams_embed = discord.Embed(title='__Times Ativos__', description="", color=discord.Color.red())
         with self.bot.db_session() as session:
             teams = session.query(Team).all()
@@ -429,27 +430,27 @@ class Admin(commands.Cog):
         await ctx.send(embed=running_teams_embed)
 
     @commands.command()
-    async def check_raids(self, ctx: commands.Context):
+    async def check_raids(self, ctx: Context):
         notifications = self.raids_notifications()
         return await ctx.send(f"Notificações de Raids estão {'habilitadas' if notifications else 'desabilitadas'}.")
 
     @commands.command()
-    async def toggle_raids(self, ctx: commands.Context):
+    async def toggle_raids(self, ctx: Context):
         toggle = self.toggle_raids_notifications()
         return await ctx.send(f"Notificações de Raids agora estão {'habilitadas' if toggle else 'desabilitadas'}.")
 
     @commands.command()
-    async def check_advlog(self, ctx: commands.Context):
+    async def check_advlog(self, ctx: Context):
         messages = self.advlog_messages()
         return await ctx.send(f"Mensagens do Adv log estão {'habilitadas' if messages else 'desabilitadas'}.")
 
     @commands.command()
-    async def toggle_advlog(self, ctx: commands.Context):
+    async def toggle_advlog(self, ctx: Context):
         toggle = self.toggle_advlog_messages()
         return await ctx.send(f"Mensagens do Adv log agora estão {'habilitadas' if toggle else 'desabilitadas'}.")
 
     @commands.command()
-    async def status(self, ctx: commands.Context):
+    async def status(self, ctx: Context):
         with self.bot.db_session() as session:
             team_count = session.query(Team).count()
             advlog_count = session.query(PlayerActivities).count()

@@ -1,6 +1,6 @@
 import asyncio
 import discord
-from typing import List
+from typing import List, Tuple, Optional, Sequence, AnyStr
 from discord.ext import tasks, commands
 from PIL import Image
 
@@ -11,6 +11,7 @@ import os
 
 from bot.bot_client import Bot
 from bot.orm.models import SongOfSerenState, VoiceOfSeren
+from bot.utils.context import Context
 
 
 # TODO: Acabar essas descrições https://rs.wiki/vos#Known_effects
@@ -215,7 +216,7 @@ class Vos(commands.Cog):
                             await message.edit(content=content, embed=embed)
 
     @staticmethod
-    def save_combined(image_names: List[str]) -> (str, str):
+    def save_combined(image_names: List[str]) -> Tuple[str, str]:
         """
         Saves two images combined horizontally and then returns the path for said image
 
@@ -241,15 +242,18 @@ class Vos(commands.Cog):
 
         return path, file_name
 
-    def get_voices(self) -> (str, str):
+    def get_voices(self) -> Optional[Sequence[AnyStr]]:
         time_line = self.bot.twitter_api.GetUserTimeline(screen_name='jagexclock')
+
         for tweet in time_line:
             pattern = r'The Voice of Seren is now active in the (.+?) and (.+?) districts at .+? UTC.'
             match = re.match(pattern, tweet.text)
             if match:
                 return match.groups()
 
-    def vos_embed(self, vos_1: str, vos_2: str) -> (discord.Embed, discord.File):
+        return None
+
+    def vos_embed(self, vos_1: str, vos_2: str) -> Tuple[discord.Embed, discord.File]:
         image_path, image_name = self.save_combined([vos_1, vos_2])
 
         image_file = discord.File(image_path, filename=image_name)
@@ -262,40 +266,45 @@ class Vos(commands.Cog):
         return embed, image_file
 
     @commands.command()
-    async def vos_update(self, ctx: commands.Context):
+    async def vos_update(self, ctx: Context):
         with self.bot.db_session() as session:
             state: VoiceOfSeren = session.query(VoiceOfSeren).first()
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('vos'))
             if state:
-                vos_1, vos_2 = self.get_voices()
-                if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
-                    try:
-                        message: discord.Message = await channel.fetch_message(int(state.message_id))
-                    except discord.errors.NotFound:
-                        message = None
-                    await ctx.send(f"Updated VoS to: {vos_1}, {vos_2}")
-                    await self.change_vos(vos_1, vos_2, message, channel, state)
+                voices = self.get_voices()
+                if voices:
+                    vos_1, vos_2 = voices
+
+                    if vos_1 != state.current_voice_one and vos_2 != state.current_voice_two:
+                        try:
+                            message: discord.Message = await channel.fetch_message(int(state.message_id))
+                        except discord.errors.NotFound:
+                            message = None
+                        await ctx.send(f"Updated VoS to: {vos_1}, {vos_2}")
+                        await self.change_vos(vos_1, vos_2, message, channel, state)
             else:
-                vos_1, vos_2 = self.get_voices()
+                voices = self.get_voices()
+                if voices:
+                    vos_1, vos_2 = voices
 
-                print(f"Set VoS to: {vos_1}, {vos_2}")
-                await ctx.send(f"Set VoS to: {vos_1}, {vos_2}")
+                    print(f"Set VoS to: {vos_1}, {vos_2}")
+                    await ctx.send(f"Set VoS to: {vos_1}, {vos_2}")
 
-                role_1 = self.bot.setting.role.get(vos_1.lower())
-                role_2 = self.bot.setting.role.get(vos_2.lower())
+                    role_1 = self.bot.setting.role.get(vos_1.lower())
+                    role_2 = self.bot.setting.role.get(vos_2.lower())
 
-                mentions = ''
-                if role_1:
-                    mentions += f"<@&{role_1}> "
-                if role_2:
-                    mentions += f"<@&{role_2.mention}>"
+                    mentions = ''
+                    if role_1:
+                        mentions += f"<@&{role_1}> "
+                    if role_2:
+                        mentions += f"<@&{role_2.mention}>"
 
-                embed, file = self.vos_embed(vos_1, vos_2)
-                message: discord.Message = await channel.send(file=file, embed=embed, content="")
-                await channel.send(content=mentions, delete_after=5 * 60)
-                state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(message.id))
-                session.add(state)
-                session.commit()
+                    embed, file = self.vos_embed(vos_1, vos_2)
+                    vos_message: discord.Message = await channel.send(file=file, embed=embed, content="")
+                    await channel.send(content=mentions, delete_after=5 * 60)
+                    state = VoiceOfSeren(current_voice_one=vos_1, current_voice_two=vos_2, message_id=str(vos_message.id))
+                    session.add(state)
+                    session.commit()
 
     async def change_vos(
         self, vos_1: str, vos_2: str, message: discord.Message, channel: discord.TextChannel, state: VoiceOfSeren
@@ -374,11 +383,16 @@ class Vos(commands.Cog):
             await asyncio.sleep(40)
 
     @commands.command(aliases=['vos'])
-    async def voice_of_seren(self, ctx: commands.Context):
-        vos_1, vos_2 = self.get_voices()
-        embed, file = self.vos_embed(vos_1, vos_2)
+    async def voice_of_seren(self, ctx: Context):
+        voices = self.get_voices()
 
-        await ctx.send(file=file, embed=embed)
+        if voices:
+            vos_1, vos_2 = voices
+            embed, file = self.vos_embed(vos_1, vos_2)
+
+            await ctx.send(file=file, embed=embed)
+        else:
+            return await ctx.send('Erro ao pegar dados da Voz de Seren. Tente novamente mais tarde.')
 
 
 def setup(bot):

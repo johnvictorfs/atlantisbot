@@ -5,6 +5,7 @@ import discord
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
+from bot.utils.context import Context
 
 
 class EmbedMessages(commands.Cog):
@@ -12,7 +13,7 @@ class EmbedMessages(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: Context):
         return await self.bot.is_owner(ctx.author)
 
     def welcome_embed(self) -> discord.Embed:
@@ -43,12 +44,12 @@ class EmbedMessages(commands.Cog):
         return welcome_embed
 
     @commands.command(aliases=['send_welcome'])
-    async def send_welcome_message(self, ctx: commands.Context):
+    async def send_welcome_message(self, ctx: Context):
         await ctx.message.delete()
         return await ctx.send(content=None, embed=self.welcome_embed())
 
     @commands.command(aliases=['update_welcome'])
-    async def update_welcome_message(self, ctx: commands.Context, message_id: int):
+    async def update_welcome_message(self, ctx: Context, message_id: int):
         """
         Updates message with the ID passed with the Welcome Message embed
         """
@@ -58,7 +59,7 @@ class EmbedMessages(commands.Cog):
         return await message.edit(content=None, embed=self.welcome_embed())
 
     @commands.command()
-    async def update_roles(self, ctx: commands.Context, test: bool = True):
+    async def update_roles(self, ctx: Context, test: bool = True):
         with open('bot/data/embeds.json') as f:
             embeds_file = json.load(f)
         channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.roles_channel_id)
@@ -89,7 +90,7 @@ class EmbedMessages(commands.Cog):
             await react_message.edit(content=None, embed=react_embed)
 
     @commands.command()
-    async def update_raids_embed(self, ctx: commands.Context, message_id: int):
+    async def update_raids_embed(self, ctx: Context, message_id: int):
         """
         Updates message with the ID passed with the Welcome Message embed
         """
@@ -156,7 +157,7 @@ class EmbedMessages(commands.Cog):
 • __**Ver guias de Yakamaru E Durzag!!!**__ <#425844417862041610>"""
 
         text_3 = f"""
-            • <:prayer:499707566012497921> 95+ 
+            • <:prayer:499707566012497921> 95+
             • Alguma experiência PvM, mesmo que solo
             • Marfim dos [Elementos](https://rs.wiki/w/Scrimshaw_of_the_elements) (Mage) / [Crueldade](https://rs.wiki/Scrimshaw_of_cruelty) (Ranged)
             • Perk [Planted feet](https://rs.wiki/w/Planted_Feet) em uma arma primária extra
@@ -176,7 +177,7 @@ class EmbedMessages(commands.Cog):
         return embed
 
     @commands.command('raids_embed')
-    async def raids_channel_embed(self, ctx: commands.Context):
+    async def raids_channel_embed(self, ctx: Context):
         await ctx.send(embed=self.raids_embed())
 
 

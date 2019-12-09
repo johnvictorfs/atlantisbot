@@ -10,6 +10,7 @@ from bot.bot_client import Bot
 from bot.cogs.raids import time_till_raids
 from bot.utils.tools import right_arrow, has_any_role
 from bot.utils.checks import is_authenticated
+from bot.utils.context import Context
 from bot.orm.models import User
 
 
@@ -35,7 +36,7 @@ class Chat(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.command('raids', aliases=['aplicar_raids'])
-    async def aplicar_raids(self, ctx: commands.Context):
+    async def aplicar_raids(self, ctx: Context):
         denied_message = "Fool! Você já tem permissão para ir Raids!"
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
@@ -165,7 +166,7 @@ class Chat(commands.Cog):
         await ctx.send(embed=embed, content=f"<@&{self.bot.setting.role.get('raids_teacher')}>")
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
-    async def aplicar_aod(self, ctx: commands.Context):
+    async def aplicar_aod(self, ctx: Context):
         aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
         aod_teacher = f"<@&{self.bot.setting.role.get('aod_teacher')}>"
 
@@ -195,7 +196,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['git', 'source'])
-    async def github(self, ctx: commands.Context):
+    async def github(self, ctx: Context):
         github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
         johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
@@ -209,7 +210,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['atlbot', 'atlbotcommands'])
-    async def atlcommands(self, ctx: commands.Context):
+    async def atlcommands(self, ctx: Context):
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
         embed_title = "RuneClan"
@@ -288,7 +289,7 @@ Aguarde uma resposta de um {aod_teacher}.
 
     @commands.has_permissions(manage_channels=True)
     @commands.command(aliases=['atlrepeat'])
-    async def atlsay(self, ctx: commands.Context, *, message: str):
+    async def atlsay(self, ctx: Context, *, message: str):
         message = message.split(' ')
         channel = message[-1]
         try:

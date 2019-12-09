@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
+from bot.utils.context import Context
 
 
 class Clan(commands.Cog):
@@ -14,7 +15,7 @@ class Clan(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['clan'])
-    async def clan_detail_info(self, ctx: commands.Context, *, clan_name: str):
+    async def clan_detail_info(self, ctx: Context, *, clan_name: str):
         try:
             clan = rs3clans.Clan(name=clan_name, set_exp=True)
         except ConnectionError:
@@ -42,7 +43,7 @@ class Clan(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
-    async def clan_user_info(self, ctx: commands.Context, *, username: str):
+    async def clan_user_info(self, ctx: Context, *, username: str):
         try:
             player = rs3clans.Player(name=username, runemetrics=True)
         except ConnectionError:
@@ -118,7 +119,7 @@ class Clan(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
-    async def ranks(self, ctx: commands.Context):
+    async def ranks(self, ctx: Context):
         exp_general = 500_000_000
         exp_captain = 225_000_000
         exp_lieutenant = 125_000_000

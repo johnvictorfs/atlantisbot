@@ -9,6 +9,7 @@ import asyncio
 from bot.bot_client import Bot
 from bot.utils.teams import delete_team
 from bot.utils.tools import separator
+from bot.utils.context import Context
 from bot.orm.models import RaidsState, Team
 
 
@@ -227,7 +228,7 @@ class RaidsTasks(commands.Cog):
 
     @commands.has_permissions(manage_messages=True)
     @commands.command(aliases=['startraids'])
-    async def start_raids(self, ctx: commands.Context) -> None:
+    async def start_raids(self, ctx: Context) -> None:
         await ctx.send(f'Iniciando time de Raids... (mode={self.bot.setting.mode})')
         await self.start_raids_team()
         await ctx.author.send('Time de Raids iniciado com sucesso.')
@@ -235,7 +236,7 @@ class RaidsTasks(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
     @commands.command()
-    async def resend_raids(self, ctx: commands.Context) -> None:
+    async def resend_raids(self, ctx: Context) -> None:
         """
         Re-sends the "Next Raids Notification in (...)" message to the #raids Channel, so it becomes the newest message.
         """

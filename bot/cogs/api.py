@@ -11,10 +11,10 @@ class AtlantisBotApi(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        self.socket_client = self.bot.loop.create_task(self.socket_client())
+        self.socket_client_task = self.bot.loop.create_task(self.socket_client())
 
     def cog_unload(self):
-        self.socket_client.cancel()
+        self.socket_client_task.cancel()
 
     async def socket_client(self):
         """

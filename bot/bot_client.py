@@ -81,7 +81,7 @@ class Bot(commands.Bot):
         await self.client_session.close()
         await super().close()
 
-    async def send_logs(self, e, tb, ctx: commands.Context = None, more_info: object = None):
+    async def send_logs(self, e, tb, ctx: context.Context = None, more_info: object = None):
         dev = self.get_user(self.setting.developer_id)
         if ctx:
             info_embed = discord.Embed(title="__Error Info__", color=discord.Color.dark_red())

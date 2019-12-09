@@ -9,6 +9,7 @@ import asyncio
 import aiohttp
 
 from bot.bot_client import Bot
+from bot.utils.context import Context
 
 
 class Merchant(commands.Cog):
@@ -114,7 +115,7 @@ class Merchant(commands.Cog):
         await self.bot.wait_until_ready()
 
     @commands.command()
-    async def send_merch(self, ctx: commands.Context):
+    async def send_merch(self, ctx: Context):
         embed = await self.merchant_embed()
         await ctx.send(embed=embed)
 

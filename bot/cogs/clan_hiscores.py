@@ -6,6 +6,7 @@ import aiohttp
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
+from bot.utils.context import Context
 
 
 class ClanHiscores(commands.Cog):
@@ -25,7 +26,7 @@ class ClanHiscores(commands.Cog):
         'pt_hiscores',
         'br_hiscores',
     ])
-    async def ptbr_rankings(self, ctx: commands.Context, num_clans: int = 10):
+    async def ptbr_rankings(self, ctx: Context, num_clans: int = 10):
         base_url = 'https://nriver.pythonanywhere.com'
         async with aiohttp.ClientSession() as cs:
             async with cs.get(f'{base_url}/api/clan/list/') as r:

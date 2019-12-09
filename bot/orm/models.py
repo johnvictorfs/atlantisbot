@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, ForeignKey, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -80,11 +80,8 @@ class PlayerActivities(Base):
 class AmigoSecretoPerson(Base):
     __tablename__ = 'amigosecreto'
     id = Column(Integer, primary_key=True)
-    discord_id = Column(String, unique=True)
-    discord_name = Column(String)
-    ingame_name = Column(String)
-    giving_to_id = Column(Integer, nullable=True, default=None, unique=True)
-    giving_to_name = Column(String, nullable=True, default=None, unique=True)
+    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True)
+    giving_to_user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=True, unique=True)
     receiving = Column(Boolean, default=False)
 
 
@@ -92,6 +89,10 @@ class AmigoSecretoState(Base):
     __tablename__ = 'amigosecretostate'
     id = Column(Integer, primary_key=True)
     activated = Column(Boolean, default=False)
+    start_date = Column(DateTime, nullable=True)
+    end_date = Column(DateTime, nullable=True)
+    premio_minimo = Column(BigInteger, nullable=True)
+    premio_maximo = Column(BigInteger, nullable=True)
 
 
 class SongOfSerenState(Base):

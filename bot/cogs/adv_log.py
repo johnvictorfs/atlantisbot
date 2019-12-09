@@ -1,10 +1,11 @@
+from typing import Optional
+from io import StringIO
+import urllib.parse as urlparse
 import asyncio
 import csv
 import traceback
 import re
 import feedparser
-import urllib.parse as urlparse
-from io import StringIO
 
 from discord.ext import tasks, commands
 import aiohttp
@@ -96,13 +97,15 @@ class AdvLog(commands.Cog):
         await self.bot.wait_until_ready()
 
     @staticmethod
-    async def retrieve_activities(cs: aiohttp.ClientSession, player: str) -> list:
+    async def retrieve_activities(cs: aiohttp.ClientSession, player: str) -> Optional[list]:
         url = f'http://services.runescape.com/m=adventurers-log/l=3/a=869/rssfeed?searchName={player}'
         async with cs.get(url) as r:
             text = await r.text()
             feed = feedparser.parse(text)
             if r.status == 200:
                 return feed.get('entries')
+
+        return None
 
     @staticmethod
     async def retrieve_clan_list(cs: aiohttp.ClientSession, clan_name: str) -> list:

@@ -1,7 +1,11 @@
+from typing import Optional
+
 from discord.ext import commands
 import asyncio
 import discord
 import io
+
+from bot.orm.models import User
 
 
 class _ContextDBAcquire:
@@ -31,6 +35,10 @@ class Context(commands.Context):
     Source: https://github.com/Rapptz/RoboDanny/blob/ac3a0ed64381050c37761d358d4af90b89ec1ca3/cogs/utils/context.py
     """
 
+    def __init__(self, *args, **kwargs):
+        super(Context, self).__init__(*args, **kwargs)
+        self.bot = self.bot
+
     async def entry_to_code(self, entries):
         width = max(len(a) for a, b in entries)
         output = ['```']
@@ -51,6 +59,15 @@ class Context(commands.Context):
         # we need this for our cache key strategy
         return '<Context>'
 
+    def get_user(self) -> Optional[User]:
+        with self.bot.db_session() as session:
+            user: User = session.query(User).filter_by(discord_id=str(self.author.id)).first()
+            session.expunge(user)
+
+            if user:
+                return user
+            return None
+
     async def disambiguate(self, matches, entry):
         if len(matches) == 0:
             raise ValueError('Nenhum resultado encontrado.')
@@ -61,7 +78,7 @@ class Context(commands.Context):
         await self.send('There are too many matches... Which one did you mean? **Only say the number**.')
         await self.send('\n'.join(f'{index}: {entry(item)}' for index, item in enumerate(matches, 1)))
 
-        def check(m):
+        def check(m: discord.Message):
             return m.content.isdigit() and m.author.id == self.author.id and m.channel.id == self.channel.id
 
         await self.release()
@@ -84,7 +101,7 @@ class Context(commands.Context):
         finally:
             await self.acquire()
 
-    async def prompt(self, message, *, timeout=60.0, delete_after=True, author_id=None):
+    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None):
         """An interactive reaction confirmation dialog.
         Parameters
         -----------
@@ -166,7 +183,7 @@ class Context(commands.Context):
         command = command or self.command.qualified_name
         await self.invoke(cmd, command=command)
 
-    async def safe_send(self, content, *, escape_mentions=True, **kwargs):
+    async def safe_send(self, content: str, *, escape_mentions=True, **kwargs):
         """Same as send except with some safe guards.
         1) If the message is too long then it sends a file with the results instead.
         2) If ``escape_mentions`` is ``True`` then it escapes mentions.

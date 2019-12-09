@@ -16,6 +16,7 @@ from bot.bot_client import Bot
 from bot.orm.models import User, IngameName
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 from bot.utils.tools import divide_list, has_any_role
+from bot.utils.context import Context
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession):
@@ -247,7 +248,7 @@ class UserAuthentication(commands.Cog):
         await asyncio.sleep(1)
 
     @commands.command(aliases=['desmembro', 'unmembro'])
-    async def un_membro(self, ctx: commands.Context):
+    async def un_membro(self, ctx: Context):
         """
         Command to remove a user's authentication
         """
@@ -307,7 +308,7 @@ class UserAuthentication(commands.Cog):
                 return await ctx.send('Remoção de autenticação cancelada.')
 
     @commands.command(aliases=['user'])
-    async def authenticated_user(self, ctx: commands.Context, *, user_name: str):
+    async def authenticated_user(self, ctx: Context, *, user_name: str):
         """
         Searches Authenticated User, first by Ingame Name, then by Discord Name, then by Discord Id
         """
@@ -396,7 +397,7 @@ class UserAuthentication(commands.Cog):
             await ctx.message.add_reaction('✅')
 
     @commands.command(aliases=['membros'])
-    async def authenticated_users(self, ctx: commands.Context):
+    async def authenticated_users(self, ctx: Context):
         atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
         member: discord.Member = atlantis.get_member(ctx.author.id)
 
@@ -444,7 +445,7 @@ class UserAuthentication(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def snap(self, ctx: commands.Context):
+    async def snap(self, ctx: Context):
         """
         Remover a Tag de Membro de todo Usuário não-autenticado do Servidor
         """
@@ -539,7 +540,7 @@ class UserAuthentication(commands.Cog):
     @commands.dm_only()
     @commands.cooldown(60, 0, commands.BucketType.user)
     @commands.command(aliases=['role', 'membro'])
-    async def aplicar_role(self, ctx: commands.Context):
+    async def aplicar_role(self, ctx: Context):
         self.logger.info(f'[{ctx.author}] Autenticação iniciada.')
 
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
