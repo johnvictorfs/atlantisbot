@@ -101,7 +101,7 @@ class Context(commands.Context):
         finally:
             await self.acquire()
 
-    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None):
+    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None) -> bool:
         """An interactive reaction confirmation dialog.
         Parameters
         -----------
@@ -125,7 +125,7 @@ class Context(commands.Context):
         if not self.channel.permissions_for(self.me).add_reactions:
             raise RuntimeError('Bot does not have Add Reactions permission.')
 
-        fmt = f'{message}\n\nReaja com \N{WHITE HEAVY CHECK MARK} para confirmar ou \N{CROSS MARK} para negar.'
+        fmt = message
 
         author_id = author_id or self.author.id
         msg = await self.send(fmt)

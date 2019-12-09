@@ -27,6 +27,7 @@ flake8 = "^3.7"
 autopep8 = "^1.4"
 mypy = "^0.740.0"
 mypy_extensions = "^0.4.3"
+sqlalchemy-stubs = "^0.3"
 
 [tool.poetry.scripts]
 migrate = './migrate.sh'

@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 from pandas.plotting import table
+from pytz import timezone
+import pandas as pd
+import discord
+
+from datetime import datetime
 
 from bot.orm.db import engine
-
-import discord
 
 separator = ("_\\" * 15) + "_"
 right_arrow = "<:rightarrow:484382334582390784>"
@@ -17,17 +19,26 @@ def has_any_role(member: discord.member.Member, *role_ids: int):
     return False
 
 
+def format_and_convert_date(date: datetime) -> str:
+    """
+    Convert UTC Datetime to Brazil Time and format it into a nicer string
+    """
+    tz = timezone('America/Sao_Paulo')
+    return tz.fromutc(date).strftime('%d/%m/%y - %H:%M')
+
+
 def plot_table(table_name: str, image_name: str, safe: bool = True):
     # https://stackoverflow.com/questions/35634238/how-to-save-a-pandas-dataframe-table-as-a-png
     df = pd.read_sql(table_name, engine)
     if safe:
         if table_name == 'amigosecreto':
-            df = df.drop(['id', 'discord_id', 'giving_to_id', 'giving_to_name', 'receiving'], axis=1)
+            df = df.drop(['id', 'giving_to_user_id', 'receiving'], axis=1)
     fig, ax = plt.subplots(figsize=(12, 2))  # set size frame
     ax.xaxis.set_visible(False)  # hide the x axis
     ax.yaxis.set_visible(False)  # hide the y axis
     ax.set_frame_on(False)  # no visible frame
     table(ax, df, loc='upper right', colWidths=[0.17] * len(df.columns))
+
     # https://stackoverflow.com/questions/11837979/removing-white-space-around-a-saved-image-in-matplotlib
     plt.gca().set_axis_off()
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
