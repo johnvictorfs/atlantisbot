@@ -26,11 +26,11 @@
 
 ## **Amigo Secreto**
 
-- Utilizar ingame name da autenticação ao invés de pedir do usuário
-- Não permitir usuário se cadastrar caso tenha warning date ou caso esteja disabled, ou caso esteja não-autenticado
-- Ajustar data para ser configurável com um comando
+- ~~Utilizar ingame name da autenticação ao invés de pedir do usuário~~
+- ~~Não permitir usuário se cadastrar caso tenha warning date ou caso esteja disabled, ou caso esteja não-autenticado~~
+- ~~Ajustar data para ser configurável com um comando~~
 - Remover do amigo secreto caso a pessoa receba uma warning de autenticação ou caso tenha sido desabilitada
-- Na hora de enviar o amigo secreto sorteado, utilizar o atual nome cadastrado do Usuário
+- ~~Na hora de enviar o amigo secreto sorteado, utilizar o atual nome cadastrado do Usuário~~
 
 ---
 
@@ -39,6 +39,18 @@
 - Adicionar comando `!wpp`
   - Usuário digita o comando, e caso esteja autenticado, o Bot pergunta pra ele qual o seu número de telefone, o usuário dá, caso seja um número válido, o Bot irá enviar uma mensagem para administração com o número de cel e outras informações do user, e o usuário irá receber o link direto para entrar no grupo que deseja (com seleção antes pra saber em q grupo ele quer entrar mesmo)
   - Comando administrativo para setar os links dos grupos, para poder resetar eles em caso do link ser leaked pra spammers
+
+---
+
+## Times
+
+- Adicionar do Lado do nome do Discord da pessoa também o nick in-game, caso ela esteja autenticada
+
+---
+
+## ClanInfo
+
+- Adicionar informação do nick atual in-game da pessoa no comando `!claninfo`, caso ela esteja autenticada
 
 ---
 
