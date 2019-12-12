@@ -45,7 +45,9 @@ async def grab_world(player_name: str, player_clan: str):
 
             for member in list_members:
                 row_name = member.find('span', attrs={'class': 'name'})
-                if row_name.text.lower() == player_name.replace(' ', '').lower():
+
+                # Remove nb spaces
+                if row_name.text.lower().replace(u'\xa0', ' ') == player_name.lower():
                     world = member.find('span', attrs={'class': 'world'}).text
                     world = re.search(r'\d+', world)
                     if not world:
