@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from pandas.plotting import table
-from pytz import timezone
+from pytz import timezone, utc
 import pandas as pd
 import discord
 
@@ -24,7 +24,7 @@ def format_and_convert_date(date: datetime) -> str:
     Convert UTC Datetime to Brazil Time and format it into a nicer string
     """
     tz = timezone('America/Sao_Paulo')
-    return tz.fromutc(date).strftime('%d/%m/%y - %H:%M')
+    return date.replace(tzinfo=utc).astimezone(tz).strftime('%d/%m/%y - %H:%M')
 
 
 def plot_table(table_name: str, image_name: str, safe: bool = True):
