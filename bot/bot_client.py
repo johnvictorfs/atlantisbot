@@ -38,7 +38,7 @@ class Bot(commands.Bot):
         self.twitter_api = twitter.Api(**self.setting.twitter)
         self.db_session = db_session
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
-        self.api = api.BotApi(base_url=self.setting.rsatlantis['base_url'], api_token=self.setting.rsatlantis['api_token'])
+        self.api = api.BotApi(base_url=self.setting.rsatlantis['API_URL'], api_token=self.setting.rsatlantis['API_TOKEN'])
 
     async def post_data(self, url: str, payload: Optional[Dict[str, Any]] = None) -> aiohttp.ClientResponse:
         """
