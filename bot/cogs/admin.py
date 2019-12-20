@@ -350,16 +350,9 @@ class Admin(commands.Cog):
     @commands.command(aliases=['sendtable'])
     async def send_table(self, ctx: Context, table: str, safe: bool = True):
         if not safe:
-            await ctx.send(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'? (y/N)")
+            answer = await ctx.prompt(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'?")
 
-            def check(msg):
-                return ctx.author == msg.author
-
-            try:
-                message = await self.bot.wait_for('message', check=check, timeout=60.0)
-            except asyncio.TimeoutError:
-                return await ctx.send("Comando cancelado. Tempo expirado.")
-            if 'y' not in message.content.lower():
+            if not answer:
                 return await ctx.send("Envio de Tabela cancelada.")
         try:
             plot_table(table, table, safe=safe)

@@ -122,6 +122,14 @@ class Settings:
     def twitter(self):
         return self.read_data('TWITTER')
 
+    @property
+    def authorization(self):
+        return self.read_data('AUTHORIZATION')
+
+    @property
+    def rsatlantis(self):
+        return self.read_data('RSATLANTIS')
+
 
 default_settings = {
     "BOT": {
@@ -151,6 +159,15 @@ default_settings = {
                 "chat": 570985364290797590
             }
         ]
+    },
+    "AUTHORIZATION": {
+        "name": "",
+        "type": "",
+        "data": ""
+    },
+    "RSATLANTIS": {
+        "API_URL": "",
+        "API_TOKEN": ""
     },
     "OTHER": {
         "banner_image": "http://rsatlantis.com/images/logo.png",

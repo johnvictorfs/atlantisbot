@@ -101,7 +101,7 @@ class Context(commands.Context):
         finally:
             await self.acquire()
 
-    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None) -> bool:
+    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None) -> Optional[bool]:
         """An interactive reaction confirmation dialog.
         Parameters
         -----------

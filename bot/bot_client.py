@@ -19,7 +19,7 @@ from bot import settings
 from bot.orm.db import db_session
 from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator, has_any_role
-from bot.utils import context
+from bot.utils import context, api
 
 
 class Bot(commands.Bot):
@@ -38,6 +38,7 @@ class Bot(commands.Bot):
         self.twitter_api = twitter.Api(**self.setting.twitter)
         self.db_session = db_session
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
+        self.api = api.BotApi(base_url=self.setting.rsatlantis.base_url, api_token=self.setting.rsatlantis.api_token)
 
     async def post_data(self, url: str, payload: Optional[Dict[str, Any]] = None) -> aiohttp.ClientResponse:
         """

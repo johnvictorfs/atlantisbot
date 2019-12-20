@@ -3,7 +3,7 @@ import traceback
 
 import discord
 
-from bot.orm.models import Team, Player, BotMessage
+from bot.orm.models import Team, Player, BotMessage, User
 from bot.utils.tools import has_any_role, separator
 
 
@@ -74,16 +74,33 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
     if players:
         for player in players:
             if not player.substitute:
+                user: User = session.query(User).filter_by(discord_id=player.player_id).first()
+
                 player_role = f"({player.role})" if player.role else ""
-                player_value = (f"{index + 1}- <@{player.player_id}> {player_role} "
-                                f"{'***(Secundário)***' if player.secondary else ''}")
+
+                if user:
+                    player_ingame = f"({user.ingame_name})"
+                else:
+                    player_ingame = ""
+
+                player_value = (
+                    f"{index + 1}- <@{player.player_id}> {player_role} {player_ingame}"
+                    f"{'***(Secundário)***' if player.secondary else ''}"
+                )
                 team_embed.add_field(name=separator, value=player_value, inline=False)
                 index += 1
     if players:
         for player in players:
             if player.substitute:
+                user_: User = session.query(User).filter_by(discord_id=player.player_id).first()
+
+                if user_:
+                    player_ingame = f"({user_.ingame_name})"
+                else:
+                    player_ingame = ""
+
                 player_role = f"({player.role})" if player.role else ""
-                player_value = (f"- <@{player.player_id}> {player_role} ***(Substituto)*** "
+                player_value = (f"- <@{player.player_id}> {player_role} {player_ingame} ***(Substituto)*** "
                                 f"{'***(Secundário)***' if player.secondary else ''}")
                 team_embed.add_field(name=separator, value=player_value, inline=False)
     await message.edit(embed=team_embed)
@@ -178,7 +195,7 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 sent_message = await invite_channel.send(embed=no_perm_embed)
             else:
                 _text = (f"{message.author.mention} {text} **[{team.title}]({team_message.jump_url})** "
-                         f"({current_players.count() - substitutes.count()}/{team.size})\n\n *`({message.content})`*")
+                         f"({current_players.count() - substitutes.count()}/{team.size})\n\n *`{message.content}`*")
                 if mode == 'leave':
                     embed_color = discord.Color.red()
                 else:

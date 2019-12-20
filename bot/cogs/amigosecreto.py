@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from sqlalchemy.sql.expression import func
 
 from datetime import timedelta
 
@@ -91,6 +90,8 @@ class AmigoSecreto(commands.Cog):
             for member in query:
                 giving_user: User = session.query(User).get(member.user_id)
                 await dev.send(f'Tentando enviar mensagem do AS para {giving_user.discord_name} ({giving_user.id}).')
+
+                assert giving_user.discord_id is not None
                 user = self.bot.get_user(int(giving_user.discord_id))
 
                 if not giving_user or not user and not test:
@@ -103,9 +104,15 @@ class AmigoSecreto(commands.Cog):
 
                     runeclan = f'http://runeclan.com/user/{giving_to_user.ingame_name.replace(" ", "+")}'
 
+                    description = (
+                        f"<@{giving_to_user.discord_id}> ({giving_to_user.discord_name})\n[RuneClan]({runeclan})\n\n"
+                        f"Acredita que seu Amigo Secreto possa ter mudado de nome recentemente e ainda não atualizou aqui? "
+                        f"Adicione-o no jogo como Amigo, e o nome que será mostrado irá ser o nome dele atualizado!"
+                    )
+
                     embed = discord.Embed(
                         title="Olá, seu amigo secreto foi sorteado:",
-                        description=f"<@{giving_to_user.discord_id}> ({giving_to_user.discord_name})\n[RuneClan]({runeclan})",
+                        description=description,
                         color=discord.Color.green()
                     )
 
@@ -114,6 +121,8 @@ class AmigoSecreto(commands.Cog):
                     embed.set_author(name=f"{giving_to_user.ingame_name}", icon_url=icon_url)
 
                     state: AmigoSecretoState = session.query(AmigoSecretoState).first()
+
+                    assert state.end_date is not None
 
                     embed.set_footer(
                         text=f"Evento: {format_and_convert_date(state.end_date)} - Tenha seu presente em mãos até lá!"
@@ -129,42 +138,6 @@ class AmigoSecreto(commands.Cog):
                     await dev.send(f'{e} ao enviar mensagem do Amigo Secreto para {giving_user.discord_name} ({giving_user.id}).')
 
         return await ctx.send("Todas as mensagens foram enviadas.")
-
-    @commands.is_owner()
-    @commands.command()
-    async def roll_amigo_secreto(self, ctx: Context):
-        with self.bot.db_session() as session:
-            query = session.query(AmigoSecretoPerson).order_by(func.random()).all()
-            query_count = session.query(AmigoSecretoPerson).count()
-            if not query:
-                return await ctx.send("Não há nenhuma pessoa cadastrada no Amigo Secreto.")
-
-            if query_count < 2:
-                return await ctx.send("Há apenas uma pessoa cadastrada no Amigo Secreto. Deixe ela se presentear.")
-
-            for person in query:
-                if not person.giving_to_id:
-                    to_give = session.query(AmigoSecretoPerson).filter(
-                        AmigoSecretoPerson.receiving.is_(False), AmigoSecretoPerson.id != person.id).first()
-                    if not to_give:
-                        continue
-                    to_give.receiving = True
-                    person.giving_to_id = to_give.id
-                    person.giving_to_name = to_give.discord_name
-                    session.commit()
-
-            left_receiver = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.receiving.is_(False)).first()
-            left_giver = session.query(AmigoSecretoPerson).filter(AmigoSecretoPerson.giving_to_id.is_(None)).first()
-
-            if (left_giver and not left_receiver) or (not left_giver and left_receiver):
-                return await ctx.send("Algo deu errado ao tentar montar o Amigo Secreto. Tente novamente.")
-
-            if left_receiver and left_giver:
-                left_receiver.receiving = True
-                left_giver.giving_to_id = left_receiver.id
-                left_giver.giving_to_name = left_receiver.discord_name
-                session.commit()
-        return await ctx.send("Amigo secreto montado com sucesso!")
 
     @commands.is_owner()
     @commands.command()

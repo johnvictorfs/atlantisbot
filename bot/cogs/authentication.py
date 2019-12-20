@@ -2,6 +2,7 @@ from typing import Union, Dict, Optional, List, Any
 import traceback
 import datetime
 import logging
+import base64
 import json
 import re
 
@@ -17,6 +18,7 @@ from bot.orm.models import User, IngameName
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 from bot.utils.tools import divide_list, has_any_role
 from bot.utils.context import Context
+from bot.utils.checks import is_authenticated
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession):
@@ -108,6 +110,44 @@ class UserAuthentication(commands.Cog):
     def cog_unload(self):
         if self.bot.setting.mode == 'prod' or self.debugging:
             self.check_users.cancel()
+
+    @commands.check(is_authenticated)
+    @commands.command('token', aliases=['auth_token'])
+    async def token(self, ctx: Context):
+        user = ctx.get_user()
+
+        if not user:
+            return
+
+        data = {
+            'name': self.bot.setting.authorization['name'],
+            'type': self.bot.setting.authorization['type'],
+            'data': self.bot.setting.authorization['data'],
+            'id': user.id,
+            'discord_id': user.discord_id,
+            'discord_name': user.discord_name
+        }
+
+        token = base64.b64encode(str(data).encode('utf-8')).decode('utf-8')
+
+        description = (
+            'Atenção: Nunca compartilhe o seu Token de Autorização com outras pessoas, ele pode ser utilizado para se passar '
+            'por você, em pesquisas, eventos do Clã etc.'
+        )
+
+        embed = discord.Embed(
+            title='Token de Autorização',
+            description=description,
+            color=discord.Color.dark_red()
+        )
+
+        embed.add_field(
+            name="Clique abaixo para ver o seu Token",
+            value=f"||{token}||"
+        )
+
+        await ctx.message.add_reaction('✅')
+        return await ctx.author.send(embed=embed)
 
     @tasks.loop(hours=1)
     async def check_users(self):
