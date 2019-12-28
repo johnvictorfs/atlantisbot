@@ -1,4 +1,5 @@
 from typing import Union, Dict, Optional, List, Any
+import random
 import traceback
 import datetime
 import logging
@@ -696,7 +697,7 @@ class UserAuthentication(commands.Cog):
                     "f2p_worlds": player_world['f2p'],
                     "legacy_worlds": player_world['legacy'],
                     "language": player_world['language'],
-                    "worlds_left": 4,
+                    "worlds_left": random.randint(3, 4),
                     "failed_tries": 0
                 }
 
