@@ -8,8 +8,11 @@ class ApiService:
         self.base_url = base_url
         self.path = path
 
-        headers = {'authorization': api_token}
-        self.session: aiohttp.ClientSession = aiohttp.ClientSession(headers=headers)
+        self.headers = {
+            "referer": self.base_url,
+            "authorization": "Token " + api_token
+        }
+        self.session: aiohttp.ClientSession = aiohttp.ClientSession(headers=self.headers)
 
     @property
     def url(self) -> str:
@@ -17,6 +20,15 @@ class ApiService:
 
     def object_url(self, pk: int) -> str:
         return f"{self.base_url}/{self.path}/{pk}/"
+
+    async def login(self, user: str, password: str):
+        response = await self.session.post(f"{self.base_url}/auth/login/", data={
+            'username': user,
+            'password': password
+        })
+
+        data = await response.json()
+        self.headers['authorization'] = data['key']
 
     async def search(self, query: str):
         response = await self.session.get(f"{self.url}?search={query}")

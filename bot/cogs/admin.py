@@ -43,13 +43,18 @@ class Admin(commands.Cog):
     @commands.group(name='reload', hidden=True, invoke_without_command=True)
     async def _reload(self, ctx, *, module: str):
         """Reloads a module."""
+        name = f'bot.cogs.{module}'
+
         try:
-            self.bot.reload_extension(f'bot.cogs.{module}')
+            self.bot.reload_extension(name)
             return await ctx.send(f'Extensão {module} reiniciada com sucesso.')
         except ModuleNotFoundError:
             return await ctx.send(f"Extensão {module} não existe.")
-        except Exception as e:
-            return await ctx.send(f'Erro ao reiniciar extensão {module}:\n {type(e).__name__} : {e}')
+        except Exception:
+            try:
+                self.bot.load_extension(name)
+            except Exception as e:
+                return await ctx.send(f'Erro ao reiniciar extensão {module}:\n {type(e).__name__} : {e}')
 
     @commands.is_owner()
     @_reload.command(name='all', hidden=True)

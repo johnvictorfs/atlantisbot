@@ -17,6 +17,46 @@ def get_team_id(content: str):
     return re.findall(r"(?:\S+\s+)(\S+)", content)
 
 
+team_templates = {
+    'solak': [
+        {
+            'title': 'Solak 7-Man com 1 Learner',
+            'presences_channel': 'solak_chat',
+            'size': 7,
+            'required_role': 'solak',
+            'secondary_role': 'solak_learner',
+            'secondary_size': 1
+        },
+        {
+            'title': 'Solak 7-Man sem Learners',
+            'presences_channel': 'solak_chat',
+            'size': 2,
+            'required_role': 'solak',
+            'secondary_role': None,
+            'secondary_size': None
+        },
+        {
+            'title': 'Solak Duo com 1 Learner',
+            'presences_channel': 'solak_chat',
+            'size': 2,
+            'required_role': 'solak',
+            'secondary_role': 'solak_learner',
+            'secondary_size': 1
+        }
+    ],
+    'aod': [
+        {
+            'title': 'AoD 7-Man com 1 Learner',
+            'presences_channel': 'aod_chat',
+            'size': 7,
+            'required_role': 'aod',
+            'secondary_role': 'aod_learner',
+            'secondary_size': 1
+        }
+    ]
+}
+
+
 async def is_team_owner(ctx: Context):
     """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
     with ctx.bot.db_session() as session:
@@ -30,6 +70,8 @@ async def is_team_owner(ctx: Context):
         if not team:
             await ctx.send(f"Time com ID {team_id} não existe.")
             return False
+
+        assert isinstance(team.author_id, str)
         if not int(team.author_id) == ctx.author.id:
             await ctx.send(f"Você precisa ser o criador desse Time para fazer isso.")
             return False
@@ -78,10 +120,13 @@ class Teams(commands.Cog):
 
         if team_join:
             team_join = team_join.group()
+
+            assert isinstance(team_join, str)
             team_id = re.findall(r'\d+|raids', team_join, flags=re.IGNORECASE)
             team_id = ''.join(team_id).lower()
 
             mode = 'join' if 'in' in team_join.lower() else 'leave'
+
             try:
                 return await manage_team(team_id=team_id, client=self.bot, message=message, mode=mode)
             except TeamNotFoundError:
@@ -101,16 +146,22 @@ class Teams(commands.Cog):
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             if not team:
                 return await ctx.send(f"Time com ID {team_id} não existe.")
-            team_channel = self.bot.get_channel(int(team.team_channel_id))
+
+            assert isinstance(team.team_channel_id, str)
+            team_channel: discord.TextChannel = self.bot.get_channel(int(team.team_channel_id))
             if not ctx.author.permissions_in(team_channel).manage_channels:
                 raise commands.MissingPermissions(['manage_messages'])
+
             player = session.query(Player).filter_by(player_id=str(to_add.id), team=str(team.id)).first()
             if not player:
                 return await ctx.send(f"{ctx.author.mention}, esse jogador não está no time de ID {team_id}.")
+
             player.role = role
-            team_channel: discord.TextChannel = self.bot.get_channel(int(team.team_channel_id))
+
+            assert isinstance(team.team_message_id, str)
             team_message: discord.Message = await team_channel.fetch_message(int(team.team_message_id))
             await update_team_message(team_message, team, self.bot.setting.prefix, session)
+
             team_url = team_message.jump_url
             msg = f"Role de {to_add.mention} no time **[{team.title}]({team_url})** foi alterado para '{role}'"
             embed = discord.Embed(title='', description=msg, color=discord.Color.green())
@@ -128,13 +179,17 @@ class Teams(commands.Cog):
             if not players:
                 return await ctx.send(f"O time '{team.title}' está vazio.")
 
-            text = f"Menção enviada por: {ctx.author.mention}\n"
+            text = ""
 
             for player in players:
                 text = f"{text} <@{player.player_id}>"
 
             if message:
                 text = f"{text}\n{message}"
+
+            embed = discord.Embed(title="Mencionar Time", description=text)
+
+            embed.set_author(ctx.author.name, icon_url=ctx.author.avatar_url)
 
             await ctx.message.delete()
             return await ctx.send(text)
@@ -153,10 +208,12 @@ class Teams(commands.Cog):
             if not team:
                 return await ctx.send(f"ID inválida: {team_id}")
 
+            assert isinstance(team.author_id, str)
             if int(team.author_id) != ctx.author.id:
                 if not ctx.author.permissions_in(ctx.channel).manage_roles:
                     raise commands.MissingPermissions(['manage_roles'])
 
+            assert isinstance(team.team_channel_id, str)
             if int(team.team_channel_id) != ctx.channel.id:
                 return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
 
@@ -169,6 +226,44 @@ class Teams(commands.Cog):
     @commands.command(aliases=['newteam', 'createteam', 'novotime', 'time'])
     async def team(self, ctx: Context):
         await ctx.message.delete()
+
+        for name, templates in team_templates.items():
+            if name in ctx.channel.name.lower():
+                embed = discord.Embed(
+                    title="Templates de Times",
+                    description="Deseja utilizar um dos Templates de Time abaixo?",
+                    color=discord.Color.green()
+                )
+
+                for i, template in enumerate(templates, start=1):
+                    channel = f"<#{self.bot.setting.chat.get(template['presences_channel'])}>"
+
+                    required_role = ""
+                    if template['required_role']:
+                        required_role += f"**Requisito:** <@&{self.bot.setting.role.get(template['required_role'])}>\n"
+
+                    secondary_role = ""
+                    if template['secondary_role']:
+                        secondary_role += f"**Requisito Secundário:** <@&{self.bot.setting.role.get(template['secondary_role'])}>\n"
+
+                        if template['secondary_size']:
+                            secondary_role += f"**Limite de Requisito Secundário:** {template['secondary_size']}"
+
+                    template_text = (
+                        f"**Tamanho:** {template['size']}\n"
+                        f"**Canal de Presenças** {channel}\n"
+                        f"{required_role}"
+                        f"{secondary_role}"
+                    )
+
+                    embed.add_field(
+                        name=f"__**{i}:**__ {template['title']}",
+                        value=template_text,
+                        inline=False
+                    )
+
+                await ctx.send(embed=embed)
+                await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author)
 
         cancel_command = f'{self.bot.setting.prefix}cancelar'
         orange = discord.Color.orange()

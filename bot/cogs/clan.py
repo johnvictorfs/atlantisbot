@@ -102,7 +102,8 @@ class Clan(commands.Cog):
         )
         clan_info_embed.add_field(
             name=exp_header,
-            value=f"{user_clan_exp:,}"
+            value=f"{user_clan_exp:,}",
+            inline=False
         )
         if player.private_profile:
             clan_info_embed.add_field(

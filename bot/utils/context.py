@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from discord.ext import commands
 import asyncio
@@ -34,6 +34,9 @@ class Context(commands.Context):
     """
     Source: https://github.com/Rapptz/RoboDanny/blob/ac3a0ed64381050c37761d358d4af90b89ec1ca3/cogs/utils/context.py
     """
+    author: Union[discord.Member, discord.User]
+    message: discord.Message
+    channel: discord.TextChannel
 
     def __init__(self, *args, **kwargs):
         super(Context, self).__init__(*args, **kwargs)

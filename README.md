@@ -1,14 +1,14 @@
 # AtlantisBot
 
-A discord bot made in Python using the [discord.py](https://github.com/Rapptz/discord.py/tree/rewrite) library made by Rapptz (rewrite version)
+A discord bot made in Python using the [discord.py](https://github.com/Rapptz/discord.py) library made by [Rapptz](https://github.com/Rapptz)
 
-Made specifically for the discord server of the RuneScape 3 Clan Atlantis
+Made for the Discord server of the RuneScape 3 Clan Atlantis
 
 ***
 
 ## Self-hosting
 
-- Not yet supported, and likely won't ever be, the bot is very customized to a specific discord server, do feel free, whoever, to copy features of it and implement them in your own bot ([license](LICENSE))
+- Not supported, and likely won't ever be, the bot is very customized to a specific discord server, do feel free, whoever, to copy features of it and implement them in your own bot ([license](LICENSE))
 
 ***
 
@@ -44,6 +44,8 @@ Adventurer's Log messages example    |
 #### Notable Commands
 
 *Arguments format:* \<required\> (optional|default value)
+
+- `!membro` - Command used for linking and authenticating a RuneScape 3 Account to a Discord User, by making the User hop to different in-game worlds, and checking if he's hopping to the right worlds.
 
 - `!team` - Saves information about a Team that gets saved in the Bot's database, this information is used to automate team creation and joining of other people, explained in the automated team making task above
 

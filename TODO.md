@@ -44,13 +44,7 @@
 
 ## Times
 
-- Adicionar do Lado do nome do Discord da pessoa também o nick in-game, caso ela esteja autenticada
-
----
-
-## ClanInfo
-
-- Adicionar informação do nick atual in-game da pessoa no comando `!claninfo`, caso ela esteja autenticada
+- ~~Adicionar do Lado do nome do Discord da pessoa também o nick in-game, caso ela esteja autenticada~~
 
 ---
 
