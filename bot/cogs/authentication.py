@@ -113,6 +113,24 @@ class UserAuthentication(commands.Cog):
         if self.bot.setting.mode == 'prod' or self.debugging:
             self.check_users.cancel()
 
+    @commands.command('compare')
+    async def compare_players(self, ctx: Context, before_name: str, after_name: str):
+        before = await get_player_df_runeclan(before_name)
+        after = await get_player_df_runeclan(after_name)
+
+        comparison = compare_players(before, after)
+
+        embed = discord.Embed(
+            title="Comparação de Autenticação",
+            description=f"**Chance de troca de nome:** {comparison}%",
+            color=discord.Color.blue()
+        )
+
+        embed.add_field(name="Nome anterior", value=before_name, inline=False)
+        embed.add_field(name="Nome novo", value=after_name, inline=False)
+
+        await ctx.send(embed=embed)
+
     @commands.check(is_authenticated)
     @commands.command('token', aliases=['auth_token'])
     async def token(self, ctx: Context):
