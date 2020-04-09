@@ -115,6 +115,8 @@ class UserAuthentication(commands.Cog):
 
     @commands.command('compare')
     async def compare_players(self, ctx: Context, before_name: str, after_name: str):
+        if len(before_name) > 12 or len(after_name) > 12:
+            return await ctx.send('Nome não pode ser maior que 12 caracteres')
         try:
             before = await get_player_df_runeclan(before_name)
         except Exception:
@@ -663,6 +665,9 @@ class UserAuthentication(commands.Cog):
                 return await ctx.send(f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado.")
 
             await ctx.trigger_typing()
+
+            if len(ingame_name.content.strip()) > 12:
+                return await ctx.send('Nome Inválido. Tamanho muito grande.')
 
             # Já existe outro usuário cadastrado com esse username in-game
             user_ingame = session.query(User).filter(
