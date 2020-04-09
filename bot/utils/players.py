@@ -113,7 +113,7 @@ def compare_players(before: pd.DataFrame, after: pd.DataFrame) -> float:
     new_df['differenceExp'] = after['Exp'] - before['Exp']
 
     # Amount of skills that have a difference between the two DFs of over 5m
-    big_difference = np.sum(new_df['differenceExp'] > 2_000_000)
+    big_difference = np.sum(new_df['differenceExp'] > 1_500_000)
 
     if not big_difference:
         return 100
@@ -121,12 +121,12 @@ def compare_players(before: pd.DataFrame, after: pd.DataFrame) -> float:
     # Includes Overall Exp as 'skill'
     max_skills = len(skills)
 
-    return (max_skills / big_difference) * 100
+    return (big_difference / max_skills) * 100
 
 
 if __name__ == '__main__':
-    after = asyncio.run(get_player_df_runeclan('O Engenheiro'))
-    before = asyncio.run(get_player_df_runeclan('AEK94'))
+    before = asyncio.run(get_player_df_runeclan('PudimS2'))
+    after = asyncio.run(get_player_df_runeclan('Pudiimm'))
     # after = asyncio.run(get_player_df_api('AEK94'))
     # after = get_skills_df(after, skills)
 
