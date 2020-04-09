@@ -688,7 +688,7 @@ class UserAuthentication(commands.Cog):
                         "Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde."
                     )
 
-            if user:
+            if user and user.ingame_name:
                 try:
                     before = await get_player_df_runeclan(user.ingame_name)
                     after = await get_player_df_runeclan(ingame_name.content)
@@ -708,7 +708,11 @@ class UserAuthentication(commands.Cog):
 
                     await channel.send(embed=embed)
                 except Exception as e:
-                    await self.bot.send_logs(e, traceback.format_exc(), more_info='Trying to get difference from runeclan')
+                    await self.bot.send_logs(
+                        e,
+                        traceback.format_exc(),
+                        more_info=f'Trying to get difference from runeclan ({user.ingame_name} -> {ingame_name.content})'
+                    )
 
             settings: Dict[str, Any] = {}
             worlds_done = []
