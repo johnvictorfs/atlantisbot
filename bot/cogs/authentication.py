@@ -20,6 +20,7 @@ from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_world
 from bot.utils.tools import divide_list, has_any_role
 from bot.utils.context import Context
 from bot.utils.checks import is_authenticated
+from bot.utils.players import get_player_df_runeclan, get_player_df_runeclan, compare_players
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession):
@@ -584,6 +585,7 @@ class UserAuthentication(commands.Cog):
     async def aplicar_role(self, ctx: Context):
         self.logger.info(f'[{ctx.author}] Autenticação iniciada.')
 
+        user: Optional[User] = None
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         member: discord.Member = atlantis.get_member(ctx.author.id)
 
@@ -597,7 +599,7 @@ class UserAuthentication(commands.Cog):
         convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
 
         with self.bot.db_session() as session:
-            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
+            user = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
 
             if user and not user.warning_date and not user.disabled:
                 role: discord.Role
@@ -661,6 +663,28 @@ class UserAuthentication(commands.Cog):
                     return await ctx.send(
                         "Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde."
                     )
+
+            if user:
+                try:
+                    before = await get_player_df_runeclan(user.ingame_name)
+                    after = await get_player_df_runeclan(ingame_name.content)
+
+                    comparison = compare_players(before, after)
+
+                    channel: discord.TextChannel = self.bot.get_channel(697682722503524352)
+
+                    embed = discord.Embed(
+                        title="Comparação de Autenticação",
+                        description=f"**Chance de troca de nome:** {comparison}%",
+                        color=discord.Color.blue()
+                    )
+
+                    embed.add_field(name="Nome anterior", value=user.ingame_name, inline=False)
+                    embed.add_field(name="Nome novo", value=ingame_name.content, inline=False)
+
+                    await channel.send(embed=embed)
+                except Exception as e:
+                    await self.bot.send_logs(e, traceback.format_exc(), more_info='Trying to get difference from runeclan')
 
             settings: Dict[str, Any] = {}
             worlds_done = []

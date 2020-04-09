@@ -29,10 +29,6 @@ mypy = "^0.740.0"
 mypy_extensions = "^0.4.3"
 sqlalchemy-stubs = "^0.3"
 
-[tool.poetry.scripts]
-migrate = './migrate.sh'
-makemigrations = './makemigrations.sh'
-
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
