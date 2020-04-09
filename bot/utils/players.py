@@ -8,11 +8,18 @@ from io import StringIO
 from typing import List
 import json
 
-with open('bot/data/skills.json') as f:
-    skills = json.load(f)
+try:
+    with open('bot/data/skills.json') as f:
+        skills = json.load(f)
 
-with open('bot/data/activities.json') as f:
-    activities = json.load(f)
+    with open('bot/data/activities.json') as f:
+        activities = json.load(f)
+except FileNotFoundError:
+    with open('../data/skills.json') as f:
+        skills = json.load(f)
+
+    with open('../data/activities.json') as f:
+        activities = json.load(f)
 
 
 async def get_player_df_runeclan(player_name: str) -> pd.DataFrame:
@@ -112,11 +119,8 @@ def compare_players(before: pd.DataFrame, after: pd.DataFrame) -> float:
 
     new_df['differenceExp'] = after['Exp'] - before['Exp']
 
-    # Amount of skills that have a difference between the two DFs of over 5m
-    big_difference = np.sum(new_df['differenceExp'] > 1_500_000)
-
-    if not big_difference:
-        return 100
+    # Amount of skills that have a difference between the two DFs of over a certain amount
+    big_difference = np.sum(new_df['differenceExp'] < 4_000_000)
 
     # Includes Overall Exp as 'skill'
     max_skills = len(skills)
@@ -125,13 +129,8 @@ def compare_players(before: pd.DataFrame, after: pd.DataFrame) -> float:
 
 
 if __name__ == '__main__':
-    before = asyncio.run(get_player_df_runeclan('PudimS2'))
-    after = asyncio.run(get_player_df_runeclan('Pudiimm'))
-    # after = asyncio.run(get_player_df_api('AEK94'))
-    # after = get_skills_df(after, skills)
+    import sys
+    before = asyncio.run(get_player_df_runeclan(sys.argv[1].replace('"', '').replace("'", "")))
+    after = asyncio.run(get_player_df_runeclan(sys.argv[2].replace('"', '').replace("'", "")))
 
     print(compare_players(before, after))
-    # import sys
-    # before = get_skills_df(get_player_df(sys.argv[1]), skills)
-    # after = get_skills_df(get_player_df(sys.argv[2]), skills)
-    # print(compare_players(before, after))

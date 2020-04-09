@@ -115,8 +115,14 @@ class UserAuthentication(commands.Cog):
 
     @commands.command('compare')
     async def compare_players(self, ctx: Context, before_name: str, after_name: str):
-        before = await get_player_df_runeclan(before_name)
-        after = await get_player_df_runeclan(after_name)
+        try:
+            before = await get_player_df_runeclan(before_name)
+        except Exception:
+            return await ctx.send(f"Não foram encontrados dados para o jogador '{before_name}'")
+        try:
+            after = await get_player_df_runeclan(after_name)
+        except Exception:
+            return await ctx.send(f"Não foram encontrados dados para o jogador '{before_name}'")
 
         comparison = compare_players(before, after)
 
