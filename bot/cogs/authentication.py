@@ -122,7 +122,7 @@ class UserAuthentication(commands.Cog):
         try:
             after = await get_player_df_runeclan(after_name)
         except Exception:
-            return await ctx.send(f"Não foram encontrados dados para o jogador '{before_name}'")
+            return await ctx.send(f"Não foram encontrados dados para o jogador '{after_name}'")
 
         comparison = compare_players(before, after)
 
