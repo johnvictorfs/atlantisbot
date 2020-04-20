@@ -195,11 +195,11 @@ class UserAuthentication(commands.Cog):
         clan: rs3clans.Clan = await get_clan_async(self.bot.setting.clan_name, set_exp=False)
 
         with self.bot.db_session() as session:
-            try:
-                async with aiohttp.ClientSession() as cs:
-                    users = session.query(User).all()
+            async with aiohttp.ClientSession() as cs:
+                users = session.query(User).all()
 
-                    for user in users:
+                for user in users:
+                    try:
                         user: User
 
                         self.logger.debug(f'[check_users] Checando {user}')
@@ -228,7 +228,7 @@ class UserAuthentication(commands.Cog):
                         if not user_data:
                             self.error_logger.error(f'[check_users] sem user_data para {user}.')
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
-                            await asyncio.sleep(600)
+                            await asyncio.sleep(180)
                             continue
 
                         if member:
@@ -312,9 +312,9 @@ class UserAuthentication(commands.Cog):
                             await auth_chat.send(embed=warning_embed)
                             user.warning_date = datetime.datetime.utcnow()
                             session.commit()
-            except Exception as e:
-                await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
-                await asyncio.sleep(30)
+                    except Exception as e:
+                        await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
+                        await asyncio.sleep(30)
 
     @staticmethod
     async def send_cooldown(ctx):
