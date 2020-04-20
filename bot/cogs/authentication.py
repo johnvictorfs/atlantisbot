@@ -195,126 +195,117 @@ class UserAuthentication(commands.Cog):
         clan: rs3clans.Clan = await get_clan_async(self.bot.setting.clan_name, set_exp=False)
 
         with self.bot.db_session() as session:
-            async with aiohttp.ClientSession() as cs:
-                users = session.query(User).all()
+            users = session.query(User).all()
 
-                for user in users:
-                    try:
-                        user: User
+            for user in users:
+                try:
+                    user: User
 
-                        self.logger.debug(f'[check_users] Checando {user}')
+                    self.logger.debug(f'[check_users] Checando {user}')
 
-                        member: discord.Member = atlantis.get_member(int(user.discord_id))
+                    member: discord.Member = atlantis.get_member(int(user.discord_id))
 
-                        if user.disabled:
-                            # Fix disabled member roles, if necessary
-                            if member:
-                                await member.add_roles(convidado)
-                                await member.remove_roles(membro)
-                            continue
-
-                        if not user.ingame_names:
-                            # Add curent player's ingame name as a IngameName model if none exist
-                            session.add(IngameName(name=user.ingame_name, user=user.id))
-
-                        # Fix member roles if necessary
+                    if user.disabled:
+                        # Fix disabled member roles, if necessary
                         if member:
-                            await member.add_roles(membro)
-                            await member.remove_roles(convidado)
+                            await member.add_roles(convidado)
+                            await member.remove_roles(membro)
+                        continue
 
-                        await asyncio.sleep(6)
-                        user_data = await get_user_data(user.ingame_name, cs)
+                    if not user.ingame_names:
+                        # Add curent player's ingame name as a IngameName model if none exist
+                        session.add(IngameName(name=user.ingame_name, user=user.id))
 
-                        if not user_data:
-                            self.error_logger.error(f'[check_users] sem user_data para {user}.')
-                            # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
-                            await asyncio.sleep(180)
-                            continue
+                    # Fix member roles if necessary
+                    if member:
+                        await member.add_roles(membro)
+                        await member.remove_roles(convidado)
 
-                        if member:
-                            clan_user = clan.get_member(user.ingame_name)
-                            if clan_user:
-                                self.logger.debug(f'[check_users] Checando Admin Roles {clan_user}')
-                                await check_admin_roles(member, self.bot.setting, clan_user.rank)
+                    clan_user = None
+                    if member:
+                        clan_user = clan.get_member(user.ingame_name)
+                        if clan_user:
+                            self.logger.debug(f'[check_users] Checando Admin Roles {clan_user}')
+                            await check_admin_roles(member, self.bot.setting, clan_user.rank)
 
-                        if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name and not user.warning_date:
-                            # Don't do anything if player in clan
-                            continue
+                    if not self.debugging and clan_user and not user.warning_date:
+                        # Don't do anything if player in clan
+                        continue
 
-                        if not member:
-                            # Disable user if he left the discord
+                    if not member:
+                        # Disable user if he left the discord
+                        user.disabled = True
+                        user.warning_date = None
+                        session.commit()
+                        continue
+
+                    if user.warning_date:
+                        now = datetime.datetime.now(user.warning_date.tzinfo)
+
+                        # Only remove role if warning message was send 7 days before this check
+                        if (now - user.warning_date).days >= 7:
                             user.disabled = True
                             user.warning_date = None
                             session.commit()
-                            continue
-
-                        if user.warning_date:
-                            now = datetime.datetime.now(user.warning_date.tzinfo)
-
-                            # Only remove role if warning message was send 7 days before this check
-                            if (now - user.warning_date).days >= 7:
-                                user.disabled = True
-                                user.warning_date = None
-                                session.commit()
-                                await member.remove_roles(membro)
-                                await member.add_roles(convidado)
-                                await member.send(
-                                    f"Olá {member.mention}! Há 7 dias, você trocou de nome ou saiu do Atlantis. "
-                                    f"Como, até o momento, você não voltou a se registrar como membro do clã "
-                                    f"autenticado ao Discord, seu cargo de `Membro` foi removido.\n\n"
-                                    f"Caso ainda seja membro da comunidade, **autentique-se novamente "
-                                    f"já!** O cargo de `Membro` é essencial para uma ampla participação "
-                                    f"nas atividades do Atlantis.\n\n"
-                                    f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!\n\n"
-                                    f"Caso queira desabilitar sua autenticação, utiliza o comando **`!unmembro`**"
-                                )
-
-                                ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
-                                ingame_names = ', '.join(ingame_names)
-
-                                tag_removida_embed = discord.Embed(
-                                    title="Teve Tag de Membro Removida",
-                                    description=f"**ID:** {member.id}\n**Nomes Anteriores:** {ingame_names}",
-                                    color=discord.Color.dark_red()
-                                )
-
-                                tag_removida_embed.set_author(name=str(member), icon_url=member.avatar_url)
-
-                                await auth_chat.send(embed=tag_removida_embed)
-                        else:
+                            await member.remove_roles(membro)
+                            await member.add_roles(convidado)
                             await member.send(
-                                f"Olá {member.mention}!\n"
-                                f"Parece que você trocou o seu nome no jogo ou saiu do Clã! Desse modo, "
-                                f"seu cargo de `Membro` deverá ser re-avaliada.\n\n"
-                                f"**Caso tenha apenas mudado de nome**, será necessário se autenticar novamente "
-                                f"no Discord do clã para continuar a ter acesso aos canais e vantagens do cargo de "
-                                f"`Membro`. Torna-se válido ressaltar que o cargo é de fundamental importância para "
-                                f"participação em muitas atividades do Atlantis.\n\n"
-                                f"A partir de agora, você tem até **7 dias para se autenticar novamente** e "
-                                f"registrar-se como Membro do Atlantis! Após este período, o cargo de `Membro` será "
-                                f"removido até atualização de seu status.\n\n"
-                                f"Caso tenha deixado a comunidade, o cargo só poderá ser reavido mediante um eventual "
-                                f"reingresso no clã.\n\n"
-                                f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!"
+                                f"Olá {member.mention}! Há 7 dias, você trocou de nome ou saiu do Atlantis. "
+                                f"Como, até o momento, você não voltou a se registrar como membro do clã "
+                                f"autenticado ao Discord, seu cargo de `Membro` foi removido.\n\n"
+                                f"Caso ainda seja membro da comunidade, **autentique-se novamente "
+                                f"já!** O cargo de `Membro` é essencial para uma ampla participação "
+                                f"nas atividades do Atlantis.\n\n"
+                                f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!\n\n"
+                                f"Caso queira desabilitar sua autenticação, utiliza o comando **`!unmembro`**"
                             )
 
                             ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
                             ingame_names = ', '.join(ingame_names)
 
-                            warning_embed = discord.Embed(
-                                title="Recebeu Warning de 7 dias para re-autenticação",
+                            tag_removida_embed = discord.Embed(
+                                title="Teve Tag de Membro Removida",
                                 description=f"**ID:** {member.id}\n**Nomes Anteriores:** {ingame_names}",
-                                color=discord.Color.red()
+                                color=discord.Color.dark_red()
                             )
 
-                            warning_embed.set_author(name=str(member), icon_url=member.avatar_url)
+                            tag_removida_embed.set_author(name=str(member), icon_url=member.avatar_url)
 
-                            await auth_chat.send(embed=warning_embed)
-                            user.warning_date = datetime.datetime.utcnow()
-                            session.commit()
-                    except Exception as e:
-                        await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
-                        await asyncio.sleep(30)
+                            await auth_chat.send(embed=tag_removida_embed)
+                    else:
+                        await member.send(
+                            f"Olá {member.mention}!\n"
+                            f"Parece que você trocou o seu nome no jogo ou saiu do Clã! Desse modo, "
+                            f"seu cargo de `Membro` deverá ser re-avaliada.\n\n"
+                            f"**Caso tenha apenas mudado de nome**, será necessário se autenticar novamente "
+                            f"no Discord do clã para continuar a ter acesso aos canais e vantagens do cargo de "
+                            f"`Membro`. Torna-se válido ressaltar que o cargo é de fundamental importância para "
+                            f"participação em muitas atividades do Atlantis.\n\n"
+                            f"A partir de agora, você tem até **7 dias para se autenticar novamente** e "
+                            f"registrar-se como Membro do Atlantis! Após este período, o cargo de `Membro` será "
+                            f"removido até atualização de seu status.\n\n"
+                            f"Caso tenha deixado a comunidade, o cargo só poderá ser reavido mediante um eventual "
+                            f"reingresso no clã.\n\n"
+                            f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!"
+                        )
+
+                        ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                        ingame_names = ', '.join(ingame_names)
+
+                        warning_embed = discord.Embed(
+                            title="Recebeu Warning de 7 dias para re-autenticação",
+                            description=f"**ID:** {member.id}\n**Nomes Anteriores:** {ingame_names}",
+                            color=discord.Color.red()
+                        )
+
+                        warning_embed.set_author(name=str(member), icon_url=member.avatar_url)
+
+                        await auth_chat.send(embed=warning_embed)
+                        user.warning_date = datetime.datetime.utcnow()
+                        session.commit()
+                except Exception as e:
+                    await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
+                    await asyncio.sleep(30)
 
     @staticmethod
     async def send_cooldown(ctx):
