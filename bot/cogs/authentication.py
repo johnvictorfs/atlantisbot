@@ -91,12 +91,12 @@ class UserAuthentication(commands.Cog):
         self.bot = bot
         self.debugging = False
         self.logger = logging.getLogger('authentication')
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         handler = logging.FileHandler(filename='authentication.log', encoding='utf-8')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
         self.error_logger = logging.getLogger('check_users_errors')
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         error_logger_handler = logging.FileHandler(filename='check_users_errors.log', encoding='utf-8')
         error_logger_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 

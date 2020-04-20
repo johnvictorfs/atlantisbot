@@ -36,7 +36,7 @@ async def check_admin_roles(user: discord.Member, settings: Settings, rank: str)
     for role in user.roles:
         if role.id in role_ranks.values():
             # Remove any Admin roles from user
-            user.remove_roles(role)
+            await user.remove_roles(role)
             embed.color = discord.Color.dark_red()
             embed.add_field(name="Rank Removido", value=role.mention)
             await log_channel.send(embed=embed)
@@ -52,4 +52,4 @@ async def check_admin_roles(user: discord.Member, settings: Settings, rank: str)
         embed.color = discord.Color.green()
         embed.add_field(name="Rank Adicionado", value=server_rank.mention)
         await log_channel.send(embed=embed)
-        user.add_roles(server_rank)
+        await user.add_roles(server_rank)
