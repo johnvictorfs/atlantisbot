@@ -47,7 +47,7 @@ class RaidsTasks(commands.Cog):
                 tb = traceback.format_exc()
                 await self.bot.send_logs(e, tb)
         else:
-            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
+            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date())
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
             print(f'Next Raids in: {raids_diff.days} '
                   f'Days, {raids_diff.seconds // 3600} '
@@ -76,7 +76,7 @@ class RaidsTasks(commands.Cog):
             return
 
         try:
-            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
+            seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date())
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
             days = raids_diff.days
             hours = raids_diff.seconds // 3600

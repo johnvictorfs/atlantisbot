@@ -1,3 +1,7 @@
+from rs3clans import Clan
+from typing import Optional
+
+from aioify import aioify
 import matplotlib.pyplot as plt
 from pandas.plotting import table
 from pytz import timezone, utc
@@ -12,7 +16,14 @@ separator = ("_\\" * 15) + "_"
 right_arrow = "<:rightarrow:484382334582390784>"
 
 
-def has_any_role(member: discord.member.Member, *role_ids: int):
+def get_clan_sync(name: str, **kwargs) -> Clan:
+    return Clan(name, **kwargs)
+
+
+get_clan_async = aioify(get_clan_sync)
+
+
+def has_any_role(member: discord.member.Member, *role_ids: Optional[int]):
     for role_id in role_ids:
         if any(member_role.id == role_id for member_role in member.roles):
             return True

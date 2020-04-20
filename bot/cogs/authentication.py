@@ -17,10 +17,11 @@ import aiohttp
 from bot.bot_client import Bot
 from bot.orm.models import User, IngameName
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
-from bot.utils.tools import divide_list, has_any_role
+from bot.utils.tools import divide_list, has_any_role, get_clan_async
 from bot.utils.context import Context
 from bot.utils.checks import is_authenticated
-from bot.utils.players import get_player_df_runeclan, get_player_df_runeclan, compare_players
+from bot.utils.players import get_player_df_runeclan, compare_players
+from bot.utils.roles import check_admin_roles
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession):
@@ -191,6 +192,7 @@ class UserAuthentication(commands.Cog):
         convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
         auth_chat = self.bot.setting.chat.get('auth')
         auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
+        clan: rs3clans.Clan = await get_clan_async(self.bot.setting.clan_name, set_exp=False)
 
         with self.bot.db_session() as session:
             try:
@@ -226,6 +228,11 @@ class UserAuthentication(commands.Cog):
                             # Sometimes call to RS3's API fail and a 404 html page is returned instead (...?)
                             await asyncio.sleep(600)
                             continue
+
+                        if member:
+                            clan_user = clan.get_member(user.ingame_name)
+                            if clan_user:
+                                await check_admin_roles(member, self.bot.setting, clan_user.rank)
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name and not user.warning_date:
                             # Don't do anything if player in clan

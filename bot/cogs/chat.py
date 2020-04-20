@@ -87,7 +87,7 @@ class Chat(commands.Cog):
                            f"Herbologia é **{herb_level}**. "
                            f"Isso é suficiente para fazer Poções de sobrecarregamento (Overloads), mas "
                            f"apenas usando Boosts, caso já não tenha, faça alguns usando o seguinte "
-                           f"boost (ou outro se possível/preferir) <https://rs.wiki/Spicy_stew>")
+                           f"boost (ou outro como Pulse Cores) <https://rs.wiki/Spicy_stew>")
 
         prayer_level = player.skill('prayer').level
         left_to_95 = 8_771_558 - player.skill('prayer').exp
@@ -145,7 +145,7 @@ class Chat(commands.Cog):
             inline=False
         )
 
-        seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
+        seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date())
         raids_diff = datetime.timedelta(seconds=seconds_till_raids)
 
         days = raids_diff.days

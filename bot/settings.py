@@ -70,7 +70,6 @@ class Settings:
     def banner_image(self):
         return self.read_data('OTHER')['banner_image']
 
-    @property
     def raids_start_date(self):
         return datetime.datetime.strptime(self.read_data('OTHER')['raids_start_date'], '%H:%M:%S %Y/%m/%d')
 
@@ -129,6 +128,9 @@ class Settings:
     @property
     def rsatlantis(self):
         return self.read_data('RSATLANTIS')
+
+    def admin_roles(self):
+        return self.read_data('RS_ADMIN')
 
 
 default_settings = {
