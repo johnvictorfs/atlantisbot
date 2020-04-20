@@ -202,6 +202,8 @@ class UserAuthentication(commands.Cog):
                     for user in users:
                         user: User
 
+                        self.logger.debug(f'[check_users] Checando {user}')
+
                         member: discord.Member = atlantis.get_member(int(user.discord_id))
 
                         if user.disabled:
@@ -232,6 +234,7 @@ class UserAuthentication(commands.Cog):
                         if member:
                             clan_user = clan.get_member(user.ingame_name)
                             if clan_user:
+                                self.logger.debug(f'[check_users] Checando Admin Roles {clan_user}')
                                 await check_admin_roles(member, self.bot.setting, clan_user.rank)
 
                         if not self.debugging and user_data.get('clan') == self.bot.setting.clan_name and not user.warning_date:
