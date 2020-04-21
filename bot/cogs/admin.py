@@ -40,8 +40,20 @@ class Admin(commands.Cog):
         is_owner = await self.bot.is_owner(ctx.author)
         return is_owner or has_any_role(ctx.author, *roles_)
 
+    @commands.is_owner()
+    @commands.command()
+    async def load(self, ctx: Context, *, module: str):
+        """Loads a module."""
+        try:
+            self.bot.load_extension(f'bot.cogs.{module}')
+            return await ctx.send(f'Extensão {module} iniciada com sucesso.')
+        except ModuleNotFoundError:
+            return await ctx.send(f"Extensão {module} não existe.")
+        except Exception as e:
+            return await ctx.send(f'Erro ao iniciar extensão {module}:\n {type(e).__name__} : {e}')
+
     @commands.group(name='reload', hidden=True, invoke_without_command=True)
-    async def _reload(self, ctx, *, module: str):
+    async def _reload(self, ctx: Context, *, module: str):
         """Reloads a module."""
         try:
             self.bot.reload_extension(f'bot.cogs.{module}')
@@ -53,7 +65,7 @@ class Admin(commands.Cog):
 
     @commands.is_owner()
     @_reload.command(name='all', hidden=True)
-    async def _reload_all(self, ctx):
+    async def _reload_all(self, ctx: Context):
         """Reloads all modules, while pulling from git."""
         try:
             async with ctx.typing():
