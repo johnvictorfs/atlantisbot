@@ -12,7 +12,12 @@ async def is_admin(ctx: Context):
     admin_roles = ['rs_coord', 'rs_org', 'rs_admin']
     role_ids = [atlantis.get_role(ctx.setting.admin_roles().get(role)) for role in admin_roles]
 
-    return has_any_role(ctx.get_user(), *role_ids)
+    user = ctx.get_user()
+    has_admin = has_any_role(user, *role_ids)
+
+    ctx.bot.logger.info(f'[Check is_admin] {user} -> {has_admin}')
+
+    return has_admin
 
 
 async def is_authenticated(ctx: Context):
@@ -26,6 +31,7 @@ async def is_authenticated(ctx: Context):
                 f'Você precisa estar autenticado para usar esse comando. Autentique-se enviando o comando'
                 f'**`!membro`** para mim aqui: {ctx.bot.user.mention}'
             )
+            ctx.bot.logger.info(f'[Check is_authenticated] {user} -> Disabled or non-existent')
             return False
         if user.warning_date:
             await ctx.send(
@@ -33,5 +39,7 @@ async def is_authenticated(ctx: Context):
                 f'se re-autenticar, já que mudou de nome recentemente, ou saiu do clã.\n\n'
                 f'Você pode se re-autenticar enviando o comando **`!membro`** para mim aqui: {ctx.bot.user.mention}'
             )
+            ctx.bot.logger.info(f'[Check is_authenticated] {user} -> Warning date')
             return False
+    ctx.bot.logger.info(f'[Check is_authenticated] {user} -> True')
     return True

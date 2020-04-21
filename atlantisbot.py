@@ -41,4 +41,4 @@ if __name__ == '__main__':
     logger_atl.addHandler(handler_atl)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run(logger))
+    loop.run_until_complete(run(logger_atl))
