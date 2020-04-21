@@ -40,5 +40,8 @@ if __name__ == '__main__':
     logger.addHandler(handler)
     logger_atl.addHandler(handler_atl)
 
+    logger_atl.info('Starting bot')
+    logger.info('Starting bot')
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(logger_atl))

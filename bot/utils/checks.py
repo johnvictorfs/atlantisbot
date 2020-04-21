@@ -12,7 +12,7 @@ async def is_admin(ctx: Context):
     admin_roles = ['rs_coord', 'rs_org', 'rs_admin']
     role_ids = [atlantis.get_role(ctx.setting.admin_roles().get(role)) for role in admin_roles]
 
-    user = ctx.get_user()
+    user = ctx.author
     has_admin = has_any_role(user, *role_ids)
 
     ctx.bot.logger.info(f'[Check is_admin] {user} -> {has_admin}')
@@ -41,5 +41,6 @@ async def is_authenticated(ctx: Context):
             )
             ctx.bot.logger.info(f'[Check is_authenticated] {user} -> Warning date')
             return False
-    ctx.bot.logger.info(f'[Check is_authenticated] {user} -> True')
+
+        ctx.bot.logger.info(f'[Check is_authenticated] {user} -> True')
     return True
