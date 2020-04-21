@@ -19,7 +19,7 @@ from bot.orm.models import User, IngameName
 from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_worlds
 from bot.utils.tools import divide_list, has_any_role, get_clan_async
 from bot.utils.context import Context
-from bot.utils.checks import is_authenticated
+from bot.utils.checks import is_authenticated, is_admin
 from bot.utils.players import get_player_df_runeclan, compare_players
 from bot.utils.roles import check_admin_roles
 
@@ -376,24 +376,12 @@ class UserAuthentication(commands.Cog):
             else:
                 return await ctx.send('Remoção de autenticação cancelada.')
 
+    @commands.check(is_admin)
     @commands.command(aliases=['user'])
     async def authenticated_user(self, ctx: Context, *, user_name: str):
         """
         Searches Authenticated User, first by Ingame Name, then by Discord Name, then by Discord Id
         """
-        atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
-        discord_member: discord.Member = atlantis.get_member(ctx.author.id)
-
-        if not discord_member:
-            return
-
-        admin = self.bot.setting.role.get('mod')
-        leader = self.bot.setting.role.get('admin')
-        admin_trial = self.bot.setting.role.get('mod_trial')
-
-        if not has_any_role(discord_member, admin, leader, admin_trial):
-            raise commands.MissingPermissions(missing_perms=['Administrador'])
-
         lower_name = user_name.lower()
 
         with self.bot.db_session() as session:
@@ -465,21 +453,9 @@ class UserAuthentication(commands.Cog):
             await ctx.author.send(embed=embed)
             await ctx.message.add_reaction('✅')
 
+    @commands.check(is_admin)
     @commands.command(aliases=['membros'])
     async def authenticated_users(self, ctx: Context):
-        atlantis: discord.Guild = self.bot.get_guild(self.bot.setting.server_id)
-        member: discord.Member = atlantis.get_member(ctx.author.id)
-
-        if not member:
-            return
-
-        admin = self.bot.setting.role.get('mod')
-        leader = self.bot.setting.role.get('admin')
-        admin_trial = self.bot.setting.role.get('mod_trial')
-
-        if not has_any_role(member, admin, leader, admin_trial):
-            raise commands.MissingPermissions(missing_perms=['Administrador'])
-
         with self.bot.db_session() as session:
             not_disabled_count = session.query(User).filter_by(disabled=False).count()
             disabled_count = session.query(User).filter_by(disabled=True).count()
@@ -598,8 +574,8 @@ class UserAuthentication(commands.Cog):
         return discord.Embed(
             title="Feedback",
             description=(
-                "Olá, parece que você não conseguiu alterar de Mundo no período "
-                "necessário, você teve algum Problema?\n\n"
+                "Olá, parece que você não conseguiu alterar de Mundo a tempo. "
+                "Você teve algum Problema?\n\n"
                 "Responda enviando uma mensagem aqui, "
                 "seu Feedback é importante para nós!"
             ),

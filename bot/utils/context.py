@@ -6,6 +6,7 @@ import discord
 import io
 
 from bot.orm.models import User
+from bot.settings import Settings
 
 
 class _ContextDBAcquire:
@@ -38,6 +39,7 @@ class Context(commands.Context):
     def __init__(self, *args, **kwargs):
         super(Context, self).__init__(*args, **kwargs)
         self.bot = self.bot
+        self.setting: Settings = self.bot.setting
 
     async def entry_to_code(self, entries):
         width = max(len(a) for a, b in entries)

@@ -1,6 +1,18 @@
+import discord
+
 from bot.orm.models import User
 from bot.orm.db import db_session
 from bot.utils.context import Context
+from bot.utils.tools import has_any_role
+
+
+async def is_admin(ctx: Context):
+    atlantis: discord.Guild = ctx.bot.get_guild(ctx.setting.server_id)
+
+    admin_roles = ['rs_coord', 'rs_org', 'rs_admin']
+    role_ids = [atlantis.get_role(ctx.setting.admin_roles().get(role)) for role in admin_roles]
+
+    return has_any_role(ctx.get_user(), *role_ids)
 
 
 async def is_authenticated(ctx: Context):
