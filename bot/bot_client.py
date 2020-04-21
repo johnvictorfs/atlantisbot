@@ -24,13 +24,14 @@ from bot.utils import context, api
 
 class Bot(commands.Bot):
 
-    def __init__(self):
+    def __init__(self, logger: logging.Logger):
         super().__init__(
             command_prefix=self.setting.prefix,
             description=self.setting.description,
             case_insensitive=True
         )
         self.remove_command('help')
+        self.logger = logger
         self.start_time = None
         self.app_info = None
         self.loop.create_task(self.track_start())
@@ -192,6 +193,7 @@ class Bot(commands.Bot):
             # If there is an '1' in the file, that means the bot was closed with the
             # !restart command
             text = f.read()
+            self.logger.info(f'Bot iniciado com sucesso ({text})')
             if '1' in text:
                 await self.app_info.owner.send('Bot reiniciado com sucesso.')
             f.write('0')

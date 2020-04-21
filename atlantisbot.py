@@ -10,8 +10,8 @@ import discord
 from bot.bot_client import Bot
 
 
-async def run():
-    bot = Bot()
+async def run(logger: logging.Logger):
+    bot = Bot(logger)
 
     try:
         await bot.start(bot.setting.token)
@@ -41,4 +41,4 @@ if __name__ == '__main__':
     logger_atl.addHandler(handler_atl)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run())
+    loop.run_until_complete(run(logger))
