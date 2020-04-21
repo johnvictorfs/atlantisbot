@@ -253,43 +253,6 @@ class Bot(commands.Bot):
             elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
                 return
 
-        membro = self.setting.role.get('membro')
-        convidado = self.setting.role.get('convidado')
-        admin = self.setting.role.get('mod')
-        leader = self.setting.role.get('admin')
-        admin_trial = self.setting.role.get('mod_trial')
-
-        unauthorized_mentions = ['@everyone', '@here', f"<@&{membro}>", f"<@&{convidado}>"]
-
-        if any(mention in message.content for mention in unauthorized_mentions):
-            if not has_any_role(message.author, admin, leader, admin_trial):
-                embed = discord.Embed(
-                    title="__Ei__",
-                    description=separator,
-                    color=discord.Color.dark_red(),
-                )
-                embed.add_field(
-                    name=f"Por favor não utilize as seguintes menções sem permissão para tal:",
-                    value=f"<@&{membro}> - <@&{convidado}> - @everyone - @here",
-                    inline=False
-                )
-                embed.set_author(
-                    name="Administração",
-                    icon_url="http://www.runeclan.com/images/ranks/1.png"
-                )
-                embed.set_thumbnail(
-                    url=f"http://services.runescape.com/m=avatar-rs/{self.setting.clan_name}/clanmotif.png"
-                )
-                embed.set_footer(
-                    text="Nosso servidor abriga uma quantidade muito grande de pessoas, "
-                         "tenha bom senso ao utilizar uma menção que irá notificar centenas de pessoas."
-                )
-                print(f'> {message.author} used a not allowed mention '
-                      f'in channel #{message.channel} at {datetime.datetime.now()}')
-                print(f"Content:\n<\n{message.content}\n>")
-                await message.delete()
-                return await message.channel.send(content=message.author.mention, embed=embed)
-
         # Replace old Rs Wikia links to the new Rs Wiki links
         if 'http' in message.content and 'runescape.fandom.com/wiki' in message.content:
             urls = re.findall(r"http\S+", message.content)

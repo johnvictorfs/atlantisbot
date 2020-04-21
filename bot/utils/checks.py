@@ -12,7 +12,6 @@ async def is_admin(ctx: Context):
     admin_roles = ['coord_discord', 'org_discord', 'adm_discord']
     roles = [atlantis.get_role(ctx.setting.admin_roles().get(role)) for role in admin_roles]
 
-    print(roles)
     has_admin = any(role in member.roles for role in roles)
     ctx.bot.logger.info(f'[Check is_admin] {member} -> {has_admin}')
 

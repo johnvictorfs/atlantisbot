@@ -35,7 +35,7 @@ class Admin(commands.Cog):
         """
         Checks if the User running the command is either an Admin or the Bot's Owner
         """
-        roles = ['admin', 'mod', 'mod+']
+        roles = ['coord_discord', 'org_discord', 'adm_discord']
         roles_ = [self.bot.setting.role.get(role) for role in roles]
         is_owner = await self.bot.is_owner(ctx.author)
         return is_owner or has_any_role(ctx.author, *roles_)
