@@ -77,7 +77,7 @@ class Admin(commands.Cog):
 
             self.bot.logger.info(f'[Reload all] Stdout: {stdout}')
 
-            if stdout.startswith('Already up-to-date.'):
+            if stdout.startswith('Already up to date.'):
                 return await ctx.send('Não há mudanças para serem atualizadas da origin.')
 
             modules = self.find_modules_from_git(stdout)
