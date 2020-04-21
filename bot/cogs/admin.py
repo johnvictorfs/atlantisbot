@@ -75,10 +75,14 @@ class Admin(commands.Cog):
             # however, things like "fast forward" and files
             # along with the text "already up-to-date" are in stdout
 
+            self.bot.logger.info(f'[Reload all] Stdout: {stdout}')
+
             if stdout.startswith('Already up-to-date.'):
                 return await ctx.send('Não há mudanças para serem atualizadas da origin.')
 
             modules = self.find_modules_from_git(stdout)
+
+            self.bot.logger.info(f'[Reload all] Modules: {modules}')
 
             if not modules:
                 return await ctx.send('Não há nenhuma cog a ser atualizada.')
