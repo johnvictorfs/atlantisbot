@@ -187,6 +187,15 @@ class Bot(commands.Bot):
                     print(f'Failed to reload extension {error}')
                     errored = True
         print('-' * 10)
+
+        with open('restart_atl_bot.log', 'w+') as f:
+            # If there is an '1' in the file, that means the bot was closed with the
+            # !restart command
+            text = f.read()
+            if '1' in text:
+                await self.app_info.owner.send('Bot reiniciado com sucesso.')
+            f.write('0')
+
         return errored
 
     def disabled_commands(self):
@@ -206,14 +215,6 @@ class Bot(commands.Bot):
         print('-' * 10)
         self.app_info = await self.application_info()
         await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
-
-        with open('restart_atl_bot.log', 'w+') as f:
-            # If there is an '1' in the file, that means the bot was closed with the
-            # !restart command
-            text = f.read()
-            if text.startswith('1'):
-                await self.app_info.owner.send('Bot reiniciado com sucesso.')
-            f.write('0')
 
         print(f"Bot logged on as '{self.user.name}'\n"
               f"Mode: {self.setting.mode}\n"
