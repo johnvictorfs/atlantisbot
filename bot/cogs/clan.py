@@ -107,7 +107,8 @@ class Clan(commands.Cog):
         if player.private_profile:
             clan_info_embed.add_field(
                 name=total_exp_header,
-                value=private_profile_header
+                value=private_profile_header,
+                inline=False
             )
         else:
             clan_info_embed.add_field(
@@ -136,7 +137,8 @@ class Clan(commands.Cog):
 
         ranks_embed = discord.Embed(
             title="__Ranks a Atualizar__",
-            description=" ", )
+            description=" ",
+        )
 
         found = False
 

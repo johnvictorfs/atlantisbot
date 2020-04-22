@@ -19,6 +19,49 @@ class Chat(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    @commands.command(aliases=['doar', 'donate', 'doacao', 'doação'])
+    async def donation(self, ctx: Context):
+        description = (
+            "O custo total do Servidor que roda o AtlantisBot é de 5 Doláres "
+            "por mês, ou seja, entre R$ 20,00 e R$ 30,00 dependendo do valor do "
+            "dolár atual. Esse valor até agora foi pago inteiramente do bolso "
+            "de alguns Administradores do Clã, porém nos últimos tempos vem sido "
+            "mais complicado arcar com os pagamentos, e o Bot veio até a ficar offline "
+            "por alguns períodos devido a falta de pagamento.\n\n"
+            "Para que isso não venha a ocorrer novamente, pedimos a ajuda de vocês, "
+            "para doação de qualquer quantia que você possa.\n\n"
+            "Apenas como forma de gratidão, oferecemos como recompensa puramenta "
+            "simbólica, a cada R$ 30,00 doados, "
+            "uma Tag cosmética no Discord, com cor e nome que desejar, "
+            "desde que não seja ofensivo. Esse valor é acumulativo, então "
+            "não é necessário que você doe tudo de uma vez, caso suas "
+            "doações totais ao longo do tempo somem a R$ 30,00 você já tem direito a Tag."
+        )
+
+        embed = discord.Embed(
+            title="Doações para o pagamento do servidor do AtlantisBot",
+            description=description,
+            color=discord.Color.blue()
+        )
+
+        embed.set_footer(
+            text=(
+                "Atenção: Lembre de colocar na descrição do Pagamento seu Usuário do Discord "
+                "e nome in-game, para que possamos o identificar, exemplo: 'NRiver#2263 (NRiver)'"
+            )
+        )
+
+        donation_url = self.bot.setting.donation_url()
+
+        embed.add_field(
+            name="Doação pelo Paypal",
+            value=f"[Clique aqui para Doar]({donation_url})"
+        )
+
+        embed.set_thumbnail(
+            url="https://media.discordapp.net/attachments/510926977218379809/702640283783004260/atlantis_logo_no_background.png")
+        await ctx.send(embed=embed)
+
     @staticmethod
     async def get_price(item_id: int):
         """
@@ -27,8 +70,8 @@ class Chat(commands.Cog):
         url = f"http://services.runescape.com/m=itemdb_rs/api/catalogue/detail.json?item={item_id}"
         async with aiohttp.ClientSession() as cs:
             async with cs.get(url) as r:
-                data = await r.text()
-                data = json.loads(data)
+                text = await r.text()
+                data = json.loads(text)
 
                 return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
 

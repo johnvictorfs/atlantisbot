@@ -70,7 +70,10 @@ class Settings:
     def banner_image(self):
         return self.read_data('OTHER')['banner_image']
 
-    def raids_start_date(self):
+    def donation_url(self) -> str:
+        return self.read_data('OTHER')['donation_url']
+
+    def raids_start_date(self) -> datetime.datetime:
         return datetime.datetime.strptime(self.read_data('OTHER')['raids_start_date'], '%H:%M:%S %Y/%m/%d')
 
     @property
@@ -152,6 +155,17 @@ default_settings = {
         "access_token_key": "",
         "access_token_secret": ""
     },
+    "RS_ADMIN": {
+        "coord_discord": 701555954935922778,
+        "org_discord": 701555670054338581,
+        "adm_discord": 701556060166553641,
+        "rs_owner": 680012958503665669,
+        "rs_deputy_owner": 680012880565108751,
+        "rs_overseer": 680012822452633647,
+        "rs_coord": 680012585197764643,
+        "rs_org": 680012163305177110,
+        "rs_admin": 680012769294155784
+    },
     "RUNESCAPE": {
         "clan_name": "Atlantis",
         "show_titles": False,
@@ -172,6 +186,7 @@ default_settings = {
         "API_TOKEN": ""
     },
     "OTHER": {
+        "donation_url": "",
         "banner_image": "http://rsatlantis.com/images/logo.png",
         "raids_start_date": "23:00:00 2019/01/06",
         "not_allowed_in_name": ["discord.me", "discord.gg", "bit.ly", "tinyurl", "tiny.cc", "is.gd", "bc.vc",
