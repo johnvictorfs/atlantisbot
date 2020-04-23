@@ -34,6 +34,9 @@ class Chat(commands.Cog):
 
         embed.set_footer(text="Muito obrigado pela sua doação!")
 
+        if message:
+            embed.add_field(name="Mensagem", value=message)
+
         if _id:
             try:
                 member: discord.Member = ctx.guild.get_member(int(_id))
@@ -47,10 +50,9 @@ class Chat(commands.Cog):
         else:
             embed.set_author(name="Anônimo")
 
-        if message:
-            embed.add_field(name="Mensagem", value=message)
-
-        await ctx.send(embed=embed)
+        if member:
+            return await ctx.send(content=member.mention, embed=embed)
+        return await ctx.send(embed=embed)
 
     @commands.command(aliases=['doar', 'donate', 'doacao', 'doação'])
     async def donation(self, ctx: Context):
