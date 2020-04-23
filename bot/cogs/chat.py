@@ -3,13 +3,14 @@ import discord
 import aiohttp
 import rs3clans
 
+from typing import Optional
 import datetime
 import json
 
 from bot.bot_client import Bot
 from bot.cogs.raids import time_till_raids
 from bot.utils.tools import right_arrow, has_any_role
-from bot.utils.checks import is_authenticated
+from bot.utils.checks import is_authenticated, is_admin
 from bot.utils.context import Context
 from bot.orm.models import User
 
@@ -18,6 +19,38 @@ class Chat(commands.Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
+
+    @commands.check(is_admin)
+    @commands.guild_only()
+    @commands.command(aliases=[])
+    async def add_donation(self, ctx: Context, value: float, _id: Optional[str], message: Optional[str]):
+        await ctx.message.delete()
+
+        embed = discord.Embed(
+            title="Doação para o Servidor do AtlantisBot",
+            description=f"Doação de R$ {value:.2f}",
+            color=discord.Color.green()
+        )
+
+        embed.set_footer(text="Muito obrigado pela sua doação!")
+
+        if _id:
+            try:
+                member: discord.Member = ctx.guild.get_member(int(_id))
+            except Exception:
+                member = None
+
+            if not member:
+                return await ctx.send(f'ID de Membro inválida: {_id}')
+
+            embed.set_author(name=str(member), icon_url=member.avatar_url)
+        else:
+            embed.set_author(name="Anônimo")
+
+        if message:
+            embed.add_field(name="Mensagem", value=message)
+
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=['doar', 'donate', 'doacao', 'doação'])
     async def donation(self, ctx: Context):
