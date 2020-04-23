@@ -66,7 +66,7 @@ class Chat(commands.Cog):
             "Para que isso não venha a ocorrer novamente, pedimos a ajuda de vocês, "
             "para doação de qualquer quantia que você possa.\n\n"
             "Apenas como forma de gratidão, oferecemos como recompensa puramenta "
-            "simbólica, a cada R$ 30,00 doados, "
+            "simbólica, com mais de R$ 30,00 doados, você tem direito a "
             "uma Tag cosmética no Discord, com cor e nome que desejar, "
             "desde que não seja ofensivo. Esse valor é acumulativo, então "
             "não é necessário que você doe tudo de uma vez, caso suas "
@@ -94,7 +94,8 @@ class Chat(commands.Cog):
         )
 
         embed.set_thumbnail(
-            url="https://media.discordapp.net/attachments/510926977218379809/702640283783004260/atlantis_logo_no_background.png")
+            url="https://media.discordapp.net/attachments/510926977218379809/702640283783004260/atlantis_logo_no_background.png"
+        )
         await ctx.send(embed=embed)
 
     @staticmethod
