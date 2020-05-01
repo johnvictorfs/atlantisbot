@@ -229,6 +229,7 @@ class UserAuthentication(commands.Cog):
                             await check_admin_roles(member, self.bot.setting, clan_user.rank)
 
                     if not self.debugging and clan_user and not user.warning_date:
+                        self.logger.debug(f'[check_users] Skipping {clan_user}, in clan and no warning date')
                         # Don't do anything if player in clan
                         continue
 
@@ -242,8 +243,11 @@ class UserAuthentication(commands.Cog):
                     if user.warning_date:
                         now = datetime.datetime.now(user.warning_date.tzinfo)
 
+                        difference = (now - user.warning_date).days
+                        self.logger.debug(f'[check_users] Difference warning for {user} is {difference} days.')
+
                         # Only remove role if warning message was send 7 days before this check
-                        if (now - user.warning_date).days >= 7:
+                        if difference >= 7:
                             user.disabled = True
                             user.warning_date = None
                             session.commit()
