@@ -675,6 +675,8 @@ class UserAuthentication(commands.Cog):
                     )
 
             if user and user.ingame_name:
+                re_auth = True
+
                 try:
                     before = await get_player_df_runeclan(user.ingame_name)
                     after = await get_player_df_runeclan(ingame_name.content)
@@ -731,11 +733,15 @@ class UserAuthentication(commands.Cog):
                     self.logger.error(f'[{ctx.author}] Player world is None. ({user_data})')
                     raise Exception(f"Player world is None.")
 
+                worlds_requirement = random.randint(2, 3)
+                if re_auth:
+                    worlds_requirement = 2
+
                 settings = {
                     "f2p_worlds": player_world['f2p'],
                     "legacy_worlds": player_world['legacy'],
                     "language": player_world['language'],
-                    "worlds_left": random.randint(3, 4),
+                    "worlds_left": worlds_requirement,
                     "failed_tries": 0
                 }
 
@@ -755,6 +761,7 @@ class UserAuthentication(commands.Cog):
 
                 # Filter worlds based on user settings
                 world_list = filtered_worlds(worlds, **settings)
+                last_world = player_world
 
                 while settings['worlds_left'] > 0:
                     # Update settings message
@@ -763,11 +770,11 @@ class UserAuthentication(commands.Cog):
                     while True:
                         # Don't allow same world 2 times in a row
                         world = random_world(world_list)
-                        if world == player_world:
+                        if world == last_world:
                             continue
                         break
 
-                    # last_world = world
+                    last_world = world
 
                     message: discord.Message = await ctx.send(
                         f"{ctx.author.mention}, troque para o **Mundo {world['world']}**. "
