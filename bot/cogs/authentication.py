@@ -25,7 +25,7 @@ from bot.utils.roles import check_admin_roles
 
 
 async def get_user_data(username: str, cs: aiohttp.ClientSession):
-    url = "http://services.runescape.com/m=website-data/"
+    url = "https://services.runescape.com/m=website-data/"
     player_url = url + "playerDetails.ws?names=%5B%22{}%22%5D&callback=jQuery000000000000000_0000000000&_=0"
 
     async with cs.get(player_url.format(username.replace(' ', '%20'))) as r:
