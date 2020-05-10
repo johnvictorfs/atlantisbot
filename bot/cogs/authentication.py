@@ -674,6 +674,7 @@ class UserAuthentication(commands.Cog):
                         "Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde."
                     )
 
+            re_auth = False
             if user and user.ingame_name:
                 re_auth = True
 

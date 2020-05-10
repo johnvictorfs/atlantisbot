@@ -1,65 +1,34 @@
 import asyncio
-
 import logging
-
 import datetime
-
 import traceback
-
 import re
-
 import sys
-
 import json
-
 import aiohttp
-
 from pathlib import Path
-
 from pprint import pformat
-
 from typing import Optional, Dict, Any
 
-
-
 import colorama
-
 import twitter
-
 import discord
-
 from discord.ext import commands
 
 
-
 from bot import settings
-
 from bot.orm.db import db_session
-
 from bot.orm.models import DisabledCommand
-
 from bot.utils.tools import divide_list, separator
-
 from bot.utils import context, api
 
 
-
-
-
 class Bot(commands.Bot):
-
-
-
     def __init__(self, logger: logging.Logger):
-
         super().__init__(
-
             command_prefix=self.setting.prefix,
-
             description=self.setting.description,
-
             case_insensitive=True
-
         )
 
         self.remove_command('help')
@@ -82,98 +51,40 @@ class Bot(commands.Bot):
 
         self.api = api.BotApi(base_url=self.setting.rsatlantis['API_URL'], api_token=self.setting.rsatlantis['API_TOKEN'])
 
-
-
     async def post_data(self, url: str, payload: Optional[Dict[str, Any]] = None) -> aiohttp.ClientResponse:
-
         """
-
         Posts Data to an URL and returns its response
-
         """
 
         request = await self.client_session.post(url, data=payload)
 
         return request
 
-
-
     async def process_commands(self, message: discord.Message):
-
         """
-
         Source: https://github.com/Rapptz/RoboDanny/blob/0c9216245b035fa4655f740c3ce602a5e15bff90/bot.py#L164
-
         """
 
         ctx = await self.get_context(message, cls=context.Context)
 
-
-
         if not ctx.command:
-
             return
-
-
-
-        # bucket = self.spam_control.get_bucket(message)
-
-        # current = message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()
-
-
-
-        # retry_after = bucket.update_rate_limit(current)
-
-        # author_id = message.author.id
-
-        # if retry_after and author_id != self.owner_id:
-
-        #     self._auto_spam_count[author_id] += 1
-
-        #     if self._auto_spam_count[author_id] >= 5:
-
-        #         await self.add_to_blacklist(author_id)
-
-        #         del self._auto_spam_count[author_id]
-
-        #         await self.log_spammer(ctx, message, retry_after, autoblock=True)
-
-        #     else:
-
-        #         self.log_spammer(ctx, message, retry_after)
-
-        #     return
-
-        # else:
-
-        #     self._auto_spam_count.pop(author_id, None)
-
-
 
         await self.invoke(ctx)
 
-
-
     async def close(self):
-
         """
-
         Close aiohttp Client Session and the Bot
-
         """
 
         await self.client_session.close()
 
         await super().close()
 
-
-
     async def send_logs(self, e, tb, ctx: context.Context = None, more_info: object = None):
-
         dev = self.get_user(self.setting.developer_id)
 
         if ctx:
-
             info_embed = discord.Embed(title="__Error Info__", color=discord.Color.dark_red())
 
             info_embed.add_field(name="Message", value=ctx.message.content, inline=False)
@@ -187,7 +98,6 @@ class Bot(commands.Bot):
             await dev.send(embed=info_embed)
 
         if more_info:
-
             extra_embed = discord.Embed(title="__Extra Info__", color=discord.Color.dark_red())
 
             extra_embed.add_field(name="Info", value=pformat(more_info))
@@ -195,24 +105,17 @@ class Bot(commands.Bot):
             await dev.send(embed=extra_embed)
 
         try:
-
             await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
 
         except discord.errors.HTTPException:
-
             logging.error(f"{e}: {tb}")
 
             try:
-
                 # Split traceback every x characters
 
                 traceback_list = [tb[i:i + 1500] for i in range(0, len(tb), 1500)]
 
-
-
                 paginator = commands.Paginator(prefix='```python')
-
-
 
                 for tb_list in traceback_list:
 
@@ -220,80 +123,43 @@ class Bot(commands.Bot):
 
                         paginator.add_line(tb_list)
 
-
-
                 for page in paginator.pages:
-
                     await dev.send(page)
 
-                # await dev.send(
-
-                #     f"(Sending first 500 chars of traceback, too long)\n{separator}\n**{e}:**"
-
-                #     f"\n```python\n{tb[:500]}```"
-
-                # )
-
             except Exception as e:
-
                 await dev.send("Erro ao tentar enviar logs.")
 
                 self.logger.error(str(e))
 
-
-
     @property
-
     def setting(self):
-
         try:
-
             with open('bot/bot_settings.json'):
-
                 return settings.Settings()
 
         except FileNotFoundError:
-
             with open('bot/bot_settings.json', 'w+') as f:
-
                 json.dump(settings.default_settings, f, indent=4)
-
-
-
                 print(
-
                     f"{colorama.Fore.YELLOW}Settings not found. Default settings file created. "
-
                     "Edit '/bot/bot_settings.json' to change settings, then reload the bot."
-
                 )
 
                 sys.exit(1)
 
-
-
     async def track_start(self):
-
         """
-
         Waits for the bot to connect to discord and then records the time.
-
         Can be used to work out up-time.
-
         """
-
         await self.wait_until_ready()
 
         await asyncio.sleep(1)
 
         self.start_time = datetime.datetime.utcnow()
 
-
-
     @staticmethod
-
     def get_cogs():
-
         """Gets cog names from /cogs/ folder"""
 
         not_extensions = ['utils', 'embeds', 'models', '__init__']
@@ -307,8 +173,6 @@ class Bot(commands.Bot):
                 cogs.remove(cog)
 
         return cogs
-
-
 
     async def unload_all_extensions(self):
 
@@ -335,8 +199,6 @@ class Bot(commands.Bot):
                     errored = True
 
         return errored
-
-
 
     async def load_all_extensions(self):
 
@@ -374,8 +236,6 @@ class Bot(commands.Bot):
 
         return errored
 
-
-
     async def reload_all_extensions(self):
 
         """Attempts to reload all .py files in /cogs/ as cog extensions"""
@@ -391,206 +251,118 @@ class Bot(commands.Bot):
             if extension not in self.setting.disabled_extensions:
 
                 try:
-
                     self.reload_extension(f'bot.cogs.{extension}')
-
                     print(f'- reloaded Extension: {extension}')
 
                 except Exception as e:
-
                     error = f'{extension}:\n {type(e).__name__} : {e}'
-
                     print(f'Failed to reload extension {error}')
-
                     errored = True
 
         print('-' * 10)
 
-
-
         with open('restart_atl_bot.log', 'w+') as f:
-
             # If there is an '1' in the file, that means the bot was closed with the
-
             # !restart command
-
             text = f.read()
-
             self.logger.info(f'Bot iniciado com sucesso ({text})')
 
             if '1' in text:
-
                 await self.app_info.owner.send('Bot reiniciado com sucesso.')
 
             f.write('0')
 
-
-
         return errored
 
-
-
     def disabled_commands(self):
-
         with self.db_session() as session:
-
             qs = session.query(DisabledCommand).all()
 
             if qs:
-
                 for item in qs:
-
                     command = self.get_command(item.name)
 
                     if command:
-
                         command.enabled = False
 
                         print(f"Disabling command {command}.")
 
-
-
     async def on_ready(self):
-
         """
-
         This event is called every time the bot connects or resumes connection.
-
         """
-
         print('-' * 10)
 
         self.app_info = await self.application_info()
 
         await self.change_presence(activity=discord.Game(name=self.setting.playing_message))
 
-
-
-        print(f"Bot logged on as '{self.user.name}'\n"
-
-              f"Mode: {self.setting.mode}\n"
-
-              f"Argvs: {sys.argv}\n"
-
-              f"Owner: '{self.app_info.owner}'\n"
-
-              f"ID: '{self.user.id}'\n"
-
-              f"[ Bot Settings ]\n"
-
-              f"- Clan Name: '{self.setting.clan_name}'\n"
-
-              f"- Playing Message: '{self.setting.playing_message}'\n"
-
-              f"- Commands prefix: '{self.setting.prefix}'\n"
-
-              f"- Show titles on claninfo: '{self.setting.show_titles}'")
-
-
+        print(
+            f"Bot logged on as '{self.user.name}'\n"
+            f"Mode: {self.setting.mode}\n"
+            f"Argvs: {sys.argv}\n"
+            f"Owner: '{self.app_info.owner}'\n"
+            f"ID: '{self.user.id}'\n"
+            f"[ Bot Settings ]\n"
+            f"- Clan Name: '{self.setting.clan_name}'\n"
+            f"- Playing Message: '{self.setting.playing_message}'\n"
+            f"- Commands prefix: '{self.setting.prefix}'\n"
+            f"- Show titles on claninfo: '{self.setting.show_titles}'"
+        )
 
     async def on_message(self, message: discord.Message):
-
         """
-
         This event triggers on every message received by the bot. Including one's that it sent itself.
-
         If you wish to have multiple event listeners they can be added in other cogs. All on_message listeners should
-
         always ignore bots.
-
         """
-
         if message.author.bot:
-
             if self.setting.mode == 'prod':
-
                 if message.content == 'HECK YES!':
-
                     return await message.channel.send('HECK NO!')
-
                 if message.content == ':(((((':
-
                     return await message.channel.send('>:))))')
-
                 if self.user.mention in message.content and message.author != self.user:
-
                     return await message.channel.send('What did you say about me you little *****?!')
-
             return
-
-
 
         # If in development environment only deal with messages in dev server and channel
 
         if self.setting.mode == 'dev':
-
             if not message.guild:
-
                 if message.author.id != self.setting.developer_id:
-
                     return
-
             elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
-
                 return
 
-
-
         # Replace old Rs Wikia links to the new Rs Wiki links
-
         if 'http' in message.content and 'runescape.fandom.com/wiki' in message.content:
-
             urls = re.findall(r"http\S+", message.content)
-
             formatted_urls = []
 
             for url in urls:
-
                 if 'runescape.fandom.com/wiki' in url:
-
                     url = url.replace('runescape.fandom.com/wiki/', 'rs.wiki/w/')
-
                     formatted_urls.append(url)
 
-
-
             formatted_urls_string = ''
-
             for url in formatted_urls:
-
                 formatted_urls_string += f'- ***<{url}>***\n'
-
-
 
             plural = 's' if len(formatted_urls) > 1 else ''
 
             await message.channel.send(
-
                 f'Olá, parece que você usou um ou mais links para a antiga Wiki do RuneScape!'
-
                 f'\n\n'
-
                 f'A wiki antiga não é mais suportada e está muito desatualizada. '
-
                 f'Ao invés do{plural} link{plural} que você enviou, utilize o{plural} link{plural} abaixo:\n\n'
-
                 f'{formatted_urls_string}'
-
             )
-
-
-
         await self.process_commands(message)
 
-
-
     async def on_member_remove(self, member: discord.Member):
-
         if self.setting.mode == 'dev':
-
             return
-
-
 
         log_channel: discord.TextChannel = self.get_channel(633465042033180701)
 
@@ -605,5 +377,3 @@ class Bot(commands.Bot):
         embed.set_footer(text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}")
 
         await log_channel.send(embed=embed)
-
-
