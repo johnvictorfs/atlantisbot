@@ -82,7 +82,7 @@ class RaidsTasks(commands.Cog):
             hours = raids_diff.seconds // 3600
             minutes = (raids_diff.seconds // 60) % 60
 
-            msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/640382839329783819'
+            msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/666257577256026123'
 
             with self.bot.db_session() as session:
                 # Check if Raids notifications are currently active or not
