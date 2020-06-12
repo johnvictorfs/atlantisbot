@@ -419,8 +419,9 @@ class Teams(commands.Cog):
 
             question = await ctx.send("Qual o Horário/Dia do time?")
             answer_message = await self.bot.wait_for('message', timeout=60.0, check=lambda msg: msg.author == ctx.author)
-            await question.delete()
             team_title = f"{team_title} ({answer_message.content})"
+            await question.delete()
+            await answer_message.delete()
 
             if team_role:
                 has_requirement = True
