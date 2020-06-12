@@ -1,0 +1,62 @@
+{
+    "solak": [
+        {
+            "title": "Solak 7-Man com 1 Learner",
+            "presences_channel": "solak_chat",
+            "size": 7,
+            "required_role": "solak",
+            "secondary_role": "solak_learner",
+            "secondary_size": 1
+        },
+        {
+            "title": "Solak 7-Man sem Learners",
+            "presences_channel": "solak_chat",
+            "size": 7,
+            "required_role": "solak",
+            "secondary_role": null,
+            "secondary_size": null
+        },
+        {
+            "title": "Solak Duo com 1 Learner",
+            "presences_channel": "solak_chat",
+            "size": 2,
+            "required_role": "solak",
+            "secondary_role": "solak_learner",
+            "secondary_size": 1
+        }
+    ],
+    "aod": [
+        {
+            "title": "AoD 7-Man com 1 Learner",
+            "presences_channel": "aod_chat",
+            "size": 7,
+            "required_role": "aod",
+            "secondary_role": "aod_learner",
+            "secondary_size": 1
+        },
+        {
+            "title": "AoD 7-Man sem Learners",
+            "presences_channel": "aod_chat",
+            "size": 7,
+            "required_role": "aod",
+            "secondary_role": null,
+            "secondary_size": null
+        },
+        {
+            "title": "AoD 8-Man com 2 Learners",
+            "presences_channel": "aod_chat",
+            "size": 8,
+            "required_role": "aod",
+            "secondary_role": "aod_learner",
+            "secondary_size": 2
+        },
+        {
+            "title": "AoD 8-Man com 3 Learners",
+            "presences_channel": "aod_chat",
+            "size": 8,
+            "required_role": "aod",
+            "secondary_role": "aod_learner",
+            "secondary_size": 3
+        }
+    ]
+}

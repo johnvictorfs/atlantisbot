@@ -265,11 +265,11 @@ Inclua na screenshot:
 
 Aguarde uma resposta de um {aod_teacher}.
 
-***Exemplo(Aplicação para Raids): *** https: // i.imgur.com/CMNzquL.png"""
+***Exemplo(Aplicação para Raids): *** https://i.imgur.com/CMNzquL.png"""
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
-        if has_any_role(ctx.author, self.bot.setting.role.get('aod')):
+        if has_any_role(ctx.author, self.bot.setting.role.get('aod'), self.bot.setting.role.get('aod_learner')):
             return await ctx.send(denied_message)
         return await ctx.send(aplicar_message)
 

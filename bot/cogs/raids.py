@@ -218,8 +218,6 @@ class RaidsTasks(commands.Cog):
             f"\n"
             f"Não mande mensagens desnecessárias no <#{self.bot.setting.chat.get('raids_chat')}>\n"
             f"\n"
-            f"Não marque presença mais de uma vez\n"
-            f"\n"
             f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n"
             f"- Risco de remoção do time caso contrário. Não cause atrasos",
             inline=False
