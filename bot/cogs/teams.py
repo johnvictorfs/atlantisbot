@@ -180,6 +180,8 @@ class Teams(commands.Cog):
         with open('bot/data/team_templates.json') as f:
             team_templates = json.load(f)
 
+        using_template = False
+
         for name, templates in team_templates.items():
             if name in ctx.channel.name.lower():
                 embed = discord.Embed(
@@ -227,7 +229,6 @@ class Teams(commands.Cog):
 
                 reaction, user = await self.bot.wait_for('reaction_add', check=reaction_check)
 
-                using_template = False
                 if str(reaction) != '❌':
                     # Get index from first character of emoji
                     index = int(str(reaction)[0]) - 1
