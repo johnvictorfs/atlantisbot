@@ -146,15 +146,15 @@ class EmbedMessages(commands.Cog):
             'full_manual': '<:full_manual:615751745049722880>'
         }
 
-        text_2 = f"""• **Arma** <:attack:499707565949583391> T87+ com [Acerto 4/5](https://rs.wiki/precise) e [Equilíbrio 3](https://rs.wiki/equilibrium) (Preferível [Abalo 3](https://rs.wiki/aftershock) no lugar de Equilíbrio)
-• **Armadura** <:defence:499707566033600513> T70+ com [Crackling 3](https://rs.wiki/crackling), [Biting 2/3](https://rs.wiki/biting), [Impatient 3](https://rs.wiki/impatient) e [ED 3](https://rs.wiki/ed) ou [CS 3](https://rs.wiki/w/Crystal_Shield)
+        text_2 = f"""• **Arma** <:attack:499707565949583391> T87+ com [Acerto 5/6](https://rs.wiki/precise) e [Equilíbrio 4](https://rs.wiki/equilibrium) (ou [Abalo 3/4](https://rs.wiki/aftershock))
+• **Armadura** <:defence:499707566033600513> T70+ com [Crackling 4](https://rs.wiki/crackling), [Biting 2/3](https://rs.wiki/biting), [Impatient 3/4](https://rs.wiki/impatient) e [ED 3/4](https://rs.wiki/ed) ou [Inv. 4](https://rs.wiki/Invigorating)
 
-• <:summoning:499707566335459368> 84+ para [Spirit Pack Pig](https://rs.wiki/w/Spirit_pack_pig#Tier_3) ou melhor
+• <:summoning:499707566335459368> 84+ para [Spirit Pack Pig](https://rs.wiki/Spirit_pack_pig#Tier_3) ou melhor
 • <:herblore:499707566272544778> 90+ para [Overloads](https://rs.wiki/overload) e Poções de [Restabelecimento](https://rs.wiki/replenishment_potion)
-• <:prayer:499707566012497921> [Acesso a Maldições](https://runescape.wiki/w/Curse_spells)
+• <:prayer:499707566012497921> [Acesso a Maldições](https://rs.wiki/Curse_spells)
 
-• {emojis['full_manual']} **Usar habilidades adequadas** [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)
-• __**Ver guias de Yakamaru E Durzag!!!**__ <#425844417862041610>"""
+• {emojis['full_manual']} **Usar habilidades adequadas no caso de Revolução (Manual Recomendado)** [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)
+• __**Ver guias de Yakamaru E Durzag!!!**__ <https://youtu.be/ltvvePSqkSU>"""
 
         text_3 = f"""
             • <:prayer:499707566012497921> 95+

@@ -236,6 +236,7 @@ default_settings = {
             "merchant_call": 560980279360094208
         },
         "role_id": {
+            "aprendiz_pvm": 732001297045389402,
             "cadarn": 604164034610069537,
             "iorwerth": 604163890380537856,
             "trahaearn": 604163802363068416,

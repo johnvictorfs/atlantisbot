@@ -3,16 +3,6 @@
     "title": "**Conheça alguns chats do Servidor:**",
     "chats": [
       {
-        "name": "geral",
-        "display_name": "Geral",
-        "chats": [
-          {
-            "name": "links_uteis",
-            "text": "Links úteis para PvM/Fóruns/etc."
-          }
-        ]
-      },
-      {
         "name": "lobby",
         "display_name": "Lobby",
         "chats": [
@@ -41,6 +31,10 @@
           {
             "name": "pvmemes",
             "text": "Bate-papo sobre PvM e chamadas para bosses"
+          },
+          {
+            "name": "aplicar_pvm",
+            "text": "Aplicar para Aprendizado de PvM Guiado com o comando `!pvm`"
           }
         ]
       },
@@ -85,7 +79,7 @@
         "chats": [
           {
             "name": "drops_e_conquistas",
-            "text": "Exposição de conquistas dos Membros do Clã"
+            "text": "Exposição de Conquistas e Drops dos Membros do Clã"
           },
           {
             "name": "discord_bots",
@@ -138,7 +132,7 @@
         },
         {
           "name": "membro",
-          "text": "Dado para membros do Clã. Caso envia a mensagem `!membro` para mim!"
+          "text": "Dado para membros do Clã. Caso envia a mensagem `!membro` aqui: <@470313476896587787>!"
         },
         {
           "name": "convidado",
@@ -225,7 +219,7 @@
         },
         {
           "names": [
-            "100k_dpm",
+            "140k_dpm",
             "200k_dpm"
           ],
           "text": "Ganho por fazer uma determinada quantidade de DPM em gemas de desafio. [Mais Info](https://i.imgur.com/kSmjjIS.png) Vem em 3 Cores diferentes para os 3 estilos"
