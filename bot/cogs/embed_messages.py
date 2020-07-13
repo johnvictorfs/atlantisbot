@@ -147,10 +147,10 @@ class EmbedMessages(commands.Cog):
         }
 
         text_2 = f"""• **Arma** <:attack:499707565949583391> T87+ com [Acerto 5/6](https://rs.wiki/precise) e [Equilíbrio 4](https://rs.wiki/equilibrium) (ou [Abalo 3/4](https://rs.wiki/aftershock))
-• **Armadura** <:defence:499707566033600513> T70+ com [Crackling 4 (+ Relentless se 110+ Inv)](https://rs.wiki/crackling), [Biting 2/3](https://rs.wiki/biting), [Impatient 3/4](https://rs.wiki/impatient) e [ED 3/4](https://rs.wiki/ed) ou [Inv. 4](https://rs.wiki/Invigorating) ou [Relentless (se <110 Inv)](https://rs.wiki/relentless)
+• **Armadura** <:defence:499707566033600513> T70+ com [Crackling 4 (+ Relentless se 110+ Inv)](https://rs.wiki/crackling), [Biting 2/3](https://rs.wiki/biting), [Impatient 3/4](https://rs.wiki/impatient) e [ED 3/4](https://rs.wiki/ed) ou [Inv. 4](https://rs.wiki/Invigorating)
 
-• <:summoning:499707566335459368> 84+ para [Spirit Pack Pig](https://rs.wiki/Spirit_pack_pig#Tier_3) ou melhor
-• <:herblore:499707566272544778> 90+ para [Overloads](https://rs.wiki/overload) e Poções de [Restabelecimento](https://rs.wiki/replenishment_potion)
+• <:summoning:499707566335459368> 84+ para [Spirit Pack Pig](https://rs.wiki/Spirit_pack_pig) ou melhor
+• <:herblore:499707566272544778> 90+ para [Overloads](https://rs.wiki/ovl) e Poções de [Restabelecimento](https://rs.wiki/replenishment_potion)
 • <:prayer:499707566012497921> [Acesso a Maldições](https://rs.wiki/Curse_spells)
 
 • {emojis['full_manual']} **Usar habilidades adequadas no caso de Revolução (Manual Recomendado)** [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)
