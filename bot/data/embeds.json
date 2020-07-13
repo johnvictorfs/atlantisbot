@@ -119,16 +119,19 @@
           "text": "Notificações de Eventos Gerais do Clã"
         },
         {
-          "name": "admin",
-          "text": "Administração do Discord, não diretamente relacionado com Ranks do jogo"
-        },
-        {
-          "name": "mod",
-          "text": "Administradores+ do Clã, moderadores do Discord"
+          "names": [
+            "administrador",
+            "organizador",
+            "coordenador",
+            "fiscal",
+            "vice_lider",
+            "lider"
+          ],
+          "text": "Administradores do Clã, correspondentes aos Ranks do Clã no Jogo"
         },
         {
           "name": "bot",
-          "text": "Bots"
+          "text": ":robot:"
         },
         {
           "name": "membro",
@@ -176,6 +179,10 @@
       "title": "Cargos de PvM",
       "description": "Cargos usados para notificação de Eventos e Trips de PvM",
       "roles": [
+        {
+          "name": "aprendiz_pvm",
+          "text": "Aprendiz de PvM Guiado pela Administração PvM do Clã. Aplique para receber com o comando `!pvm` no chat <#732000618092167248>"
+        },
         {
           "name": "pvmemos",
           "text": "Notificação de qualquer tipo de Evento/Trip PvM"
