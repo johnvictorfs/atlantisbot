@@ -34,7 +34,7 @@
           },
           {
             "name": "aplicar_pvm",
-            "text": "Aplicar para Aprendizado de PvM Guiado com o comando `!pvm`"
+            "text": "Aprendizado PvM Guiado pela Administração do Clã"
           }
         ]
       },
@@ -94,6 +94,10 @@
       }
     ],
     "extra_fields": [
+      {
+        "name": "Regras",
+        "value": "• Não seja cuzão/tenha bom senso\n• [Regras do RuneScape](https://www.runescape.com/a=254/game-guide/rules) se aplicam\n• Sem conversas sobre [RWT](https://rs.wiki/RWT)/[Botting](https://rs.wiki/Macro)\n• Assuntos/imagens/videos NSFW apenas em canais marcados como NSFW\n• Sem propaganda de qualquer coisa sem permissão prévia da Administração"
+      },
       {
         "name": "Site do Clã",
         "value": "<https://rsatlantis.com>"
