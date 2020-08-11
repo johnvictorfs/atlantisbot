@@ -144,7 +144,9 @@ class Clan(commands.Cog):
 
         clan = rs3clans.Clan(self.bot.setting.clan_name, set_exp=False)
 
-        for member in clan:
+        clan_members = reversed([member for member in clan])
+
+        for member in clan_members:
             if len(ranks_embed.fields) >= 20:
                 await ctx.send('Muitos ranks a serem atualizados, enviando apenas os 20 primeiros.')
                 break
@@ -189,7 +191,8 @@ class Clan(commands.Cog):
             ranks_embed.add_field(
                 name="Nenhum Rank a ser atualizado no momento :)",
                 value=separator,
-                inline=False)
+                inline=False
+            )
 
         return await ctx.send(embed=ranks_embed)
 
