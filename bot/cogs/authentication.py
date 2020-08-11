@@ -732,7 +732,10 @@ class UserAuthentication(commands.Cog):
                 player_world = get_world(worlds, player_world)
                 if not player_world:
                     self.logger.error(f'[{ctx.author}] Player world is None. ({user_data})')
-                    raise Exception(f"Player world is None.")
+                    return await ctx.send(
+                        'Você não pode se autenticar em um mundo instanciado '
+                        '(Fortaleza, Minigames etc.) por favor vá para um mundo normal para se autenticar.'
+                    )
 
                 worlds_requirement = random.randint(2, 3)
                 if re_auth:
