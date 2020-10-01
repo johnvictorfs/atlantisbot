@@ -154,7 +154,8 @@ class UserAuthentication(commands.Cog):
             'data': self.bot.setting.authorization['data'],
             'id': user.id,
             'discord_id': user.discord_id,
-            'discord_name': user.discord_name
+            'discord_name': user.discord_name,
+            'ingame_name': user.ingame_name
         }
 
         token = base64.b64encode(str(data).encode('utf-8')).decode('utf-8')
