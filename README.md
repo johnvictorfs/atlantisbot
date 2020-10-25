@@ -1,4 +1,6 @@
 # AtlantisBot
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnvictorfs%2Fatlantisbot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnvictorfs%2Fatlantisbot?ref=badge_shield)
+
 
 A discord bot made in Python using the [discord.py](https://github.com/Rapptz/discord.py/tree/rewrite) library made by Rapptz (rewrite version)
 
@@ -74,3 +76,7 @@ Joining Secret Santa Successfully              |     Can't join if you aren't in
 Using the Comp command                | Listing competitions                          |
 :------------------------------------:|:----------------------------------------------|
 ![](/images/commands/comp_example.png)|![](/images/commands/multiple_comp_example.png)|
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnvictorfs%2Fatlantisbot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnvictorfs%2Fatlantisbot?ref=badge_large)
