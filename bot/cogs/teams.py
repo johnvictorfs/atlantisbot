@@ -238,6 +238,9 @@ class Teams(commands.Cog):
 
                 await templates_message.delete()
 
+        has_requirement = False
+        has_secondary_requirement = False
+
         if not using_template:
             cancel_command = f'{self.bot.setting.prefix}cancelar'
             orange = discord.Color.orange()
@@ -352,9 +355,6 @@ class Teams(commands.Cog):
                                 f" o cargo secundário? (0 para sem limite)")
                 }
             ]
-
-            has_requirement = False
-            has_secondary_requirement = False
 
             for field in fields:
                 if field['name'] == 'role_secondary' and not has_requirement:
