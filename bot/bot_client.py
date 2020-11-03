@@ -19,15 +19,16 @@ from discord.ext import commands
 from bot import settings
 from bot.orm.db import db_session
 from bot.orm.models import DisabledCommand
-from bot.utils.tools import divide_list, separator
+from bot.utils.tools import separator
 from bot.utils import context, api
 
 
 class Bot(commands.Bot):
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, intents: discord.Intents):
         super().__init__(
             command_prefix=self.setting.prefix,
             description=self.setting.description,
+            intents=intents,
             case_insensitive=True
         )
 

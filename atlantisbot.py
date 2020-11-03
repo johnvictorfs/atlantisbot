@@ -11,7 +11,10 @@ from bot.bot_client import Bot
 
 
 async def run(logger: logging.Logger):
-    bot = Bot(logger)
+    intents = discord.Intents.default()
+    intents.members = True
+
+    bot = Bot(logger, intents)
 
     try:
         await bot.start(bot.setting.token)
