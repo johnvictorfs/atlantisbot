@@ -7,10 +7,16 @@ import sys
 import colorama
 import discord
 
-from bot.bot_client import Bot
+import os
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bot.orm.settings")
+application = get_wsgi_application()  # noqa: F841
 
 
 async def run(logger: logging.Logger):
+    from bot.bot_client import Bot
+
     bot = Bot(logger)
 
     try:

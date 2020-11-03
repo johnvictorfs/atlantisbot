@@ -1,10 +1,10 @@
 from discord.ext import commands
+from atlantisbot_api.models import DiscordUser
 import discord
 import aiohttp
 
 from bot.bot_client import Bot
 from bot.cogs.authentication import get_user_data
-from bot.orm.models import User
 from bot.utils.context import Context
 
 
@@ -33,17 +33,6 @@ class WelcomeMessage(commands.Cog):
         if self.bot.setting.mode == 'dev':
             print("Development mode is on. Not sending welcome message.")
             return
-        membro: discord.Role = member.guild.get_role(self.bot.setting.role.get('membro'))
-        convidado: discord.Role = member.guild.get_role(self.bot.setting.role.get('convidado'))
-
-        with self.bot.db_session() as session:
-            user = session.query(User).filter_by(discord_id=str(member.id)).first()
-            if user:
-                async with aiohttp.ClientSession() as cs:
-                    user_data = await get_user_data(user.ingame_name, cs)
-                if user_data.get('clan') == self.bot.setting.clan_name:
-                    await member.add_roles(membro)
-                    await member.remove_roles(convidado)
 
         for name in self.bot.setting.not_allowed_in_name:
             if name in member.name.lower():
@@ -54,6 +43,19 @@ class WelcomeMessage(commands.Cog):
                 except Exception:
                     print(f"No permission to send private message to {member.name}")
                 return await member.kick(reason=f"Kick automático. String não permitida no usuário. ({name})")
+
+        membro: discord.Role = member.guild.get_role(self.bot.setting.role.get('membro'))
+        convidado: discord.Role = member.guild.get_role(self.bot.setting.role.get('convidado'))
+
+        user = DiscordUser.objects.filter(discord_id=str(member.id)).first()
+
+        if user:
+            async with aiohttp.ClientSession() as cs:
+                user_data = await get_user_data(user.ingame_name, cs)
+            if user_data.get('clan') == self.bot.setting.clan_name:
+                await member.add_roles(membro)
+                await member.remove_roles(convidado)
+
         return await member.send(embed=self.welcome_embed(member))
 
     def welcome_embed(self, member):
@@ -85,7 +87,7 @@ class WelcomeMessage(commands.Cog):
         )
 
         welcome_embed.add_field(
-            name=f"**Conheça alguns chats do Servidor:**",
+            name="**Conheça alguns chats do Servidor:**",
             value=f"• <#{tags_do_server}> para info sobre os Roles do servidor\n"
                   f"• <#{links_uteis}> para links úteis gerais (principalmente PvM)\n"
                   f"\n"
@@ -107,8 +109,8 @@ class WelcomeMessage(commands.Cog):
         )
 
         welcome_embed.add_field(
-            name=f"Alguma reclamação/elogio/outro? Fale conosco!",
-            value=f"<http://tiny.cc/atlantisouvidoria>"
+            name="Alguma reclamação/elogio/outro? Fale conosco!",
+            value="<http://tiny.cc/atlantisouvidoria>"
         )
 
         welcome_embed.set_footer(

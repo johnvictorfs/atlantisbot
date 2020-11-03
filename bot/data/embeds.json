@@ -146,10 +146,6 @@
           "text": "Dado para todos que entram no servidor, ver acima caso seja um Membro do Clã"
         },
         {
-          "name": "fortnight",
-          "text": "Notificações para jogos de Fortnite"
-        },
-        {
           "name": "merchant",
           "text": "Notificações para Loja Diária do Mercador de Pesca em Alto Mar"
         },
@@ -217,19 +213,16 @@
         },
         {
           "names": [
-            "raids_teacher",
-            "aod_teacher",
-            "vorago_teacher",
-            "solak_teacher"
+            "pvm_teacher"
           ],
-          "text": "Dado pra Organizadores de seus respectivos bosses, sinta-se a vontade para os notificar para perguntas sobre PvM.\nTem interesse em se tornar um Organizador? Envie uma mensagem para <@148175892596785152> (não restrito para os Bosses mencionados aqui)"
+          "text": "Dado pra Organizadores de PvM do clã, sinta-se a vontade para os notificar para perguntas sobre PvM.\nTem interesse em se tornar um Organizador? Envie uma mensagem para <@148175892596785152>"
         },
         {
           "names": [
             "140k_dpm",
             "200k_dpm"
           ],
-          "text": "Ganho por fazer uma determinada quantidade de DPM em gemas de desafio. [Mais Info](https://i.imgur.com/kSmjjIS.png) Vem em 3 Cores diferentes para os 3 estilos"
+          "text": "Ganho por fazer uma determinada quantidade de DPM em gemas de desafio. Vem em 3 Cores diferentes para os 3 estilos"
         }
       ]
     }
@@ -273,6 +266,10 @@
       {
         "name": "ironmemes",
         "emoji": "<:ironman:562065451719589895>"
+      },
+      {
+        "name": "among_us",
+        "emoji": "<:amongus:772253932189253662>"
       }
     ]
   }

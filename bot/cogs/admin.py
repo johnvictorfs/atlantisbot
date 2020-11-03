@@ -8,17 +8,16 @@ import inspect
 import sqlite3
 import traceback
 import textwrap
-import importlib
 import subprocess
-from typing import Set
+from typing import Set, List, Tuple
 from contextlib import redirect_stdout
 
-from discord.ext import commands
 import discord
+from discord.ext import commands
+from atlantisbot_api.models import AmigoSecretoState, RaidsState, AmigoSecretoPerson
 
 from bot.bot_client import Bot
-from bot.orm.models import RaidsState, Team, PlayerActivities, AdvLogState, AmigoSecretoState, AmigoSecretoPerson, \
-    DisabledCommand
+from bot.orm.models import Team, PlayerActivities, AdvLogState, DisabledCommand
 from bot.utils.tools import separator, plot_table, has_any_role
 from bot.utils.context import Context
 
@@ -98,16 +97,14 @@ class Admin(commands.Cog):
             for is_submodule, module in modules:
                 if is_submodule:
                     try:
-                        actual_module = sys.modules[module]
-                    except KeyError:
-                        statuses.append((ctx.tick(None), module))
-                    else:
                         try:
-                            importlib.reload(actual_module)
-                        except Exception:
-                            statuses.append((ctx.tick(False), module))
-                        else:
-                            statuses.append((ctx.tick(True), module))
+                            self.bot.reload_extension(module)
+                        except commands.ExtensionNotLoaded:
+                            self.bot.load_extension(module)
+                    except Exception:
+                        statuses.append((ctx.tick(False), module))
+                    else:
+                        statuses.append((ctx.tick(True), module))
                 else:
                     try:
                         self.reload_or_load_extension(module)
@@ -120,13 +117,13 @@ class Admin(commands.Cog):
         except Exception as e:
             print(e)
 
-    def reload_or_load_extension(self, module):
+    def reload_or_load_extension(self, module: str):
         try:
             self.bot.reload_extension(module)
         except commands.ExtensionNotLoaded:
             self.bot.load_extension(module)
 
-    def find_modules_from_git(self, output):
+    def find_modules_from_git(self, output: str) -> List[Tuple[bool, str]]:
         files = self._GIT_PULL_REGEX.findall(output)
         ret = []
         for file in files:
@@ -383,7 +380,7 @@ class Admin(commands.Cog):
         prefix = self.bot.setting.prefix
 
         embed.add_field(
-            name=f"{prefix}timesativos",
+            name=f"{prefix}times",
             value="Ver informações sobre os times ativos no momento",
             inline=False
         )
@@ -416,7 +413,7 @@ class Admin(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['timesativos', 'times_ativos'])
+    @commands.command(aliases=['times', 'times_ativos'])
     async def running_teams(self, ctx: Context):
         running_teams_embed = discord.Embed(title='__Times Ativos__', description="", color=discord.Color.red())
         with self.bot.db_session() as session:
@@ -460,7 +457,7 @@ class Admin(commands.Cog):
         with self.bot.db_session() as session:
             team_count = session.query(Team).count()
             advlog_count = session.query(PlayerActivities).count()
-            amigosecreto_count = session.query(AmigoSecretoPerson).count()
+            amigosecreto_count = AmigoSecretoPerson.objects.all().count()
             raids_notif = f"{'Habilitadas' if self.raids_notifications() else 'Desabilitadas'}"
             advlog = f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
             amigo_secreto = f"{'Ativo' if self.secret_santa() else 'Inativo'}"
@@ -478,37 +475,18 @@ class Admin(commands.Cog):
         embed.add_field(name="Amigo Secreto Entries", value=amigosecreto_count)
         return await ctx.send(embed=embed)
 
-    def secret_santa(self):
-        with self.bot.db_session() as session:
-            state = session.query(AmigoSecretoState).first()
-            if not state:
-                state = AmigoSecretoState(activated=False)
-                session.add(state)
-                session.commit()
-            state_ = state.activated
-        return state_
+    def secret_santa(self) -> bool:
+        return AmigoSecretoState.objects.first().activated
 
-    def raids_notifications(self):
-        with self.bot.db_session() as session:
-            state = session.query(RaidsState).first()
-            if not state:
-                state = RaidsState(notifications=True)
-                session.add(state)
-                session.commit()
-            state_ = state.notifications
-        return state_
+    def raids_notifications(self) -> bool:
+        return RaidsState.object().notifications
 
-    def toggle_raids_notifications(self):
-        with self.bot.db_session() as session:
-            state = session.query(RaidsState).first()
-            if not state:
-                state = RaidsState(notifications=True)
-                session.add(state)
-                session.commit()
-            state.notifications = not state.notifications
-            state_ = state.notifications
-            session.commit()
-        return state_
+    def toggle_raids_notifications(self) -> bool:
+        current = RaidsState.object()
+        current.notifications = not current.notifications
+        current.save()
+
+        return current.notifications
 
     def advlog_messages(self):
         with self.bot.db_session() as session:

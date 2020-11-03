@@ -1,12 +1,11 @@
+from atlantisbot_api.models import DiscordUser
+from bot.settings import Settings
+import io
+import discord
+import asyncio
 from typing import Optional
 
 from discord.ext import commands
-import asyncio
-import discord
-import io
-
-from bot.orm.models import User
-from bot.settings import Settings
 
 
 class _ContextDBAcquire:
@@ -61,14 +60,12 @@ class Context(commands.Context):
         # we need this for our cache key strategy
         return '<Context>'
 
-    def get_user(self) -> Optional[User]:
-        with self.bot.db_session() as session:
-            user: User = session.query(User).filter_by(discord_id=str(self.author.id)).first()
-            session.expunge(user)
+    def get_user(self) -> Optional[DiscordUser]:
+        user = DiscordUser.filter(discord_id=str(self.author.id)).first()
 
-            if user:
-                return user
-            return None
+        if user:
+            return user
+        return None
 
     async def disambiguate(self, matches, entry):
         if len(matches) == 0:
@@ -165,13 +162,15 @@ class Context(commands.Context):
         finally:
             return confirm
 
-    def tick(self, opt: bool, label: str = None):
+    def tick(self, opt: Optional[bool] = None, label: str = None):
         lookup = {
             True: '<:greenTick:330090705336664065>',
             False: '<:redTick:330090723011592193>',
-            None: '<:greyTick:563231201280917524>',
+            None: '<:greyTick:563231201280917524>'
         }
-        emoji = lookup.get(opt, '<:redTick:330090723011592193>')
+
+        emoji = lookup.get(opt, '<:greyTick:563231201280917524>')
+
         if label:
             return f'{emoji} {label}'
         return emoji

@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, ForeignKey, BigInteger
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -52,13 +52,6 @@ class Team(Base):
         )
 
 
-class RaidsState(Base):
-    __tablename__ = 'raidsstate'
-    id = Column(Integer, primary_key=True)
-    notifications = Column(Boolean, default=False)
-    time_to_next_message = Column(String, nullable=True)
-
-
 class AdvLogState(Base):
     __tablename__ = 'advlogstate'
     id = Column(Integer, primary_key=True)
@@ -75,31 +68,6 @@ class PlayerActivities(Base):
     __tablename__ = 'playeractivities'
     id = Column(Integer, primary_key=True)
     activities_id = Column(String, unique=True)
-
-
-class AmigoSecretoPerson(Base):
-    __tablename__ = 'amigosecreto'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True)
-    giving_to_user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=True, unique=True)
-    receiving = Column(Boolean, default=False)
-
-
-class AmigoSecretoState(Base):
-    __tablename__ = 'amigosecretostate'
-    id = Column(Integer, primary_key=True)
-    activated = Column(Boolean, default=False)
-    start_date = Column(DateTime, nullable=True)
-    end_date = Column(DateTime, nullable=True)
-    premio_minimo = Column(BigInteger, nullable=True)
-    premio_maximo = Column(BigInteger, nullable=True)
-
-
-class SongOfSerenState(Base):
-    __tablename__ = 'sos_state'
-    id = Column(Integer, primary_key=True)
-    activated = Column(Boolean, default=False)
-    message_id = Column(String, nullable=True)
 
 
 class VoiceOfSeren(Base):
@@ -120,22 +88,3 @@ class IngameName(Base):
 
     def __str__(self):
         return self.name
-
-
-class User(Base):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    updated = Column(DateTime, default=datetime.datetime.utcnow())
-    warning_date = Column(DateTime, nullable=True)
-    disabled = Column(Boolean, default=False)
-    ingame_name = Column(String, unique=True, nullable=False)
-    discord_id = Column(String)
-    discord_name = Column(String)
-    ingame_names = relationship(IngameName, backref='parent', cascade='all,delete,delete-orphan')
-
-    def __str__(self):
-        return (
-            f"User(ingame_name='{self.ingame_name}', id={self.id}, "
-            f"discord_id='{self.discord_id}', warning_date='{self.warning_date}', updated='{self.updated}', "
-            f"name='{self.discord_name}', disabled={self.disabled})"
-        )

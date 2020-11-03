@@ -1,9 +1,10 @@
 from typing import Union, Tuple
 import traceback
 
+from atlantisbot_api.models import DiscordUser
 import discord
 
-from bot.orm.models import Team, Player, BotMessage, User
+from bot.orm.models import Team, Player, BotMessage
 from bot.utils.tools import has_any_role, separator
 
 
@@ -74,7 +75,7 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
     if players:
         for player in players:
             if not player.substitute:
-                user: User = session.query(User).filter_by(discord_id=player.player_id).first()
+                user = DiscordUser.objects.filter(discord_id=player.player_id).first()
 
                 player_role = f"({player.role})" if player.role else ""
 
@@ -92,7 +93,7 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str,
     if players:
         for player in players:
             if player.substitute:
-                user_: User = session.query(User).filter_by(discord_id=player.player_id).first()
+                user_ = DiscordUser.objects.filter(discord_id=player.player_id).first()
 
                 if user_:
                     player_ingame = f"({user_.ingame_name})"
@@ -117,17 +118,17 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
             team: Team = session.query(Team).filter_by(team_id=team_id).first()
             if not team:
                 raise TeamNotFoundError
-            if int(team.invite_channel_id) != message.channel.id:
+            if int(team.invite_channel_id or 0) != message.channel.id:
                 raise WrongChannelError
             await message.delete()
             current_players = session.query(Player).filter_by(team=team.id)
             substitutes = session.query(Player).filter_by(team=team.id, substitute=True)
-            invite_channel: discord.TextChannel = client.get_channel(int(team.invite_channel_id))
-            team_channel: discord.TextChannel = client.get_channel(int(team.team_channel_id))
+            invite_channel: discord.TextChannel = client.get_channel(int(team.invite_channel_id or 0))
+            team_channel: discord.TextChannel = client.get_channel(int(team.team_channel_id or 0))
             if not invite_channel or not team_channel:
                 return await delete_team(session, team, client)
             try:
-                team_message = await team_channel.fetch_message(int(team.team_message_id))
+                team_message = await team_channel.fetch_message(int(team.team_message_id or 0))
             except discord.errors.NotFound:
                 return await delete_team(session, team, client)
 
@@ -235,19 +236,19 @@ def in_team(author_id: int, team: Team, session) -> bool:
 
 async def delete_team(session, team: Team, client) -> None:
     try:
-        team_channel = client.get_channel(int(team.team_channel_id))
-        invite_channel = client.get_channel(int(team.invite_channel_id))
+        team_channel = client.get_channel(int(team.team_channel_id or 0))
+        invite_channel = client.get_channel(int(team.invite_channel_id or 0))
     except Exception:
         session.delete(team)
         session.commit()
         return
     try:
-        team_message = await team_channel.fetch_message(int(team.team_message_id))
+        team_message = await team_channel.fetch_message(int(team.team_message_id or 0))
         await team_message.delete()
     except Exception:
         pass
     try:
-        invite_message = await invite_channel.fetch_message(int(team.invite_message_id))
+        invite_message = await invite_channel.fetch_message(int(team.invite_message_id or 0))
         await invite_message.delete()
     except Exception:
         pass

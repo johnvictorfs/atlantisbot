@@ -10,7 +10,9 @@ from bot.bot_client import Bot
 from bot.utils.teams import delete_team
 from bot.utils.tools import separator
 from bot.utils.context import Context
-from bot.orm.models import RaidsState, Team
+from bot.orm.models import Team
+
+from atlantisbot_api.models import RaidsState
 
 
 def time_till_raids(start_date) -> int:
@@ -84,15 +86,9 @@ class RaidsTasks(commands.Cog):
 
             msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/666257577256026123'
 
-            with self.bot.db_session() as session:
-                # Check if Raids notifications are currently active or not
-                state = session.query(RaidsState).first()
-
-                if not state:
-                    state = RaidsState(notifications=True)
-                    session.add(state)
-
-                raids_active = state.notifications
+            # Check if Raids notifications are currently active or not
+            state = RaidsState.object()
+            raids_active = state.notifications
 
             text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
                     f"{hours} Hora{'s' if hours > 1 else ''} e "
@@ -109,27 +105,22 @@ class RaidsTasks(commands.Cog):
 
             channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
 
-            with self.bot.db_session() as session:
-                state = session.query(RaidsState).first()
-                if state:
-                    if state.time_to_next_message:
-                        message_id = int(state.time_to_next_message)
-                    else:
-                        sent = await channel.send(content=None, embed=embed)
-                        state.time_to_next_message = str(sent.id)
-                        message_id = sent.id
+            state = RaidsState.object()
+
+            if state:
+                if state.time_to_next_message:
+                    message_id = int(state.time_to_next_message)
                 else:
-                    sent = await channel.send("Próxima notificação de Raids em:")
-                    session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
-                    state = session.query(RaidsState).first()
-                    message_id = sent.id
-                try:
-                    message: discord.Message = await channel.fetch_message(message_id)
-                    await message.edit(content=None, embed=embed)
-                except discord.errors.NotFound:
                     sent = await channel.send(content=None, embed=embed)
                     state.time_to_next_message = str(sent.id)
-                await asyncio.sleep(1)
+                    message_id = sent.id
+            try:
+                message: discord.Message = await channel.fetch_message(message_id)
+                await message.edit(content=None, embed=embed)
+            except discord.errors.NotFound:
+                sent = await channel.send(content=None, embed=embed)
+                state.time_to_next_message = str(sent.id)
+            await asyncio.sleep(1)
         except Exception as e:
             tb = traceback.format_exc()
             await self.bot.send_logs(e, tb)
@@ -140,13 +131,8 @@ class RaidsTasks(commands.Cog):
 
     def raids_notifications(self) -> bool:
         """Checks if raids notifications are turned on or off in the bot settings"""
-        with self.bot.db_session() as session:
-            state = session.query(RaidsState).first()
-            if not state:
-                state = RaidsState(notifications=True)
-                session.add(state)
-                session.commit()
-            return state.notifications
+        state = RaidsState.object()
+        return state.notifications
 
     async def start_raids_team(self) -> None:
         """Starts a Raids Team, the owner of the team is the Bot itself"""
@@ -243,16 +229,16 @@ class RaidsTasks(commands.Cog):
         channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
         sent: discord.Message = await channel.send("Próxima notificação de Raids em:")
 
-        with self.bot.db_session() as session:
-            state: RaidsState = session.query(RaidsState).first()
-            if state:
-                if state.time_to_next_message:
-                    message = await channel.fetch_message(int(state.time_to_next_message))
-                    if message:
-                        await message.delete()
-                state.time_to_next_message = str(sent.id)
-            else:
-                session.add(RaidsState(notifications=False, time_to_next_message=str(sent.id)))
+        state = RaidsState.object()
+
+        if state.time_to_next_message:
+            message = await channel.fetch_message(int(state.time_to_next_message))
+            if message:
+                await message.delete()
+
+        state.time_to_next_message = str(sent.id)
+        state.save()
+
         await ctx.author.send("Mensagem da próxima notificação de Raids reenviada com sucesso.")
 
 

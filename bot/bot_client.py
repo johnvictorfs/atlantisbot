@@ -19,7 +19,7 @@ from discord.ext import commands
 from bot import settings
 from bot.orm.db import db_session
 from bot.orm.models import DisabledCommand
-from bot.utils.tools import divide_list, separator
+from bot.utils.tools import separator
 from bot.utils import context, api
 
 
@@ -218,7 +218,7 @@ class Bot(commands.Bot):
 
                     self.load_extension(f'bot.cogs.{extension}')
 
-                    print(f'- loaded Extension: {extension}')
+                    print(f'- Loaded Extension: {extension}')
 
                 except Exception as e:
 
@@ -252,7 +252,7 @@ class Bot(commands.Bot):
 
                 try:
                     self.reload_extension(f'bot.cogs.{extension}')
-                    print(f'- reloaded Extension: {extension}')
+                    print(f'- Reloaded Extension: {extension}')
 
                 except Exception as e:
                     error = f'{extension}:\n {type(e).__name__} : {e}'
