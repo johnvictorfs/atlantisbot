@@ -120,7 +120,7 @@ class Vos(commands.Cog):
                 if role_1:
                     mentions += f"<@&{role_1}> "
                 if role_2:
-                    mentions += f"<@&{role_2.mention}>"
+                    mentions += f"<@&{role_2}>"
 
                 embed, file = self.vos_embed(vos_1, vos_2)
                 vos_message: discord.Message = await channel.send(file=file, embed=embed, content="")
@@ -189,7 +189,7 @@ class Vos(commands.Cog):
                 if role_1:
                     mentions += f"<@&{role_1}> "
                 if role_2:
-                    mentions += f"<@&{role_2.mention}>"
+                    mentions += f"<@&{role_2}>"
 
                 embed, file = self.vos_embed(vos_1, vos_2)
                 message: discord.Message = await channel.send(file=file, embed=embed, content="")
