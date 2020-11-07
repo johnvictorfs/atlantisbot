@@ -17,7 +17,10 @@ application = get_wsgi_application()  # noqa: F841
 async def run(logger: logging.Logger):
     from bot.bot_client import Bot
 
-    bot = Bot(logger)
+    intents = discord.Intents.default()
+    intents.members = True
+
+    bot = Bot(logger, intents)
 
     try:
         await bot.start(bot.setting.token)

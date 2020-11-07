@@ -22,10 +22,11 @@ from bot.utils import context, api
 
 
 class Bot(commands.Bot):
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, intents: discord.Intents):
         super().__init__(
             command_prefix=self.setting.prefix,
             description=self.setting.description,
+            intents=intents,
             case_insensitive=True
         )
 
