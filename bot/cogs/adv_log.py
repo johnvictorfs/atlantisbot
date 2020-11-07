@@ -7,12 +7,12 @@ import traceback
 import re
 import feedparser
 
+from atlantisbot_api.models import PlayerActivities, AdvLogState
 from discord.ext import tasks, commands
 import aiohttp
 import discord
 
 from bot.bot_client import Bot
-from bot.orm.models import PlayerActivities, AdvLogState
 
 
 class AdvLog(commands.Cog):
@@ -27,16 +27,11 @@ class AdvLog(commands.Cog):
         if self.bot.setting.mode == 'prod':
             self.adv_log.cancel()
 
-    def is_advlog_active(self):
-        with self.bot.db_session() as session:
-            state = session.query(AdvLogState).first()
-            if not state:
-                state = AdvLogState(messages=True)
-                session.add(state)
-                session.commit()
-            return state.messages
+    @staticmethod
+    def is_advlog_active():
+        state = AdvLogState.object()
+        return state.active
 
-    # noinspection PyCallingNonCallable
     @tasks.loop(seconds=15)
     async def adv_log(self):
         if self.is_advlog_active():
@@ -59,12 +54,11 @@ class AdvLog(commands.Cog):
                                     break
                                 parsed_url = urlparse.urlparse(entry.get('guid'))
                                 entry_id = urlparse.parse_qs(parsed_url.query).get('id')[0]
-                                with self.bot.db_session() as session:
-                                    exists = session.query(PlayerActivities).filter_by(activities_id=entry_id).first()
+
+                                exists = PlayerActivities.objects.filter(activities_id=entry_id).first()
                                 if exists:
                                     continue
-                                with self.bot.db_session() as session:
-                                    session.add(PlayerActivities(activities_id=entry_id))
+                                PlayerActivities.objects.create(activities_id=entry_id)
                                 title = entry.get('title')
                                 description = entry.get('description')
                                 try:

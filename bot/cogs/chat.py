@@ -12,7 +12,6 @@ from bot.cogs.raids import time_till_raids
 from bot.utils.tools import right_arrow, has_any_role
 from bot.utils.checks import is_authenticated, is_admin
 from bot.utils.context import Context
-from bot.orm.models import User
 
 
 class Chat(commands.Cog):
@@ -120,9 +119,8 @@ class Chat(commands.Cog):
         if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
             return await ctx.send(denied_message)
 
-        with self.bot.db_session() as session:
-            user: User = session.query(User).filter_by(discord_id=str(ctx.author.id)).first()
-            ingame_name = user.ingame_name
+        user = ctx.get_user()
+        ingame_name = user.ingame_name
 
         raids_channel = f"<#{self.bot.setting.chat.get('raids')}>"
 
@@ -242,12 +240,12 @@ class Chat(commands.Cog):
                   f"irá começar o Raids no jogo, não chegue atrasado. Mais informações no canal {raids_channel}.",
             inline=False
         )
-        await ctx.send(embed=embed, content=f"<@&{self.bot.setting.role.get('raids_teacher')}>")
+        await ctx.send(embed=embed, content=f"<@&{self.bot.setting.role.get('pvm_teacher')}>")
 
     @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
     async def aplicar_aod(self, ctx: Context):
         aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
-        aod_teacher = f"<@&{self.bot.setting.role.get('aod_teacher')}>"
+        pvm_teacher = f"<@&{self.bot.setting.role.get('pvm_teacher')}>"
 
         aplicar_message = f"""
 Olá! Você aplicou para receber a tag de AoD e participar dos times de Nex: AoD do Clã.
@@ -263,7 +261,7 @@ Inclua na screenshot:
  {right_arrow} Barra de Habilidades no modo de combate que utiliza
  {right_arrow} Nome de usuário in-game
 
-Aguarde uma resposta de um {aod_teacher}.
+Aguarde uma resposta de um {pvm_teacher}.
 
 ***Exemplo(Aplicação para Raids): *** https://i.imgur.com/CMNzquL.png"""
 
@@ -310,12 +308,12 @@ Aguarde uma resposta de um {aod_teacher}.
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}clan <nome de clã>",
-            value=f"Ver info Básica de um Clã",
+            value="Ver info Básica de um Clã",
             inline=False
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}ptbr_rankings (número de clãs|10:25)",
-            value=f"Ver os Rankings dos Clãs PT-BR por base em Exp",
+            value="Ver os Rankings dos Clãs PT-BR por base em Exp",
             inline=False
         )
         atlcommands_embed.add_field(

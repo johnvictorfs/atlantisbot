@@ -14,11 +14,9 @@ import colorama
 import twitter
 import discord
 from discord.ext import commands
-
+from atlantisbot_api.models import DisabledCommand
 
 from bot import settings
-from bot.orm.db import db_session
-from bot.orm.models import DisabledCommand
 from bot.utils.tools import separator
 from bot.utils import context, api
 
@@ -45,8 +43,6 @@ class Bot(commands.Bot):
         self.loop.create_task(self.load_all_extensions())
 
         self.twitter_api = twitter.Api(**self.setting.twitter)
-
-        self.db_session = db_session
 
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
 
@@ -219,7 +215,7 @@ class Bot(commands.Bot):
 
                     self.load_extension(f'bot.cogs.{extension}')
 
-                    print(f'- loaded Extension: {extension}')
+                    print(f'- Loaded Extension: {extension}')
 
                 except Exception as e:
 
@@ -253,7 +249,7 @@ class Bot(commands.Bot):
 
                 try:
                     self.reload_extension(f'bot.cogs.{extension}')
-                    print(f'- reloaded Extension: {extension}')
+                    print(f'- Reloaded Extension: {extension}')
 
                 except Exception as e:
                     error = f'{extension}:\n {type(e).__name__} : {e}'
@@ -276,17 +272,13 @@ class Bot(commands.Bot):
         return errored
 
     def disabled_commands(self):
-        with self.db_session() as session:
-            qs = session.query(DisabledCommand).all()
+        for disabled_command in DisabledCommand.objects.all():
+            command = self.get_command(disabled_command.name)
 
-            if qs:
-                for item in qs:
-                    command = self.get_command(item.name)
+            if command:
+                command.enabled = False
 
-                    if command:
-                        command.enabled = False
-
-                        print(f"Disabling command {command}.")
+                print(f"Disabling command {command}.")
 
     async def on_ready(self):
         """
@@ -369,7 +361,7 @@ class Bot(commands.Bot):
 
         embed = discord.Embed(title='Saiu do Servidor', description="\u200B", color=discord.Color.red())
 
-        embed.set_author(name=member)
+        embed.set_author(name=str(member))
 
         roles = ', '.join([role.name for role in member.roles]) + '\n'
 
