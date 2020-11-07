@@ -10,9 +10,8 @@ from bot.bot_client import Bot
 from bot.utils.teams import delete_team
 from bot.utils.tools import separator
 from bot.utils.context import Context
-from bot.orm.models import Team
 
-from atlantisbot_api.models import RaidsState
+from atlantisbot_api.models import RaidsState, Team
 
 
 def time_till_raids(start_date) -> int:
@@ -129,17 +128,18 @@ class RaidsTasks(commands.Cog):
     async def before_update_next_raids(self):
         await self.bot.wait_until_ready()
 
-    def raids_notifications(self) -> bool:
+    @staticmethod
+    def raids_notifications() -> bool:
         """Checks if raids notifications are turned on or off in the bot settings"""
         state = RaidsState.object()
         return state.notifications
 
     async def start_raids_team(self) -> None:
         """Starts a Raids Team, the owner of the team is the Bot itself"""
-        with self.bot.db_session() as session:
-            old_team = session.query(Team).filter_by(team_id='raids').first()
-            if old_team:
-                await delete_team(session, old_team, self.bot)
+        old_team = Team.objects.filter(team_id='raids').first()
+        if old_team:
+            await delete_team(old_team, self.bot)
+
         if self.bot.setting.mode == 'prod':
             invite_channel_id = self.bot.setting.chat.get('raids_chat')
             team_channel_id = self.bot.setting.chat.get('raids')
@@ -186,9 +186,7 @@ class RaidsTasks(commands.Cog):
             team_channel_id=str(team_channel_id),
             team_message_id=str(team_message.id)
         )
-        with self.bot.db_session() as session:
-            session.add(raids_team)
-            session.commit()
+        raids_team.save()
 
     def raids_embed(self) -> discord.Embed:
         clan_name = self.bot.setting.clan_name.replace(' ', '%20')

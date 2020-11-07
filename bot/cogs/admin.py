@@ -14,11 +14,10 @@ from contextlib import redirect_stdout
 
 import discord
 from discord.ext import commands
-from atlantisbot_api.models import AmigoSecretoState, RaidsState, AmigoSecretoPerson
+from atlantisbot_api.models import AmigoSecretoState, RaidsState, AmigoSecretoPerson, Team, PlayerActivities, AdvLogState, DisabledCommand
 
 from bot.bot_client import Bot
-from bot.orm.models import Team, PlayerActivities, AdvLogState, DisabledCommand
-from bot.utils.tools import separator, plot_table, has_any_role
+from bot.utils.tools import separator, has_any_role
 from bot.utils.context import Context
 
 
@@ -178,9 +177,10 @@ class Admin(commands.Cog):
             return await ctx.send(f"O comando {command_name} não existe.")
         if not command.enabled:
             return await ctx.send(f"O comando {command_name} já está desabilitado.")
-        with self.bot.db_session() as session:
-            command.enabled = False
-            session.add(DisabledCommand(name=command_name))
+
+        command.enabled = False
+        disabled_command = DisabledCommand(name=command_name)
+        disabled_command.save()
         return await ctx.send(f"Comando {command_name} desabilitado com sucesso.")
 
     @commands.is_owner()
@@ -193,10 +193,9 @@ class Admin(commands.Cog):
         if command.enabled:
             return await ctx.send(f"O comando {command_name} já está habilitado.")
 
-        with self.bot.db_session() as session:
-            disabled_command = session.query(DisabledCommand).filter_by(name=command_name).first()
-            session.delete(disabled_command)
-            command.enabled = True
+        disabled_command = DisabledCommand.objects.filter(name=command_name).first()
+        disabled_command.delete()
+        command.enabled = True
         return await ctx.send(f"Comando {command_name} habilitado com sucesso.")
 
     @staticmethod
@@ -356,22 +355,6 @@ class Admin(commands.Cog):
             except discord.HTTPException as e:
                 await ctx.send(f'Unexpected error: `{e}`')
 
-    @commands.is_owner()
-    @commands.command(aliases=['sendtable'])
-    async def send_table(self, ctx: Context, table: str, safe: bool = True):
-        if not safe:
-            answer = await ctx.prompt(f"Você tem certeza que deseja enviar uma imagem da tabela '{table}'?")
-
-            if not answer:
-                return await ctx.send("Envio de Tabela cancelada.")
-        try:
-            plot_table(table, table, safe=safe)
-        except IndexError:
-            return await ctx.send("Não há nenhuma linha nessa tabela.")
-        except sqlite3.OperationalError:
-            return await ctx.send("Essa tabela não existe.")
-        return await ctx.send(file=discord.File(f'{table}.tmp.png'))
-
     @commands.command(aliases=['admin'])
     async def admin_commands(self, ctx: Context):
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
@@ -416,20 +399,20 @@ class Admin(commands.Cog):
     @commands.command(aliases=['times', 'times_ativos'])
     async def running_teams(self, ctx: Context):
         running_teams_embed = discord.Embed(title='__Times Ativos__', description="", color=discord.Color.red())
-        with self.bot.db_session() as session:
-            teams = session.query(Team).all()
-            if not teams:
-                running_teams_embed.add_field(name=separator, value=f"Nenhum time ativo no momento.")
-            for team in teams:
-                running_teams_embed.add_field(
-                    name=separator,
-                    value=f"**Título:** {team.title}\n"
-                    f"**PK:** {team.id}\n"
-                    f"**Team ID:** {team.team_id}\n"
-                    f"**Chat:** <#{team.team_channel_id}>\n"
-                    f"**Criado por:** <@{team.author_id}>\n"
-                    f"**Criado em:** {team.created_date}"
-                )
+
+        teams = Team.objects.all()
+        if not teams:
+            running_teams_embed.add_field(name=separator, value=f"Nenhum time ativo no momento.")
+        for team in teams:
+            running_teams_embed.add_field(
+                name=separator,
+                value=f"**Título:** {team.title}\n"
+                f"**PK:** {team.id}\n"
+                f"**Team ID:** {team.team_id}\n"
+                f"**Chat:** <#{team.team_channel_id}>\n"
+                f"**Criado por:** <@{team.author_id}>\n"
+                f"**Criado em:** {team.created_date}"
+            )
         await ctx.send(embed=running_teams_embed)
 
     @commands.command()
@@ -454,13 +437,12 @@ class Admin(commands.Cog):
 
     @commands.command()
     async def status(self, ctx: Context):
-        with self.bot.db_session() as session:
-            team_count = session.query(Team).count()
-            advlog_count = session.query(PlayerActivities).count()
-            amigosecreto_count = AmigoSecretoPerson.objects.all().count()
-            raids_notif = f"{'Habilitadas' if self.raids_notifications() else 'Desabilitadas'}"
-            advlog = f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
-            amigo_secreto = f"{'Ativo' if self.secret_santa() else 'Inativo'}"
+        team_count = Team.objects.count()
+        advlog_count = PlayerActivities.objects.count()
+        amigosecreto_count = AmigoSecretoPerson.objects.all().count()
+        raids_notif = f"{'Habilitadas' if self.raids_notifications() else 'Desabilitadas'}"
+        advlog = f"{'Habilitadas' if self.advlog_messages() else 'Desabilitadas'}"
+        amigo_secreto = f"{'Ativo' if self.secret_santa() else 'Inativo'}"
         embed = discord.Embed(title="", description="", color=discord.Color.blue())
 
         embed.set_footer(text=f"Uptime: {datetime.datetime.utcnow() - self.bot.start_time}")
@@ -475,40 +457,33 @@ class Admin(commands.Cog):
         embed.add_field(name="Amigo Secreto Entries", value=amigosecreto_count)
         return await ctx.send(embed=embed)
 
-    def secret_santa(self) -> bool:
-        return AmigoSecretoState.objects.first().activated
+    @staticmethod
+    def secret_santa() -> bool:
+        return AmigoSecretoState.object().activated
 
-    def raids_notifications(self) -> bool:
+    @staticmethod
+    def raids_notifications() -> bool:
         return RaidsState.object().notifications
 
-    def toggle_raids_notifications(self) -> bool:
+    @staticmethod
+    def toggle_raids_notifications() -> bool:
         current = RaidsState.object()
-        current.notifications = not current.notifications
-        current.save()
+        current.toggle()
 
         return current.notifications
 
-    def advlog_messages(self):
-        with self.bot.db_session() as session:
-            state = session.query(AdvLogState).first()
-            if not state:
-                state = AdvLogState(messages=True)
-                session.add(state)
-                session.commit()
-            state_ = state.messages
-        return state_
+    @staticmethod
+    def advlog_messages() -> bool:
+        state = AdvLogState.object()
+        return state.active
 
-    def toggle_advlog_messages(self):
-        with self.bot.db_session() as session:
-            state = session.query(AdvLogState).first()
-            if not state:
-                state = AdvLogState(messages=True)
-                session.add(state)
-                session.commit()
-            state.messages = not state.messages
-            state_ = state.messages
-            session.commit()
-        return state_
+    @staticmethod
+    def toggle_advlog_messages():
+        state = AdvLogState.object()
+
+        state.active = not state.active
+        state.save()
+        return state.active
 
 
 def setup(bot):

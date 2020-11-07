@@ -5,56 +5,61 @@ import re
 import asyncio
 import discord
 from discord.ext import commands
-from sqlalchemy import cast, Integer
+from django.db.models import Q
+
+from atlantisbot_api.models import Team, Player
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
 from bot.utils.teams import delete_team, update_team_message, manage_team, TeamNotFoundError, WrongChannelError
-from bot.orm.models import Team, Player
 from bot.utils.context import Context
 
 
-def get_team_id(content: str):
-    return re.findall(r"(?:\S+\s+)(\S+)", content)
+TEAM_ID_REGEX = re.compile(r'(?:\S+\s+)(\S+)')
 
 
-async def is_team_owner(ctx: Context):
+def get_team_id(content: str) -> str:
+    r = TEAM_ID_REGEX.search(content)
+    return r.group(0) if r else ''
+
+
+async def is_team_owner(ctx: Context) -> bool:
     """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
-    with ctx.bot.db_session() as session:
-        team_id = get_team_id(ctx.message.content)
+    team_id = get_team_id(ctx.message.content)
 
-        if not team_id:
-            raise commands.MissingRequiredArgument(ctx.command)
+    if not team_id:
+        raise commands.MissingRequiredArgument(ctx.command)
 
-        team_id = team_id[0]
-        team: Team = session.query(Team).filter_by(team_id=team_id).first()
-        if not team:
-            await ctx.send(f"Time com ID {team_id} não existe.")
-            return False
-        if not int(team.author_id) == ctx.author.id:
-            await ctx.send(f"Você precisa ser o criador desse Time para fazer isso.")
-            return False
-        return True
+    team_id = team_id[0]
+    team = Team.objects.filter(team_id=team_id).first()
+
+    if not team:
+        await ctx.send(f"Time com ID {team_id} não existe.")
+        return False
+    if not int(team.author_id) == ctx.author.id:
+        await ctx.send(f"Você precisa ser o criador desse Time para fazer isso.")
+        return False
+    return True
 
 
-async def is_in_team(ctx: Context):
+async def is_in_team(ctx: Context) -> bool:
     """Checks if the command caller is in the team or not, team_id has to be the first argument of the command"""
-    with ctx.bot.db_session() as session:
-        team_id = get_team_id(ctx.message.content)
+    team_id = get_team_id(ctx.message.content)
 
-        if not team_id:
-            raise commands.MissingRequiredArgument(ctx.command)
+    if not team_id:
+        raise commands.MissingRequiredArgument(ctx.command)
 
-        team_id = team_id[0]
-        team: Team = session.query(Team).filter_by(team_id=team_id).first()
-        if not team:
-            await ctx.send(f"Time com ID {team_id} não existe.")
-            return False
-        in_team = session.query(Player).filter_by(team=team.id, player_id=str(ctx.author.id)).first()
-        if not in_team:
-            await ctx.send(f"Você precisa estar no Time para fazer isso.")
-            return False
-        return True
+    team_id = team_id[0]
+    team = Team.objects.filter(team_id=team_id).first()
+    if not team:
+        await ctx.send(f"Time com ID {team_id} não existe.")
+        return False
+
+    in_team = team.players.filter(player_id=str(ctx.author.id)).exists()
+    if not in_team:
+        await ctx.send(f"Você precisa estar no Time para fazer isso.")
+        return False
+    return True
 
 
 class Teams(commands.Cog):
@@ -98,77 +103,74 @@ class Teams(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=['teamrole', 'tr', 'setrole', 'sr'])
     async def team_role(self, ctx: Context, team_id: str, to_add: discord.Member, *, role: str):
-        with self.bot.db_session() as session:
-            team: Team = session.query(Team).filter_by(team_id=team_id).first()
-            if not team:
-                return await ctx.send(f"Time com ID {team_id} não existe.")
+        team = Team.objects.filter(team_id=team_id).first()
+        if not team:
+            return await ctx.send(f"Time com ID {team_id} não existe.")
 
-            team_channel: discord.TextChannel = self.bot.get_channel(int(team.team_channel_id))
+        team_channel: discord.TextChannel = self.bot.get_channel(int(team.team_channel_id))
 
-            if not ctx.author.permissions_in(team_channel).manage_channels:
-                raise commands.MissingPermissions(['manage_messages'])
+        if not ctx.author.permissions_in(team_channel).manage_channels:
+            raise commands.MissingPermissions(['manage_messages'])
 
-            player = session.query(Player).filter_by(player_id=str(to_add.id), team=str(team.id)).first()
-            if not player:
-                return await ctx.send(f"{ctx.author.mention}, esse jogador não está no time de ID {team_id}.")
-            player.role = role
+        player = team.players.filter(player_id=str(to_add.id)).first()
+        if not player:
+            return await ctx.send(f"{ctx.author.mention}, esse jogador não está no time de ID {team_id}.")
+        player.role = role
+        player.save()
 
-            team_message: discord.Message = await team_channel.fetch_message(int(team.team_message_id))
+        team_message: discord.Message = await team_channel.fetch_message(int(team.team_message_id))
+        await update_team_message(team_message, team, self.bot.setting.prefix)
 
-            await update_team_message(team_message, team, self.bot.setting.prefix, session)
+        team_url = team_message.jump_url
+        msg = f"Role de {to_add.mention} no time **[{team.title}]({team_url})** foi alterado para '{role}'"
+        embed = discord.Embed(title='', description=msg, color=discord.Color.green())
 
-            team_url = team_message.jump_url
-            msg = f"Role de {to_add.mention} no time **[{team.title}]({team_url})** foi alterado para '{role}'"
-            embed = discord.Embed(title='', description=msg, color=discord.Color.green())
-
-            return await ctx.send(embed=embed)
+        return await ctx.send(embed=embed)
 
     @commands.guild_only()
     @commands.check(is_in_team)
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.command(aliases=['tagall'])
     async def tag_all(self, ctx: Context, team_id: str, *, message: str = None):
-        with self.bot.db_session() as session:
-            team: Team = session.query(Team).filter_by(team_id=team_id).first()
-            players = session.query(Player).filter_by(team=team.id, substitute=False)
+        team = Team.objects.filter(team_id=team_id).first()
+        players = team.players.filter(substitute=False)
 
-            if not players:
-                return await ctx.send(f"O time '{team.title}' está vazio.")
+        if not players:
+            return await ctx.send(f"O time '{team.title}' está vazio.")
 
-            text = f"Menção enviada por: {ctx.author.mention}\n"
+        text = f"Menção enviada por: {ctx.author.mention}\n"
 
-            for player in players:
-                text = f"{text} <@{player.player_id}>"
+        for player in players:
+            text = f"{text} <@{player.player_id}>"
 
-            if message:
-                text = f"{text}\n{message}"
+        if message:
+            text = f"{text}\n{message}"
 
-            await ctx.message.delete()
-            return await ctx.send(text)
+        await ctx.message.delete()
+        return await ctx.send(text)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True)
     @commands.guild_only()
     @commands.command(aliases=['del'])
     async def delteam(self, ctx: Context, team_id: str):
-        with self.bot.db_session() as session:
-            try:
-                await ctx.message.delete()
-            except discord.errors.NotFound:
-                pass
-            team: Team = session.query(Team).filter_by(team_id=team_id).first()
-            if not team:
-                return await ctx.send(f"ID inválida: {team_id}")
+        try:
+            await ctx.message.delete()
+        except discord.errors.NotFound:
+            pass
+        team = Team.objects.filter(team_id=team_id).first()
+        if not team:
+            return await ctx.send(f"ID inválida: {team_id}")
 
-            if int(team.author_id) != ctx.author.id:
-                if not ctx.author.permissions_in(ctx.channel).manage_roles:
-                    raise commands.MissingPermissions(['manage_roles'])
+        if int(team.author_id) != ctx.author.id:
+            if not ctx.author.permissions_in(ctx.channel).manage_roles:
+                raise commands.MissingPermissions(['manage_roles'])
 
-            if int(team.team_channel_id) != ctx.channel.id:
-                return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
+        if int(team.team_channel_id) != ctx.channel.id:
+            return await ctx.send('Você só pode deletar um time no canal que ele foi criado.')
 
-            await delete_team(session, team, self.bot)
-            await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
+        await delete_team(team, self.bot)
+        await ctx.author.send(f"Time '{team.title}' excluído com sucesso.")
 
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, embed_links=True, read_message_history=True)
@@ -224,8 +226,8 @@ class Teams(commands.Cog):
 
                 await templates_message.add_reaction('\N{CROSS MARK}')
 
-                def reaction_check(reaction: discord.Reaction, user: discord.User) -> bool:
-                    return user == ctx.author
+                def reaction_check(_reaction: discord.Reaction, _user: discord.User) -> bool:
+                    return _user == ctx.author
 
                 reaction, user = await self.bot.wait_for('reaction_add', check=reaction_check)
 
@@ -505,41 +507,40 @@ class Teams(commands.Cog):
         answer: discord.Message = await self.bot.wait_for('message', timeout=60.0, check=potato_check)
         await ctx.send(answer.content)
 
-    def save_team(self, team: dict):
-        with self.bot.db_session() as session:
-            role = None
-            if team.get('role'):
-                role = str(team.get('role'))
+    @staticmethod
+    def save_team(team: dict):
+        role = None
+        if team.get('role'):
+            role = str(team.get('role'))
 
-            role_secondary = None
-            if team.get('role_secondary'):
-                role_secondary = str(team.get('role_secondary'))
+        role_secondary = None
+        if team.get('role_secondary'):
+            role_secondary = str(team.get('role_secondary'))
 
-            team = Team(
-                team_id=team.get('team_id'),
-                title=team.get('title'),
-                size=team.get('size'),
-                role=role,
-                role_secondary=role_secondary,
-                author_id=str(team.get('author_id')),
-                invite_channel_id=str(team.get('invite_channel_id')),
-                invite_message_id=str(team.get('invite_message_id')),
-                team_channel_id=str(team.get('team_channel_id')),
-                team_message_id=str(team.get('team_message_id')),
-                secondary_limit=team.get('secondary_limit')
-            )
-            session.add(team)
-            session.commit()
+        team = Team(
+            team_id=team.get('team_id'),
+            title=team.get('title'),
+            size=team.get('size'),
+            role=role,
+            role_secondary=role_secondary,
+            author_id=str(team.get('author_id')),
+            invite_channel_id=str(team.get('invite_channel_id')),
+            invite_message_id=str(team.get('invite_message_id')),
+            team_channel_id=str(team.get('team_channel_id')),
+            team_message_id=str(team.get('team_message_id')),
+            secondary_limit=team.get('secondary_limit')
+        )
+        team.save()
 
-    def current_id(self) -> int:
-        with self.bot.db_session() as session:
-            try:
-                # Achar a team_id mais alta e retornar ela
-                current_id = int(session.query(Team).filter(Team.team_id != 'raids').order_by(
-                    cast(Team.team_id, Integer).desc()).first().team_id)
-            except (AttributeError, ValueError):
-                return 0
-        return current_id
+    @staticmethod
+    def current_id() -> int:
+        try:
+            current_teams = Team.objects.filter(~Q(team_id='raids'))
+            if current_teams:
+                return int(current_teams.latest('team_id').team_id)
+            return 0
+        except (AttributeError, ValueError):
+            return 0
 
 
 def setup(bot):

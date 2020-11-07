@@ -8,28 +8,6 @@ from typing import Optional
 from discord.ext import commands
 
 
-class _ContextDBAcquire:
-    """
-    Source: https://github.com/Rapptz/RoboDanny/blob/ac3a0ed64381050c37761d358d4af90b89ec1ca3/cogs/utils/context.py
-    """
-
-    __slots__ = ('ctx', 'timeout')
-
-    def __init__(self, ctx, timeout):
-        self.ctx = ctx
-        self.timeout = timeout
-
-    def __await__(self):
-        return self.ctx._acquire(self.timeout).__await__()
-
-    async def __aenter__(self):
-        await self.ctx._acquire(self.timeout)
-        return self.ctx.db
-
-    async def __aexit__(self, *args):
-        await self.ctx.release()
-
-
 class Context(commands.Context):
     """
     Source: https://github.com/Rapptz/RoboDanny/blob/ac3a0ed64381050c37761d358d4af90b89ec1ca3/cogs/utils/context.py
@@ -61,7 +39,7 @@ class Context(commands.Context):
         return '<Context>'
 
     def get_user(self) -> Optional[DiscordUser]:
-        user = DiscordUser.filter(discord_id=str(self.author.id)).first()
+        user = DiscordUser.objects.filter(discord_id=str(self.author.id)).first()
 
         if user:
             return user
@@ -162,7 +140,8 @@ class Context(commands.Context):
         finally:
             return confirm
 
-    def tick(self, opt: Optional[bool] = None, label: str = None):
+    @staticmethod
+    def tick(opt: Optional[bool] = None, label: str = None):
         lookup = {
             True: '<:greenTick:330090705336664065>',
             False: '<:redTick:330090723011592193>',
