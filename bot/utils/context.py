@@ -143,9 +143,9 @@ class Context(commands.Context):
     @staticmethod
     def tick(opt: Optional[bool] = None, label: str = None):
         lookup = {
-            True: '<:greenTick:330090705336664065>',
-            False: '<:redTick:330090723011592193>',
-            None: '<:greyTick:563231201280917524>'
+            True: ':white_check_mark:',
+            False: ':x:',
+            None: ':heavy_check_mark:'
         }
 
         emoji = lookup.get(opt, '<:greyTick:563231201280917524>')
