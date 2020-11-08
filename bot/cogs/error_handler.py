@@ -3,6 +3,7 @@ import datetime
 import logging
 from concurrent.futures._base import TimeoutError
 
+import sentry_sdk
 import discord
 from discord.ext import commands
 
@@ -100,11 +101,25 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.errors.CheckFailure):
             pass
         elif isinstance(error, commands.errors.CommandInvokeError) and isinstance(error.original, TimeoutError):
-            await ctx.send(f'Ação cancelada. Tempo esgotado.')
+            await ctx.send('Ação cancelada. Tempo esgotado.')
         else:
-            await ctx.send(f"Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
-            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-            await self.bot.send_logs(error, tb, ctx)
+            await ctx.send("Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado.")
+
+            sentry_sdk.set_user({
+                'id': ctx.author and ctx.author.id,
+                'username': str(ctx.author) if ctx.author else None,
+            })
+
+            sentry_sdk.set_context('discord', {
+                'guild': ctx.guild,
+                'channel': ctx.channel and (hasattr(ctx.channel, 'name') or None) and ctx.channel,
+                'message': ctx.message and ctx.message.content,
+                'message_id': ctx.message and ctx.message.id,
+                'cog': ctx.cog and ctx.cog.qualified_name,
+                'command': ctx.command and ctx.command.name
+            })
+
+            sentry_sdk.capture_exception(error)
 
 
 def setup(bot):

@@ -5,12 +5,12 @@ import re
 import sys
 import datetime
 import inspect
-import sqlite3
 import traceback
 import textwrap
 import subprocess
 from typing import Set, List, Tuple
 from contextlib import redirect_stdout
+from sentry_sdk import capture_exception
 
 import discord
 from discord.ext import commands
@@ -114,7 +114,7 @@ class Admin(commands.Cog):
 
             await ctx.send('\n'.join(f'{status} `{module}`' for status, module in statuses))
         except Exception as e:
-            print(e)
+            capture_exception(e)
 
     def reload_or_load_extension(self, module: str):
         try:

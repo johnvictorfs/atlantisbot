@@ -15,6 +15,7 @@ import twitter
 import discord
 from discord.ext import commands
 from atlantisbot_api.models import DisabledCommand
+import sentry_sdk
 
 from bot import settings
 from bot.utils.tools import separator
@@ -47,6 +48,13 @@ class Bot(commands.Bot):
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
 
         self.api = api.BotApi(base_url=self.setting.rsatlantis['API_URL'], api_token=self.setting.rsatlantis['API_TOKEN'])
+
+        sentry_sdk.init(
+            self.setting.read_data('BOT').get('sentry_dsn'),
+            environment=self.setting.mode,
+            traces_sample_rate=1.0,
+            server_name='AtlantisBot'
+        )
 
     async def post_data(self, url: str, payload: Optional[Dict[str, Any]] = None) -> aiohttp.ClientResponse:
         """
@@ -129,7 +137,7 @@ class Bot(commands.Bot):
                 self.logger.error(str(e))
 
     @property
-    def setting(self):
+    def setting(self) -> settings.Settings:
         try:
             with open('bot/bot_settings.json'):
                 return settings.Settings()
