@@ -112,7 +112,7 @@ class Admin(commands.Cog):
                     else:
                         statuses.append((ctx.tick(True), module))
 
-            await ctx.send('-' + '\n'.join(f'{status}: `{module}`' for status, module in statuses))
+            await ctx.send('\n'.join(f'{status} `{module}`' for status, module in statuses))
         except Exception as e:
             print(e)
 
