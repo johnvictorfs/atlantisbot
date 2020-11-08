@@ -424,7 +424,7 @@ class UserAuthentication(commands.Cog):
 
         disabled = 'Sim' if member.disabled else 'Não'
 
-        name_list = [ingame_name.name for ingame_name in member.ingame_names]
+        name_list = [ingame_name.name for ingame_name in member.ingame_names.all()]
         ingame_names = ', '.join(name_list) if name_list else 'Nenhum'
 
         clan = rs3clans.Clan('Atlantis')
