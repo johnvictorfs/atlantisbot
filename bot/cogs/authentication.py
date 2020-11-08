@@ -209,7 +209,7 @@ class UserAuthentication(commands.Cog):
                         await member.remove_roles(membro)
                     continue
 
-                if not user.ingame_names:
+                if not user.ingame_names.exists():
                     # Add curent player's ingame name as a IngameName model if none exist
                     new_ingame_name = DiscordIngameName(name=user.ingame_name, user=user)
                     new_ingame_name.save()
@@ -263,7 +263,7 @@ class UserAuthentication(commands.Cog):
                             f"Caso queira desabilitar sua autenticação, utiliza o comando **`!unmembro`**"
                         )
 
-                        ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                        ingame_names = [ingame_name.name for ingame_name in user.ingame_names.all()]
                         ingame_names = ', '.join(ingame_names)
 
                         tag_removida_embed = discord.Embed(
@@ -292,7 +292,7 @@ class UserAuthentication(commands.Cog):
                         f"Para se autenticar novamente, utilize o comando **`!membro`** aqui!"
                     )
 
-                    ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+                    ingame_names = [ingame_name.name for ingame_name in user.ingame_names.all()]
                     ingame_names = ', '.join(ingame_names)
 
                     warning_embed = discord.Embed(
@@ -358,7 +358,7 @@ class UserAuthentication(commands.Cog):
             await member.remove_roles(membro)
             await member.add_roles(convidado)
 
-            name_list: List[str] = [ingame_name.name for ingame_name in user.ingame_names]
+            name_list: List[str] = [ingame_name.name for ingame_name in user.ingame_names.all()]
             ingame_names = ', '.join(name_list)
 
             removed_embed = discord.Embed(
@@ -889,7 +889,7 @@ class UserAuthentication(commands.Cog):
 
             await ctx.send(embed=auth_embed)
 
-            ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+            ingame_names = [ingame_name.name for ingame_name in user.ingame_names.all()]
             nomes_anteriores = ', '.join(ingame_names)
 
             confirm_embed = discord.Embed(
@@ -924,7 +924,7 @@ class UserAuthentication(commands.Cog):
 
             await ctx.send(embed=auth_embed)
 
-            ingame_names = [ingame_name.name for ingame_name in user.ingame_names]
+            ingame_names = [ingame_name.name for ingame_name in user.ingame_names.all()]
             nomes_anteriores = ', '.join(ingame_names)
 
             confirm_embed = discord.Embed(
