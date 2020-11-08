@@ -389,8 +389,8 @@ class UserAuthentication(commands.Cog):
         lower_name = user_name.lower()
 
         member = DiscordUser.objects.get(
-            Q(ingame_name__icontains=lower_name),
-            Q(discord_name__icontains=lower_name),
+            Q(ingame_name__icontains=lower_name) |
+            Q(discord_name__icontains=lower_name) |
             Q(discord_id__icontains=lower_name)
         )
 
