@@ -37,7 +37,7 @@ python-versions = ">=3.5.3"
 
 [[package]]
 name = "atlantisbot-api"
-version = "1.0.5"
+version = "1.0.7"
 description = "Django App to interface with the AtlantisBot API"
 category = "main"
 optional = false
@@ -683,7 +683,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.0"
 python-versions = "^3.7"
-content-hash = "67a09dc338a4320eb61207c220d42015300195dc89529975b83f94ebdac9b0ba"
+content-hash = "0bb167e9982301ca17a33acd59a59513a7f787d9b0896c31d4db874f7b0fb0d8"
 
 [metadata.files]
 aiohttp = [
@@ -710,8 +710,8 @@ async-timeout = [
     {file = "async_timeout-3.0.1-py3-none-any.whl", hash = "sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3"},
 ]
 atlantisbot-api = [
-    {file = "atlantisbot-api-1.0.5.tar.gz", hash = "sha256:0d893fc13d047efe1eade9ef9358bf8d7e0e9534e083e6d43492d0d374914038"},
-    {file = "atlantisbot_api-1.0.5-py3-none-any.whl", hash = "sha256:88f530195e5ca7365ba7068e4ef3c2ce9b1cd84b5f8865641bea5cf50a5c8beb"},
+    {file = "atlantisbot-api-1.0.7.tar.gz", hash = "sha256:11a73b353c66668674faa4b3f3c6070a7dd134e601c21d030214cec0539ef6a3"},
+    {file = "atlantisbot_api-1.0.7-py3-none-any.whl", hash = "sha256:6ee2a6b9361ecf1889ba9954c2172fe63203b1992a6d2be17152ad9f43e4c23c"},
 ]
 attrs = [
     {file = "attrs-20.3.0-py2.py3-none-any.whl", hash = "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6"},

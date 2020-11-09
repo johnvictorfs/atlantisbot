@@ -1,4 +1,3 @@
-import traceback
 import datetime
 import logging
 from concurrent.futures._base import TimeoutError
