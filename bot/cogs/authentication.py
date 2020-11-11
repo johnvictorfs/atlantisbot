@@ -922,7 +922,24 @@ class UserAuthentication(commands.Cog):
                 color=discord.Color.green()
             )
 
+            whatsapp_embed = discord.Embed(
+                title="Grupos de WhatsApp do Clã",
+                color=discord.Color.green(),
+                description=(
+                    "Agora que você já se autenticou no Discord, que tal entrar nos grupos do Whatsapp?\n\n"
+                    "Temos dois grupos: um apenas para assuntos do jogo e outro liberado para conversas gerais - desde que respeitosas.\n\n"
+                    "Entre no link abaixo, diga seu nickname e confirme sua identidade com um print dessa tela de autenticação:\n"
+                    "<https://chat.whatsapp.com/H9EnoOCot8dG1hv5f5f6cP>\n\n"
+                    "Quer saber mais detalhes sobre os grupos? Acesse <#579680045157711872>"
+                )
+            )
+
+            whatsapp_embed.set_thumbnail(
+                url='https://cdn3.iconfinder.com/data/icons/social-media-chamfered-corner/154/whatsapp-512.png'
+            )
+
             await ctx.send(embed=auth_embed)
+            await ctx.send(embed=whatsapp_embed)
 
             ingame_names = [ingame_name.name for ingame_name in user.ingame_names.all()]
             nomes_anteriores = ', '.join(ingame_names)
