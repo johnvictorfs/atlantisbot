@@ -389,11 +389,11 @@ class UserAuthentication(commands.Cog):
         """
         lower_name = user_name.lower()
 
-        member = DiscordUser.objects.get(
+        member = DiscordUser.objects.filter(
             Q(ingame_name__icontains=lower_name) |
             Q(discord_name__icontains=lower_name) |
             Q(discord_id__icontains=lower_name)
-        )
+        ).first()
 
         if not member:
             # Search User using one of his old names
