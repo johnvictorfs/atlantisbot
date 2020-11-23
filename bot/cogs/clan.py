@@ -121,18 +121,20 @@ class Clan(commands.Cog):
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
     async def ranks(self, ctx: Context, *, clan: str = 'Atlantis'):
-        if clan == 'Atlantis':
+        if clan.lower() == 'atlantis':
             exp_general = 500_000_000
             exp_captain = 225_000_000
             exp_lieutenant = 125_000_000
             exp_seargent = 50_000_000
             exp_corporal = 0
-        elif clan == 'Atlantis Argus':
+        elif clan.lower() == 'atlantis argus':
             exp_general = 150_000_000
             exp_captain = 100_000_000
             exp_lieutenant = 75_000_000
             exp_seargent = 50_000_000
             exp_corporal = 25_000_000
+        else:
+            return await ctx.send('Clã não reconhecido.')
 
         rank_emoji = {
             'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
