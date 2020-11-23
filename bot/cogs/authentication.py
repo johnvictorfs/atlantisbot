@@ -196,7 +196,7 @@ class UserAuthentication(commands.Cog):
         auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
 
         clan: rs3clans.Clan = await get_clan_async(self.bot.setting.clan_name, set_exp=False)
-        argus: rs3clans.Clan = await get_clan_async('Atlantis Argus', set_exp=False)
+        argus_clan: rs3clans.Clan = await get_clan_async('Atlantis Argus', set_exp=False)
 
         for user in DiscordUser.objects.all():
             try:
@@ -229,7 +229,7 @@ class UserAuthentication(commands.Cog):
                     clan_user = clan.get_member(user.ingame_name)
 
                     if not clan_user:
-                        clan_user = argus.get_member(user.ingame_name)
+                        clan_user = argus_clan.get_member(user.ingame_name)
 
                     if clan_user:
                         self.logger.debug(f'[check_users] Checando Admin Roles {clan_user}')
