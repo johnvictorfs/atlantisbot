@@ -249,6 +249,7 @@ default_settings = {
             "merchant_call": 560980279360094208
         },
         "role_id": {
+            "argus": 780415560013578240,
             "administrador": 680012769294155784,
             "organizador": 680012163305177110,
             "coordenador": 680012585197764643,

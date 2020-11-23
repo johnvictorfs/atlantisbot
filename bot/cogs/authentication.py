@@ -190,6 +190,7 @@ class UserAuthentication(commands.Cog):
         self.logger.info('[check_users] Checando autenticação de usuários...')
         atlantis = self.bot.get_guild(self.bot.setting.server_id)
         membro = atlantis.get_role(self.bot.setting.role.get('membro'))
+        argus = atlantis.get_role(self.bot.setting.role.get('argus'))
         convidado = atlantis.get_role(self.bot.setting.role.get('convidado'))
         auth_chat = self.bot.setting.chat.get('auth')
         auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
@@ -216,7 +217,10 @@ class UserAuthentication(commands.Cog):
 
                 # Fix member roles if necessary
                 if member:
-                    await member.add_roles(membro)
+                    if user.clan == 'Atlantis Argus':
+                        await member.add_roles(membro, argus)
+                    else:
+                        await member.add_roles(membro)
                     await member.remove_roles(convidado)
 
                 clan_user = None
@@ -601,6 +605,7 @@ class UserAuthentication(commands.Cog):
             return await ctx.send(f"Você precisa estar no Discord do Atlantis para se autenticar {invite}")
 
         membro: discord.Role = atlantis.get_role(self.bot.setting.role.get('membro'))
+        argus: discord.Role = atlantis.get_role(self.bot.setting.role.get('argus'))
         convidado: discord.Role = atlantis.get_role(self.bot.setting.role.get('convidado'))
 
         user = DiscordUser.objects.filter(discord_id=str(ctx.author.id)).first()
@@ -622,8 +627,12 @@ class UserAuthentication(commands.Cog):
                         "Tente novamente mais tarde."
                     )
 
-                if user_data.get('clan') == self.bot.setting.clan_name:
-                    await member.add_roles(membro)
+                if user_data.get('clan') in self.bot.setting.clan_names:
+                    if user_data.get('clan') == 'Atlantis Argus':
+                        await member.add_roles(membro, argus)
+                    else:
+                        await member.add_roles(membro)
+
                     await member.remove_roles(convidado)
                     self.logger.info(f'[{ctx.author}] Já está autenticado, corrigindo dados. ({user})')
                     return await ctx.send(
@@ -866,7 +875,10 @@ class UserAuthentication(commands.Cog):
 
         self.logger.info(f'[{ctx.author}] Autenticação feita com sucesso. ({user_data}) {settings}')
 
-        await member.add_roles(membro)
+        if user_data.get('clan') == 'Atlantis Argus':
+            await member.add_roles(membro, argus)
+        else:
+            await member.add_roles(membro)
         await member.remove_roles(convidado)
 
         auth_chat: discord.TextChannel = atlantis.get_channel(self.bot.setting.chat.get('auth'))
@@ -876,6 +888,7 @@ class UserAuthentication(commands.Cog):
             user.disabled = False
             user.ingame_name = user_data['name']
             user.discord_name = str(ctx.author)
+            user.clan = user_data.get('clan')
             user.save()
 
             auth_embed = discord.Embed(

@@ -45,6 +45,7 @@ class WelcomeMessage(commands.Cog):
                 return await member.kick(reason=f"Kick automático. String não permitida no usuário. ({name})")
 
         membro: discord.Role = member.guild.get_role(self.bot.setting.role.get('membro'))
+        argus: discord.Role = member.guild.get_role(self.bot.setting.role.get('argus'))
         convidado: discord.Role = member.guild.get_role(self.bot.setting.role.get('convidado'))
 
         user = DiscordUser.objects.filter(discord_id=str(member.id)).first()
@@ -53,7 +54,10 @@ class WelcomeMessage(commands.Cog):
             async with aiohttp.ClientSession() as cs:
                 user_data = await get_user_data(user.ingame_name, cs)
             if user_data.get('clan') in self.bot.setting.clan_names:
-                await member.add_roles(membro)
+                if user_data.get('clan') == 'Atlantis Argus':
+                    await member.add_roles(membro, argus)
+                else:
+                    await member.add_roles(membro)
                 await member.remove_roles(convidado)
 
         return await member.send(embed=self.welcome_embed(member))
