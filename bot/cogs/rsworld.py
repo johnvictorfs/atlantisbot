@@ -1,3 +1,4 @@
+from typing import Dict
 import random
 import re
 
@@ -27,9 +28,11 @@ async def grab_clan_id(clan_name: str):
                 return clan_id.get('value')
 
 
-async def grab_world(player_name: str, player_clan: str):
-    # clan_id = grab_clan_id(player_name)
-    clan_id = 184644  # Atlantis Clan ID
+async def grab_world(player_name: str, player_clan: str, clans: Dict[str, int]):
+    clan_id = clans.get(player_clan)
+
+    if not clan_id:
+        return "Offline"
 
     player_search = player_name.replace(' ', '+')
 
@@ -117,7 +120,7 @@ class RsWorld(commands.Cog):
         if not player.clan:
             return await ctx.send(f"Jogador {player_name} não está em um clã.")
 
-        world = await grab_world(player.name, player.clan)
+        world = await grab_world(player.name, player.clan, self.bot.setting.clans)
         world_display = "Offline" if (world == "Offline" or not world) else f"**Mundo:** {world}"
         nb = '\u200B'
         color = discord.Colour.green()

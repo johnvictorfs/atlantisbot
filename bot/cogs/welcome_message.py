@@ -52,7 +52,7 @@ class WelcomeMessage(commands.Cog):
         if user:
             async with aiohttp.ClientSession() as cs:
                 user_data = await get_user_data(user.ingame_name, cs)
-            if user_data.get('clan') == self.bot.setting.clan_name:
+            if user_data.get('clan') in self.bot.setting.clan_names:
                 await member.add_roles(membro)
                 await member.remove_roles(convidado)
 

@@ -21,7 +21,7 @@ Pillow = "^6.1"
 aioify = "^0.3.2"
 pandas = "^1.1.4"
 dj-database-url = "^0.5.0"
-atlantisbot-api = "1.0.7"
+atlantisbot-api = "1.0.8"
 sentry-sdk = "^0.19.2"
 
 [tool.poetry.dev-dependencies]

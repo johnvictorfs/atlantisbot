@@ -120,11 +120,19 @@ class Clan(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
-    async def ranks(self, ctx: Context):
-        exp_general = 500_000_000
-        exp_captain = 225_000_000
-        exp_lieutenant = 125_000_000
-        exp_seargent = 50_000_000
+    async def ranks(self, ctx: Context, clan: str = 'Atlantis'):
+        if clan == 'Atlantis':
+            exp_general = 500_000_000
+            exp_captain = 225_000_000
+            exp_lieutenant = 125_000_000
+            exp_seargent = 50_000_000
+            exp_corporal = 0
+        elif clan == 'Atlantis Argus':
+            exp_general = 150_000_000
+            exp_captain = 100_000_000
+            exp_lieutenant = 75_000_000
+            exp_seargent = 50_000_000
+            exp_corporal = 25_000_000
 
         rank_emoji = {
             'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
@@ -142,16 +150,17 @@ class Clan(commands.Cog):
 
         found = False
 
-        clan = rs3clans.Clan(self.bot.setting.clan_name, set_exp=False)
+        clan = rs3clans.Clan(clan, set_exp=False)
 
         clan_members = reversed([member for member in clan])
 
+        member: rs3clans.ClanMember
         for member in clan_members:
             if len(ranks_embed.fields) >= 20:
                 await ctx.send('Muitos ranks a serem atualizados, enviando apenas os 20 primeiros.')
                 break
 
-            if member.rank == 'Recruit':
+            if member.exp >= exp_corporal and member.rank == 'Recruit':
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Recruta {rank_emoji['Recruit']} ❯ Cabo {rank_emoji['Corporal']}\n"

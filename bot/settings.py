@@ -59,6 +59,10 @@ class Settings:
         return self.read_data('RUNESCAPE')['clan_name']
 
     @property
+    def clans(self) -> Dict[str, int]:
+        return self.read_data('RUNESCAPE')['clans']
+
+    @property
     def show_titles(self):
         return self.read_data('RUNESCAPE')['show_titles']
 
@@ -168,6 +172,11 @@ default_settings = {
     },
     "RUNESCAPE": {
         "clan_name": "Atlantis",
+        "clan_names": ["Atlantis", "Atlantis Argus"],
+        "clans": {
+            "Atlantis": 184644,
+            "Atlantis Argus": 395277
+        },
         "show_titles": False,
         "advlog_clans": [
             {

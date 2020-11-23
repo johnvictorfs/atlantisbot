@@ -366,6 +366,7 @@ class UserAuthentication(commands.Cog):
                 description=(
                     f"**Username:** {user.ingame_name}\n"
                     f"**ID:** {ctx.author.id}\n"
+                    f"**Clã:** {user.clan}\n"
                     f"**Nomes Anteriores:** {ingame_names}"
                 ),
                 color=discord.Color.red()
@@ -616,7 +617,7 @@ class UserAuthentication(commands.Cog):
                 if not user_data:
                     self.logger.info(f'[{ctx.author}] Erro acessando API do RuneScape. ({user})')
                     return await ctx.send(
-                        "Houve um erro ao tentar acessar a API do RuneScape. "
+                        "Houve um erro ao tentar acessar seus dados do RuneScape. "
                         "Tente novamente mais tarde."
                     )
 
@@ -711,7 +712,7 @@ class UserAuthentication(commands.Cog):
                     f"não existe ou não é um membro do Clã Atlantis."
                 )
 
-            player_world = await grab_world(user_data['name'], user_data['clan'])
+            player_world = await grab_world(user_data['name'], user_data['clan'], self.bot.setting.clans)
 
             if player_world == 'Offline' or not player_world:
                 self.logger.info(f'[{ctx.author}] Jogador offline. ({user_data})')
@@ -826,16 +827,16 @@ class UserAuthentication(commands.Cog):
 
                 wait_message = await ctx.send("Aguarde um momento...")
                 await asyncio.sleep(1)
-                player_world = await grab_world(user_data['name'], user_data['clan'])
+                player_world = await grab_world(user_data['name'], user_data['clan'], self.bot.setting.clans)
                 if player_world == 'Offline':
                     # Check again in 3 seconds in case player was offline
                     # He might have a slow connection, or the clan's webpage
                     # is taking a while to update
                     await asyncio.sleep(3)
-                    player_world = await grab_world(user_data['name'], user_data['clan'])
+                    player_world = await grab_world(user_data['name'], user_data['clan'], self.bot.setting.clans)
                 await wait_message.delete()
 
-                if world['world'] == player_world:  # or ctx.author.id == self.bot.setting.developer_id
+                if world['world'] == player_world:
                     settings['worlds_left'] -= 1
                     worlds_done.append(player_world)
                     wl = settings['worlds_left']
@@ -908,7 +909,12 @@ class UserAuthentication(commands.Cog):
 
             await auth_chat.send(embed=confirm_embed)
         else:
-            user = DiscordUser(ingame_name=user_data['name'], discord_id=str(ctx.author.id), discord_name=str(ctx.author))
+            user = DiscordUser(
+                ingame_name=user_data['name'],
+                discord_id=str(ctx.author.id),
+                discord_name=str(ctx.author),
+                clan=user_data['clan']
+            )
             user.save()
 
             auth_embed = discord.Embed(
