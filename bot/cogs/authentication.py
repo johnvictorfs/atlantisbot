@@ -912,6 +912,7 @@ class UserAuthentication(commands.Cog):
                 description=(
                     f"**Username:** {user_data['name']}\n"
                     f"**ID:** {ctx.author.id}\n"
+                    f"**Clã:** {user_data.get('clan')}\n"
                     f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
                     f"**Nomes Anteriores:** {nomes_anteriores}"
                 ),
@@ -969,6 +970,7 @@ class UserAuthentication(commands.Cog):
                 description=(
                     f"**Username:** {user_data['name']}\n"
                     f"**ID**: {ctx.author.id}\n"
+                    f"**Clã**: {user_data.get('clan')}\n"
                     f"**Mundos:** {', '.join([str(world) for world in worlds_done])}\n"
                     f"**Nomes Anteriores:** {nomes_anteriores}"
                 ),
