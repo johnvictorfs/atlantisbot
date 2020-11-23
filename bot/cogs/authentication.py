@@ -432,6 +432,7 @@ class UserAuthentication(commands.Cog):
         player = clan.get_member(member.ingame_name)
 
         embed.add_field(name='Nome In-game', value=member.ingame_name)
+        embed.add_field(name='Clã', value=member.clan)
         embed.add_field(name='Desabilitado?', value=disabled)
         embed.add_field(name='Nome Discord', value=member.discord_name)
         embed.add_field(name='ID Discord', value=member.discord_id)
