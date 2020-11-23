@@ -120,7 +120,7 @@ class Clan(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
-    async def ranks(self, ctx: Context, clan: str = 'Atlantis'):
+    async def ranks(self, ctx: Context, *, clan: str = 'Atlantis'):
         if clan == 'Atlantis':
             exp_general = 500_000_000
             exp_captain = 225_000_000

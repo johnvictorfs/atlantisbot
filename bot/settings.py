@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 import datetime
 import json
 import os
@@ -57,6 +57,10 @@ class Settings:
     @property
     def clan_name(self):
         return self.read_data('RUNESCAPE')['clan_name']
+
+    @property
+    def clan_names(self) -> List[str]:
+        return self.read_data('RUNESCAPE')['clan_names']
 
     @property
     def clans(self) -> Dict[str, int]:

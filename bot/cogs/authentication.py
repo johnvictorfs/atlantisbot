@@ -705,7 +705,7 @@ class UserAuthentication(commands.Cog):
             with open('bot/data/worlds.json') as f:
                 worlds = json.load(f)
 
-            if user_data.get('clan') != self.bot.setting.clan_name:
+            if user_data.get('clan') not in self.bot.setting.clan_names:
                 self.logger.info(f'[{ctx.author}] Jogador não existe ou não é Membro. ({user_data})')
                 return await ctx.send(
                     f"{ctx.author.mention}, o jogador '{user_data.get('name')}' "
