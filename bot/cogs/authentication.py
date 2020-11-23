@@ -393,11 +393,16 @@ class UserAuthentication(commands.Cog):
         """
         lower_name = user_name.lower()
 
-        member = DiscordUser.objects.filter(
+        query = DiscordUser.objects.filter(
             Q(ingame_name__icontains=lower_name) |
             Q(discord_name__icontains=lower_name) |
             Q(discord_id__icontains=lower_name)
-        ).first()
+        )
+
+        if query:
+            member = query.first()
+        else:
+            return await ctx.send(f'Nenhum Usuário encontrado para \'{user_name}\'.')
 
         if not member:
             # Search User using one of his old names
@@ -432,7 +437,7 @@ class UserAuthentication(commands.Cog):
         name_list = [ingame_name.name for ingame_name in member.ingame_names.all()]
         ingame_names = ', '.join(name_list) if name_list else 'Nenhum'
 
-        clan = rs3clans.Clan('Atlantis')
+        clan = rs3clans.Clan(member.clan)
         player = clan.get_member(member.ingame_name)
 
         embed.add_field(name='Nome In-game', value=member.ingame_name)
