@@ -740,7 +740,8 @@ class UserAuthentication(commands.Cog):
 
                 return await ctx.send(
                     f"{ctx.author.mention}, autenticação Cancelada. Você precisa estar Online.\n"
-                    f"Verifique suas configurações de privacidade no jogo.",
+                    f"Verifique suas configurações de privacidade no jogo. Caso já esteja, e ainda "
+                    f"está recebendo essa mensagem, tente entrar no Lobby do jogo, e em seguida em um mundo novamente.",
                     file=image_file
                 )
 
