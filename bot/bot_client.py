@@ -311,6 +311,47 @@ class Bot(commands.Bot):
             f"- Show titles on claninfo: '{self.setting.show_titles}'"
         )
 
+    async def check_bad_message(self, message: discord.Message) -> bool:
+        membro = self.setting.role.get('membro')
+        convidado = self.setting.role.get('convidado')
+        log_channel: discord.TextChannel = self.get_channel(633465042033180701)
+
+        admin_roles = ['coord_discord', 'org_discord', 'adm_discord']
+        roles = [self.setting.admin_roles().get(role) for role in admin_roles]
+
+        unauthorized_mentions = ['@everyone', '@here', f"<@&{membro}>", f"<@&{convidado}>"]
+
+        if any(mention in message.content for mention in unauthorized_mentions):
+            if not has_any_role(message.author, *roles):
+                embed = discord.Embed(
+                    title="__Aviso__",
+                    description=separator,
+                    color=discord.Color.dark_red(),
+                )
+                embed.add_field(
+                    name=f"Por favor não utilize as menções abaixo sem permissão, insistência resultará em banimento permanente:",
+                    value=f"<@&{membro}> - <@&{convidado}> - @everyone - @here",
+                    inline=False
+                )
+                embed.set_author(
+                    name="Administração",
+                    icon_url="http://www.runeclan.com/images/ranks/1.png"
+                )
+                embed.set_thumbnail(
+                    url=f"http://services.runescape.com/m=avatar-rs/{self.setting.clan_name}/clanmotif.png"
+                )
+                embed.set_footer(
+                    text="Nosso servidor abriga uma quantidade muito grande de pessoas, tenha bom "
+                         "senso e maturidade ao utilizar uma menção que irá notificar centenas de pessoas."
+                )
+
+                await log_channel.send(f"{message.author} usou uma menção não permitida no canal #{message.channel}\n\n**__Conteúdo:__** {message.content}")
+                await message.delete()
+                await message.channel.send(content=message.author.mention, embed=embed)
+                return True
+
+        return False
+
     async def on_message(self, message: discord.Message):
         """
         This event triggers on every message received by the bot. Including one's that it sent itself.
@@ -335,6 +376,9 @@ class Bot(commands.Bot):
                     return
             elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
                 return
+
+        if self.check_bad_message(message):
+            return
 
         # Replace old Rs Wikia links to the new Rs Wiki links
         if 'http' in message.content and 'runescape.fandom.com/wiki' in message.content:
