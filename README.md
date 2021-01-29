@@ -1,5 +1,7 @@
 # AtlantisBot
 
+<a href="https://www.buymeacoffee.com/johnvictor" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
 A discord bot made in Python using the [discord.py](https://github.com/Rapptz/discord.py/tree/rewrite) library made by Rapptz (rewrite version)
 
 Made specifically for the discord server of the RuneScape 3 Clan Atlantis
