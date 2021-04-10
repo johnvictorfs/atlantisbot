@@ -316,6 +316,16 @@ class UserAuthentication(commands.Cog):
                     user.warning_date = datetime.datetime.utcnow()
                     user.save()
             except Exception as e:
+                if '403 Forbidden' in traceback.format_exc():
+                    try:
+                        user.disabled = True
+                        user.warning_date = None
+                        user.save()
+                    except Exception:
+                        pass
+                    finally:
+                        continue
+
                 await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
                 await asyncio.sleep(30)
 
