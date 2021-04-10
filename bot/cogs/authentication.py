@@ -259,7 +259,7 @@ class UserAuthentication(commands.Cog):
                         user.warning_date = None
                         user.save()
 
-                        await member.remove_roles(membro)
+                        await member.remove_roles(membro, argus)
                         await member.add_roles(convidado)
                         await member.send(
                             f"Olá {member.mention}! Há 7 dias, você trocou de nome ou saiu do Atlantis. "
