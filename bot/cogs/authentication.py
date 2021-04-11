@@ -323,8 +323,7 @@ class UserAuthentication(commands.Cog):
                         user.save()
                     except Exception:
                         pass
-                    finally:
-                        continue
+                    continue
 
                 await self.bot.send_logs(e, traceback.format_exc(), more_info={'user': str(user), 'member': member})
                 await asyncio.sleep(30)
