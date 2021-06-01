@@ -1028,6 +1028,9 @@ class UserAuthentication(commands.Cog):
 
                 await auth_feedback.send(embed=feedback_embed)
 
+                if 'curiosidade aleatória' in auth_feedback_message.content.lower():
+                    await ctx.send('🧐 Good to know.')
+
                 await ctx.send('Seu Feedback foi recebido com sucesso, muito obrigado!')
         except asyncio.TimeoutError:
             pass
