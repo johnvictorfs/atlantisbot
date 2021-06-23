@@ -133,7 +133,7 @@ class Chat(commands.Cog):
 
         if not player.exists:
             return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
-        elif player.clan != self.bot.setting.clan_name:
+        elif player.clan not in self.bot.setting.clan_names:
             return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
         elif player.private_profile:
             return await ctx.send(
