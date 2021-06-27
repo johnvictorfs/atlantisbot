@@ -107,9 +107,6 @@ venv.bak/
 # PyCharm
 *.idea
 
-# VsCode
-*.vscode
-
 # Setting files
 bot_settings.json
 

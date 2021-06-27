@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run AtlantisBot",
+            "type": "python",
+            "request": "launch",
+            "program": "atlantisbot.py",
+            "console": "integratedTerminal",
+            "env": {
+                "ATLBOT_SECRET_KEY": "some_really_secure_and_big_key_here"
+            }
+        }
+    ]
+}
