@@ -1,4 +1,3 @@
-import traceback
 import datetime
 import json
 
@@ -57,9 +56,9 @@ class Merchant(commands.Cog):
                     try:
                         items[item[0].text] = {
                             "slot_1": "Uncharted island map",
-                            "slot_a": item[1].text,
-                            "slot_b": item[2].text,
-                            "slot_c": item[3].text
+                            "slot_a": item[2].text,
+                            "slot_b": item[3].text,
+                            "slot_c": item[4].text
                         }
                     except IndexError:
                         pass
@@ -77,9 +76,9 @@ class Merchant(commands.Cog):
     async def merchant_embed(self):
         embed = discord.Embed(
             title=f"Estoque de Hoje ({self.today_str()})",
-            description=f"",
+            description='',
             color=discord.Colour.dark_red(),
-            url=f"https://runescape.wiki/w/Travelling_Merchant's_Shop"
+            url="https://runescape.wiki/w/Travelling_Merchant's_Shop"
         )
         stock = await self.daily_stock()
         coins = '<:coins:573305319661240340>'
@@ -97,18 +96,13 @@ class Merchant(commands.Cog):
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
 
-        try:
-            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
-            message: discord.Message = await channel.fetch_message(self.bot.setting.merchant_message)
-            embed = await self.merchant_embed()
-            await message.edit(content=None, embed=embed)
-            await asyncio.sleep(self.time_till_midnight() + 15)
-            await channel.send(f"<@&{self.bot.setting.role.get('merchant')}>", delete_after=600)
-            await asyncio.sleep(5)
-        except Exception as e:
-            tb = traceback.format_exc()
-            await self.bot.send_logs(e, tb)
-            await asyncio.sleep(60 * 15)
+        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
+        message: discord.Message = await channel.fetch_message(self.bot.setting.merchant_message)
+        embed = await self.merchant_embed()
+        await message.edit(content=None, embed=embed)
+        await asyncio.sleep(self.time_till_midnight() + 15)
+        await channel.send(f"<@&{self.bot.setting.role.get('merchant')}>", delete_after=600)
+        await asyncio.sleep(5)
 
     @update_merchant_stock.before_loop
     async def before_update_merchant_stock(self):

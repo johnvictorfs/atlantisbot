@@ -377,7 +377,7 @@ class Bot(commands.Bot):
             elif message.guild.id != self.setting.dev_guild and message.channel.id != 488106800655106058:
                 return
 
-        if self.check_bad_message(message):
+        if await self.check_bad_message(message):
             return
 
         # Replace old Rs Wikia links to the new Rs Wiki links
