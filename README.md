@@ -10,7 +10,7 @@ Made specifically for the discord server of the RuneScape 3 Clan Atlantis
 
 ## Self-hosting
 
-- Not yet supported, and likely won't ever be, the bot is very customized to a specific discord server, do feel free, whoever, to copy features of it and implement them in your own bot ([license](LICENSE))
+- Not yet supported, and likely won't ever be, the bot is very customized to a specific discord server, do feel free, however, to copy features of it and implement them in your own bot ([license](LICENSE))
 
 ***
 
