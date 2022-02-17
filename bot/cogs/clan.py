@@ -124,17 +124,17 @@ class Clan(commands.Cog):
         if clan.lower() == 'atlantis argus':
             return await ctx.send('`!rank argus` irmão')
         elif clan.lower() == 'atlantis':
-            exp_general = 500_000_000
-            exp_captain = 225_000_000
-            exp_lieutenant = 125_000_000
-            exp_seargent = 50_000_000
-            exp_corporal = 0
+            exp_general = 2_000_000_000
+            exp_captain = 1_000_000_000
+            exp_lieutenant = 500_000_000
+            exp_seargent = 250_000_000
+            exp_corporal = 125_000_000
         elif clan.lower() == 'argus':
-            exp_general = 150_000_000
-            exp_captain = 100_000_000
-            exp_lieutenant = 75_000_000
-            exp_seargent = 50_000_000
-            exp_corporal = 25_000_000
+            exp_general = 500_000_000
+            exp_captain = 250_000_000
+            exp_lieutenant = 125_000_000
+            exp_seargent = 60_000_000
+            exp_corporal = 30_000_000
             clan = 'Atlantis Argus'
         else:
             return await ctx.send('Clã não reconhecido.')
