@@ -970,7 +970,7 @@ class UserAuthentication(commands.Cog):
                     "Agora que você já se autenticou no Discord, que tal entrar nos grupos do Whatsapp?\n\n"
                     "Temos dois grupos: um apenas para assuntos do jogo e outro liberado para conversas gerais - desde que respeitosas.\n\n"
                     "Entre no link abaixo, diga seu nickname e confirme sua identidade com um print dessa tela de autenticação:\n"
-                    "<https://chat.whatsapp.com/H9EnoOCot8dG1hv5f5f6cP>\n\n"
+                    f"<{self.bot.setting.whatsapp_url}>\n\n"
                     "Quer saber mais detalhes sobre os grupos? Acesse <#579680045157711872>"
                 )
             )

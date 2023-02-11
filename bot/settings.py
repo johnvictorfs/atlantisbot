@@ -78,9 +78,15 @@ class Settings:
     def banner_image(self):
         return self.read_data('OTHER')['banner_image']
 
+    @property
+    def whatsapp_url(self) -> str:
+        return self.read_data('OTHER')['whatsapp_url']
+
+    @property
     def donation_url(self) -> str:
         return self.read_data('OTHER')['donation_url']
 
+    @property
     def raids_start_date(self) -> datetime.datetime:
         return datetime.datetime.strptime(self.read_data('OTHER')['raids_start_date'], '%H:%M:%S %Y/%m/%d')
 
