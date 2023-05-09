@@ -8,6 +8,51 @@ Made specifically for the discord server of the RuneScape 3 Clan Atlantis
 
 ***
 
+## Setup
+
+- Requirements
+    - Python (3.10+ recommended)
+        ```bash
+        pyenv install 3.10
+        pyenv local 3.10
+        ```
+
+    - [Poetry](https://python-poetry.org)
+
+- Install dependencies
+```
+poetry install
+```
+
+- Run project once to generate config file
+```bash
+poetry run python atlantisbot.py
+```
+
+- Setup Environment variables
+```bash
+# Edit resulting .env with the required env variables
+cp .env.example .env
+```
+
+- Edit config file with required values at `bot/bot_settings.json`
+    - [Discord Bot API Token](https://discord.com/developers/docs/topics/oauth2)
+    - It will also be required to have a PostgreSQL database running with the credentials setup in the config file. You can easily run a ready to setup database with docker by running `docker-compose up -d`
+
+- Run database migrations
+```bash
+poetry run python manage.py migrate
+```
+
+- Run bot
+```
+poetry run python atlantisbot.py
+```
+
+Alternatively, you can also run the bot with a debugger active by using VsCode with 'Run and Debug' (default keybind to run: `F5`)
+
+***
+
 ## Self-hosting
 
 - Not yet supported, and likely won't ever be, the bot is very customized to a specific discord server, do feel free, however, to copy features of it and implement them in your own bot ([license](LICENSE))

@@ -1,24 +1,29 @@
 import os
 import sys
 import json
+import colorama
 
 import dj_database_url
 
+from bot import settings
+
 
 try:
-    with open('bot/bot_settings.json', 'r') as f:
-        settings = json.load(f)
-        database_url = settings['BOT']['database_url']
+    with open("bot/bot_settings.json", "r") as f:
+        bot_settings = json.load(f)
+        database_url = bot_settings["BOT"]["database_url"]
 except FileNotFoundError:
-    print('No bot/bot_settings.json file found.')
-    sys.exit(1)
+    with open("bot/bot_settings.json", "w+") as f:
+        json.dump(settings.default_settings, f, indent=4)
+        print(
+            f"{colorama.Fore.YELLOW}Settings not found. Default settings file created. "
+            "Edit 'bot/bot_settings.json' to change settings, then reload the bot."
+        )
 
-DATABASES = {
-    'default': dj_database_url.parse(database_url)
-}
+        sys.exit(1)
 
-INSTALLED_APPS = (
-    'atlantisbot_api',
-)
+DATABASES = {"default": dj_database_url.parse(database_url)}
 
-SECRET_KEY = os.environ.get('ATLBOT_SECRET_KEY')
+INSTALLED_APPS = ("atlantisbot_api",)
+
+SECRET_KEY = os.environ.get("ATLBOT_SECRET_KEY")
