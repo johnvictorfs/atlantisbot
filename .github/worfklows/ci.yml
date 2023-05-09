@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    env:
+      CI: "true"
+    strategy:
+      max-parallel: 4
+      matrix:
+        db: [postgres]
+        python-version: [3.10]
+        poetry-version: [1.4.2]
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+
+      - name: Poetry Config
+        run: poetry config virtualenvs.in-project true
+
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: |
+          poetry --version
+          poetry install
+
+      - name: Lint with Ruff
+        run: poetry run python -m ruff check .
+
+      - name: Type-check (as warnings only)
+        run: poetry run python -m mypy . || true
