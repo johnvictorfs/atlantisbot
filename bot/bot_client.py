@@ -20,6 +20,7 @@ import sentry_sdk
 from bot import settings
 from bot.utils.tools import separator
 from bot.utils import context, api
+from bot.utils.tools import has_any_role
 
 
 class Bot(commands.Bot):
@@ -336,7 +337,10 @@ class Bot(commands.Bot):
                     color=discord.Color.dark_red(),
                 )
                 embed.add_field(
-                    name=f"Por favor não utilize as menções abaixo sem permissão, insistência resultará em banimento permanente:",
+                    name=(
+                        "Por favor não utilize as menções abaixo sem permissão, "
+                        "insistência resultará em banimento permanente:"
+                    ),
                     value=f"<@&{membro}> - <@&{convidado}> - @everyone - @here",
                     inline=False,
                 )
@@ -353,7 +357,8 @@ class Bot(commands.Bot):
                 )
 
                 await log_channel.send(
-                    f"{message.author} usou uma menção não permitida no canal #{message.channel}\n\n**__Conteúdo:__** {message.content}"
+                    f"{message.author} usou uma menção não permitida no "
+                    f"canal #{message.channel}\n\n**__Conteúdo:__** {message.content}"
                 )
                 await message.delete()
                 await message.channel.send(content=message.author.mention, embed=embed)

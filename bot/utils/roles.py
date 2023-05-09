@@ -6,19 +6,21 @@ from bot.settings import Settings
 from bot.utils.tools import has_any_role
 
 
-async def check_admin_roles(user: discord.Member, settings: Settings, rank: str) -> None:
+async def check_admin_roles(
+    user: discord.Member, settings: Settings, rank: str
+) -> None:
     """
     Check which Admin rank the User needs to have (if any), and remove any he has
     but shouldn't have
     """
 
     role_ranks: Dict[str, int] = {
-        'Owner': settings.admin_roles().get('rs_owner'),
-        'Deputy Owner': settings.admin_roles().get('rs_deputy_owner'),
-        'Overseer': settings.admin_roles().get('rs_overseer'),
-        'Coordinator': settings.admin_roles().get('rs_coord'),
-        'Organiser': settings.admin_roles().get('rs_org'),
-        'Admin': settings.admin_roles().get('rs_admin')
+        "Owner": settings.admin_roles().get("rs_owner"),
+        "Deputy Owner": settings.admin_roles().get("rs_deputy_owner"),
+        "Overseer": settings.admin_roles().get("rs_overseer"),
+        "Coordinator": settings.admin_roles().get("rs_coord"),
+        "Organiser": settings.admin_roles().get("rs_org"),
+        "Admin": settings.admin_roles().get("rs_admin"),
     }
 
     discord_rank: Optional[int] = role_ranks.get(rank)

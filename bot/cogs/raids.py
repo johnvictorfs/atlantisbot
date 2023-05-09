@@ -25,7 +25,6 @@ def time_till_raids(start_date) -> int:
 
 
 class RaidsTasks(commands.Cog):
-
     def __init__(self, bot: Bot):
         self.bot = bot
         self.update_next_raids.start()
@@ -40,7 +39,7 @@ class RaidsTasks(commands.Cog):
     async def raids_teams(self) -> None:
         """Starts a Raids Team every 2 days 1 hour before midnight UTC (RuneScape's Reset Time)"""
 
-        if 'testraid' in sys.argv:
+        if "testraid" in sys.argv:
             try:
                 await self.start_raids_team()
                 await asyncio.sleep(60 * 10)
@@ -50,10 +49,12 @@ class RaidsTasks(commands.Cog):
         else:
             seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
             raids_diff = datetime.timedelta(seconds=seconds_till_raids)
-            print(f'Next Raids in: {raids_diff.days} '
-                  f'Days, {raids_diff.seconds // 3600} '
-                  f'Hours, {(raids_diff.seconds // 60) % 60} '
-                  f'Minutes')
+            print(
+                f"Next Raids in: {raids_diff.days} "
+                f"Days, {raids_diff.seconds // 3600} "
+                f"Hours, {(raids_diff.seconds // 60) % 60} "
+                f"Minutes"
+            )
             await asyncio.sleep(seconds_till_raids)
             if self.raids_notifications():
                 try:
@@ -73,7 +74,7 @@ class RaidsTasks(commands.Cog):
 
         await self.bot.wait_until_ready()
 
-        if self.bot.setting.mode == 'dev':
+        if self.bot.setting.mode == "dev":
             return
 
         try:
@@ -83,16 +84,18 @@ class RaidsTasks(commands.Cog):
             hours = raids_diff.seconds // 3600
             minutes = (raids_diff.seconds // 60) % 60
 
-            msg_url = 'https://discordapp.com/channels/321012107942428673/393104367471034369/666257577256026123'
+            msg_url = "https://discordapp.com/channels/321012107942428673/393104367471034369/666257577256026123"
 
             # Check if Raids notifications are currently active or not
             state = RaidsState.object()
             raids_active = state.notifications
 
-            text = (f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
-                    f"{hours} Hora{'s' if hours > 1 else ''} e "
-                    f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
-                    f"• [Clique aqui para saber como participar]({msg_url})")
+            text = (
+                f"Próxima notificação de Raids em: **{days} Dia{'s' if days > 1 else ''}, "
+                f"{hours} Hora{'s' if hours > 1 else ''} e "
+                f"{minutes} Minuto{'s' if minutes > 1 else ''}**.\n\n"
+                f"• [Clique aqui para saber como participar]({msg_url})"
+            )
 
             if not raids_active:
                 text = (
@@ -100,9 +103,13 @@ class RaidsTasks(commands.Cog):
                     f"\n\n• [Clique aqui para saber como participar]({msg_url})"
                 )
 
-            embed = discord.Embed(title='', description=text, color=discord.Color.blue())
+            embed = discord.Embed(
+                title="", description=text, color=discord.Color.blue()
+            )
 
-            channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
+            channel: discord.TextChannel = self.bot.get_channel(
+                self.bot.setting.chat.get("raids")
+            )
 
             state = RaidsState.object()
 
@@ -138,13 +145,13 @@ class RaidsTasks(commands.Cog):
 
     async def start_raids_team(self) -> None:
         """Starts a Raids Team, the owner of the team is the Bot itself"""
-        old_team = Team.objects.filter(team_id='raids').first()
+        old_team = Team.objects.filter(team_id="raids").first()
         if old_team:
             await delete_team(old_team, self.bot)
 
-        if self.bot.setting.mode == 'prod':
-            invite_channel_id = self.bot.setting.chat.get('raids_chat')
-            team_channel_id = self.bot.setting.chat.get('raids')
+        if self.bot.setting.mode == "prod":
+            invite_channel_id = self.bot.setting.chat.get("raids_chat")
+            team_channel_id = self.bot.setting.chat.get("raids")
         else:
             invite_channel_id = 505240135390986262
             team_channel_id = 505240114662998027
@@ -152,48 +159,56 @@ class RaidsTasks(commands.Cog):
         invite_channel = self.bot.get_channel(invite_channel_id)
         team_channel = self.bot.get_channel(team_channel_id)
 
-        presence = f'Marque presença no <#{invite_channel_id}>\nCriador: {self.bot.user.mention}'
+        presence = f"Marque presença no <#{invite_channel_id}>\nCriador: {self.bot.user.mention}"
         description = f"Requisito: <@&{self.bot.setting.role.get('raids')}>\n{presence}"
         invite_embed = discord.Embed(
-            title=f"Marque presença para 'Raids' (10 pessoas)",
+            title="Marque presença para 'Raids' (10 pessoas)",
             description=f"{separator}\n\n"
             f"Requisito: <@&{self.bot.setting.role.get('raids')}>\n"
             f"Time: {team_channel.mention}\n"
             f"Criador: {self.bot.user.mention}\n\n"
             f"`in raids`: Marcar presença\n"
-            f"`out raids`: Retirar presença"
+            f"`out raids`: Retirar presença",
         )
         team_embed = discord.Embed(
-            title=f"__Raids__ - 0/10",
+            title="__Raids__ - 0/10",
             description=description,
-            color=discord.Color.purple()
+            color=discord.Color.purple(),
         )
-        footer = (f"Digite '{self.bot.setting.prefix}del raids' "
-                  f"para excluir o time. (Criador do time ou Admin e acima)")
+        footer = (
+            f"Digite '{self.bot.setting.prefix}del raids' "
+            f"para excluir o time. (Criador do time ou Admin e acima)"
+        )
         team_embed.set_footer(text=footer)
 
         raids_role = f"<@&{self.bot.setting.role.get('raids')}>"
-        await team_channel.send(content=raids_role, embed=self.raids_embed(), delete_after=60 * 90)
+        await team_channel.send(
+            content=raids_role, embed=self.raids_embed(), delete_after=60 * 90
+        )
         team_message = await team_channel.send(embed=team_embed, delete_after=60 * 90)
         invite_message = await invite_channel.send(embed=invite_embed)
 
         raids_team = Team(
-            team_id='raids',
-            title='Raids',
+            team_id="raids",
+            title="Raids",
             size=10,
-            role=self.bot.setting.role.get('raids'),
+            role=self.bot.setting.role.get("raids"),
             author_id=str(self.bot.user.id),
             invite_channel_id=str(invite_channel_id),
             invite_message_id=str(invite_message.id),
             team_channel_id=str(team_channel_id),
-            team_message_id=str(team_message.id)
+            team_message_id=str(team_message.id),
         )
         raids_team.save()
 
     def raids_embed(self) -> discord.Embed:
-        clan_name = self.bot.setting.clan_name.replace(' ', '%20')
-        clan_banner_url = f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
-        raids_notif_embed = discord.Embed(title="**Raids**", color=discord.Colour.dark_blue())
+        clan_name = self.bot.setting.clan_name.replace(" ", "%20")
+        clan_banner_url = (
+            f"http://services.runescape.com/m=avatar-rs/{clan_name}/clanmotif.png"
+        )
+        raids_notif_embed = discord.Embed(
+            title="**Raids**", color=discord.Colour.dark_blue()
+        )
         raids_notif_embed.set_thumbnail(url=clan_banner_url)
 
         raids_notif_embed.add_field(
@@ -206,16 +221,16 @@ class RaidsTasks(commands.Cog):
             f"\n"
             f"Esteja online no jogo no mundo 75 até 20:50 em ponto.\n"
             f"- Risco de remoção do time caso contrário. Não cause atrasos",
-            inline=False
+            inline=False,
         )
         return raids_notif_embed
 
     @commands.has_permissions(manage_messages=True)
-    @commands.command(aliases=['startraids'])
+    @commands.command(aliases=["startraids"])
     async def start_raids(self, ctx: Context) -> None:
-        await ctx.send(f'Iniciando time de Raids... (mode={self.bot.setting.mode})')
+        await ctx.send(f"Iniciando time de Raids... (mode={self.bot.setting.mode})")
         await self.start_raids_team()
-        await ctx.author.send('Time de Raids iniciado com sucesso.')
+        await ctx.author.send("Time de Raids iniciado com sucesso.")
 
     @commands.cooldown(1, 10, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True, manage_channels=True)
@@ -226,7 +241,9 @@ class RaidsTasks(commands.Cog):
         """
         await ctx.message.delete()
 
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
+        channel: discord.TextChannel = self.bot.get_channel(
+            self.bot.setting.chat.get("raids")
+        )
         sent: discord.Message = await channel.send("Próxima notificação de Raids em:")
 
         state = RaidsState.object()
@@ -239,7 +256,9 @@ class RaidsTasks(commands.Cog):
         state.time_to_next_message = str(sent.id)
         state.save()
 
-        await ctx.author.send("Mensagem da próxima notificação de Raids reenviada com sucesso.")
+        await ctx.author.send(
+            "Mensagem da próxima notificação de Raids reenviada com sucesso."
+        )
 
 
 def setup(bot):

@@ -25,12 +25,15 @@ atlantisbot-api = "1.0.8"
 sentry-sdk = "^0.19.2"
 python-dotenv = "^1.0.0"
 
-[tool.poetry.dev-dependencies]
-flake8 = "^3.7"
-autopep8 = "^1.4"
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.265"
 mypy = "^1.2.0"
 mypy_extensions = "^1.0.0"
+black = "^23.3.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.ruff]
+line-length = 120

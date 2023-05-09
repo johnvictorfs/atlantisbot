@@ -20,23 +20,23 @@ class Context(commands.Context):
 
     async def entry_to_code(self, entries):
         width = max(len(a) for a, b in entries)
-        output = ['```']
+        output = ["```"]
         for name, entry in entries:
-            output.append(f'{name:<{width}}: {entry}')
-        output.append('```')
-        await self.send('\n'.join(output))
+            output.append(f"{name:<{width}}: {entry}")
+        output.append("```")
+        await self.send("\n".join(output))
 
     async def indented_entry_to_code(self, entries):
         width = max(len(a) for a, b in entries)
-        output = ['```']
+        output = ["```"]
         for name, entry in entries:
-            output.append(f'\u200b{name:>{width}}: {entry}')
-        output.append('```')
-        await self.send('\n'.join(output))
+            output.append(f"\u200b{name:>{width}}: {entry}")
+        output.append("```")
+        await self.send("\n".join(output))
 
     def __repr__(self):
         # we need this for our cache key strategy
-        return '<Context>'
+        return "<Context>"
 
     def get_user(self) -> Optional[DiscordUser]:
         user = DiscordUser.objects.filter(discord_id=str(self.author.id)).first()
@@ -47,16 +47,26 @@ class Context(commands.Context):
 
     async def disambiguate(self, matches, entry):
         if len(matches) == 0:
-            raise ValueError('Nenhum resultado encontrado.')
+            raise ValueError("Nenhum resultado encontrado.")
 
         if len(matches) == 1:
             return matches[0]
 
-        await self.send('There are too many matches... Which one did you mean? **Only say the number**.')
-        await self.send('\n'.join(f'{index}: {entry(item)}' for index, item in enumerate(matches, 1)))
+        await self.send(
+            "There are too many matches... Which one did you mean? **Only say the number**."
+        )
+        await self.send(
+            "\n".join(
+                f"{index}: {entry(item)}" for index, item in enumerate(matches, 1)
+            )
+        )
 
         def check(m: discord.Message):
-            return m.content.isdigit() and m.author.id == self.author.id and m.channel.id == self.channel.id
+            return (
+                m.content.isdigit()
+                and m.author.id == self.author.id
+                and m.channel.id == self.channel.id
+            )
 
         await self.release()
 
@@ -64,21 +74,27 @@ class Context(commands.Context):
         try:
             for i in range(3):
                 try:
-                    message = await self.bot.wait_for('message', check=check, timeout=30.0)
+                    message = await self.bot.wait_for(
+                        "message", check=check, timeout=30.0
+                    )
                 except asyncio.TimeoutError:
-                    raise ValueError('Took too long. Goodbye.')
+                    raise ValueError("Took too long. Goodbye.")
 
                 index = int(message.content)
                 try:
                     return matches[index - 1]
                 except Exception:
-                    await self.send(f'Please give me a valid number. {2 - i} tries remaining...')
+                    await self.send(
+                        f"Please give me a valid number. {2 - i} tries remaining..."
+                    )
 
-            raise ValueError('Too many tries. Goodbye.')
+            raise ValueError("Too many tries. Goodbye.")
         finally:
             await self.acquire()
 
-    async def prompt(self, message: str, *, timeout=60.0, delete_after=True, author_id=None) -> Optional[bool]:
+    async def prompt(
+        self, message: str, *, timeout=60.0, delete_after=True, author_id=None
+    ) -> Optional[bool]:
         """An interactive reaction confirmation dialog.
         Parameters
         -----------
@@ -100,7 +116,7 @@ class Context(commands.Context):
         """
 
         if not self.channel.permissions_for(self.me).add_reactions:
-            raise RuntimeError('Bot does not have Add Reactions permission.')
+            raise RuntimeError("Bot does not have Add Reactions permission.")
 
         fmt = message
 
@@ -117,20 +133,20 @@ class Context(commands.Context):
 
             codepoint = str(payload.emoji)
 
-            if codepoint == '\N{WHITE HEAVY CHECK MARK}':
+            if codepoint == "\N{WHITE HEAVY CHECK MARK}":
                 confirm = True
                 return True
-            elif codepoint == '\N{CROSS MARK}':
+            elif codepoint == "\N{CROSS MARK}":
                 confirm = False
                 return True
 
             return False
 
-        for emoji in ('\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}'):
+        for emoji in ("\N{WHITE HEAVY CHECK MARK}", "\N{CROSS MARK}"):
             await msg.add_reaction(emoji)
 
         try:
-            await self.bot.wait_for('raw_reaction_add', check=check, timeout=timeout)
+            await self.bot.wait_for("raw_reaction_add", check=check, timeout=timeout)
         except asyncio.TimeoutError:
             confirm = None
 
@@ -142,16 +158,12 @@ class Context(commands.Context):
 
     @staticmethod
     def tick(opt: Optional[bool] = None, label: str = None):
-        lookup = {
-            True: ':white_check_mark:',
-            False: ':x:',
-            None: ':heavy_check_mark:'
-        }
+        lookup = {True: ":white_check_mark:", False: ":x:", None: ":heavy_check_mark:"}
 
-        emoji = lookup.get(opt, '<:greyTick:563231201280917524>')
+        emoji = lookup.get(opt, "<:greyTick:563231201280917524>")
 
         if label:
-            return f'{emoji} {label}'
+            return f"{emoji} {label}"
         return emoji
 
     async def show_help(self, command=None):
@@ -159,7 +171,7 @@ class Context(commands.Context):
         If no command is given, then it'll show help for the current
         command.
         """
-        cmd = self.bot.get_command('help')
+        cmd = self.bot.get_command("help")
         command = command or self.command.qualified_name
         await self.invoke(cmd, command=command)
 
@@ -173,7 +185,9 @@ class Context(commands.Context):
 
         if len(content) > 2000:
             fp = io.BytesIO(content.encode())
-            kwargs.pop('file', None)
-            return await self.send(file=discord.File(fp, filename='message_too_long.txt'), **kwargs)
+            kwargs.pop("file", None)
+            return await self.send(
+                file=discord.File(fp, filename="message_too_long.txt"), **kwargs
+            )
         else:
             return await self.send(content)

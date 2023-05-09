@@ -25,9 +25,13 @@ def secondary_full(team: Team) -> Tuple[int, bool]:
     return secondary_count, (secondary_count >= team.secondary_limit)
 
 
-def add_to_team(author: discord.Member, team: Team, substitute: bool, secondary: bool) -> None:
+def add_to_team(
+    author: discord.Member, team: Team, substitute: bool, secondary: bool
+) -> None:
     """Adds a Player to a Team"""
-    added_player = Player(player_id=str(author.id), team=team, substitute=substitute, secondary=secondary)
+    added_player = Player(
+        player_id=str(author.id), team=team, substitute=substitute, secondary=secondary
+    )
     added_player.save()
 
 
@@ -43,8 +47,12 @@ def team_count(team: Team) -> int:
     return team.players.count()
 
 
-async def update_team_message(message: discord.Message, team: Team, prefix: str) -> None:
-    embed_description = f"Marque presença no <#{team.invite_channel_id}>\n Criador: <@{team.author_id}>"
+async def update_team_message(
+    message: discord.Message, team: Team, prefix: str
+) -> None:
+    embed_description = (
+        f"Marque presença no <#{team.invite_channel_id}>\n Criador: <@{team.author_id}>"
+    )
     requisito = ""
     requisito2 = ""
     if team.role:
@@ -59,7 +67,7 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str)
     team_embed = discord.Embed(
         title=f"__{team.title}__ - {team_count(team)}/{team.size}",
         description=embed_description,
-        color=discord.Color.purple()
+        color=discord.Color.purple(),
     )
     footer = f"Digite '{prefix}del {team.team_id}' para excluir o time. (Criador do time ou Admin e acima)"
     team_embed.set_footer(text=footer)
@@ -92,13 +100,17 @@ async def update_team_message(message: discord.Message, team: Team, prefix: str)
                 player_ingame = ""
 
             player_role = f"({player.role})" if player.role else ""
-            player_value = (f"- <@{player.player_id}> {player_role} {player_ingame} ***(Substituto)*** "
-                            f"{'***(Secundário)***' if player.secondary else ''}")
+            player_value = (
+                f"- <@{player.player_id}> {player_role} {player_ingame} ***(Substituto)*** "
+                f"{'***(Secundário)***' if player.secondary else ''}"
+            )
             team_embed.add_field(name=separator, value=player_value, inline=False)
     await message.edit(embed=team_embed)
 
 
-async def manage_team(team_id: str, client, message: discord.Message, mode: str) -> None:
+async def manage_team(
+    team_id: str, client, message: discord.Message, mode: str
+) -> None:
     """
     Manages a join or leave for a Team
 
@@ -114,25 +126,39 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
 
         current_players = team.players
         substitutes = team.players.filter(substitute=True)
-        invite_channel: discord.TextChannel = client.get_channel(int(team.invite_channel_id or 0))
-        team_channel: discord.TextChannel = client.get_channel(int(team.team_channel_id or 0))
+        invite_channel: discord.TextChannel = client.get_channel(
+            int(team.invite_channel_id or 0)
+        )
+        team_channel: discord.TextChannel = client.get_channel(
+            int(team.team_channel_id or 0)
+        )
         if not invite_channel or not team_channel:
             return await delete_team(team, client)
         try:
-            team_message = await team_channel.fetch_message(int(team.team_message_id or 0))
+            team_message = await team_channel.fetch_message(
+                int(team.team_message_id or 0)
+            )
         except discord.errors.NotFound:
             return await delete_team(team, client)
 
-        text = ''
+        text = ""
         no_perm_embed = None
 
-        if mode == 'join':
+        if mode == "join":
             team_role = None if not team.role else int(team.role)
-            secondary_team_role = None if not team.role_secondary else int(team.role_secondary)
+            secondary_team_role = (
+                None if not team.role_secondary else int(team.role_secondary)
+            )
 
-            has_main = has_any_role(message.author, team_role)  # Has main role requirement
-            has_secondary = has_any_role(message.author, secondary_team_role)  # Has secondary role requirement
-            has_any = has_any_role(message.author, team_role, secondary_team_role)  # Has either or both
+            has_main = has_any_role(
+                message.author, team_role
+            )  # Has main role requirement
+            has_secondary = has_any_role(
+                message.author, secondary_team_role
+            )  # Has secondary role requirement
+            has_any = has_any_role(
+                message.author, team_role, secondary_team_role
+            )  # Has either or both
             # Has only secondary requirement
             is_secondary = True if (has_secondary and not has_main) else False
 
@@ -142,28 +168,43 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                 is_team_full = is_full(team)
 
             if in_team(message.author.id, team):
-                text = 'já está no time'
+                text = "já está no time"
             elif has_any or not team_role:
-                add_to_team(message.author, team, substitute=is_team_full, secondary=is_secondary)
-                text = 'entrou ***como substituto*** no time' if is_team_full else 'entrou no time'
+                add_to_team(
+                    message.author,
+                    team,
+                    substitute=is_team_full,
+                    secondary=is_secondary,
+                )
+                text = (
+                    "entrou ***como substituto*** no time"
+                    if is_team_full
+                    else "entrou no time"
+                )
             else:
                 description = f"{message.author.mention}, você precisa ter o cargo <@&{team.role}>"
                 if team.role_secondary:
                     description = f"{description} ou o cargo <@&{team.role_secondary}>"
-                description = (f"{description} para entrar no Time '{team.title}' "
-                               f"({current_players.count() - substitutes.count()}/{team.size})\n"
-                               f"(*`{message.content}`*)")
+                description = (
+                    f"{description} para entrar no Time '{team.title}' "
+                    f"({current_players.count() - substitutes.count()}/{team.size})\n"
+                    f"(*`{message.content}`*)"
+                )
                 no_perm_embed = discord.Embed(
-                    title=f"__Permissões insuficientes__",
+                    title="__Permissões insuficientes__",
                     description=description,
-                    color=discord.Color.dark_red()
+                    color=discord.Color.dark_red(),
                 )
 
-        elif mode == 'leave':
+        elif mode == "leave":
             if in_team(message.author.id, team):
-                text = 'saiu do time'
+                text = "saiu do time"
                 substitute: Player = first_substitute(team, message.author.id)
-                is_substitute = team.players.filter(player_id=str(message.author.id)).first().substitute
+                is_substitute = (
+                    team.players.filter(player_id=str(message.author.id))
+                    .first()
+                    .substitute
+                )
                 # If the person leaving is not a substitute and there is one available, then
                 # make that substitute not be a substitute anymore
                 if substitute and not is_substitute:
@@ -172,27 +213,37 @@ async def manage_team(team_id: str, client, message: discord.Message, mode: str)
                     else:
                         substitute.substitute = False
                         substitute.save()
-                        _text = (f"<@{substitute.player_id}> não é mais um substituto do time "
-                                 f"**[{team.title}]({team_message.jump_url})** "
-                                 f"({current_players.count() - substitutes.count() - 1}/{team.size})")
-                        embed = discord.Embed(title='', description=_text, color=discord.Color.green())
-                        msg = await invite_channel.send(content=f"<@{substitute.player_id}>", embed=embed)
+                        _text = (
+                            f"<@{substitute.player_id}> não é mais um substituto do time "
+                            f"**[{team.title}]({team_message.jump_url})** "
+                            f"({current_players.count() - substitutes.count() - 1}/{team.size})"
+                        )
+                        embed = discord.Embed(
+                            title="", description=_text, color=discord.Color.green()
+                        )
+                        msg = await invite_channel.send(
+                            content=f"<@{substitute.player_id}>", embed=embed
+                        )
                         bot_message = BotMessage(message_id=msg.id, team=team)
                         bot_message.save()
                 remove_from_team(message.author.id, team)
             else:
-                text = 'já não estava no time'
+                text = "já não estava no time"
         if no_perm_embed:
             sent_message = await invite_channel.send(embed=no_perm_embed)
         else:
-            _text = (f"{message.author.mention} {text} **[{team.title}]({team_message.jump_url})** "
-                     f"({current_players.count() - substitutes.count()}/{team.size})\n\n *`{message.content}`*")
-            if mode == 'leave':
+            _text = (
+                f"{message.author.mention} {text} **[{team.title}]({team_message.jump_url})** "
+                f"({current_players.count() - substitutes.count()}/{team.size})\n\n *`{message.content}`*"
+            )
+            if mode == "leave":
                 embed_color = discord.Color.red()
             else:
                 embed_color = discord.Color.green()
-            embed = discord.Embed(title='', description=_text, color=embed_color)
-            embed.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
+            embed = discord.Embed(title="", description=_text, color=embed_color)
+            embed.set_author(
+                name=message.author.display_name, icon_url=message.author.avatar_url
+            )
             sent_message = await invite_channel.send(embed=embed)
 
         bot_message = BotMessage(message_id=sent_message.id, team=team)
@@ -235,7 +286,9 @@ async def delete_team(team: Team, client) -> None:
     except Exception:
         pass
     try:
-        invite_message = await invite_channel.fetch_message(int(team.invite_message_id or 0))
+        invite_message = await invite_channel.fetch_message(
+            int(team.invite_message_id or 0)
+        )
         await invite_message.delete()
     except Exception:
         pass
