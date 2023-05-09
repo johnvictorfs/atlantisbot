@@ -15,20 +15,21 @@ from bot.utils.context import Context
 
 
 class Chat(commands.Cog):
-
     def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.check(is_admin)
     @commands.guild_only()
     @commands.command(aliases=[])
-    async def add_donation(self, ctx: Context, value: float, _id: Optional[str], message: Optional[str]):
+    async def add_donation(
+        self, ctx: Context, value: float, _id: Optional[str], message: Optional[str]
+    ):
         await ctx.message.delete()
 
         embed = discord.Embed(
             title="Doação para o Servidor do AtlantisBot",
             description=f"Doação de R$ {value:.2f}",
-            color=discord.Color.green()
+            color=discord.Color.green(),
         )
 
         embed.set_footer(text="Muito obrigado pela sua doação!")
@@ -43,7 +44,7 @@ class Chat(commands.Cog):
                 member = None
 
             if not member:
-                return await ctx.send(f'ID de Membro inválida: {_id}')
+                return await ctx.send(f"ID de Membro inválida: {_id}")
 
             embed.set_author(name=str(member), icon_url=member.avatar_url)
         else:
@@ -53,7 +54,7 @@ class Chat(commands.Cog):
             return await ctx.send(content=member.mention, embed=embed)
         return await ctx.send(embed=embed)
 
-    @commands.command(aliases=['doar', 'donate', 'doacao', 'doação'])
+    @commands.command(aliases=["doar", "donate", "doacao", "doação"])
     async def donation(self, ctx: Context):
         description = (
             "O custo total do Servidor que roda o AtlantisBot é de 5 Doláres "
@@ -75,7 +76,7 @@ class Chat(commands.Cog):
         embed = discord.Embed(
             title="Doações para o pagamento do servidor do AtlantisBot",
             description=description,
-            color=discord.Color.blue()
+            color=discord.Color.blue(),
         )
 
         embed.set_footer(
@@ -88,8 +89,7 @@ class Chat(commands.Cog):
         donation_url = self.bot.setting.donation_url()
 
         embed.add_field(
-            name="Doação pelo Paypal",
-            value=f"[Clique aqui para Doar]({donation_url})"
+            name="Doação pelo Paypal", value=f"[Clique aqui para Doar]({donation_url})"
         )
 
         embed.set_thumbnail(
@@ -108,15 +108,20 @@ class Chat(commands.Cog):
                 text = await r.text()
                 data = json.loads(text)
 
-                return int(data['item']['current']['price'].replace(',', '').replace('.', '').replace('k', '00'))
+                return int(
+                    data["item"]["current"]["price"]
+                    .replace(",", "")
+                    .replace(".", "")
+                    .replace("k", "00")
+                )
 
     @commands.check(is_authenticated)
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.user)
-    @commands.command('raids', aliases=['aplicar_raids'])
+    @commands.command("raids", aliases=["aplicar_raids"])
     async def aplicar_raids(self, ctx: Context):
         denied_message = "Fool! Você já tem permissão para ir Raids!"
-        if has_any_role(ctx.author, self.bot.setting.role.get('raids')):
+        if has_any_role(ctx.author, self.bot.setting.role.get("raids")):
             return await ctx.send(denied_message)
 
         user = ctx.get_user()
@@ -128,13 +133,17 @@ class Chat(commands.Cog):
             player = rs3clans.Player(ingame_name)
         except ConnectionError:
             return await ctx.send(
-                'Não foi possível acessar a API do Runemetrics no momento, tente novamente mais tarde.'
+                "Não foi possível acessar a API do Runemetrics no momento, tente novamente mais tarde."
             )
 
         if not player.exists:
-            return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não existe.")
+            return await ctx.send(
+                f"{ctx.author.mention}, o jogador '{player.name}' não existe."
+            )
         elif player.clan not in self.bot.setting.clan_names:
-            return await ctx.send(f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis.")
+            return await ctx.send(
+                f"{ctx.author.mention}, o jogador '{player.name}' não é um membro do Clã Atlantis."
+            )
         elif player.private_profile:
             return await ctx.send(
                 f"{ctx.author.mention}, seu perfil no Runemetrics está privado, por favor o deixe público "
@@ -142,32 +151,36 @@ class Chat(commands.Cog):
             )
 
         emojis = {
-            'prayer': '<:prayer:499707566012497921>',
-            'herblore': '<:herblore:499707566272544778>',
-            'attack': '<:attack:499707565949583391>',
-            'invention': '<:invention:499707566419607552>',
-            'inventory': '<:inventory:615747024775675925>',
-            'full_manual': '<:full_manual:615751745049722880>'
+            "prayer": "<:prayer:499707566012497921>",
+            "herblore": "<:herblore:499707566272544778>",
+            "attack": "<:attack:499707565949583391>",
+            "invention": "<:invention:499707566419607552>",
+            "inventory": "<:inventory:615747024775675925>",
+            "full_manual": "<:full_manual:615751745049722880>",
         }
 
-        herb_level = player.skill('herblore').level
+        herb_level = player.skill("herblore").level
         if herb_level < 90:
-            await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
-                           f"Herbologia é apenas "
-                           f"**{herb_level}**. Isso é um pouco baixo!\n"
-                           f"**Irei continuar com o processo de aplicação, mas não será possível te dar permissão para "
-                           f"participar no momento, aplique novamente quando obter um nível de {emojis['herblore']} "
-                           f"Herbologia superior a "
-                           f"90**, falta apenas **{5_346_332 - player.skill('herblore').exp:,.0f}** de Exp!")
+            await ctx.send(
+                f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
+                f"Herbologia é apenas "
+                f"**{herb_level}**. Isso é um pouco baixo!\n"
+                f"**Irei continuar com o processo de aplicação, mas não será possível te dar permissão para "
+                f"participar no momento, aplique novamente quando obter um nível de {emojis['herblore']} "
+                f"Herbologia superior a "
+                f"90**, falta apenas **{5_346_332 - player.skill('herblore').exp:,.0f}** de Exp!"
+            )
         elif 96 > herb_level >= 90:
-            await ctx.send(f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
-                           f"Herbologia é **{herb_level}**. "
-                           f"Isso é suficiente para fazer Poções de sobrecarregamento (Overloads), mas "
-                           f"apenas usando Boosts, caso já não tenha, faça alguns usando o seguinte "
-                           f"boost (ou outro como Pulse Cores) <https://rs.wiki/Spicy_stew>")
+            await ctx.send(
+                f"Ei {ctx.author.mention}, vejo aqui que seu nível de {emojis['herblore']} "
+                f"Herbologia é **{herb_level}**. "
+                f"Isso é suficiente para fazer Poções de sobrecarregamento (Overloads), mas "
+                f"apenas usando Boosts, caso já não tenha, faça alguns usando o seguinte "
+                f"boost (ou outro como Pulse Cores) <https://rs.wiki/Spicy_stew>"
+            )
 
-        prayer_level = player.skill('prayer').level
-        left_to_95 = 8_771_558 - player.skill('prayer').exp
+        prayer_level = player.skill("prayer").level
+        left_to_95 = 8_771_558 - player.skill("prayer").exp
 
         if prayer_level < 95:
             d_bones_price = await self.get_price(536)
@@ -195,34 +208,34 @@ class Chat(commands.Cog):
         embed = discord.Embed(
             title="Aplicação para Raids",
             description=f"Olá! Você aplicou para receber o cargo <@&{self.bot.setting.role.get('raids')}> para "
-                        f"participar dos Raids do Clã.",
-            color=discord.Color.blue()
+            f"participar dos Raids do Clã.",
+            color=discord.Color.blue(),
         )
 
-        nb_space = '\u200B'
+        nb_space = "\u200B"
 
         embed.set_thumbnail(url="https://i.imgur.com/2HPEdiz.png")
 
         embed.add_field(
             name=f"{nb_space}\nPor favor postar uma ou mais screenshots com os itens abaixo. "
-                 f"(pode enviar uma de cada vez)",
+            f"(pode enviar uma de cada vez)",
             value=f"• {emojis['attack']} Equipamento (Arma/Armadura/Acessórios/Switches etc.)\n"
-                  f"• {emojis['inventory']} Inventário\n"
-                  f"• {emojis['invention']} Perks de Arma, Armadura, Escudo e Switches que irá usar\n\n",
-            inline=False
+            f"• {emojis['inventory']} Inventário\n"
+            f"• {emojis['invention']} Perks de Arma, Armadura, Escudo e Switches que irá usar\n\n",
+            inline=False,
         )
 
-        perks_pocketbook = 'https://rspocketbook.com/rs_pocketbook.pdf#page=6'
+        perks_pocketbook = "https://rspocketbook.com/rs_pocketbook.pdf#page=6"
         embed.add_field(
             name=f"{nb_space}\nLinks Úteis",
             value=f"• {emojis['full_manual']} [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)\n"
-                  f"• {emojis['invention']} [Melhores Perks e como os obter]({perks_pocketbook})\n"
-                  f"• [Exemplo de Aplicação](https://i.imgur.com/CMNzquL.png)\n"
-                  f"• Guia de Yakamaru: <#{self.bot.setting.chat.get('guia_yaka')}>\n\n",
-            inline=False
+            f"• {emojis['invention']} [Melhores Perks e como os obter]({perks_pocketbook})\n"
+            f"• [Exemplo de Aplicação](https://i.imgur.com/CMNzquL.png)\n"
+            f"• Guia de Yakamaru: <#{self.bot.setting.chat.get('guia_yaka')}>\n\n",
+            inline=False,
         )
 
-        seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date())
+        seconds_till_raids = time_till_raids(self.bot.setting.raids_start_date)
         raids_diff = datetime.timedelta(seconds=seconds_till_raids)
 
         days = raids_diff.days
@@ -232,17 +245,19 @@ class Chat(commands.Cog):
         embed.add_field(
             name=f"{nb_space}\nInformações sobre os Times",
             value=f"Os times de Raids acontecem a cada 2 Dias.\n**A próxima "
-                  f"notificação de Raids será em {days} Dia(s), {hours} Hora(s) e "
-                  f"{minutes} Minuto(s)**.\n\nPara participar basta digitar **`in raids`** no canal "
-                  f"<#{self.bot.setting.chat.get('raids_chat')}> após a notificação do Bot, e ele irá o colocar "
-                  f"no time automaticamente, caso o time já esteja cheio, ele te colocará como substituto até que "
-                  f"abra alguma vaga. Caso aconteça, ele irá te notificar.\n\n1 hora após o Bot ter iniciado o time "
-                  f"irá começar o Raids no jogo, não chegue atrasado. Mais informações no canal {raids_channel}.",
-            inline=False
+            f"notificação de Raids será em {days} Dia(s), {hours} Hora(s) e "
+            f"{minutes} Minuto(s)**.\n\nPara participar basta digitar **`in raids`** no canal "
+            f"<#{self.bot.setting.chat.get('raids_chat')}> após a notificação do Bot, e ele irá o colocar "
+            f"no time automaticamente, caso o time já esteja cheio, ele te colocará como substituto até que "
+            f"abra alguma vaga. Caso aconteça, ele irá te notificar.\n\n1 hora após o Bot ter iniciado o time "
+            f"irá começar o Raids no jogo, não chegue atrasado. Mais informações no canal {raids_channel}.",
+            inline=False,
         )
-        await ctx.send(embed=embed, content=f"<@&{self.bot.setting.role.get('pvm_teacher')}>")
+        await ctx.send(
+            embed=embed, content=f"<@&{self.bot.setting.role.get('pvm_teacher')}>"
+        )
 
-    @commands.command(aliases=['aplicaraod', 'aod', 'aodaplicar', 'aod_aplicar'])
+    @commands.command(aliases=["aplicaraod", "aod", "aodaplicar", "aod_aplicar"])
     async def aplicar_aod(self, ctx: Context):
         aod_channel = f"<#{self.bot.setting.chat.get('aod')}>"
         pvm_teacher = f"<@&{self.bot.setting.role.get('pvm_teacher')}>"
@@ -267,26 +282,38 @@ Aguarde uma resposta de um {pvm_teacher}.
 
         denied_message = "Fool! Você já tem permissão para ir nos times de AoD!"
 
-        if has_any_role(ctx.author, self.bot.setting.role.get('aod'), self.bot.setting.role.get('aod_learner')):
+        if has_any_role(
+            ctx.author,
+            self.bot.setting.role.get("aod"),
+            self.bot.setting.role.get("aod_learner"),
+        ):
             return await ctx.send(denied_message)
         return await ctx.send(aplicar_message)
 
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['git', 'source'])
+    @commands.command(aliases=["git", "source"])
     async def github(self, ctx: Context):
-        github_icon = "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
+        github_icon = (
+            "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png"
+        )
         repo_url = "https://github.com/johnvictorfs/atlantisbot-rewrite"
         johnvictorfs_img = "https://avatars1.githubusercontent.com/u/37747572?s=460&v=4"
         johnvictorfs_url = "https://github.com/johnvictorfs"
 
-        github_embed = discord.Embed(title="atlantisbot-rewrite", description="", color=discord.Colour.dark_blue(),
-                                     url=repo_url)
-        github_embed.set_author(icon_url=johnvictorfs_img, url=johnvictorfs_url, name="johnvictorfs")
+        github_embed = discord.Embed(
+            title="atlantisbot-rewrite",
+            description="",
+            color=discord.Colour.dark_blue(),
+            url=repo_url,
+        )
+        github_embed.set_author(
+            icon_url=johnvictorfs_img, url=johnvictorfs_url, name="johnvictorfs"
+        )
         github_embed.set_thumbnail(url=github_icon)
         return await ctx.send(content=None, embed=github_embed)
 
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['atlbot', 'atlbotcommands'])
+    @commands.command(aliases=["atlbot", "atlbotcommands"])
     async def atlcommands(self, ctx: Context):
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
@@ -304,73 +331,73 @@ Aguarde uma resposta de um {pvm_teacher}.
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}claninfo <nome de jogador>",
             value="Ver info de Clã de Jogador",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}clan <nome de clã>",
             value="Ver info Básica de um Clã",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}ptbr_rankings (número de clãs|10:25)",
             value="Ver os Rankings dos Clãs PT-BR por base em Exp",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}raids",
             value="Aplicar para ter acesso aos Raids do Clã",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}aod",
             value="Aplicar para ter acesso aos times de AoD do Clã",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}membro",
             value="Aplicar para receber o role de Membro no Discord",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}comp (número da comp|1) (número de jogadores|10:50)",
             value="Ver as competições ativas do Clã",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}pcomp (número de jogadores|10:50)",
             value="Ver informação sobre a atual competição de Pontos em andamento",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}ranks",
             value="Ver os Ranks do Clã pendentes a serem atualizados",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}team",
             value="Criar um Time com presenças automáticas",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}github",
             value="Ver o repositório desse bot no Github",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.add_field(
             name=f"{self.bot.setting.prefix}atlbot",
             value="Ver essa mensagem",
-            inline=False
+            inline=False,
         )
         atlcommands_embed.set_footer(text="Criado por @NRiver#2263")
         return await ctx.send(embed=atlcommands_embed)
 
     @commands.has_permissions(manage_channels=True)
-    @commands.command(aliases=['atlrepeat'])
+    @commands.command(aliases=["atlrepeat"])
     async def atlsay(self, ctx: Context, *, message: str):
-        message = message.split(' ')
+        message = message.split(" ")
         channel = message[-1]
         try:
-            channel_id = int(channel.replace('<', '').replace('#', '').replace('>', ''))
+            channel_id = int(channel.replace("<", "").replace("#", "").replace(">", ""))
         except ValueError:
             channel_id = None
         channel = self.bot.get_channel(channel_id)
@@ -379,9 +406,11 @@ Aguarde uma resposta de um {pvm_teacher}.
             ext = channel
             del message[-1]
         try:
-            await ext.send(' '.join(message))
+            await ext.send(" ".join(message))
         except discord.errors.Forbidden as e:
-            await ctx.send(f"{e}: Sem permissão para enviar mensagens no canal {ext.mention}")
+            await ctx.send(
+                f"{e}: Sem permissão para enviar mensagens no canal {ext.mention}"
+            )
 
 
 def setup(bot):
