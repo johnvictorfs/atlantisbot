@@ -31,12 +31,13 @@ class Vos(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        if self.bot.setting.mode == "prod":
-            self.update_vos.start()
+    # Disabled because Twitter is dead
+    #     if self.bot.setting.mode == "prod":
+    #         self.update_vos.start()
 
-    def cog_unload(self):
-        if self.bot.setting.mode == "prod":
-            self.update_vos.cancel()
+    # def cog_unload(self):
+    #     if self.bot.setting.mode == "prod":
+    #         self.update_vos.cancel()
 
     @staticmethod
     def save_combined(image_names: List[str]) -> Tuple[str, str]:
@@ -250,5 +251,5 @@ class Vos(commands.Cog):
             )
 
 
-def setup(bot):
-    bot.add_cog(Vos(bot))
+async def setup(bot):
+    await bot.add_cog(Vos(bot))

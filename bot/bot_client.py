@@ -40,10 +40,6 @@ class Bot(commands.Bot):
 
         self.app_info = None
 
-        self.loop.create_task(self.track_start())
-
-        self.loop.create_task(self.load_all_extensions())
-
         self.twitter_api = twitter.Api(**self.setting.twitter)
 
         self.client_session: aiohttp.ClientSession = aiohttp.ClientSession()
@@ -56,7 +52,7 @@ class Bot(commands.Bot):
         sentry_sdk.init(
             self.setting.read_data("BOT").get("sentry_dsn"),
             environment=self.setting.mode,
-            traces_sample_rate=1.0,
+            traces_sample_rate=0.5,
             server_name="AtlantisBot",
         )
 
@@ -71,17 +67,17 @@ class Bot(commands.Bot):
 
         return request
 
-    async def process_commands(self, message: discord.Message):
-        """
-        Source: https://github.com/Rapptz/RoboDanny/blob/0c9216245b035fa4655f740c3ce602a5e15bff90/bot.py#L164
-        """
+    # async def process_commands(self, message: discord.Message):
+    #     """
+    #     Source: https://github.com/Rapptz/RoboDanny/blob/0c9216245b035fa4655f740c3ce602a5e15bff90/bot.py#L164
+    #     """
 
-        ctx = await self.get_context(message, cls=context.Context)
+    #     ctx = await self.get_context(message, cls=context.Context)
 
-        if not ctx.command:
-            return
+    #     if not ctx.command:
+    #         return
 
-        await self.invoke(ctx)
+    #     await self.invoke(ctx)
 
     async def close(self):
         """
@@ -92,9 +88,7 @@ class Bot(commands.Bot):
 
         await super().close()
 
-    async def send_logs(
-        self, e, tb, ctx: context.Context = None, more_info: object = None
-    ):
+    async def send_logs(self, e, tb, ctx: context.Context, more_info: object = None):
         dev = self.get_user(self.setting.developer_id)
 
         if ctx:
@@ -197,7 +191,7 @@ class Bot(commands.Bot):
         for extension in self.get_cogs():
             if extension not in self.setting.disabled_extensions:
                 try:
-                    self.unload_extension(f"bot.cogs.{extension}")
+                    await self.unload_extension(f"bot.cogs.{extension}")
 
                     print(f"- Unloaded extension {extension}")
 
@@ -224,7 +218,7 @@ class Bot(commands.Bot):
         for extension in self.get_cogs():
             if extension not in self.setting.disabled_extensions:
                 try:
-                    self.load_extension(f"bot.cogs.{extension}")
+                    await self.load_extension(f"bot.cogs.{extension}")
 
                     print(f"- Loaded Extension: {extension}")
 
@@ -257,7 +251,7 @@ class Bot(commands.Bot):
         for extension in self.get_cogs():
             if extension not in self.setting.disabled_extensions:
                 try:
-                    self.reload_extension(f"bot.cogs.{extension}")
+                    await self.reload_extension(f"bot.cogs.{extension}")
                     print(f"- Reloaded Extension: {extension}")
 
                 except Exception as e:
@@ -295,6 +289,7 @@ class Bot(commands.Bot):
         """
         print("-" * 10)
 
+        self.loop.create_task(self.load_all_extensions())
         self.app_info = await self.application_info()
 
         await self.change_presence(

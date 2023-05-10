@@ -312,7 +312,7 @@ Aguarde uma resposta de um {pvm_teacher}.
         github_embed.set_thumbnail(url=github_icon)
         return await ctx.send(content=None, embed=github_embed)
 
-    @commands.bot_has_permissions(embed_links=True)
+    # @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=["atlbot", "atlbotcommands"])
     async def atlcommands(self, ctx: Context):
         runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
@@ -413,5 +413,5 @@ Aguarde uma resposta de um {pvm_teacher}.
             )
 
 
-def setup(bot):
-    bot.add_cog(Chat(bot))
+async def setup(bot):
+    await bot.add_cog(Chat(bot))

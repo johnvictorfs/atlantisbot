@@ -17,24 +17,28 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bot.orm.settings")
 application = get_wsgi_application()  # noqa: F841
 
 
-async def run(logger: logging.Logger):
-    from bot.bot_client import Bot
+from bot.bot_client import Bot  # noqa: E402 Needs to be after django ORM setup above
 
+
+async def run(logger: logging.Logger):
     intents = discord.Intents.default()
     intents.members = True
+    intents.message_content = True
 
-    bot = Bot(logger, intents)
-
-    try:
-        await bot.start(bot.setting.token)
-    except KeyboardInterrupt:
-        print(f"{colorama.Fore.RED}KeyBoardInterrupt. Logging out...")
-        await bot.logout()
-    except discord.errors.LoginFailure:
-        print(
-            f"{colorama.Fore.RED}Error: Invalid Token. Please input a valid token in '/bot/bot_settings.json' file."
-        )
-        sys.exit(1)
+    async with Bot(logger, intents) as bot:
+        if not bot.setting.token:
+            print(f"{colorama.Fore.RED}Error: Invalid Discord Token.")
+            sys.exit(1)
+        try:
+            await bot.start(bot.setting.token)
+        except KeyboardInterrupt:
+            print(f"{colorama.Fore.RED}KeyBoardInterrupt. Logging out...")
+            await bot.close()
+        except discord.errors.LoginFailure:
+            print(
+                f"{colorama.Fore.RED}Error: Invalid Token. Please input a valid token in '/bot/bot_settings.json' file."
+            )
+            sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -61,5 +65,4 @@ if __name__ == "__main__":
     logger_atl.info("Starting bot")
     logger.info("Starting bot")
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(run(logger_atl))
+    asyncio.run(run(logger_atl))

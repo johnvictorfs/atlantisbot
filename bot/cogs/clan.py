@@ -209,5 +209,5 @@ class Clan(commands.Cog):
         return await ctx.send(embed=ranks_embed)
 
 
-def setup(bot):
-    bot.add_cog(Clan(bot))
+async def setup(bot):
+    await bot.add_cog(Clan(bot))

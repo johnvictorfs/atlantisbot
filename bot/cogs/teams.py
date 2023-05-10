@@ -607,5 +607,5 @@ class Teams(commands.Cog):
             return 0
 
 
-def setup(bot):
-    bot.add_cog(Teams(bot))
+async def setup(bot):
+    await bot.add_cog(Teams(bot))

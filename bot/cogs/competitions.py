@@ -350,5 +350,5 @@ class Competitions(commands.Cog):
             return await ctx.send(embed=comp_embed)
 
 
-def setup(bot):
-    bot.add_cog(Competitions(bot))
+async def setup(bot):
+    await bot.add_cog(Competitions(bot))

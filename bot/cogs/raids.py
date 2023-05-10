@@ -261,5 +261,5 @@ class RaidsTasks(commands.Cog):
         )
 
 
-def setup(bot):
-    bot.add_cog(RaidsTasks(bot))
+async def setup(bot):
+    await bot.add_cog(RaidsTasks(bot))

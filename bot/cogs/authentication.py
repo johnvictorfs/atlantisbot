@@ -747,8 +747,6 @@ class UserAuthentication(commands.Cog):
                 f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado."
             )
 
-        await ctx.trigger_typing()
-
         if len(ingame_name.content.strip()) > 12:
             return await ctx.send("Nome Inválido. Tamanho muito grande.")
 
@@ -913,7 +911,6 @@ class UserAuthentication(commands.Cog):
                     await self.bot.wait_for(
                         "reaction_add", timeout=160, check=confirm_check
                     )
-                    await ctx.trigger_typing()
                 except asyncio.TimeoutError:
                     self.logger.info(
                         f"[{ctx.author}] Autenticação cancelada por Timeout. (mundo) ({settings}) ({user_data})"
@@ -1172,5 +1169,5 @@ class UserAuthentication(commands.Cog):
             pass
 
 
-def setup(bot):
-    bot.add_cog(UserAuthentication(bot))
+async def setup(bot):
+    await bot.add_cog(UserAuthentication(bot))

@@ -61,5 +61,5 @@ class ClanHiscores(commands.Cog):
         return await ctx.send(embed=rankings_embed)
 
 
-def setup(bot):
-    bot.add_cog(ClanHiscores(bot))
+async def setup(bot):
+    await bot.add_cog(ClanHiscores(bot))

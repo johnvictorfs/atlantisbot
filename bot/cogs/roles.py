@@ -105,5 +105,5 @@ class RolesManager(commands.Cog):
         await ctx.send("Cargos de Categorias atualizados com sucesso!")
 
 
-def setup(bot):
-    bot.add_cog(RolesManager(bot))
+async def setup(bot):
+    await bot.add_cog(RolesManager(bot))

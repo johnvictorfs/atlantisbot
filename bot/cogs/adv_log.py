@@ -131,5 +131,5 @@ class AdvLog(commands.Cog):
             return list(csv.reader(StringIO(clan_csv), delimiter=","))
 
 
-def setup(bot):
-    bot.add_cog(AdvLog(bot))
+async def setup(bot):
+    await bot.add_cog(AdvLog(bot))

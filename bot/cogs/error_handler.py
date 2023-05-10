@@ -26,7 +26,7 @@ class CommandErrorHandler(commands.Cog):
 
     async def bot_check(self, ctx: Context):
         """This runs at the start of every command"""
-        await ctx.trigger_typing()
+        await ctx.typing()
         time = datetime.datetime.utcnow().strftime("%d/%m/%y - %H:%M")
         msg = f"'{ctx.command}' ran by '{ctx.author}' as '{ctx.invoked_with}' at {time}. with '{ctx.message.content}'"
         self.logger.info(msg)
@@ -149,5 +149,5 @@ class CommandErrorHandler(commands.Cog):
             sentry_sdk.capture_exception(error)
 
 
-def setup(bot):
-    bot.add_cog(CommandErrorHandler(bot))
+async def setup(bot):
+    await bot.add_cog(CommandErrorHandler(bot))

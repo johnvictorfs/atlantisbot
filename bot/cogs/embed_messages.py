@@ -218,5 +218,5 @@ class EmbedMessages(commands.Cog):
         await ctx.send(embed=self.raids_embed())
 
 
-def setup(bot):
-    bot.add_cog(EmbedMessages(bot))
+async def setup(bot):
+    await bot.add_cog(EmbedMessages(bot))

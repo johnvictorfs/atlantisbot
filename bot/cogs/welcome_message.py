@@ -130,5 +130,5 @@ class WelcomeMessage(commands.Cog):
         return welcome_embed
 
 
-def setup(bot):
-    bot.add_cog(WelcomeMessage(bot))
+async def setup(bot):
+    await bot.add_cog(WelcomeMessage(bot))

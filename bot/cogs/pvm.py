@@ -8,9 +8,9 @@ class PvMTools(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def apply_pvm(aliases=["pvm"]):
+    async def apply_pvm(self, _ctx, aliases=["pvm"]):
         pass
 
 
-def setup(bot):
-    bot.add_cog(PvMTools(bot))
+async def setup(bot):
+    await bot.add_cog(PvMTools(bot))
