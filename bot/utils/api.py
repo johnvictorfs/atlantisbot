@@ -8,7 +8,7 @@ class ApiService:
         self.base_url = base_url
         self.path = path
 
-        headers = {'authorization': api_token}
+        headers = {"authorization": api_token}
         self.session: aiohttp.ClientSession = aiohttp.ClientSession(headers=headers)
 
     @property
@@ -48,14 +48,30 @@ class ApiService:
         return await response.json()
 
 
-discord = ApiService(base_url='https://rsatlantis.tk', path='discord', api_token='')
+discord = ApiService(base_url="https://rsatlantis.tk", path="discord", api_token="")
 
 
 class BotApi:
     def __init__(self, base_url: str, api_token: str):
-        self.discord_users = ApiService(base_url=base_url, path='atlantisbot/api/users', api_token=api_token)
-        self.users = ApiService(base_url=base_url, path='api/users', api_token=api_token)
-        self.amigo_secreto = ApiService(base_url=base_url, path='atlantisbot/api/amigosecreto', api_token=api_token)
-        self.amigo_secreto_status = ApiService(base_url=base_url, path='atlantisbot/api/amigosecreto_status', api_token=api_token)
-        self.disabled_commands = ApiService(base_url=base_url, path='atlantisbot/api/disabled_commands', api_token=api_token)
-        self.ingame_names = ApiService(base_url=base_url, path='atlantisbot/api/ingame_names', api_token=api_token)
+        self.discord_users = ApiService(
+            base_url=base_url, path="atlantisbot/api/users", api_token=api_token
+        )
+        self.users = ApiService(
+            base_url=base_url, path="api/users", api_token=api_token
+        )
+        self.amigo_secreto = ApiService(
+            base_url=base_url, path="atlantisbot/api/amigosecreto", api_token=api_token
+        )
+        self.amigo_secreto_status = ApiService(
+            base_url=base_url,
+            path="atlantisbot/api/amigosecreto_status",
+            api_token=api_token,
+        )
+        self.disabled_commands = ApiService(
+            base_url=base_url,
+            path="atlantisbot/api/disabled_commands",
+            api_token=api_token,
+        )
+        self.ingame_names = ApiService(
+            base_url=base_url, path="atlantisbot/api/ingame_names", api_token=api_token
+        )

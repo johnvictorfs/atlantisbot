@@ -8,46 +8,55 @@ from bot.utils.context import Context
 
 
 class Clan(commands.Cog):
-
     def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['clan'])
+    @commands.command(aliases=["clan"])
     async def clan_detail_info(self, ctx: Context, *, clan_name: str):
         try:
             clan = rs3clans.Clan(name=clan_name, set_exp=True)
         except ConnectionError:
-            return await ctx.send(f"Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde.")
+            return await ctx.send(
+                "Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde."
+            )
         except rs3clans.ClanNotFoundError:
             return await ctx.send(f"O clã '{clan_name}' não existe.")
         clan_leader = None
         for member in clan:
-            if member.rank == 'Owner':
+            if member.rank == "Owner":
                 clan_leader = member.name
-        clan_url = clan.name.replace(' ', '%20')
+        clan_url = clan.name.replace(" ", "%20")
         clan_embed = discord.Embed(
             title=clan.name,
             color=discord.Color.green(),
-            url=f'http://services.runescape.com/m=clan-home/clan/{clan_url}'
+            url=f"http://services.runescape.com/m=clan-home/clan/{clan_url}",
         )
-        clan_embed.set_author(name='RuneClan', url=f'https://runeclan.com/clan/{clan_url}')
-        clan_embed.set_thumbnail(url=f'http://services.runescape.com/m=avatar-rs/{clan_url}/clanmotif.png')
-        clan_embed.add_field(name="Exp Total", value=f'{clan.exp:,}')
+        clan_embed.set_author(
+            name="RuneClan", url=f"https://runeclan.com/clan/{clan_url}"
+        )
+        clan_embed.set_thumbnail(
+            url=f"http://services.runescape.com/m=avatar-rs/{clan_url}/clanmotif.png"
+        )
+        clan_embed.add_field(name="Exp Total", value=f"{clan.exp:,}")
         clan_embed.add_field(name="Membros", value=str(clan.count))
         clan_embed.add_field(name="Líder", value=clan_leader)
-        clan_embed.add_field(name="Exp Média por Membro", value=f'{clan.avg_exp:,.0f}')
+        clan_embed.add_field(name="Exp Média por Membro", value=f"{clan.avg_exp:,.0f}")
         return await ctx.send(embed=clan_embed)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['claninfo', 'clanexp', 'claexp', 'clainfo', 'clãexp', 'clãinfo'])
+    @commands.command(
+        aliases=["claninfo", "clanexp", "claexp", "clainfo", "clãexp", "clãinfo"]
+    )
     async def clan_user_info(self, ctx: Context, *, username: str):
         try:
             player = rs3clans.Player(name=username, runemetrics=True)
         except ConnectionError:
-            return await ctx.send(f"Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde.")
+            return await ctx.send(
+                "Houve um erro ao tentar conectar a API da Jagex. Tente novamente mais tarde."
+            )
         if not player.exists:
             return await ctx.send(f"Jogador '{player.name}' não existe.")
         if not player.clan:
@@ -76,8 +85,8 @@ class Clan(commands.Cog):
         total_exp_header = "__Exp Total__"
         private_profile_header = "Indisponível - Perfil Privado"
 
-        rank_emoji = self.bot.setting.clan_settings[user_rank]['Emoji']
-        user_rank = self.bot.setting.clan_settings[user_rank]['Translation']
+        rank_emoji = self.bot.setting.clan_settings[user_rank]["Emoji"]
+        user_rank = self.bot.setting.clan_settings[user_rank]["Translation"]
 
         clan_info_embed = discord.Embed(
             title=embed_title,
@@ -86,66 +95,48 @@ class Clan(commands.Cog):
             url=runeclan_url,
         )
 
-        clan_info_embed.set_author(
-            icon_url=icon_url, name=display_username
-        )
-        clan_info_embed.set_thumbnail(
-            url=clan_banner_url
-        )
-        clan_info_embed.add_field(
-            name=clan_header,
-            value=player.clan
-        )
-        clan_info_embed.add_field(
-            name=rank_header,
-            value=f"{user_rank} {rank_emoji}"
-        )
-        clan_info_embed.add_field(
-            name=exp_header,
-            value=f"{user_clan_exp:,}"
-        )
+        clan_info_embed.set_author(icon_url=icon_url, name=display_username)
+        clan_info_embed.set_thumbnail(url=clan_banner_url)
+        clan_info_embed.add_field(name=clan_header, value=player.clan)
+        clan_info_embed.add_field(name=rank_header, value=f"{user_rank} {rank_emoji}")
+        clan_info_embed.add_field(name=exp_header, value=f"{user_clan_exp:,}")
         if player.private_profile:
             clan_info_embed.add_field(
-                name=total_exp_header,
-                value=private_profile_header,
-                inline=False
+                name=total_exp_header, value=private_profile_header, inline=False
             )
         else:
-            clan_info_embed.add_field(
-                name=total_exp_header,
-                value=f"{player.exp:,}"
-            )
+            clan_info_embed.add_field(name=total_exp_header, value=f"{player.exp:,}")
         return await ctx.send(content=None, embed=clan_info_embed)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=['ranksupdate', 'upranks', 'rank'])
-    async def ranks(self, ctx: Context, *, clan: str = 'Atlantis'):
-        if clan.lower() == 'atlantis argus':
-            return await ctx.send('`!rank argus` irmão')
-        elif clan.lower() == 'atlantis':
+    @commands.command(aliases=["ranksupdate", "upranks", "rank"])
+    async def ranks(self, ctx: Context, *, clan: str = "Atlantis"):
+        if clan.lower() == "atlantis argus":
+            return await ctx.send("`!rank argus` irmão")
+        elif clan.lower() == "atlantis":
             exp_general = 2_000_000_000
             exp_captain = 1_000_000_000
             exp_lieutenant = 500_000_000
             exp_seargent = 250_000_000
             exp_corporal = 125_000_000
-        elif clan.lower() == 'argus':
+        elif clan.lower() == "argus":
             exp_general = 1_000_000_000
             exp_captain = 500_000_000
             exp_lieutenant = 250_000_000
             exp_seargent = 125_000_000
             exp_corporal = 60_000_000
-            clan = 'Atlantis Argus'
+            clan = "Atlantis Argus"
         else:
-            return await ctx.send('Clã não reconhecido.')
+            return await ctx.send("Clã não reconhecido.")
 
         rank_emoji = {
-            'Recruit': self.bot.setting.clan_settings['Recruit']['Emoji'],
-            'Corporal': self.bot.setting.clan_settings['Corporal']['Emoji'],
-            'Sergeant': self.bot.setting.clan_settings['Sergeant']['Emoji'],
-            'Lieutenant': self.bot.setting.clan_settings['Lieutenant']['Emoji'],
-            'Captain': self.bot.setting.clan_settings['Captain']['Emoji'],
-            'General': self.bot.setting.clan_settings['General']['Emoji'],
+            "Recruit": self.bot.setting.clan_settings["Recruit"]["Emoji"],
+            "Corporal": self.bot.setting.clan_settings["Corporal"]["Emoji"],
+            "Sergeant": self.bot.setting.clan_settings["Sergeant"]["Emoji"],
+            "Lieutenant": self.bot.setting.clan_settings["Lieutenant"]["Emoji"],
+            "Captain": self.bot.setting.clan_settings["Captain"]["Emoji"],
+            "General": self.bot.setting.clan_settings["General"]["Emoji"],
         }
 
         ranks_embed = discord.Embed(
@@ -162,54 +153,61 @@ class Clan(commands.Cog):
         member: rs3clans.ClanMember
         for member in clan_members:
             if len(ranks_embed.fields) >= 20:
-                await ctx.send('Muitos ranks a serem atualizados, enviando apenas os 20 primeiros.')
+                await ctx.send(
+                    "Muitos ranks a serem atualizados, enviando apenas os 20 primeiros."
+                )
                 break
 
-            if member.exp >= exp_corporal and member.rank == 'Recruit':
+            if member.exp >= exp_corporal and member.rank == "Recruit":
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Recruta {rank_emoji['Recruit']} ❯ Cabo {rank_emoji['Corporal']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
-                    inline=False)
+                    inline=False,
+                )
                 found = True
-            elif member.exp >= exp_general and member.rank == 'Captain':
+            elif member.exp >= exp_general and member.rank == "Captain":
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Capitão {rank_emoji['Captain']} ❯ General {rank_emoji['General']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
-                    inline=False)
+                    inline=False,
+                )
                 found = True
-            elif member.exp >= exp_captain and member.rank == 'Lieutenant':
+            elif member.exp >= exp_captain and member.rank == "Lieutenant":
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Tenente {rank_emoji['Lieutenant']} ❯ Capitão {rank_emoji['Captain']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
-                    inline=False)
+                    inline=False,
+                )
                 found = True
-            elif member.exp >= exp_lieutenant and member.rank == 'Sergeant':
+            elif member.exp >= exp_lieutenant and member.rank == "Sergeant":
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Sargento {rank_emoji['Sergeant']} ❯ Tenente {rank_emoji['Lieutenant']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
-                    inline=False)
+                    inline=False,
+                )
                 found = True
-            elif member.exp >= exp_seargent and member.rank == 'Corporal':
+            elif member.exp >= exp_seargent and member.rank == "Corporal":
                 ranks_embed.add_field(
                     name=member.name,
                     value=f"Cabo {rank_emoji['Corporal']} ❯ Sargento {rank_emoji['Sergeant']}\n"
                     f"**__Exp:__** {member.exp:,}\n{separator}",
-                    inline=False)
+                    inline=False,
+                )
                 found = True
 
         if not found:
             ranks_embed.add_field(
                 name="Nenhum Rank a ser atualizado no momento :)",
                 value=separator,
-                inline=False
+                inline=False,
             )
 
         return await ctx.send(embed=ranks_embed)
 
 
-def setup(bot):
-    bot.add_cog(Clan(bot))
+async def setup(bot):
+    await bot.add_cog(Clan(bot))

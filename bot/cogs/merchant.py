@@ -12,15 +12,14 @@ from bot.utils.context import Context
 
 
 class Merchant(commands.Cog):
-
     def __init__(self, bot: Bot):
         self.bot = bot
 
-        if self.bot.setting.mode == 'prod':
+        if self.bot.setting.mode == "prod":
             self.update_merchant_stock.start()
 
     def cog_unload(self):
-        if self.bot.setting.mode == 'prod':
+        if self.bot.setting.mode == "prod":
             self.update_merchant_stock.cancel()
 
     @staticmethod
@@ -33,32 +32,36 @@ class Merchant(commands.Cog):
         today = self.today_str()
         item = full_stock.get(today)
         if not item:
-            await self.bot.send_logs(full_stock, f'KeyError: {today}')
+            await self.bot.send_logs(full_stock, f"KeyError: {today}")
             return []
-        return [self.get_item(item[f'slot_{letter}']) for letter in ['1', 'a', 'b', 'c']]
+        return [
+            self.get_item(item[f"slot_{letter}"]) for letter in ["1", "a", "b", "c"]
+        ]
 
     @staticmethod
     def get_item(name: str):
-        with open('bot/data/merchant.json') as f:
+        with open("bot/data/merchant.json") as f:
             merchant_file = json.load(f)
-        return merchant_file['stock'][name.replace(u'\xa0', u'')]
+        return merchant_file["stock"][name.replace("\xa0", "")]
 
     @staticmethod
     async def future_stock() -> dict:
         async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://runescape.wiki/w/Travelling_Merchant%27s_Shop/Future') as r:
+            async with cs.get(
+                "https://runescape.wiki/w/Travelling_Merchant%27s_Shop/Future"
+            ) as r:
                 source = await r.text()
-                soup = BeautifulSoup(source, 'lxml')
-                table = soup.find('table', attrs={'class': 'wikitable sticky-header'})
+                soup = BeautifulSoup(source, "lxml")
+                table = soup.find("table", attrs={"class": "wikitable sticky-header"})
                 items = {}
-                for row in table.find_all('tr'):
-                    item = row.find_all('td')
+                for row in table.find_all("tr"):
+                    item = row.find_all("td")
                     try:
                         items[item[0].text] = {
                             "slot_1": "Uncharted island map",
                             "slot_a": item[2].text,
                             "slot_b": item[3].text,
-                            "slot_c": item[4].text
+                            "slot_c": item[4].text,
                         }
                     except IndexError:
                         pass
@@ -71,24 +74,28 @@ class Merchant(commands.Cog):
         https://stackoverflow.com/a/45986036
         """
         dt = datetime.datetime.utcnow()
-        return ((24 - dt.hour - 1) * 60 * 60) + ((60 - dt.minute - 1) * 60) + (60 - dt.second)
+        return (
+            ((24 - dt.hour - 1) * 60 * 60)
+            + ((60 - dt.minute - 1) * 60)
+            + (60 - dt.second)
+        )
 
     async def merchant_embed(self):
         embed = discord.Embed(
             title=f"Estoque de Hoje ({self.today_str()})",
-            description='',
+            description="",
             color=discord.Colour.dark_red(),
-            url="https://runescape.wiki/w/Travelling_Merchant's_Shop"
+            url="https://runescape.wiki/w/Travelling_Merchant's_Shop",
         )
         stock = await self.daily_stock()
-        coins = '<:coins:573305319661240340>'
-        nb_space = '\u200B'
+        coins = "<:coins:573305319661240340>"
+        nb_space = "\u200B"
 
         for item in stock:
             embed.add_field(
                 name=f"{item['emoji']} {item['name']} ({item['quantity']}) {coins} {item['cost']:,}",
                 value=f"{item['description']}\n{nb_space}",
-                inline=False
+                inline=False,
             )
         return embed
 
@@ -96,12 +103,18 @@ class Merchant(commands.Cog):
     async def update_merchant_stock(self):
         await self.bot.wait_until_ready()
 
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('merchant_call'))
-        message: discord.Message = await channel.fetch_message(self.bot.setting.merchant_message)
+        channel: discord.TextChannel = self.bot.get_channel(
+            self.bot.setting.chat.get("merchant_call")
+        )
+        message: discord.Message = await channel.fetch_message(
+            self.bot.setting.merchant_message
+        )
         embed = await self.merchant_embed()
         await message.edit(content=None, embed=embed)
         await asyncio.sleep(self.time_till_midnight() + 15)
-        await channel.send(f"<@&{self.bot.setting.role.get('merchant')}>", delete_after=600)
+        await channel.send(
+            f"<@&{self.bot.setting.role.get('merchant')}>", delete_after=600
+        )
         await asyncio.sleep(5)
 
     @update_merchant_stock.before_loop
@@ -114,5 +127,5 @@ class Merchant(commands.Cog):
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(Merchant(bot))
+async def setup(bot):
+    await bot.add_cog(Merchant(bot))

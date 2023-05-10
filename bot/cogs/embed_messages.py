@@ -1,3 +1,6 @@
+# Ignore line-length rule, embed messages are huge and annoying to format
+# ruff: noqa: E501
+
 import json
 
 from discord.ext import commands
@@ -9,7 +12,6 @@ from bot.utils.context import Context
 
 
 class EmbedMessages(commands.Cog):
-
     def __init__(self, bot: Bot):
         self.bot = bot
 
@@ -18,67 +20,90 @@ class EmbedMessages(commands.Cog):
 
     def welcome_embed(self) -> discord.Embed:
         welcome_embed = discord.Embed(
-            title=f"Bem vindo ao Discord do Atlantis!",
+            title="Bem vindo ao Discord do Atlantis!",
             description=f"Caso seja um membro do Atlantis, use `{self.bot.setting.prefix}membro` para mim no privado!",
-            color=discord.Color.blue()
+            color=discord.Color.blue(),
         )
 
-        with open('bot/data/embeds.json') as f:
+        with open("bot/data/embeds.json") as f:
             embeds_file = json.load(f)
 
-        message = ''
-        for embed in embeds_file['welcome_message']['chats']:
-            if embed['chats']:
+        message = ""
+        for embed in embeds_file["welcome_message"]["chats"]:
+            if embed["chats"]:
                 # Only add category if there are chats on it
                 message += f"\n\n**- {embed['display_name']}**"
-            for chat in embed['chats']:
-                message += f"\n• <#{self.bot.setting.chat.get(chat['name'])}> - {chat['text']}"
+            for chat in embed["chats"]:
+                message += (
+                    f"\n• <#{self.bot.setting.chat.get(chat['name'])}> - {chat['text']}"
+                )
 
-        welcome_embed.add_field(name=embeds_file['welcome_message']['title'], value=message, inline=False)
+        welcome_embed.add_field(
+            name=embeds_file["welcome_message"]["title"], value=message, inline=False
+        )
 
-        for field in embeds_file['welcome_message']['extra_fields']:
-            welcome_embed.add_field(name=field['name'], value=field['value'], inline=False)
+        for field in embeds_file["welcome_message"]["extra_fields"]:
+            welcome_embed.add_field(
+                name=field["name"], value=field["value"], inline=False
+            )
 
-        welcome_embed.set_footer(text=embeds_file['welcome_message']['footer'].format(prefix=self.bot.setting.prefix))
+        welcome_embed.set_footer(
+            text=embeds_file["welcome_message"]["footer"].format(
+                prefix=self.bot.setting.prefix
+            )
+        )
 
         return welcome_embed
 
-    @commands.command(aliases=['send_welcome'])
+    @commands.command(aliases=["send_welcome"])
     async def send_welcome_message(self, ctx: Context):
         await ctx.message.delete()
         return await ctx.send(content=None, embed=self.welcome_embed())
 
-    @commands.command(aliases=['update_welcome'])
+    @commands.command(aliases=["update_welcome"])
     async def update_welcome_message(self, ctx: Context, message_id: int):
         """
         Updates message with the ID passed with the Welcome Message embed
         """
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.welcome_channel_id)
+        channel: discord.TextChannel = self.bot.get_channel(
+            self.bot.setting.welcome_channel_id
+        )
         message: discord.Message = await channel.fetch_message(message_id)
         await ctx.message.delete()
         return await message.edit(content=None, embed=self.welcome_embed())
 
     @commands.command()
     async def update_roles(self, ctx: Context, test: bool = True):
-        with open('bot/data/embeds.json') as f:
+        with open("bot/data/embeds.json") as f:
             embeds_file = json.load(f)
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.roles_channel_id)
-
-        pvm_message: discord.Message = await channel.fetch_message(self.bot.setting.pvm_roles_id)
-        general_message: discord.Message = await channel.fetch_message(self.bot.setting.general_roles_id)
-        react_message: discord.Message = await channel.fetch_message(self.bot.setting.react_roles_id)
-
-        pvm_embed = self.get_role_embed(embeds_file, 'pvm', discord.Color.red())
-        general_embed = self.get_role_embed(embeds_file, 'gerais', discord.Color.blue())
-
-        react_embed = discord.Embed(
-            title=embeds_file['react']['title'],
-            description=embeds_file['react']['description'],
-            color=discord.Color.purple()
+        channel: discord.TextChannel = self.bot.get_channel(
+            self.bot.setting.roles_channel_id
         )
 
-        for role in embeds_file['react']['roles']:
-            react_embed.add_field(name=role['emoji'], value=f"<@&{self.bot.setting.role.get(role['name'])}>")
+        pvm_message: discord.Message = await channel.fetch_message(
+            self.bot.setting.pvm_roles_id
+        )
+        general_message: discord.Message = await channel.fetch_message(
+            self.bot.setting.general_roles_id
+        )
+        react_message: discord.Message = await channel.fetch_message(
+            self.bot.setting.react_roles_id
+        )
+
+        pvm_embed = self.get_role_embed(embeds_file, "pvm", discord.Color.red())
+        general_embed = self.get_role_embed(embeds_file, "gerais", discord.Color.blue())
+
+        react_embed = discord.Embed(
+            title=embeds_file["react"]["title"],
+            description=embeds_file["react"]["description"],
+            color=discord.Color.purple(),
+        )
+
+        for role in embeds_file["react"]["roles"]:
+            react_embed.add_field(
+                name=role["emoji"],
+                value=f"<@&{self.bot.setting.role.get(role['name'])}>",
+            )
 
         if test:
             await ctx.send(content=None, embed=pvm_embed)
@@ -94,34 +119,42 @@ class EmbedMessages(commands.Cog):
         """
         Updates message with the ID passed with the Welcome Message embed
         """
-        channel: discord.TextChannel = self.bot.get_channel(self.bot.setting.chat.get('raids'))
+        channel: discord.TextChannel = self.bot.get_channel(
+            self.bot.setting.chat.get("raids")
+        )
         message: discord.Message = await channel.fetch_message(message_id)
         await ctx.message.delete()
         return await message.edit(content=None, embed=self.raids_embed())
 
-    def get_role_embed(self, file: dict, name: str, color: discord.Color) -> discord.Embed:
+    def get_role_embed(
+        self, file: dict, name: str, color: discord.Color
+    ) -> discord.Embed:
         embed = discord.Embed(
-            title=file['roles'][name]['title'],
-            description=file['roles'][name]['description'],
-            color=color
+            title=file["roles"][name]["title"],
+            description=file["roles"][name]["description"],
+            color=color,
         )
 
-        nb_space = '\u200B'
+        nb_space = "\u200B"
 
-        for role in file['roles'][name]['roles']:
+        for role in file["roles"][name]["roles"]:
             # Use the role mention as the name if possible, else the raw name in the json file
             # Use all roles if there is a key 'names' instead of 'name'
-            role_id = self.bot.setting.role.get(role.get('name'))
-            role_name = role.get('name')
+            role_id = self.bot.setting.role.get(role.get("name"))
+            role_name = role.get("name")
             if role_id:
                 role_name = f"<@&{role_id}>"
             else:
-                if role.get('names'):
-                    role_name = ''
-                    for sub_role in role.get('names'):
+                if role.get("names"):
+                    role_name = ""
+                    for sub_role in role.get("names"):
                         role_name += f"<@&{self.bot.setting.role.get(sub_role)}> | "
 
-            embed.add_field(name=nb_space, value=f"{role_name}\n{role['text']}\n{nb_space}", inline=False)
+            embed.add_field(
+                name=nb_space,
+                value=f"{role_name}\n{role['text']}\n{nb_space}",
+                inline=False,
+            )
         return embed
 
     def raids_embed(self) -> discord.Embed:
@@ -138,12 +171,12 @@ class EmbedMessages(commands.Cog):
 {separator}"""
 
         emojis = {
-            'prayer': '<:prayer:499707566012497921>',
-            'herblore': '<:herblore:499707566272544778>',
-            'attack': '<:attack:499707565949583391>',
-            'invention': '<:invention:499707566419607552>',
-            'inventory': '<:inventory:615747024775675925>',
-            'full_manual': '<:full_manual:615751745049722880>'
+            "prayer": "<:prayer:499707566012497921>",
+            "herblore": "<:herblore:499707566272544778>",
+            "attack": "<:attack:499707565949583391>",
+            "invention": "<:invention:499707566419607552>",
+            "inventory": "<:inventory:615747024775675925>",
+            "full_manual": "<:full_manual:615751745049722880>",
         }
 
         text_2 = f"""• **Arma** <:attack:499707565949583391> T87+ com [Acerto 5/6](https://rs.wiki/precise) e [Equilíbrio 4](https://rs.wiki/equilibrium) (ou [Abalo 3/4](https://rs.wiki/aftershock))
@@ -156,7 +189,7 @@ class EmbedMessages(commands.Cog):
 • {emojis['full_manual']} **Usar habilidades adequadas no caso de Revolução (Manual Recomendado)** [Exemplos de Barras de Habilidade](https://imgur.com/a/XKzqyFs)
 • __**Ver guias de Yakamaru E Durzag!!!**__ <https://youtu.be/ltvvePSqkSU>"""
 
-        text_3 = f"""
+        text_3 = """
             • <:prayer:499707566012497921> 95+
             • Alguma experiência PvM, mesmo que solo
             • Marfim dos [Elementos](https://rs.wiki/Scrimshaw_of_the_elements) (Mage) / [Crueldade](https://rs.wiki/Scrimshaw_of_cruelty) (Ranged)
@@ -168,18 +201,22 @@ class EmbedMessages(commands.Cog):
         embed = discord.Embed(
             title="Raids",
             description="Bem vindo ao canal de Raids do Clã\n__**Leia o Texto Abaixo para saber como Aplicar para Participar**__",
-            color=discord.Color.blue()
+            color=discord.Color.blue(),
         )
         embed.add_field(name="\u200b", value=text, inline=False)
-        embed.add_field(name="__**REQUISITOS OBRIGATÓRIOS**__", value=text_2, inline=False)
-        embed.add_field(name=f"{separator}\n__**ULTRA RECOMENDADOS**__", value=text_3, inline=False)
+        embed.add_field(
+            name="__**REQUISITOS OBRIGATÓRIOS**__", value=text_2, inline=False
+        )
+        embed.add_field(
+            name=f"{separator}\n__**ULTRA RECOMENDADOS**__", value=text_3, inline=False
+        )
         embed.set_thumbnail(url=self.bot.setting.banner_image)
         return embed
 
-    @commands.command('raids_embed')
+    @commands.command("raids_embed")
     async def raids_channel_embed(self, ctx: Context):
         await ctx.send(embed=self.raids_embed())
 
 
-def setup(bot):
-    bot.add_cog(EmbedMessages(bot))
+async def setup(bot):
+    await bot.add_cog(EmbedMessages(bot))

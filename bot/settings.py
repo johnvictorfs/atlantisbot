@@ -7,147 +7,149 @@ import os
 class Settings:
     @staticmethod
     def read_data(section: str) -> dict:
-        with open('bot/bot_settings.json', 'r') as f:
+        with open("bot/bot_settings.json", "r") as f:
             return json.load(f)[section]
 
     @property
     def clan_settings(self):
-        with open('bot/data/clan_settings.json', 'r') as f:
+        with open("bot/data/clan_settings.json", "r") as f:
             return json.load(f)
 
     @property
     def mode(self) -> str:
-        return self.read_data('BOT')['mode']
+        return self.read_data("BOT")["mode"]
 
     @property
     def developer_id(self) -> int:
-        return self.read_data('BOT')['developer_id']
+        return self.read_data("BOT")["developer_id"]
 
     @property
     def guild_id(self) -> int:
-        return self.read_data('BOT')['guild_id']
+        return self.read_data("BOT")["guild_id"]
 
     @property
     def token(self) -> Optional[str]:
-        token_ = self.read_data('BOT')['bot_token']
-        if token_ == 'BOT_TOKEN_HERE':
-            return os.environ.get('ATLBOT_TOKEN')
+        token_ = self.read_data("BOT")["bot_token"]
+        if token_ == "BOT_TOKEN_HERE":
+            return os.environ.get("ATLBOT_TOKEN")
         return token_
 
     @property
     def description(self):
-        return self.read_data('BOT')['description']
+        return self.read_data("BOT")["description"]
 
     @property
     def dev_guild(self):
-        return self.read_data('BOT')['dev_guild']
+        return self.read_data("BOT")["dev_guild"]
 
     @property
     def playing_message(self):
-        return self.read_data('BOT')['playing_message']
+        return self.read_data("BOT")["playing_message"]
 
     @property
     def prefix(self):
-        return self.read_data('BOT')['commands_prefix']
+        return self.read_data("BOT")["commands_prefix"]
 
     @property
     def disabled_extensions(self):
-        return self.read_data('BOT')['disabled_extensions']
+        return self.read_data("BOT")["disabled_extensions"]
 
     @property
     def clan_name(self):
-        return self.read_data('RUNESCAPE')['clan_name']
+        return self.read_data("RUNESCAPE")["clan_name"]
 
     @property
     def clan_names(self) -> List[str]:
-        return self.read_data('RUNESCAPE')['clan_names']
+        return self.read_data("RUNESCAPE")["clan_names"]
 
     @property
     def clans(self) -> Dict[str, int]:
-        return self.read_data('RUNESCAPE')['clans']
+        return self.read_data("RUNESCAPE")["clans"]
 
     @property
     def show_titles(self):
-        return self.read_data('RUNESCAPE')['show_titles']
+        return self.read_data("RUNESCAPE")["show_titles"]
 
     @property
     def advlog_clans(self):
-        return self.read_data('RUNESCAPE')['advlog_clans']
+        return self.read_data("RUNESCAPE")["advlog_clans"]
 
     @property
     def banner_image(self):
-        return self.read_data('OTHER')['banner_image']
+        return self.read_data("OTHER")["banner_image"]
 
     @property
     def whatsapp_url(self) -> str:
-        return self.read_data('OTHER')['whatsapp_url']
+        return self.read_data("OTHER")["whatsapp_url"]
 
     @property
     def donation_url(self) -> str:
-        return self.read_data('OTHER')['donation_url']
+        return self.read_data("OTHER")["donation_url"]
 
     @property
     def raids_start_date(self) -> datetime.datetime:
-        return datetime.datetime.strptime(self.read_data('OTHER')['raids_start_date'], '%H:%M:%S %Y/%m/%d')
+        return datetime.datetime.strptime(
+            self.read_data("OTHER")["raids_start_date"], "%H:%M:%S %Y/%m/%d"
+        )
 
     @property
     def not_allowed_in_name(self):
-        return self.read_data('OTHER')['not_allowed_in_name']
+        return self.read_data("OTHER")["not_allowed_in_name"]
 
     @property
     def server_id(self):
-        return self.read_data('SERVER')['server_id']
+        return self.read_data("SERVER")["server_id"]
 
     @property
     def welcome_channel_id(self):
-        return self.read_data('SERVER')['welcome_channel_id']
+        return self.read_data("SERVER")["welcome_channel_id"]
 
     @property
     def welcome_message_id(self):
-        return self.read_data('SERVER')['welcome_message_id']
+        return self.read_data("SERVER")["welcome_message_id"]
 
     @property
     def chat(self) -> Dict[str, int]:
-        return self.read_data('SERVER')['chat_id']
+        return self.read_data("SERVER")["chat_id"]
 
     @property
     def role(self) -> Dict[str, int]:
-        return self.read_data('SERVER')['role_id']
+        return self.read_data("SERVER")["role_id"]
 
     @property
     def roles_channel_id(self):
-        return self.read_data('SERVER')['roles_channel_id']
+        return self.read_data("SERVER")["roles_channel_id"]
 
     @property
     def general_roles_id(self):
-        return self.read_data('SERVER')['general_roles_id']
+        return self.read_data("SERVER")["general_roles_id"]
 
     @property
     def pvm_roles_id(self):
-        return self.read_data('SERVER')['pvm_roles_id']
+        return self.read_data("SERVER")["pvm_roles_id"]
 
     @property
     def react_roles_id(self):
-        return self.read_data('SERVER')['react_roles_id']
+        return self.read_data("SERVER")["react_roles_id"]
 
     @property
     def merchant_message(self):
-        return self.read_data('SERVER')['merchant_message_id']
+        return self.read_data("SERVER")["merchant_message_id"]
 
     @property
     def twitter(self):
-        return self.read_data('TWITTER')
+        return self.read_data("TWITTER")
 
     @property
     def authorization(self):
-        return self.read_data('AUTHORIZATION')
+        return self.read_data("AUTHORIZATION")
 
     @property
     def rsatlantis(self):
-        return self.read_data('RSATLANTIS')
+        return self.read_data("RSATLANTIS")
 
     def admin_roles(self):
-        return self.read_data('RS_ADMIN')
+        return self.read_data("RS_ADMIN")
 
 
 default_settings = {
@@ -161,13 +163,13 @@ default_settings = {
         "playing_message": "!atlbot",
         "commands_prefix": "!",
         "disabled_extensions": [],
-        "database_url": "postgres://<user>:<password>@localhost:5432/<database>"
+        "database_url": "postgresql://postgres:postgres@localhost:5455/postgres",
     },
     "TWITTER": {
         "consumer_key": "",
         "consumer_secret": "",
         "access_token_key": "",
-        "access_token_secret": ""
+        "access_token_secret": "",
     },
     "RS_ADMIN": {
         "coord_discord": 701555954935922778,
@@ -178,38 +180,34 @@ default_settings = {
         "rs_overseer": 680012822452633647,
         "rs_coord": 680012585197764643,
         "rs_org": 680012163305177110,
-        "rs_admin": 680012769294155784
+        "rs_admin": 680012769294155784,
     },
     "RUNESCAPE": {
         "clan_name": "Atlantis",
         "clan_names": ["Atlantis", "Atlantis Argus"],
-        "clans": {
-            "Atlantis": 184644,
-            "Atlantis Argus": 395277
-        },
+        "clans": {"Atlantis": 184644, "Atlantis Argus": 395277},
         "show_titles": False,
-        "advlog_clans": [
-            {
-                "name": "Atlantis",
-                "chat": 570985364290797590
-            }
-        ]
+        "advlog_clans": [{"name": "Atlantis", "chat": 570985364290797590}],
     },
-    "AUTHORIZATION": {
-        "name": "",
-        "type": "",
-        "data": ""
-    },
-    "RSATLANTIS": {
-        "API_URL": "",
-        "API_TOKEN": ""
-    },
+    "AUTHORIZATION": {"name": "", "type": "", "data": ""},
+    "RSATLANTIS": {"API_URL": "", "API_TOKEN": ""},
     "OTHER": {
         "donation_url": "",
         "banner_image": "http://rsatlantis.com/images/logo.png",
         "raids_start_date": "23:00:00 2019/01/06",
-        "not_allowed_in_name": ["discord.me", "discord.gg", "bit.ly", "tinyurl", "tiny.cc", "is.gd", "bc.vc",
-                                "twitch.tv", "twitter", "youtube", "youtu.be"]
+        "not_allowed_in_name": [
+            "discord.me",
+            "discord.gg",
+            "bit.ly",
+            "tinyurl",
+            "tiny.cc",
+            "is.gd",
+            "bc.vc",
+            "twitch.tv",
+            "twitter",
+            "youtube",
+            "youtu.be",
+        ],
     },
     "SERVER": {
         "server_id": 321012107942428673,
@@ -229,30 +227,24 @@ default_settings = {
             "anuncios": 467069985270005760,
             "tags_do_server": 382691780996497416,
             "visitantes": 321012324997529602,
-
             "adv_log": 513848876063784960,
             "links_uteis": 388046792756953090,
             "pvmemes": 333083647991349249,
-
             "raids": 393104367471034369,
             "raids_chat": 393696030505435136,
             "guia_yaka": 425844417862041610,
-
             "aod": 567437912464162816,
             "aod_chat": 499740130118991882,
             "guia_aod": 567444819132022784,
-
             "solak": 474018053693243402,
             "solak_chat": 473194321043259392,
             "solak_apply": 541779397204508682,
-
             "vorago_hm": 506660452617420802,
             "vorago_chat": 506660836069212176,
-
             "drops_e_conquistas": 336182514886377482,
             "discord_bots": 321012588924370945,
             "pof": 417725841271947277,
-            "merchant_call": 560980279360094208
+            "merchant_call": 560980279360094208,
         },
         "role_id": {
             "argus": 780415560013578240,
@@ -300,7 +292,7 @@ default_settings = {
             "osugame": 499261292188794912,
             "merchant": 560997610954162198,
             "ironmemes": 520670978158624768,
-            "among_us": 772253379119677532
-        }
-    }
+            "among_us": 772253379119677532,
+        },
+    },
 }
