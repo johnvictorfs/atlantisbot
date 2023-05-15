@@ -312,7 +312,7 @@ class UserAuthentication(commands.Cog):
                         )
 
                         tag_removida_embed.set_author(
-                            name=str(member), icon_url=member.avatar_url
+                            name=str(member), icon_url=member.avatar.url
                         )
 
                         await auth_chat.send(embed=tag_removida_embed)
@@ -345,7 +345,7 @@ class UserAuthentication(commands.Cog):
                     )
 
                     warning_embed.set_author(
-                        name=str(member), icon_url=member.avatar_url
+                        name=str(member), icon_url=member.avatar.url
                     )
 
                     await auth_chat.send(embed=warning_embed)
@@ -439,7 +439,7 @@ class UserAuthentication(commands.Cog):
             )
 
             removed_embed.set_author(
-                name=str(ctx.author), icon_url=ctx.author.avatar_url
+                name=str(ctx.author), icon_url=ctx.author.avatar.url
             )
             removed_embed.set_footer(
                 text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}"
@@ -945,7 +945,7 @@ class UserAuthentication(commands.Cog):
                                 color=discord.Color.red(),
                             )
                             feedback_embed.set_author(
-                                name=str(ctx.author), icon_url=ctx.author.avatar_url
+                                name=str(ctx.author), icon_url=ctx.author.avatar.url
                             )
 
                             await auth_feedback.send(embed=feedback_embed)
@@ -1060,7 +1060,7 @@ class UserAuthentication(commands.Cog):
             )
 
             confirm_embed.set_author(
-                name=str(ctx.author), icon_url=ctx.author.avatar_url
+                name=str(ctx.author), icon_url=ctx.author.avatar.url
             )
             confirm_embed.set_footer(
                 text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}"
@@ -1124,7 +1124,7 @@ class UserAuthentication(commands.Cog):
             )
 
             confirm_embed.set_author(
-                name=str(ctx.author), icon_url=ctx.author.avatar_url
+                name=str(ctx.author), icon_url=ctx.author.avatar.url
             )
             confirm_embed.set_footer(
                 text=f"• {datetime.datetime.now().strftime('%d/%m/%y - %H:%M')}"
@@ -1156,7 +1156,7 @@ class UserAuthentication(commands.Cog):
                 )
 
                 feedback_embed.set_author(
-                    name=str(ctx.author), icon_url=ctx.author.avatar_url
+                    name=str(ctx.author), icon_url=ctx.author.avatar.url
                 )
 
                 await auth_feedback.send(embed=feedback_embed)
