@@ -8,6 +8,7 @@ from discord.ext import commands
 from django.db.models import Q
 
 from atlantisbot_api.models import Team
+import sentry_sdk
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
@@ -31,12 +32,12 @@ def get_team_id(content: str) -> str:
 
 async def is_team_owner(ctx: Context) -> bool:
     """Checks if the command caller is the team's owner or not, team_id has to be the first argument of the command"""
-    team_id = get_team_id(ctx.message.content)
+    args = ctx.message.content.split(" ")
 
-    if not team_id:
+    if not args:
         raise commands.MissingRequiredArgument(ctx.command)
 
-    team_id = team_id[0]
+    team_id = args[1]
     team = Team.objects.filter(team_id=team_id).first()
 
     if not team:
@@ -50,12 +51,12 @@ async def is_team_owner(ctx: Context) -> bool:
 
 async def is_in_team(ctx: Context) -> bool:
     """Checks if the command caller is in the team or not, team_id has to be the first argument of the command"""
-    team_id = get_team_id(ctx.message.content)
+    args = ctx.message.content.split(" ")
 
-    if not team_id:
+    if not args:
         raise commands.MissingRequiredArgument(ctx.command)
 
-    team_id = team_id[0]
+    team_id = args[1]
     team = Team.objects.filter(team_id=team_id).first()
     if not team:
         await ctx.send(f"Time com ID {team_id} não existe.")
@@ -119,6 +120,7 @@ class Teams(commands.Cog):
                 await message.channel.send(
                     "Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado."
                 )
+                print(e)
                 return await self.bot.send_logs(
                     e, traceback.format_exc(), more_info=message
                 )
