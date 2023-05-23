@@ -14,7 +14,7 @@ colorama = "^0.4.1"
 matplotlib = "^3.0"
 lxml = "^4.3"
 psycopg2-binary = "^2.8"
-requests = {extras = ["security"], version = "^2.23.0"}
+requests = {extras = ["security"], version = "^2.31.0"}
 feedparser = "^6.0.10"
 python-twitter = "^3.5"
 Pillow = "^6.1"
