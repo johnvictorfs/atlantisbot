@@ -46,7 +46,9 @@ class Chat(commands.Cog):
             if not member:
                 return await ctx.send(f"ID de Membro inválida: {_id}")
 
-            embed.set_author(name=str(member), icon_url=member.avatar.url)
+            embed.set_author(
+                name=str(member), icon_url=member.avatar and member.avatar.url
+            )
         else:
             embed.set_author(name="Anônimo")
 

@@ -32,8 +32,7 @@ async def check_admin_roles(
     log_channel = user.guild.get_channel(697682722503524352)
 
     embed = discord.Embed(title="Atualização de Rank")
-    if user.avatar:
-        embed.set_author(name=str(user), icon_url=user.avatar.url)
+    embed.set_author(name=str(user), icon_url=user.avatar and user.avatar.url)
 
     role: discord.Role
     for role in user.roles:
