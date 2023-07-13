@@ -92,6 +92,15 @@ class Bot(commands.Bot):
         self, e, tb, ctx: context.Context | None = None, more_info: object = None
     ):
         dev = self.get_user(self.setting.developer_id)
+        extra_args: dict[str, str] = {}
+        if ctx:
+            if ctx.command:
+                extra_args["command"] = ctx.command.name
+            extra_args["message"] = ctx.message.content
+            extra_args["author"] = ctx.author.name
+            extra_args["author_id"] = str(ctx.author.id)
+
+        sentry_sdk.capture_exception(e)
 
         if ctx:
             info_embed = discord.Embed(
@@ -108,7 +117,8 @@ class Bot(commands.Bot):
 
             info_embed.add_field(name="In Channel", value=ctx.channel, inline=False)
 
-            await dev.send(embed=info_embed)
+            if dev:
+                await dev.send(embed=info_embed)
 
         if more_info:
             extra_embed = discord.Embed(
@@ -117,10 +127,12 @@ class Bot(commands.Bot):
 
             extra_embed.add_field(name="Info", value=pformat(more_info))
 
-            await dev.send(embed=extra_embed)
+            if dev:
+                await dev.send(embed=extra_embed)
 
         try:
-            await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
+            if dev:
+                await dev.send(f"{separator}\n**{e}:**\n```python\n{tb}```")
 
         except discord.errors.HTTPException:
             logging.error(f"{e}: {tb}")
@@ -136,11 +148,13 @@ class Bot(commands.Bot):
                     if len(tb_list) < 1900:
                         paginator.add_line(tb_list)
 
-                for page in paginator.pages:
-                    await dev.send(page)
+                if dev:
+                    for page in paginator.pages:
+                        await dev.send(page)
 
             except Exception as e:
-                await dev.send("Erro ao tentar enviar logs.")
+                if dev:
+                    await dev.send("Erro ao tentar enviar logs.")
 
                 self.logger.error(str(e))
 
