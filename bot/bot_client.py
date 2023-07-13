@@ -67,17 +67,17 @@ class Bot(commands.Bot):
 
         return request
 
-    # async def process_commands(self, message: discord.Message):
-    #     """
-    #     Source: https://github.com/Rapptz/RoboDanny/blob/0c9216245b035fa4655f740c3ce602a5e15bff90/bot.py#L164
-    #     """
+    async def process_commands(self, message: discord.Message):
+        """
+        Source: https://discordpy.readthedocs.io/en/latest/migrating_to_v1.html#subclassing-context
+        """
 
-    #     ctx = await self.get_context(message, cls=context.Context)
+        ctx = await self.get_context(message, cls=context.Context)
 
-    #     if not ctx.command:
-    #         return
+        if not ctx.command:
+            return
 
-    #     await self.invoke(ctx)
+        await self.invoke(ctx)
 
     async def close(self):
         """
