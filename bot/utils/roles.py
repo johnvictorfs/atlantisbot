@@ -29,17 +29,18 @@ async def check_admin_roles(
         # User already has necessary rank
         return
 
-    log_channel: discord.TextChannel = user.guild.get_channel(697682722503524352)
+    log_channel = user.guild.get_channel(697682722503524352)
 
     embed = discord.Embed(title="Atualização de Rank")
-    embed.set_author(name=str(user), icon_url=user.avatar.url)
+    if user.avatar:
+        embed.set_author(name=str(user), icon_url=user.avatar.url)
 
     role: discord.Role
     for role in user.roles:
         if role.id in role_ranks.values():
             # Remove any Admin roles from user
             await user.remove_roles(role)
-            embed.color = discord.Color.dark_red()
+            embed.colour = discord.Color.red()
             embed.add_field(name="Rank Removido", value=role.mention)
             await log_channel.send(embed=embed)
 
@@ -51,7 +52,7 @@ async def check_admin_roles(
 
     if server_rank:
         # Give user the necessary rank
-        embed.color = discord.Color.green()
+        embed.colour = discord.Color.green()
         embed.add_field(name="Rank Adicionado", value=server_rank.mention)
         await log_channel.send(embed=embed)
         await user.add_roles(server_rank)

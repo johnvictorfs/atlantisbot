@@ -37,3 +37,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
+
+[tool.mypy]
+check_untyped_defs = true
