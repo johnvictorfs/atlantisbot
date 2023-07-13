@@ -185,7 +185,7 @@ class Admin(commands.Cog):
         with open("restart_atl_bot.log", "w+") as f:
             f.write("1")
 
-        await self.bot.logout()
+        await self.bot.close()
         sys.exit(0)
 
     @commands.is_owner()
