@@ -1,11 +1,11 @@
 from atlantisbot_api.models import DiscordUser
-from bot.settings import Settings
 import io
 import discord
 import asyncio
 from typing import Optional
 
 from discord.ext import commands
+from bot.bot_client import Bot
 
 
 class Context(commands.Context):
@@ -15,8 +15,8 @@ class Context(commands.Context):
 
     def __init__(self, *args, **kwargs):
         super(Context, self).__init__(*args, **kwargs)
-        self.bot = self.bot
-        self.setting: Settings = self.bot.setting
+        self.bot: Bot = self.bot
+        self.setting = self.bot.setting
 
     async def entry_to_code(self, entries):
         width = max(len(a) for a, b in entries)
