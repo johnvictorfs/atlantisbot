@@ -85,7 +85,11 @@ class Admin(commands.Cog):
             # however, things like "fast forward" and files
             # along with the text "already up-to-date" are in stdout
 
-            self.bot.logger.info(f"[Reload all] Stdout: {stdout}")
+            if stdout:
+                self.bot.logger.info(f"[Reload all] Stdout: {stdout}")
+            if stderr:
+                self.bot.logger.info(f"[Reload all] Stderr: {stderr}")
+                await ctx.send(f"Erro ao atualizar:\n{stderr}")
 
             if stdout.startswith("Already up to date."):
                 return await ctx.send(
@@ -116,16 +120,16 @@ class Admin(commands.Cog):
                 if is_submodule:
                     try:
                         try:
-                            self.bot.reload_extension(module)
+                            await self.bot.reload_extension(module)
                         except commands.ExtensionNotLoaded:
-                            self.bot.load_extension(module)
+                            await self.bot.load_extension(module)
                     except Exception:
                         statuses.append((ctx.tick(False), module))
                     else:
                         statuses.append((ctx.tick(True), module))
                 else:
                     try:
-                        self.reload_or_load_extension(module)
+                        await self.reload_or_load_extension(module)
                     except commands.ExtensionError:
                         statuses.append((ctx.tick(False), module))
                     else:
@@ -137,11 +141,11 @@ class Admin(commands.Cog):
         except Exception as e:
             capture_exception(e)
 
-    def reload_or_load_extension(self, module: str):
+    async def reload_or_load_extension(self, module: str):
         try:
-            self.bot.reload_extension(module)
+            await self.bot.reload_extension(module)
         except commands.ExtensionNotLoaded:
-            self.bot.load_extension(module)
+            await self.bot.load_extension(module)
 
     def find_modules_from_git(self, output: str) -> List[Tuple[bool, str]]:
         files = self._GIT_PULL_REGEX.findall(output)
