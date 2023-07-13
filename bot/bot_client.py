@@ -88,7 +88,9 @@ class Bot(commands.Bot):
 
         await super().close()
 
-    async def send_logs(self, e, tb, ctx: context.Context, more_info: object = None):
+    async def send_logs(
+        self, e, tb, ctx: context.Context | None = None, more_info: object = None
+    ):
         dev = self.get_user(self.setting.developer_id)
 
         if ctx:
