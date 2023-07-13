@@ -294,7 +294,7 @@ class Teams(commands.Cog):
 
             embed = discord.Embed(title="Criação de Time", description="", color=orange)
             embed.set_author(
-                name=ctx.author.display_name, icon_url=ctx.author.avatar.url
+                name=ctx.author.display_name, icon_url=ctx.author.avatar and ctx.author.avatar.url
             )
             embed.set_thumbnail(url=self.bot.setting.banner_image)
             team_message: discord.Message = await ctx.send(embed=embed)
