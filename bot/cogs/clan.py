@@ -34,7 +34,7 @@ class Clan(commands.Cog):
             url=f"http://services.runescape.com/m=clan-home/clan/{clan_url}",
         )
         clan_embed.set_author(
-            name="RuneClan", url=f"https://runeclan.com/clan/{clan_url}"
+            name="RunePixels", url=f"https://runepixels.com/clans/{clan_url}/about"
         )
         clan_embed.set_thumbnail(
             url=f"http://services.runescape.com/m=avatar-rs/{clan_url}/clanmotif.png"
@@ -75,10 +75,10 @@ class Clan(commands.Cog):
         user_url_name = player.name.replace(" ", "%20")
         user_url_clan = player.clan.replace(" ", "%20")
         icon_url = f"https://secure.runescape.com/m=avatar-rs/{user_url_name}/chat.png"
-        runeclan_url = f"https://runeclan.com/user/{user_url_name}"
+        runepixels_url = f"https://runepixels.com/players/{user_url_name}"
         clan_banner_url = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{user_url_clan}/clanmotif.png"
 
-        embed_title = "RuneClan"
+        embed_title = "RunePixels"
         rank_header = "__Rank__"
         clan_header = "__Clã__"
         exp_header = "__Exp no Clã__"
@@ -92,7 +92,7 @@ class Clan(commands.Cog):
             title=embed_title,
             description="",
             color=discord.Colour.dark_blue(),
-            url=runeclan_url,
+            url=runepixels_url,
         )
 
         clan_info_embed.set_author(icon_url=icon_url, name=display_username)
