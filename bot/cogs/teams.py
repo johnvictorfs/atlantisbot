@@ -8,7 +8,6 @@ from discord.ext import commands
 from django.db.models import Q
 
 from atlantisbot_api.models import Team
-import sentry_sdk
 
 from bot.bot_client import Bot
 from bot.utils.tools import separator
