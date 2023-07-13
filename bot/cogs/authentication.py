@@ -20,7 +20,6 @@ from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_world
 from bot.utils.tools import divide_list, get_clan_async
 from bot.utils.context import Context
 from bot.utils.checks import is_authenticated, is_admin
-from bot.utils.players import get_player_df_runeclan, compare_players
 from bot.utils.roles import check_admin_roles
 
 
@@ -126,36 +125,6 @@ class UserAuthentication(commands.Cog):
         if self.bot.setting.mode == "prod" or self.debugging:
             self.check_users.cancel()
 
-    @commands.command("compare")
-    async def compare_players(self, ctx: Context, before_name: str, after_name: str):
-        if len(before_name) > 12 or len(after_name) > 12:
-            return await ctx.send("Nome não pode ser maior que 12 caracteres")
-        try:
-            before = await get_player_df_runeclan(before_name)
-        except Exception:
-            return await ctx.send(
-                f"Não foram encontrados dados para o jogador '{before_name}'"
-            )
-        try:
-            after = await get_player_df_runeclan(after_name)
-        except Exception:
-            return await ctx.send(
-                f"Não foram encontrados dados para o jogador '{after_name}'"
-            )
-
-        comparison = compare_players(before, after)
-
-        embed = discord.Embed(
-            title="Comparação de Autenticação",
-            description=f"**Chance de troca de nome:** {comparison}%",
-            color=discord.Color.blue(),
-        )
-
-        embed.add_field(name="Nome anterior", value=before_name, inline=False)
-        embed.add_field(name="Nome novo", value=after_name, inline=False)
-
-        await ctx.send(embed=embed)
-
     @commands.check(is_authenticated)
     @commands.command("token", aliases=["auth_token"])
     async def token(self, ctx: Context):
@@ -207,7 +176,7 @@ class UserAuthentication(commands.Cog):
         argus = atlantis.get_role(self.bot.setting.role.get("argus"))
         convidado = atlantis.get_role(self.bot.setting.role.get("convidado"))
         auth_chat = self.bot.setting.chat.get("auth")
-        auth_chat: discord.TextChannel = atlantis.get_channel(auth_chat)
+        auth_chat = atlantis.get_channel(auth_chat)
 
         clan: rs3clans.Clan = await get_clan_async(
             self.bot.setting.clan_name, set_exp=False
@@ -530,8 +499,8 @@ class UserAuthentication(commands.Cog):
         )
 
         embed.set_author(
-            name="RuneClan",
-            url=f"https://runeclan.com/user{member.ingame_name.replace(' ', '%20')}",
+            name="RunePixels",
+            url=f"https://runepixels.com/players/{member.ingame_name.replace(' ', '-')}",
         )
 
         await ctx.author.send(embed=embed)
@@ -779,35 +748,6 @@ class UserAuthentication(commands.Cog):
         if user and user.ingame_name:
             re_auth = True
 
-            try:
-                before = await get_player_df_runeclan(user.ingame_name)
-                after = await get_player_df_runeclan(ingame_name.content)
-
-                comparison = compare_players(before, after)
-
-                channel: discord.TextChannel = self.bot.get_channel(697682722503524352)
-
-                embed = discord.Embed(
-                    title="Comparação de Autenticação",
-                    description=f"**Chance de troca de nome:** {comparison}%",
-                    color=discord.Color.blue(),
-                )
-
-                embed.add_field(
-                    name="Nome anterior", value=user.ingame_name, inline=False
-                )
-                embed.add_field(
-                    name="Nome novo", value=ingame_name.content, inline=False
-                )
-
-                await channel.send(embed=embed)
-            except Exception as e:
-                await self.bot.send_logs(
-                    e,
-                    traceback.format_exc(),
-                    more_info=f"Trying to get difference from runeclan ({user.ingame_name} -> {ingame_name.content})",
-                )
-
         settings: Dict[str, Any] = {}
         worlds_done = []
 
@@ -1019,9 +959,7 @@ class UserAuthentication(commands.Cog):
             await member.add_roles(membro)
         await member.remove_roles(convidado)
 
-        auth_chat: discord.TextChannel = atlantis.get_channel(
-            self.bot.setting.chat.get("auth")
-        )
+        auth_chat = atlantis.get_channel(self.bot.setting.chat.get("auth"))
 
         if user:
             user.warning_date = None

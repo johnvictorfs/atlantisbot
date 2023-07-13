@@ -50,11 +50,11 @@ class AmigoSecreto(commands.Cog):
                 )
                 continue
             try:
-                runeclan = f'http://runeclan.com/user/{member.giving_to_user.ingame_name.replace(" ", "+")}'
+                runepixels = f'http://runepixels.com/players/{member.giving_to_user.ingame_name.replace(" ", "-")}'
 
                 description = (
                     f"<@{member.giving_to_user.discord_id}> ({member.giving_to_user.discord_name})\n"
-                    f"[RuneClan]({runeclan})\n\n"
+                    f"[RunePixels]({runepixels})\n\n"
                     f"Acredita que seu Amigo Secreto possa ter mudado de nome recentemente e ainda não atualizou aqui? "
                     f"Adicione-o no jogo como Amigo, e o nome que será mostrado irá ser o nome dele atualizado!"
                 )

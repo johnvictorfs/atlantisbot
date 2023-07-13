@@ -315,15 +315,17 @@ Aguarde uma resposta de um {pvm_teacher}.
     # @commands.bot_has_permissions(embed_links=True)
     @commands.command(aliases=["atlbot", "atlbotcommands"])
     async def atlcommands(self, ctx: Context):
-        runeclan_url = f"https://runeclan.com/clan/{self.bot.setting.clan_name}"
+        runepixels_url = (
+            f"https://runepixels.com/clans/{self.bot.setting.clan_name}/about"
+        )
         clan_banner = f"http://services.runescape.com/m=avatar-rs/l=3/a=869/{self.bot.setting.clan_name}/clanmotif.png"
-        embed_title = "RuneClan"
+        embed_title = "RunePixels"
 
         atlcommands_embed = discord.Embed(
             title=embed_title,
             description="`<argumento>` : Obrigatório\n`(argumento|padrão:máximo)` : Opcional",
             color=discord.Colour.dark_blue(),
-            url=runeclan_url,
+            url=runepixels_url,
         )
         atlcommands_embed.set_author(icon_url=clan_banner, name="AtlantisBot")
         atlcommands_embed.set_thumbnail(url=self.bot.setting.banner_image)
