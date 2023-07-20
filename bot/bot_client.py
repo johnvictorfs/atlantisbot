@@ -189,7 +189,7 @@ class Bot(commands.Bot):
     def get_cogs():
         """Gets cog names from /cogs/ folder"""
 
-        not_extensions = ["utils", "embeds", "models", "__init__"]
+        not_extensions = ["utils", "embeds", "models", "__init__", "raids"]
 
         cogs = [x.stem for x in Path("bot/cogs").glob("*.py")]
 
