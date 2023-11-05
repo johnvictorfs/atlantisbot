@@ -121,11 +121,11 @@ class Clan(commands.Cog):
             exp_seargent = 250_000_000
             exp_corporal = 125_000_000
         elif clan.lower() == "argus":
-            exp_general = 500_000_000
-            exp_captain = 400_000_000
-            exp_lieutenant = 300_000_000
-            exp_seargent = 150_000_000
-            exp_corporal = 75_000_000
+            exp_general = 750_000_000
+            exp_captain = 350_000_000
+            exp_lieutenant = 225_000_000
+            exp_seargent = 125_000_000
+            exp_corporal = 50_000_000
             clan = "Atlantis Argus"
         else:
             return await ctx.send("Clã não reconhecido.")
