@@ -140,7 +140,8 @@ class AmigoSecreto(commands.Cog):
 
         if not has_any_role(member, *allowed_roles):
             return await ctx.send(
-                f"{ctx.author.mention}, você precisa ser um Membro do Clã para participar do Amigo Secreto."
+                f"{ctx.author.mention}, você precisa ser um Membro do Clã para participar do Amigo Secreto. "
+                "Caso seja um Membro do Clã, utilize o comando `!membro` primeiro e depois tente novamente."
             )
 
         exists = AmigoSecretoPerson.objects.filter(user__id=user.id).first()
