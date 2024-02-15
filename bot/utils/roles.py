@@ -16,6 +16,13 @@ async def check_exp_roles(user: discord.Member, exp: int) -> None:
         500_000_000: 1207332769303363584,
     }
 
+    log_channel = user.guild.get_channel(697682722503524352)
+    embed = discord.Embed(title="Atualização de Rank")
+    embed.set_author(name=str(user), icon_url=user.avatar and user.avatar.url)
+
+    if not log_channel or not isinstance(log_channel, discord.TextChannel):
+        raise ValueError("Log channel not found")
+
     highest_role_id = None
     for exp_needed, role_id in exp_roles.items():
         if exp >= exp_needed:
@@ -26,7 +33,9 @@ async def check_exp_roles(user: discord.Member, exp: int) -> None:
         highest_role = user.guild.get_role(highest_role_id)
         if highest_role and highest_role not in user.roles:
             await user.add_roles(highest_role)
-
+            embed.colour = discord.Color.green()
+            embed.add_field(name="Rank Adicionado", value=highest_role.mention)
+            await log_channel.send(embed=embed)
     # Remove all other exp roles the user might have, except the highest one they qualify for
     exp_role_ids = set(exp_roles.values())
     roles_to_remove = [
@@ -37,6 +46,10 @@ async def check_exp_roles(user: discord.Member, exp: int) -> None:
 
     if roles_to_remove:
         await user.remove_roles(*roles_to_remove)
+        embed.colour = discord.Color.red()
+        for role in roles_to_remove:
+            if role:
+                embed.add_field(name="Rank Removido", value=role.mention)
 
 
 async def check_admin_roles(
