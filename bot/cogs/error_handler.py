@@ -125,6 +125,11 @@ class CommandErrorHandler(commands.Cog):
                 "Erro inesperado. Os logs desse erro foram enviados para um Dev e em breve será arrumado."
             )
 
+            self.logger.error(
+                f"Erro inesperado no comando '{ctx.command}': {error}",
+                exc_info=(type(error), error, error.__traceback__),
+            )
+
             sentry_sdk.set_user(
                 {
                     "id": ctx.author and ctx.author.id,

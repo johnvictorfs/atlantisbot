@@ -21,6 +21,7 @@ async def check_admin_roles(
         "Coordinator": settings.admin_roles().get("rs_coord"),
         "Organiser": settings.admin_roles().get("rs_org"),
         "Admin": settings.admin_roles().get("rs_admin"),
+        "General": settings.admin_roles().get("rs_general"),
     }
 
     discord_rank: Optional[int] = role_ranks.get(rank)
