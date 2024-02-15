@@ -50,6 +50,7 @@ async def check_exp_roles(user: discord.Member, exp: int) -> None:
         for role in roles_to_remove:
             if role:
                 embed.add_field(name="Rank Removido", value=role.mention)
+        await log_channel.send(embed=embed)
 
 
 async def check_admin_roles(
