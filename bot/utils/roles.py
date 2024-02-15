@@ -6,6 +6,39 @@ from bot.settings import Settings
 from bot.utils.tools import has_any_role
 
 
+async def check_exp_roles(user: discord.Member, exp: int) -> None:
+    exp_roles = {
+        5_000_000_000: 1207332361759363082,
+        4_000_000_000: 1207332431779069952,
+        3_000_000_000: 1207332484560326706,
+        2_000_000_000: 1207332535236034591,
+        1_000_000_000: 1207332728828076085,
+        500_000_000: 1207332769303363584,
+    }
+
+    highest_role_id = None
+    for exp_needed, role_id in exp_roles.items():
+        if exp >= exp_needed:
+            highest_role_id = role_id
+            break
+
+    if highest_role_id:
+        highest_role = user.guild.get_role(highest_role_id)
+        if highest_role and highest_role not in user.roles:
+            await user.add_roles(highest_role)
+
+    # Remove all other exp roles the user might have, except the highest one they qualify for
+    exp_role_ids = set(exp_roles.values())
+    roles_to_remove = [
+        user.guild.get_role(role_id)
+        for role_id in exp_role_ids
+        if role_id != highest_role_id and user.guild.get_role(role_id) in user.roles
+    ]
+
+    if roles_to_remove:
+        await user.remove_roles(*roles_to_remove)
+
+
 async def check_admin_roles(
     user: discord.Member, settings: Settings, rank: str
 ) -> None:

@@ -20,7 +20,7 @@ from bot.cogs.rsworld import grab_world, get_world, random_world, filtered_world
 from bot.utils.tools import divide_list, get_clan_async
 from bot.utils.context import Context
 from bot.utils.checks import is_authenticated, is_admin
-from bot.utils.roles import check_admin_roles
+from bot.utils.roles import check_admin_roles, check_exp_roles
 
 
 async def check_user_roles(self: "UserAuthentication"):
@@ -81,6 +81,7 @@ async def check_user_roles(self: "UserAuthentication"):
                 if clan_user:
                     self.logger.debug(f"[check_users] Checando Admin Roles {clan_user}")
                     await check_admin_roles(member, self.bot.setting, clan_user.rank)
+                    await check_exp_roles(member, clan_user.exp)
 
             if not self.debugging and clan_user and not user.warning_date:
                 self.logger.debug(
