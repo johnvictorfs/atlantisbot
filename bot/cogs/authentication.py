@@ -344,7 +344,8 @@ class UserAuthentication(commands.Cog):
     @commands.command("check_user_roles")
     async def check_user_roles_command(self, ctx: Context):
         await ctx.send("Checando roles")
-        return await check_user_roles(self)
+        await check_user_roles(self)
+        await ctx.send("Checagem de roles finalizada.")
 
     @staticmethod
     async def send_cooldown(ctx):
