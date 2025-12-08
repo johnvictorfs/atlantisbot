@@ -4,6 +4,12 @@ import discord
 from bot.utils.context import Context
 
 
+async def is_pedim_or_nriver(ctx: Context):
+    pedim = 200029618277711873
+    nriver = 148175892596785152
+    return ctx.author.id == pedim or ctx.author.id == nriver
+
+
 async def is_admin(ctx: Context):
     atlantis: discord.Guild = ctx.bot.get_guild(ctx.setting.server_id)
     member: discord.Member = atlantis.get_member(ctx.author.id)

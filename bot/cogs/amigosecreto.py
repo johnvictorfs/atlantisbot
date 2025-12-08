@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from bot.bot_client import Bot
 from bot.utils.tools import has_any_role, format_and_convert_date
-from bot.utils.checks import is_authenticated, is_admin
+from bot.utils.checks import is_authenticated, is_pedim_or_nriver
 from bot.utils.context import Context
 
 from atlantisbot_api.models import AmigoSecretoState, AmigoSecretoPerson
@@ -15,7 +15,7 @@ class AmigoSecreto(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @commands.check(is_admin)
+    @commands.check(is_pedim_or_nriver)
     @commands.command()
     async def send_amigo_secreto_messages(self, ctx: Context, test: bool = True):
         query = AmigoSecretoPerson.objects.all()
@@ -135,7 +135,7 @@ class AmigoSecreto(commands.Cog):
 
         return random_person
 
-    @commands.check(is_admin)
+    @commands.check(is_pedim_or_nriver)
     @commands.command()
     async def roll_amigo_secreto(self, ctx: Context):
         secret_santa_state: AmigoSecretoState = AmigoSecretoState.object()
@@ -171,7 +171,7 @@ class AmigoSecreto(commands.Cog):
 
         await ctx.author.send(f'Amigo Secreto montado com sucesso. Total de pessoas: {AmigoSecretoPerson.objects.count()}')
 
-    @commands.check(is_admin)
+    @commands.check(is_pedim_or_nriver)
     @commands.command()
     async def check_amigo_secreto(self, ctx: Context):
         state = AmigoSecretoState.objects.first()
