@@ -5,17 +5,17 @@ from datetime import timedelta
 
 from bot.bot_client import Bot
 from bot.utils.tools import has_any_role, format_and_convert_date
-from bot.utils.checks import is_authenticated
+from bot.utils.checks import is_authenticated, is_pedim_or_nriver
 from bot.utils.context import Context
 
 from atlantisbot_api.models import AmigoSecretoState, AmigoSecretoPerson
-
+from django.db.models import Q
 
 class AmigoSecreto(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @commands.is_owner()
+    @commands.check(is_pedim_or_nriver)
     @commands.command()
     async def send_amigo_secreto_messages(self, ctx: Context, test: bool = True):
         query = AmigoSecretoPerson.objects.all()
@@ -25,7 +25,7 @@ class AmigoSecreto(commands.Cog):
                 "Não há nenhuma mensagem de Amigo Secreto para enviar."
             )
 
-        dev = self.bot.get_user(self.bot.setting.developer_id)
+        dev = ctx.author
 
         if test:
             await dev.send("Enviando Mensagens do Amigo Secreto em Modo de Teste")
@@ -97,8 +97,82 @@ class AmigoSecreto(commands.Cog):
                 )
 
         return await ctx.send("Todas as mensagens foram enviadas.")
+    
+    @staticmethod
+    def clear_secret_santa():
+        AmigoSecretoPerson.objects.all().update(receiving=False, giving_to_user=None)
 
-    @commands.is_owner()
+    def roll_secret_santa(self):
+        exclude: list[int] = []
+
+        person: AmigoSecretoPerson
+        for person in AmigoSecretoPerson.objects.filter(giving_to_user=None).all():
+            random_recipient = self.random_person_to(person.id, exclude)
+
+            self.bot.logger.info(person.user.ingame_name + ' is giving to ' + random_recipient.user.ingame_name)
+
+            person.giving_to_user = random_recipient.user
+            person.save()
+            exclude.append(random_recipient.id)
+
+        for person_id in exclude:
+            AmigoSecretoPerson.objects.filter(id=person_id).update(receiving=True)
+
+    @staticmethod
+    def random_person_to(pk: int, exclude: list[int]) -> AmigoSecretoPerson:
+        """
+        Get random entry for Secret Santa, excluding people already receiving presents and the person giving himself
+        """
+
+        random_person: AmigoSecretoPerson = AmigoSecretoPerson.objects.filter(
+            receiving=False
+        ).filter(
+            Q(receiving=False) & ~Q(id=pk) & ~Q(id__in=exclude)
+        ).order_by('?').first()
+
+        random_person.receiving = True
+        random_person.save()
+
+        return random_person
+
+    @commands.check(is_pedim_or_nriver)
+    @commands.command()
+    async def roll_amigo_secreto(self, ctx: Context):
+        secret_santa_state: AmigoSecretoState = AmigoSecretoState.object()
+
+        if not secret_santa_state.end_date:
+            await ctx.author.send("Data de sorteio não configurada")
+            return
+
+        not_receiving = AmigoSecretoPerson.objects.filter(receiving=False).count()
+
+        if not_receiving == 0:
+            await ctx.author.send("Nenhuma pessoa sem receber presente, amigo secreto já está montado.")
+            return
+
+        attempts = 0
+        while True:
+            if attempts > 3:
+                await ctx.author.send("Muitas tentativas com erro. Contate NRiver.")
+                return
+            try:
+                self.roll_secret_santa()
+                break
+            except Exception as e:
+                self.bot.logger.error(f'Erro ao montar Amigo Secreto: {e}')
+                attempts += 1
+                await ctx.author.send('Erro ao montar Amigo Secreto, limpando e tentando novamente')
+                self.clear_secret_santa()
+
+        not_receiving = AmigoSecretoPerson.objects.filter(receiving=False).count()
+
+        if not_receiving > 0:
+            await ctx.author.send(f'Erro ao montar Amigo Secreto. Pessoas sem receber: {not_receiving}. Contate NRiver.')
+            return
+
+        await ctx.author.send(f'Amigo Secreto montado com sucesso. Total de pessoas: {AmigoSecretoPerson.objects.count()}')
+
+    @commands.check(is_pedim_or_nriver)
     @commands.command()
     async def check_amigo_secreto(self, ctx: Context):
         state = AmigoSecretoState.objects.first()
