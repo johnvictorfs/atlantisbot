@@ -109,7 +109,7 @@ class AmigoSecreto(commands.Cog):
         for person in AmigoSecretoPerson.objects.filter(giving_to_user=None).all():
             random = self.random_person_to(person.id, exclude)
 
-            self.logger.info(person.user.ingame_name + ' is giving to ' + random.user.ingame_name)
+            self.bot.logger.info(person.user.ingame_name + ' is giving to ' + random.user.ingame_name)
 
             person.giving_to_user = random.user
             person.save()
@@ -158,7 +158,8 @@ class AmigoSecreto(commands.Cog):
             try:
                 self.roll_secret_santa()
                 break
-            except Exception:
+            except Exception as e:
+                self.bot.logger.error(f'Erro ao montar Amigo Secreto: {e}')
                 attempts += 1
                 await ctx.author.send('Erro ao montar Amigo Secreto, limpando e tentando novamente')
                 self.clear_secret_santa()
