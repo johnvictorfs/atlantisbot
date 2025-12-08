@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from bot.bot_client import Bot
 from bot.utils.tools import has_any_role, format_and_convert_date
@@ -202,6 +202,18 @@ class AmigoSecreto(commands.Cog):
     async def activate_amigo_secreto(self, ctx: Context):
         state = AmigoSecretoState.objects.first()
         state.activated = True
+        start_date_brt = await ctx.prompt(
+            "Digite a data de inicio do Amigo Secreto (exemplo '20/12/2025 20:00'):"
+        )
+        end_date_brt = await ctx.prompt(
+            "Digite a data de fim do Amigo Secreto (exemplo '30/12/2025 20:00'). A data do sorteio será 2 dias antes da data final informada:"
+        )
+
+        start_date_utc = datetime.strptime(start_date_brt, "%d/%m/%Y %H:%M") - timedelta(hours=3)
+        end_date_utc = datetime.strptime(end_date_brt, "%d/%m/%Y %H:%M") - timedelta(hours=3)
+        state = AmigoSecretoState.objects.first()
+        state.start_date = start_date_utc
+        state.end_date = end_date_utc
         state.save()
 
         return await ctx.send("O Amigo Secreto do Atlantis foi ativado.")
