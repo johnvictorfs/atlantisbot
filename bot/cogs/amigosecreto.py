@@ -107,13 +107,13 @@ class AmigoSecreto(commands.Cog):
 
         person: AmigoSecretoPerson
         for person in AmigoSecretoPerson.objects.filter(giving_to_user=None).all():
-            random = self.random_person_to(person.id, exclude)
+            random_recipient = self.random_person_to(person.id, exclude)
 
-            self.bot.logger.info(person.user.ingame_name + ' is giving to ' + random.user.ingame_name)
+            self.bot.logger.info(person.user.ingame_name + ' is giving to ' + random_recipient.user.ingame_name)
 
-            person.giving_to_user = random.user
+            person.giving_to_user = random_recipient.user
             person.save()
-            exclude.append(random.id)
+            exclude.append(random_recipient.id)
 
         for person_id in exclude:
             AmigoSecretoPerson.objects.filter(id=person_id).update(receiving=True)
