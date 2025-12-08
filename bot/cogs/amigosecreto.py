@@ -102,6 +102,10 @@ class AmigoSecreto(commands.Cog):
     def clear_secret_santa():
         AmigoSecretoPerson.objects.all().update(receiving=False, giving_to_user=None)
 
+    @staticmethod
+    def delete_all_secret_santa():
+        AmigoSecretoPerson.objects.all().delete()
+
     def roll_secret_santa(self):
         exclude: list[int] = []
 
@@ -177,10 +181,51 @@ class AmigoSecreto(commands.Cog):
     async def check_amigo_secreto(self, ctx: Context):
         state = AmigoSecretoState.objects.first()
 
+        total_pessoas = AmigoSecretoPerson.objects.count()
+
         if not state.activated:
             return await ctx.send("O Amigo Secreto do Atlantis não está ativo.")
 
-        return await ctx.send("O Amigo Secreto do Atlantis está ativo.")
+        return await ctx.send(f"O Amigo Secreto do Atlantis está ativo. Total de pessoas inscritas: {total_pessoas}")
+
+    @commands.check(is_pedim_or_nriver)
+    @commands.command()
+    async def deactivate_amigo_secreto(self, ctx: Context):
+        state = AmigoSecretoState.objects.first()
+        state.activated = False
+        state.save()
+
+        return await ctx.send("O Amigo Secreto do Atlantis foi desativado.")
+    
+    @commands.check(is_pedim_or_nriver)
+    @commands.command()
+    async def activate_amigo_secreto(self, ctx: Context):
+        state = AmigoSecretoState.objects.first()
+        state.activated = True
+        state.save()
+
+        return await ctx.send("O Amigo Secreto do Atlantis foi ativado.")
+    
+    @commands.check(is_pedim_or_nriver)
+    @commands.command()
+    async def clear_amigo_secreto(self, ctx: Context):
+        self.clear_secret_santa()
+        total_count = AmigoSecretoPerson.objects.count()
+        return await ctx.send(f"O Amigo Secreto do Atlantis foi limpo. Total de pessoas inscritas: {total_count}")
+    
+    @commands.check(is_pedim_or_nriver)
+    @commands.command()
+    async def delete_amigo_secreto(self, ctx: Context):
+        self.delete_all_secret_santa()
+        total_count = AmigoSecretoPerson.objects.count()
+
+        confirmation = await ctx.prompt(
+            "Tem absoluta certeza que deseja fazer isso? Isso DELETA TODAS AS INSCRIÇÕES do Amigo Secreto!"
+        )
+        if not confirmation:
+            return await ctx.send("Comando cancelado")
+
+        return await ctx.send(f"Todas as inscrições do Amigo Secreto do Atlantis foram deletadas. Total de pessoas inscritas: {total_count}")
 
     @commands.check(is_authenticated)
     @commands.command(aliases=["amigosecreto", "amigo"])
