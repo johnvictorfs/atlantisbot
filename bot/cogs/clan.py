@@ -110,8 +110,13 @@ class Clan(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=["ranksupdate", "upranks", "rank"])
+    @commands.hybrid_command(
+        aliases=["ranksupdate", "upranks", "rank"],
+        description="Ver os ranks do clã pendentes de atualização.",
+    )
     async def ranks(self, ctx: Context, *, clan: str = "Atlantis"):
+        if ctx.interaction is None:
+            await ctx.send("Dica: você também pode usar o comando `/ranks`.")
         if clan.lower() == "atlantis argus":
             return await ctx.send("`!rank argus` irmão")
         elif clan.lower() == "atlantis":
