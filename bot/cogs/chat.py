@@ -315,8 +315,10 @@ Aguarde uma resposta de um {pvm_teacher}.
         return await ctx.send(content=None, embed=github_embed)
 
     # @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=["atlbot", "atlbotcommands"])
-    async def atlcommands(self, ctx: Context):
+    @commands.hybrid_command(
+        name="atlantisbot", aliases=["atlbot", "atlbotcommands", "atlcommands"]
+    )
+    async def atlantisbot(self, ctx: Context):
         runepixels_url = (
             f"https://runepixels.com/clans/{self.bot.setting.clan_name}/about"
         )
