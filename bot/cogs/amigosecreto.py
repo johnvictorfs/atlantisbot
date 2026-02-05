@@ -171,10 +171,16 @@ class AmigoSecreto(commands.Cog):
         not_receiving = AmigoSecretoPerson.objects.filter(receiving=False).count()
 
         if not_receiving > 0:
-            await ctx.author.send(f'Erro ao montar Amigo Secreto. Pessoas sem receber: {not_receiving}. Contate NRiver.')
+            await ctx.author.send(
+                f"Erro ao montar Amigo Secreto. Pessoas sem receber: {not_receiving}. "
+                "Contate NRiver."
+            )
             return
 
-        await ctx.author.send(f'Amigo Secreto montado com sucesso. Total de pessoas: {AmigoSecretoPerson.objects.count()}')
+        await ctx.author.send(
+            "Amigo Secreto montado com sucesso. Total de pessoas: "
+            f"{AmigoSecretoPerson.objects.count()}"
+        )
 
     @commands.check(is_pedim_or_nriver)
     @commands.command()
@@ -206,7 +212,8 @@ class AmigoSecreto(commands.Cog):
             "Digite a data de inicio do Amigo Secreto (exemplo '20/12/2025 20:00'):"
         )
         end_date_brt = await ctx.prompt(
-            "Digite a data de fim do Amigo Secreto (exemplo '30/12/2025 20:00'). A data do sorteio será 2 dias antes da data final informada:"
+            "Digite a data de fim do Amigo Secreto (exemplo '30/12/2025 20:00'). "
+            "A data do sorteio será 2 dias antes da data final informada:"
         )
 
         start_date_utc = datetime.strptime(start_date_brt, "%d/%m/%Y %H:%M") - timedelta(hours=3)
@@ -237,7 +244,10 @@ class AmigoSecreto(commands.Cog):
         if not confirmation:
             return await ctx.send("Comando cancelado")
 
-        return await ctx.send(f"Todas as inscrições do Amigo Secreto do Atlantis foram deletadas. Total de pessoas inscritas: {total_count}")
+        return await ctx.send(
+            "Todas as inscrições do Amigo Secreto do Atlantis foram deletadas. "
+            f"Total de pessoas inscritas: {total_count}"
+        )
 
     @commands.check(is_authenticated)
     @commands.command(aliases=["amigosecreto", "amigo"])
