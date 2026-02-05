@@ -35,7 +35,10 @@ jobs:
       - name: Poetry Config
         run: poetry config virtualenvs.in-project true
 
-      - uses: actions/cache@v2
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libjpeg-dev zlib1g-dev
+
+      - uses: actions/cache@v4
         with:
           path: .venv
           key: poetry-${{ hashFiles('**/poetry.lock') }}
@@ -50,3 +53,6 @@ jobs:
 
       - name: Type-check (as warnings only)
         run: poetry run python -m mypy . || true
+
+      - name: Run tests
+        run: poetry run pytest -q

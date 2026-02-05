@@ -251,6 +251,12 @@ class Bot(commands.Bot):
 
         self.disabled_commands()
 
+        try:
+            synced = await self.tree.sync()
+            print(f"- Synced {len(synced)} application command(s).")
+        except Exception as e:
+            print(f"Failed to sync application commands: {e}")
+
         return errored
 
     async def reload_all_extensions(self):
