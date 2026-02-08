@@ -650,7 +650,7 @@ class UserAuthentication(commands.Cog):
 
     @commands.dm_only()
     @commands.cooldown(60, 0, commands.BucketType.user)
-    @commands.command(aliases=["role", "membro"])
+    @commands.hybrid_command(name="aplicar", aliases=["role", "membro", "aplicar_role"])
     async def aplicar_role(self, ctx: Context):
         self.logger.info(f"[{ctx.author}] Autenticação iniciada.")
 
