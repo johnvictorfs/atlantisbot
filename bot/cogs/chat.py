@@ -316,7 +316,9 @@ Aguarde uma resposta de um {pvm_teacher}.
 
     # @commands.bot_has_permissions(embed_links=True)
     @commands.hybrid_command(
-        name="atlantisbot", aliases=["atlbot", "atlbotcommands", "atlcommands"]
+        name="atlantisbot",
+        aliases=["atlbot", "atlbotcommands", "atlcommands"],
+        description="Exibe a lista de comandos disponíveis do AtlantisBot.",
     )
     async def atlantisbot(self, ctx: Context):
         runepixels_url = (
