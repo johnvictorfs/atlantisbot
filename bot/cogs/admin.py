@@ -568,19 +568,24 @@ class Admin(commands.Cog):
 
     @app_commands.check(is_pedim_or_nriver)
     @app_commands.command(name="atl-spam", description="Envia uma mensagem no privado para todos os membros do servidor")
-    async def atl_spam(self, interaction: discord.Interaction, message: str, image: discord.Attachment | None = None):
-        image_data: bytes | None = None
-        if image:
-            image_data = await image.read()
+    async def atl_spam(
+        self,
+        interaction: discord.Interaction,
+        message: str,
+        image1: discord.Attachment | None = None,
+        image2: discord.Attachment | None = None,
+        image3: discord.Attachment | None = None,
+        image4: discord.Attachment | None = None,
+        image5: discord.Attachment | None = None,
+    ):
+        attachments = [a for a in [image1, image2, image3, image4, image5] if a is not None]
+        images_data: list[tuple[bytes, str]] = [(await a.read(), a.filename) for a in attachments]
 
-        def make_file() -> discord.File | None:
-            if image_data is None:
-                return None
-            return discord.File(io.BytesIO(image_data), filename=image.filename)
+        def make_files() -> list[discord.File]:
+            return [discord.File(io.BytesIO(data), filename=name) for data, name in images_data]
 
         try:
-            file = make_file()
-            send_kwargs = {"file": file} if file else {}
+            send_kwargs = {"files": make_files()} if images_data else {}
             await interaction.user.send(f"**[TESTE - Pré-visualização da mensagem]**\n\n{message}", **send_kwargs)
         except discord.Forbidden:
             return await interaction.response.send_message(
@@ -614,8 +619,7 @@ class Admin(commands.Cog):
             if m.bot:
                 continue
             try:
-                file = make_file()
-                send_kwargs = {"file": file} if file else {}
+                send_kwargs = {"files": make_files()} if images_data else {}
                 await m.send(message, **send_kwargs)
                 sent.append(m.id)
             except Exception as e:
