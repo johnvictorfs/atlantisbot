@@ -53,6 +53,31 @@ class SpamConfirmView(discord.ui.View):
         await interaction.response.edit_message(content="Cancelado.", view=None)
 
 
+class SpamMessageModal(discord.ui.Modal, title="Mensagem do spam"):
+    message = discord.ui.TextInput(
+        label="Mensagem",
+        style=discord.TextStyle.paragraph,
+        required=True,
+        max_length=2000,
+        placeholder="Digite aqui a mensagem que será enviada para os membros.",
+    )
+
+    def __init__(self, author_id: int):
+        super().__init__(timeout=300)
+        self.author_id = author_id
+        self.message_value: str | None = None
+        self.submitted_interaction: discord.Interaction | None = None
+
+    async def on_submit(self, interaction: discord.Interaction):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("Você não pode enviar este modal.", ephemeral=True)
+            return
+
+        self.message_value = self.message.value
+        self.submitted_interaction = interaction
+        self.stop()
+
+
 class Admin(commands.Cog):
     _GIT_PULL_REGEX = re.compile(r"\s*(?P<filename>.+?)\s*\|\s*[0-9]+\s*[+-]+")
 
@@ -571,13 +596,22 @@ class Admin(commands.Cog):
     async def atl_spam(
         self,
         interaction: discord.Interaction,
-        message: str,
         image1: discord.Attachment | None = None,
         image2: discord.Attachment | None = None,
         image3: discord.Attachment | None = None,
         image4: discord.Attachment | None = None,
         image5: discord.Attachment | None = None,
     ):
+        modal = SpamMessageModal(interaction.user.id)
+        await interaction.response.send_modal(modal)
+        await modal.wait()
+
+        if not modal.submitted_interaction or modal.message_value is None:
+            return
+
+        message = modal.message_value.replace("\\n", "\n")
+        submit_interaction = modal.submitted_interaction
+
         attachments = [a for a in [image1, image2, image3, image4, image5] if a is not None]
         images_data: list[tuple[bytes, str]] = [(await a.read(), a.filename) for a in attachments]
 
@@ -588,13 +622,13 @@ class Admin(commands.Cog):
             send_kwargs = {"files": make_files()} if images_data else {}
             await interaction.user.send(f"**[TESTE - Pré-visualização da mensagem]**\n\n{message}", **send_kwargs)
         except discord.Forbidden:
-            return await interaction.response.send_message(
+            return await submit_interaction.response.send_message(
                 "Não foi possível enviar uma mensagem de teste para você. Verifique se suas DMs estão abertas.",
                 ephemeral=True,
             )
 
         view = SpamConfirmView(interaction.user.id)
-        await interaction.response.send_message(
+        await submit_interaction.response.send_message(
             "Mensagem de teste enviada no seu privado. Deseja enviá-la para **todos os membros** do servidor?",
             view=view,
             ephemeral=True,
@@ -604,14 +638,14 @@ class Admin(commands.Cog):
 
         if not view.confirmed:
             if view.confirmed is None:
-                await interaction.edit_original_response(content="Tempo esgotado. Envio cancelado.", view=None)
+                await submit_interaction.edit_original_response(content="Tempo esgotado. Envio cancelado.", view=None)
             return
 
         guild = self.bot.get_guild(self.bot.setting.server_id)
         if not guild:
-            return await interaction.edit_original_response(content="Servidor não encontrado.", view=None)
+            return await submit_interaction.edit_original_response(content="Servidor não encontrado.", view=None)
 
-        await interaction.edit_original_response(content="Enviando mensagens...", view=None)
+        await submit_interaction.edit_original_response(content="Enviando mensagens...", view=None)
 
         sent = []
         errs = []
@@ -627,7 +661,7 @@ class Admin(commands.Cog):
                 errs.append(m.id)
 
         await interaction.user.send(f"Concluído. Enviado: {len(sent)}. Erros: {len(errs)}.")
-        await interaction.edit_original_response(
+        await submit_interaction.edit_original_response(
             content=f"Concluído! Enviado para {len(sent)} membros. Erros: {len(errs)}.",
             view=None,
         )
