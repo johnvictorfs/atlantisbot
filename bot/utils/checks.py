@@ -4,10 +4,11 @@ import discord
 from bot.utils.context import Context
 
 
-async def is_pedim_or_nriver(ctx: Context):
+async def is_pedim_or_nriver(ctx_or_interaction) -> bool:
     pedim = 200029618277711873
     nriver = 148175892596785152
-    return ctx.author.id == pedim or ctx.author.id == nriver
+    user_id = ctx_or_interaction.author.id if hasattr(ctx_or_interaction, "author") else ctx_or_interaction.user.id
+    return user_id == pedim or user_id == nriver
 
 
 async def is_admin(ctx: Context):

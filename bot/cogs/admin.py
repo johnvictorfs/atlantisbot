@@ -13,6 +13,7 @@ from contextlib import redirect_stdout
 from sentry_sdk import capture_exception
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from atlantisbot_api.models import (
     AmigoSecretoState,
@@ -27,6 +28,29 @@ from atlantisbot_api.models import (
 from bot.bot_client import Bot
 from bot.utils.tools import separator, has_any_role
 from bot.utils.context import Context
+from bot.utils.checks import is_pedim_or_nriver
+
+
+class SpamConfirmView(discord.ui.View):
+    def __init__(self, author_id: int):
+        super().__init__(timeout=120)
+        self.author_id = author_id
+        self.confirmed: bool | None = None
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        return interaction.user.id == self.author_id
+
+    @discord.ui.button(label="Sim, enviar para todos", style=discord.ButtonStyle.danger)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.confirmed = True
+        self.stop()
+        await interaction.response.defer()
+
+    @discord.ui.button(label="Cancelar", style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.confirmed = False
+        self.stop()
+        await interaction.response.edit_message(content="Cancelado.", view=None)
 
 
 class Admin(commands.Cog):
@@ -534,6 +558,67 @@ class Admin(commands.Cog):
         state.active = not state.active
         state.save()
         return state.active
+
+    @commands.is_owner()
+    @commands.command(hidden=True)
+    async def sync(self, ctx: Context):
+        """Syncs slash commands to Discord."""
+        await self.bot.tree.sync()
+        await ctx.send("Slash commands sincronizados com sucesso.")
+
+    @app_commands.check(is_pedim_or_nriver)
+    @app_commands.command(name="atl-spam", description="Envia uma mensagem no privado para todos os membros do servidor")
+    async def atl_spam(self, interaction: discord.Interaction, message: str):
+        try:
+            await interaction.user.send(f"**[TESTE - Pré-visualização da mensagem]**\n\n{message}")
+        except discord.Forbidden:
+            return await interaction.response.send_message(
+                "Não foi possível enviar uma mensagem de teste para você. Verifique se suas DMs estão abertas.",
+                ephemeral=True,
+            )
+
+        view = SpamConfirmView(interaction.user.id)
+        await interaction.response.send_message(
+            "Mensagem de teste enviada no seu privado. Deseja enviá-la para **todos os membros** do servidor?",
+            view=view,
+            ephemeral=True,
+        )
+
+        await view.wait()
+
+        if not view.confirmed:
+            if view.confirmed is None:
+                await interaction.edit_original_response(content="Tempo esgotado. Envio cancelado.", view=None)
+            return
+
+        guild = self.bot.get_guild(self.bot.setting.server_id)
+        if not guild:
+            return await interaction.edit_original_response(content="Servidor não encontrado.", view=None)
+
+        await interaction.edit_original_response(content="Enviando mensagens...", view=None)
+
+        sent = []
+        errs = []
+        for m in guild.members:
+            if m.bot:
+                continue
+            try:
+                await m.send(message)
+                sent.append(m.id)
+            except Exception as e:
+                await interaction.user.send(f"Erro {m.id} {m.name}: {e}")
+                errs.append(m.id)
+
+        await interaction.user.send(f"Concluído. Enviado: {len(sent)}. Erros: {len(errs)}.")
+        await interaction.edit_original_response(
+            content=f"Concluído! Enviado para {len(sent)} membros. Erros: {len(errs)}.",
+            view=None,
+        )
+
+    @atl_spam.error
+    async def atl_spam_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CheckFailure):
+            await interaction.response.send_message("Você não tem permissão para usar este comando.", ephemeral=True)
 
 
 async def setup(bot):

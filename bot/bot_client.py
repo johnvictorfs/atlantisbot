@@ -251,6 +251,9 @@ class Bot(commands.Bot):
 
         self.disabled_commands()
 
+        await self.tree.sync()
+        print("Slash commands synced.")
+
         return errored
 
     async def reload_all_extensions(self):
