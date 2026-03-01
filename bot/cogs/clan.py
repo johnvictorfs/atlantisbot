@@ -1,5 +1,6 @@
 import rs3clans
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from bot.bot_client import Bot
@@ -110,8 +111,21 @@ class Clan(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.bot_has_permissions(embed_links=True)
-    @commands.command(aliases=["ranksupdate", "upranks", "rank"])
-    async def ranks(self, ctx: Context, *, clan: str = "Atlantis"):
+    @commands.hybrid_command(
+        aliases=["ranksupdate", "upranks", "rank"],
+        description="Mostra os ranks pendentes de atualização no clã selecionado.",
+    )
+    @app_commands.describe(clan="Escolha o clã para verificar os ranks pendentes")
+    @app_commands.choices(
+        clan=[
+            app_commands.Choice(name="Atlantis", value="atlantis"),
+            app_commands.Choice(name="Atlantis Argus", value="argus"),
+        ]
+    )
+    async def ranks(self, ctx: Context, *, clan: str = "atlantis"):
+        if getattr(ctx, "interaction", None) is None:
+            await ctx.send("Dica: use o comando de barra `/ranks` para uma melhor experiência.")
+
         if clan.lower() == "atlantis argus":
             return await ctx.send("`!rank argus` irmão")
         elif clan.lower() == "atlantis":

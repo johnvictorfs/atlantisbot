@@ -251,8 +251,11 @@ class Bot(commands.Bot):
 
         self.disabled_commands()
 
-        await self.tree.sync()
-        print("Slash commands synced.")
+        try:
+            synced = await self.tree.sync()
+            print(f"- Synced {len(synced)} application command(s).")
+        except Exception as e:
+            print(f"Failed to sync application commands: {e}")
 
         return errored
 
