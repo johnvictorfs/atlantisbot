@@ -739,15 +739,12 @@ class UserAuthentication(commands.Cog):
             ~Q(discord_id=str(ctx.author.id)), ingame_name__iexact=ingame_name.content
         ).first()
 
+        account_switch = False
         if user_ingame:
             self.logger.info(
-                f"[{ctx.author}] já existe usuário in-game autenticado com esse nome. ({user_ingame})"
+                f"[{ctx.author}] já existe usuário in-game autenticado com esse nome, permitindo account switch. ({user_ingame})"
             )
-            return await ctx.send(
-                "Já existe um Usuário do Discord autenticado com esse nome do jogo.\n"
-                "Caso seja mesmo o Dono dessa conta e acredite que outra pessoa tenha se cadastrado "
-                "com o seu nome por favor me contate aqui: <@148175892596785152>."
-            )
+            account_switch = True
 
         async with aiohttp.ClientSession() as cs:
             user_data = await get_user_data(ingame_name.content, cs)
@@ -807,6 +804,8 @@ class UserAuthentication(commands.Cog):
             worlds_requirement = random.randint(2, 3)
             if re_auth:
                 worlds_requirement = 2
+            if account_switch:
+                worlds_requirement += 3 if player_world["language"] == "pt" else 2
 
             settings = {
                 "f2p_worlds": player_world["f2p"],
@@ -1087,6 +1086,14 @@ class UserAuthentication(commands.Cog):
             )
 
             await auth_chat.send(embed=confirm_embed)
+
+        if account_switch and user_ingame:
+            user_ingame.disabled = True
+            user_ingame.warning_date = None
+            user_ingame.save()
+            self.logger.info(
+                f"[{ctx.author}] Conta anterior desabilitada após account switch. ({user_ingame})"
+            )
 
         self.logger.info(f"[{ctx.author}] Autenticação finalizada.")
 
