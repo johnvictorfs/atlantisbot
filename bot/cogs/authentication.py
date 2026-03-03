@@ -262,6 +262,49 @@ def settings_embed(settings: dict):
     return embed
 
 
+class _IngameNameModal(discord.ui.Modal, title="Autenticação - Nome no Jogo"):
+    ingame_name = discord.ui.TextInput(
+        label="Nome no jogo (RuneScape 3)",
+        placeholder="Ex: Zezinho 123",
+        min_length=1,
+        max_length=12,
+    )
+
+    def __init__(self):
+        super().__init__(timeout=300)
+        self.interaction: Optional[discord.Interaction] = None
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.interaction = interaction
+        self.stop()
+
+
+class _ConfirmView(discord.ui.View):
+    def __init__(self, author_id: int, label: str = "Confirmar", *, timeout: float = 180):
+        super().__init__(timeout=timeout)
+        self.author_id = author_id
+        self.interaction: Optional[discord.Interaction] = None
+        for item in self.children:
+            if isinstance(item, discord.ui.Button):
+                item.label = label
+                break
+
+    @discord.ui.button(label="Confirmar", style=discord.ButtonStyle.green, emoji="✅")
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message(
+                "Este botão não é para você.", ephemeral=True
+            )
+            return
+        self.interaction = interaction
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+        self.stop()
+
+    async def on_timeout(self):
+        self.stop()
+
+
 class UserAuthentication(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
@@ -716,27 +759,38 @@ class UserAuthentication(commands.Cog):
                         "Você agora é um Membro do clã autenticado no Discord."
                     )
 
-        def check(message: discord.Message):
-            return message.author == ctx.author
+        if ctx.interaction:
+            modal = _IngameNameModal()
+            await ctx.interaction.response.send_modal(modal)
+            await modal.wait()
+            if not modal.interaction:
+                self.logger.info(
+                    f"[{ctx.author}] Autenticação cancelada por Timeout (ingame_name)."
+                )
+                return
+            await modal.interaction.response.defer()
+            ingame_name_str = modal.ingame_name.value.strip()
+        else:
+            await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
+            try:
+                ingame_name_msg = await self.bot.wait_for(
+                    "message", timeout=180.0, check=lambda m: m.author == ctx.author
+                )
+            except asyncio.TimeoutError:
+                self.logger.info(
+                    f"[{ctx.author}] Autenticação cancelada por Timeout (ingame_name)."
+                )
+                return await ctx.send(
+                    f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado."
+                )
+            ingame_name_str = ingame_name_msg.content.strip()
 
-        await ctx.send(f"{ctx.author.mention}, por favor me diga o seu nome no jogo.")
-
-        try:
-            ingame_name = await self.bot.wait_for("message", timeout=180.0, check=check)
-        except asyncio.TimeoutError:
-            self.logger.info(
-                f"[{ctx.author}] Autenticação cancelada por Timeout (ingame_name)."
-            )
-            return await ctx.send(
-                f"{ctx.author.mention}, autenticação cancelada. Tempo Esgotado."
-            )
-
-        if len(ingame_name.content.strip()) > 12:
+        if len(ingame_name_str) > 12:
             return await ctx.send("Nome Inválido. Tamanho muito grande.")
 
         # Já existe outro usuário cadastrado com esse username in-game
         user_ingame = DiscordUser.objects.filter(
-            ~Q(discord_id=str(ctx.author.id)), ingame_name__iexact=ingame_name.content
+            ~Q(discord_id=str(ctx.author.id)), ingame_name__iexact=ingame_name_str
         ).first()
 
         account_switch = False
@@ -747,10 +801,10 @@ class UserAuthentication(commands.Cog):
             account_switch = True
 
         async with aiohttp.ClientSession() as cs:
-            user_data = await get_user_data(ingame_name.content, cs)
+            user_data = await get_user_data(ingame_name_str, cs)
             if not user_data:
                 self.logger.info(
-                    f"[{ctx.author}] Erro acessando API do RuneScape. ({ingame_name.content})"
+                    f"[{ctx.author}] Erro acessando API do RuneScape. ({ingame_name_str})"
                 )
                 return await ctx.send(
                     "Houve um erro ao tentar acessar a API do RuneScape. Tente novamente mais tarde."
@@ -815,19 +869,13 @@ class UserAuthentication(commands.Cog):
                 "failed_tries": 0,
             }
 
-            def confirm_check(reaction, user):
-                return user == ctx.author and str(reaction.emoji) == "✅"
-
             settings_message = await ctx.send(embed=settings_embed(settings))
+            ready_view = _ConfirmView(ctx.author.id, "Estou pronto", timeout=180)
             confirm_message = await ctx.send(
-                "Reaja nessa mensagem quando estiver pronto."
+                "Clique no botão quando estiver pronto para começar:", view=ready_view
             )
-            await confirm_message.add_reaction("✅")
-            try:
-                await self.bot.wait_for(
-                    "reaction_add", timeout=180, check=confirm_check
-                )
-            except asyncio.TimeoutError:
+            await ready_view.wait()
+            if ready_view.interaction is None:
                 self.logger.info(
                     f"[{ctx.author}] Autenticação cancelada por Timeout. ({user_data})"
                 )
@@ -854,18 +902,15 @@ class UserAuthentication(commands.Cog):
 
                 last_world = world
 
+                hop_view = _ConfirmView(ctx.author.id, "Já estou neste mundo", timeout=160)
                 message: discord.Message = await ctx.send(
                     f"{ctx.author.mention}, troque para o **Mundo {world['world']}**. "
-                    f"Reaja na mensagem quando estiver nele."
+                    f"Clique no botão quando estiver nele.",
+                    view=hop_view,
                 )
 
-                await message.add_reaction("✅")
-
-                try:
-                    await self.bot.wait_for(
-                        "reaction_add", timeout=160, check=confirm_check
-                    )
-                except asyncio.TimeoutError:
+                await hop_view.wait()
+                if hop_view.interaction is None:
                     self.logger.info(
                         f"[{ctx.author}] Autenticação cancelada por Timeout. (mundo) ({settings}) ({user_data})"
                     )
