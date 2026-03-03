@@ -592,7 +592,10 @@ class Admin(commands.Cog):
         await ctx.send("Slash commands sincronizados com sucesso.")
 
     @app_commands.check(is_pedim_or_nriver)
-    @app_commands.command(name="atl-spam", description="Envia uma mensagem no privado para todos os membros do servidor")
+    @app_commands.command(
+        name="atl-spam",
+        description="Envia uma mensagem no privado para todos os membros do servidor",
+    )
     async def atl_spam(
         self,
         interaction: discord.Interaction,
