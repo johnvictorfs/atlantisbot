@@ -796,7 +796,8 @@ class UserAuthentication(commands.Cog):
         account_switch = False
         if user_ingame:
             self.logger.info(
-                f"[{ctx.author}] já existe usuário in-game autenticado com esse nome, permitindo account switch. ({user_ingame})"
+                f"[{ctx.author}] já existe usuário in-game autenticado com esse nome, "
+                f"permitindo account switch. ({user_ingame})"
             )
             account_switch = True
 

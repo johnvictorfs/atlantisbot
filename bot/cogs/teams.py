@@ -437,7 +437,7 @@ class Teams(commands.Cog):
                 else:
                     field["value"] = answer.content
 
-                if type(field["value"]) == str and field["value"].lower() == "nenhum":
+                if isinstance(field["value"], str) and field["value"].lower() == "nenhum":
                     field["value"] = None
                 elif field["name"] == "role" or field["name"] == "role_secondary":
                     field["value"] = re.search(r"\d+", answer.content).group()
